@@ -1,315 +1,224 @@
-# PLAN-01 — Phạm vi MVP Projap
+# PLAN-02 — Phạm vi MVP Projap (v2)
 
-> Trạng thái: **Hoàn thành — chủ dự án xác nhận**. Một số Open Decision đã được chốt sau đó; xem `docs/PROJECT_SPEC.md` §12.6 và §14.
+> Trạng thái: **Chủ dự án đã chốt các quyết định** (2026-10-31). Thay thế PLAN-01 (2026-10-14).
 >
-> Ngày: 2026-10-14
+> Ngày: 2026-10-31
 >
-> Nguyên tắc: phần **Confirmed** là yêu cầu đã được người dùng xác nhận; phần **Proposed** chưa phải quyết định kiến trúc cuối cùng.
+> Nguồn chuẩn: `docs/PROJECT_SPEC.md` **Design V7**. Tài liệu này tóm tắt phạm vi MVP và điều kiện nghiệm thu; chi tiết thiết kế xem các mục spec được dẫn. Khác biệt V6 → V7: spec §17.
 
 ## 1. Mục đích tài liệu
 
-Tài liệu này định nghĩa **MVP cần giải quyết vấn đề gì và điều kiện nào chứng minh feature đã hoàn thành**. Nó không tự động chốt nhà cung cấp database, auth, deployment hoặc chi tiết data model. Những lựa chọn đó được liệt kê ở mục Open Decisions để chủ dự án quyết định trước implementation.
+Định nghĩa **MVP v0.1 làm gì, không làm gì, và thế nào là xong**. Mọi task trong kế hoạch "Tasks v2" dịch từ tài liệu này sang code.
+
+**MVP thành công khi:** một người học thật đăng nhập Google, học một từ mới qua đủ các Stage, từ đó sinh card, hôm sau card xuất hiện trong bài học để ôn, và tiến độ giống nhau trên PC và điện thoại.
 
 ## 2. Confirmed product requirements
 
-Các yêu cầu sau đã được xác nhận:
+1. Web app học **Vocabulary JLPT N5** cho người Việt; N4 làm sau.
+2. **Nhiều người học**, đăng nhập **chỉ bằng Google**; mỗi người có tiến độ, lịch ôn, settings riêng.
+3. Nội dung **cố định**, chỉ server seed; người học không import. Data N5 hoàn chỉnh đã có (kèm Hán Việt toàn từ, liên kết Kanji).
+4. **Lộ trình từ mới cố định**; nội dung mỗi ngày tính động từ review + từ đang học dở + từ mới.
+5. Một luồng hằng ngày **"Bài học hôm nay"**: review FSRS **bắt buộc**, chia thành các phiên ~5 phút, phải hoàn thành trong ngày.
+6. Mỗi từ đi qua **5 Stage**; qua Stage bằng **điểm**; **card FSRS tạo theo từng Stage**.
+7. Practice (Speed Matching) không đổi lịch FSRS nhưng **cộng điểm card**.
+8. Tiến độ bền vững sau refresh và đồng bộ PC ↔ mobile.
+9. Giữ visual language, Dark Theme, layout v0; **giữ copy tiếng Anh**.
 
-1. Đây là Personal Japanese Learning Web App cho một learner profile.
-2. Nội dung ban đầu là JLPT N5; N4 được thực hiện sau.
-3. Học cả Vocabulary và Kanji.
-4. Kanji cần readings, Hán Việt và meanings.
-5. Không ép người dùng theo chuỗi Lesson 1 → Lesson 2 cố định.
-6. Có flashcard và progressive exercise stages.
-7. Official review dùng FSRS-based spaced repetition.
-8. Learning progress phải tồn tại sau browser refresh.
-9. Progress phải đồng bộ giữa PC và mobile.
-10. Có import vocabulary bằng CSV/JSON.
-11. Có backup và restore user data.
-12. Giữ nguyên visual language, Dark Theme, typography, layout và responsive behavior của UI v0.
+## 3. Product principles
 
-Các yêu cầu trên không tự xác nhận một database provider, auth provider, hosting platform, FSRS library, import conflict policy hoặc mastery algorithm cụ thể.
+- **Học ít mỗi lần, nhớ chủ động:** phiên ~5 phút; điểm chỉ đến từ câu trả lời đúng không gợi ý, có giãn cách.
+- **Một lối vào mỗi ngày:** người học không phải tự quyết hôm nay ôn hay học; hệ thống dựng sẵn.
+- **Review trước tăng trưởng:** khi review dồn nhiều, hệ thống tự ngừng đưa từ mới (ngưỡng due).
+- **Official review khác practice:** chỉ review đổi lịch FSRS; practice chỉ cộng điểm card.
+- **Server là nguồn sự thật:** chấm điểm, rating và lịch FSRS tính trên server.
+- **Giữ UI v0:** thay data source và callback ở boundary, không viết lại component.
 
-## 3. Product principles cho MVP
+## 4. P0 scope
 
-- **Free learning, guided progression:** người học chọn Vocabulary hoặc Kanji; hệ thống chọn item/stage phù hợp mà không buộc theo lesson cố định.
-- **Skill-specific progress:** một đáp án sai không reset toàn bộ item nếu những skill khác vẫn mạnh.
-- **Official review khác practice:** FSRS review thay đổi lịch card; game/practice chỉ ghi practice result trừ khi có quyết định sản phẩm khác.
-- **Server/data source is authoritative:** refresh hoặc đổi thiết bị không được làm mất lịch và progress đã lưu.
-- **UI preservation:** thay data source và behavior ở boundary; không rewrite các v0 components đang tốt.
-- **N5 depth before N4 breadth:** chứng minh full learning loop bằng một dataset N5 nhỏ, sạch trước khi mở rộng nội dung.
+### P0-1 — Giữ và nối UI v0
 
-Hai nguyên tắc “skill-specific progress” và “practice khác official review” là **đề xuất kiến trúc sản phẩm** phù hợp mục tiêu học dài hạn; chủ dự án cần xác nhận ở Open Decisions.
+Giữ navigation, theme, typography, components; thay mock bằng dữ liệu thật; giữ copy tiếng Anh. *(Spec §11)*
 
-## 4. Proposed P0 scope
+### P0-2 — Tài khoản Google, nhiều người học, đồng bộ
 
-P0 là phạm vi tối thiểu để sản phẩm có một learning loop thật, bền vững và đồng bộ.
+- Supabase Auth với Google OAuth; lần đăng nhập đầu tạo settings mặc định.
+- RLS: bảng nội dung chỉ SELECT; bảng tiến độ, log, settings theo `auth.uid() = user_id`.
+- Service role key chỉ dùng cho seed, không bao giờ ở client. *(Spec §9.3, §10.7)*
 
-### P0-1 — Preserve và connect v0 application shell
+### P0-3 — Nội dung và seed
 
-- Giữ navigation, responsive layout, theme token, typography và các reusable UI components.
-- Thay mock imports bằng typed data/view-model boundaries theo từng feature.
-- Không yêu cầu redesign hoặc theme mới.
+- `pnpm seed`: validate toàn bộ file → dry-run báo cáo → upsert theo **ID ổn định**; báo lỗi theo dòng; idempotent.
+- Sửa nội dung = sửa file seed rồi chạy lại; không làm mất tiến độ người học.
+- Mỗi từ có: ID ổn định, `sort_order`, cách viết, kana, romaji (`gakkou`), `meaning_vi`, Hán Việt toàn từ, `is_kana_only`, `emoji` (tuỳ chọn), liên kết Kanji. *(Spec §3.9, §10.1)*
 
-### P0-2 — One learner identity và cross-device data access
+### P0-4 — Bài học hôm nay
 
-- Một learner đăng nhập an toàn và truy cập cùng profile trên PC/mobile.
-- Dữ liệu cá nhân không public dù ứng dụng được deploy trên Internet.
-- Session hết hạn có behavior rõ, không âm thầm mất mutation.
+| Bước | Nội dung |
+| --- | --- |
+| 1 | Card FSRS đến hạn, tối đa **trần review/ngày** |
+| 2 | Từ đang học dở Stage |
+| 3 | Từ mới theo lộ trình, theo quota, **chỉ khi số due đầu ngày < ngưỡng** |
 
-Lựa chọn auth/provider chưa được chốt.
+- Chia thành các phiên ~5 phút; nghỉ giữa phiên được; phải hoàn thành trong ngày.
+- Chế độ **xen kẽ** (mặc định) hoặc **review trước**.
+- Không 2 câu liền nhau cùng dạng; cùng một từ cách ≥ 4 câu; vòng boss Speed Matching 30 giây khoảng mỗi 25 câu (khi đã có ≥ 6 từ).
+- **Học thêm:** lấy từ tiếp theo, mượn quota ngày mai (tối đa 1 ngày), vẫn bị ngưỡng chặn; không kéo review sớm.
+- Refresh / đổi thiết bị: giữ kết quả đã trả lời, tạo hàng câu hỏi mới. *(Spec §6)*
 
-### P0-3 — N5 content model và library
+### P0-5 — Stage và điểm
 
-- Lưu Vocabulary: Kanji spelling nếu có, kana, romaji tùy chọn, nghĩa tiếng Việt, Hán Việt, JLPT level.
-- Lưu Kanji: character, Hán Việt, nghĩa, readings cần thiết và component/stroke metadata nếu có.
-- Quan hệ Vocabulary–Kanji ổn định.
-- Library search/filter đọc dữ liệu thật.
-- Seed ban đầu có thể giới hạn khoảng 30–50 từ và 10–20 Kanji chất lượng.
+| Stage | Nội dung | Qua stage | Card tạo ra |
+| --- | --- | --- | --- |
+| 1 | Giới thiệu kana, nghĩa, romaji | Xem xong | — |
+| 2 | Kana ↔ nghĩa, ghép kana, câu nghe | 5 điểm; có điểm từ: Kana→Meaning, Meaning→Kana, ghép kana | nghĩa – hira |
+| 3 | Giới thiệu Kanji, Hán Việt (lật thẻ) | Xem xong | hira – Hán Việt |
+| 4 | Chọn/ghép Kanji, chọn/ghép Hán Việt | 5 điểm; có điểm từ cả 4 dạng | nghĩa – Kanji; Kanji – nghĩa/Hán Việt |
+| 5 | Nhớ lại: gõ Kana; Hán Việt gõ + chọn/ghép; nghĩa ghép + chọn 1/6; Kanji ghép không gợi ý + chọn 1/6 | 5 điểm; mỗi Skill S1–S4 có điểm | nghĩa – Hán Việt |
 
-### P0-4 — CSV/JSON vocabulary import
+- Điểm: đúng **+1**, đúng nhờ hint **0**, sai **−1**; tối đa **3 điểm/stage/ngày**; hai lần tính điểm của cùng một từ cách ≥ 4 câu từ khác.
+- Từ chỉ có Kana: 1 → 2 → 5; Stage 5 chỉ yêu cầu S1, S2.
+- Katakana giữ Katakana; okurigana ghép phần Kanji, Hán Việt tính phần Kanji.
+- **Không gõ nghĩa tiếng Việt.** Gõ Romaji tự đổi Kana/Katakana (`wanakana`).
+- Romaji chỉ hiện ở Stage 1–2. *(Spec §5)*
 
-- Upload/submit file theo schema được công bố.
-- Validate encoding, required fields, enum/length và duplicate.
-- Preview kết quả trước khi ghi; báo rõ accepted/rejected rows.
-- Import lặp không tạo duplicate ngoài ý muốn.
+### P0-6 — FSRS review
 
-Import Kanji hàng loạt không được xác nhận là P0; có thể seed/manual ở MVP nếu chủ dự án đồng ý.
+- `ts-fsrs` ở lớp domain riêng.
+- Review là **bài tập do máy chấm**: sai → Again; hint → Hard; đúng → Good; Easy = đúng, không hint, < 3 giây, **chỉ bài gõ/ghép**.
+- **Điểm card:** Again −1, Hard 0, Good +1, Easy +2.
+- **Card giàn giáo:** nghĩa–hira bỏ ở **30** điểm, hira–Hán Việt bỏ ở **40** điểm (từ chỉ có Kana giữ nghĩa–hira).
+- Card cùng một từ đến hạn cùng ngày đều được hiện.
+- Server chấm và lên lịch; submit trùng không áp dụng hai lần. *(Spec §7)*
 
-### P0-5 — Free learning queue và progressive exercises
+### P0-7 — Practice
 
-- Người học chọn Vocabulary hoặc Kanji, không chọn lesson tuyến tính bắt buộc.
-- Hệ thống lấy item mới/đang học theo quota và trạng thái.
-- Reuse Flashcard, Choice, Assembly, Kanji Intro và Recall components hiện có.
-- Ghi từng attempt và skill result vào persistent storage.
-- Refresh giữa session không được biến item đã hoàn thành thành chưa từng học; chính sách resume session cần được quyết định.
+Speed Matching ở chế độ Luyện tập (60 giây) và vòng boss (30 giây). Ưu tiên từ còn card giàn giáo và từ yếu. Ghi practice log; cộng điểm card (−1 / 0 / +1); **không đổi `due`**. *(Spec §8)*
 
-### P0-6 — Skill-specific learning progress
+### P0-8 — Dashboard
 
-- Track tối thiểu các mục tiêu recall cần thiết cho Vocabulary và Kanji.
-- Stage/unlock dựa trên dữ liệu đã lưu, không chỉ component index.
-- Có cách xác định weak skill/item cho learning queue và dashboard.
-- Mastery rule phải versioned/configurable hoặc được mô tả rõ, không hard-code rải rác trong UI.
+Due hôm nay, từ đang dở, từ mới còn mở, tiến độ lộ trình (x/N từ); nút "Bắt đầu học hôm nay", "Luyện tập", "Danh sách từ". Người dùng mới thấy empty state, không thấy số mock.
 
-Chi tiết skill taxonomy và threshold chưa được chốt.
+### P0-9 — Settings (theo từng người học)
 
-### P0-7 — FSRS official review
+| Setting | Mặc định |
+| --- | --- |
+| Từ mới / ngày | 20 |
+| Tối đa review / ngày | 120 |
+| Ngưỡng due mở từ mới | 80 |
+| Chế độ | Xen kẽ |
 
-- Due queue lấy card đến hạn từ persistent storage.
-- Again/Hard/Good/Easy được tính bằng một FSRS implementation đã chọn.
-- Card state, due time và append-only review history được lưu.
-- Duplicate submission không reschedule card hai lần.
-- Server/trusted layer quyết định review time và lịch mới; browser không gửi state FSRS tùy ý.
-- Vocabulary và Kanji đều có thể tạo review card.
+### P0-10 — Library
 
-### P0-8 — Dashboard và settings tối thiểu
+Danh sách từ theo lộ trình kèm tiến độ (Stage, card, điểm); tìm theo cách viết, kana, romaji, nghĩa; **loại từ khỏi lộ trình** (chưa học: bỏ qua; đã học: card tạm ngưng) và khôi phục. Không có lối "Học từ này" ngoài lộ trình.
 
-- Dashboard hiển thị từ dữ liệu thật: due now, new quota/progress hôm nay, learned Vocabulary/Kanji và weak items tối thiểu.
-- Daily quota được lưu và đồng bộ.
-- Không yêu cầu advanced charts hoặc achievement engine trong P0.
+### P0-11 — Trải nghiệm
 
-### P0-9 — Backup và restore
+Đổi dạng câu liên tục; câu nghe và nút loa (Web Speech API, đọc Kana, ẩn khi thiết bị không có giọng Nhật); thẻ "lên stage"; lật thẻ がっこう → 学校 ở Stage 3; emoji minh họa; màn "Xong hôm nay"; phản hồi đúng/sai bằng màu và đáp án.
 
-- Export được toàn bộ dữ liệu do người dùng sở hữu cần để phục hồi learning state.
-- Backup có schema/version và timestamp.
-- Restore validate toàn file trước mutation.
-- Có preview/summary và policy conflict rõ; failure không để dữ liệu ở trạng thái nửa restore.
-- Không export password, access token hoặc provider secret.
+### P0-12 — Chất lượng và phát hành
 
-### P0-10 — Quality, responsive và deployable baseline
+Typecheck và build pass khi tắt `ignoreBuildErrors`; unit test cho domain logic (điểm, stage, card, rating, hàng đợi); CI GitHub Actions (lint, typecheck, test) và `main` chỉ merge khi CI xanh; deploy Vercel + Supabase prod tách khỏi dev; không commit secret.
 
-- Critical flow hoạt động ở desktop và mobile.
-- Có unit tests cho pure learning/FSRS logic và integration tests cho persistence boundary quan trọng.
-- Type checking là quality gate; không dựa lâu dài vào `ignoreBuildErrors`.
-- Có environment separation và không commit secrets.
+## 5. Sau MVP (P1)
 
-Hosting/deployment provider chưa được chốt trong tài liệu này.
+Module Kanji độc lập; mini-game khác (Vocabulary Matching, Assembly games, Recall Challenge, Rapid Fire); backup/export; chia vòng 10 câu, hiệu ứng/rung khi đúng, bản đồ lộ trình, ảnh minh họa thật, streak, achievements; audio cloud TTS; progress charts nâng cao.
 
-## 5. Proposed P1 scope
+## 6. Out of scope cho MVP
 
-P1 chỉ bắt đầu sau khi learning → persistence → review → sync loop P0 ổn định.
+N4–N1; Grammar, nghe hiểu, speaking; nhận dạng nét viết tay; gõ Kanji bằng IME; người học import dữ liệu; UI admin sửa nội dung; teacher/student; social, leaderboard; AI tutor; offline/PWA; native app; Light theme/redesign; microservices; gõ nghĩa tiếng Việt; học từ ngoài lộ trình.
 
-1. Nối Speed Matching với learned/unlocked items và ghi practice logs riêng.
-2. Rapid Fire thực sự, thay cho placeholder hiện tại.
-3. Recall Sprint thực sự.
-4. Weak-word prioritization tốt hơn dựa trên skill history.
-5. Progress charts, weekly activity thật và achievement system.
-6. Game settings thật sự ảnh hưởng game và được persist.
-7. Advanced import history, downloadable rejection report và undo import có kiểm soát.
-8. Richer backup management: danh sách backup, compare và selective restore.
-9. Content-management workflow tiện hơn cho developer, nếu import file P0 chưa đủ.
-
-N4 không nằm trong P1 mặc định của MVP này vì requirement nói “N4 later”; thời điểm bắt đầu N4 là product decision riêng.
-
-## 6. Out-of-scope cho MVP
-
-- JLPT N4–N1 content expansion.
-- Grammar course, Listening, speaking/pronunciation scoring.
-- Handwriting/stroke recognition.
-- Teacher/student, admin portal hoặc multi-profile household.
-- Social features, leaderboard, friend challenge.
-- Fully adaptive AI tutor hoặc generated curriculum.
-- Offline-first/PWA conflict resolution.
-- Native mobile application.
-- Light/Kawaii theme hoặc redesign v0.
-- Advanced analytics/BI.
-- Memorize toàn bộ On'yomi/Kun'yomi của mỗi Kanji ngay trong MVP.
-- Microservices hoặc separate backend chỉ để tăng độ phức tạp kiến trúc.
-
-## 7. End-to-end learning flow đề xuất
+## 7. Luồng học end-to-end
 
 ```text
-Sign in
+Đăng nhập Google
   │
   v
-Dashboard đọc profile, quota, due cards và current progress
+Dashboard: due hôm nay · từ dở · từ mới · tiến độ lộ trình
   │
-  ├── Review due cards ──> FSRS rating ──> card + review history được lưu
+  v
+"Bắt đầu học hôm nay" → dựng nội dung ngày (due ≤ 120 → từ dở → từ mới nếu due < 80)
   │
-  └── Learn Vocabulary/Kanji
-          │
-          v
-      Free learning queue chọn item phù hợp
-          │
-          v
-      Flashcard → Recognition → Assembly → Recall
-          │
-          v
-      Ghi attempt + cập nhật đúng skill progress
-          │
-          v
-      Unlock stage/card khi rule được thỏa
-          │
-          v
-      Dashboard/due queue phản ánh dữ liệu mới trên PC và mobile
+  v
+Phiên ~5 phút (xen kẽ câu review + câu học, vòng boss)
+  │        ├─ Câu review → chấm → rating → FSRS + điểm card → review log
+  │        └─ Câu học    → chấm → điểm stage → qua stage → tạo card → attempt log
+  v
+Hết phiên → nghỉ / phiên tiếp ──> hết ngày → "Xong hôm nay" → (Học thêm)
+  │
+  v
+Dữ liệu trên server → PC và mobile thấy cùng tiến độ
 ```
 
-Flow nội dung hỗ trợ:
+## 8. Acceptance criteria
 
-```text
-CSV/JSON → validate → preview → import transaction → Vocabulary/Kanji relation
-Backup request → versioned export
-Restore file → validate toàn bộ → preview conflict → atomic restore/merge
-```
+### Tài khoản và bảo mật
 
-## 8. Acceptance criteria cho từng P0 feature
+- [ ] Hai tài khoản Google khác nhau đăng nhập được và không đọc/ghi được dữ liệu của nhau.
+- [ ] Người chưa đăng nhập không đọc/ghi learner data; client không ghi được bảng nội dung.
+- [ ] Không có service role key trong Git hoặc client bundle.
 
-### P0-1 — UI preservation
+### Nội dung
 
-- Tất cả route v0 đang dùng vẫn render được trên desktop/mobile.
-- Dark Theme token, typography và navigation không bị thay bằng design mới.
-- Learning/Review/Speed Matching components không bị rewrite nếu chỉ cần đổi data/callback.
-- Không còn production screen đọc trực tiếp `lib/mock-data.ts` sau khi feature tương ứng được chuyển đổi.
+- [ ] `pnpm seed` chạy 2 lần không tăng số record.
+- [ ] Sửa một nghĩa trong file seed rồi chạy lại: DB cập nhật, tiến độ người học còn nguyên.
 
-### P0-2 — Identity và sync
+### Bài học hôm nay
 
-- Người chưa xác thực không đọc hoặc sửa learner data.
-- Cùng một tài khoản trên PC và mobile thấy cùng progress sau reload.
-- Mutation luôn gắn với identity trusted; client không thể chọn tùy ý owner ID.
-- Secret/server credential không xuất hiện trong client bundle hoặc Git.
+- [ ] Nội dung ngày đúng thứ tự due → từ dở → từ mới; tôn trọng trần review, quota, ngưỡng và chế độ.
+- [ ] Ví dụ (ngưỡng 80, trần 120): 50 due → 50 review + 20 từ mới; 100 due → 0 từ mới; 150 due → 120 review, 30 sang hôm sau.
+- [ ] Nghỉ giữa các phiên không mất tiến độ trong ngày; refresh không chấm lại câu đã trả lời.
+- [ ] Không có 2 câu liền nhau cùng dạng; cùng một từ cách ≥ 4 câu.
+- [ ] "Học thêm" trừ đúng vào quota ngày mai, tối đa 1 ngày.
 
-### P0-3 — Content model/library
+### Stage và điểm
 
-- Tìm được Vocabulary bằng spelling, kana, romaji hoặc nghĩa; tìm Kanji bằng character, Hán Việt hoặc nghĩa.
-- Vocabulary–Kanji relation không phụ thuộc vào display text dễ thay đổi.
-- Dataset N5 ban đầu qua validation và không có duplicate theo policy đã chốt.
-- UI hiển thị đúng tiếng Nhật, Hán Việt và nghĩa tiếng Việt.
+- [ ] `学校` đi 1 → 2 → 3 → 4 → 5 và tạo đúng 5 loại card ở đúng stage.
+- [ ] `テレビ` đi 1 → 2 → 5, chỉ có card nghĩa – hira và giữ nó.
+- [ ] Đúng liên tiếp nhiều câu cùng một từ trong vài phút chỉ được +1; một stage không quá 3 điểm/ngày.
+- [ ] Không qua stage khi còn yêu cầu bắt buộc chưa có điểm.
+- [ ] Sai trừ điểm stage nhưng không làm lùi stage.
 
-### P0-4 — Import
+### FSRS và Practice
 
-- File CSV và JSON hợp lệ cho preview đúng số row trước khi ghi.
-- Row lỗi có reason và row number/path rõ.
-- File malformed/oversized bị từ chối an toàn.
-- Import cùng file hai lần tuân theo duplicate policy đã chốt.
-- Failure giữa transaction không để lại import một phần không được báo cáo.
+- [ ] Rating suy ra đúng từ kết quả chấm; bài trắc nghiệm không bao giờ ra Easy.
+- [ ] Submit trùng không áp dụng hai lần; review log được append.
+- [ ] Card giàn giáo bị bỏ đúng ở 30 / 40 điểm card.
+- [ ] Practice và vòng boss không đổi `due` nhưng cộng điểm card.
 
-### P0-5 — Progressive learning
+### Library và Settings
 
-- Người học bắt đầu session từ Vocabulary hoặc Kanji mà không phải hoàn thành lesson cố định.
-- Ít nhất Flashcard, Choice, Assembly và Recall chạy bằng dữ liệu thật.
-- Kết quả mỗi step được persist và phản ánh sau refresh.
-- Session không unlock item/stage trái rule đã chốt.
+- [ ] Tìm từ theo cách viết, kana, romaji, nghĩa.
+- [ ] Loại từ chưa học → lộ trình bỏ qua; loại từ đã học → card không xuất hiện; khôi phục hoạt động.
+- [ ] Settings giữ nguyên khi đổi thiết bị.
 
-### P0-6 — Skill progress
+### UI và chất lượng
 
-- Mỗi attempt cập nhật đúng item/skill, không reset skill khác ngoài ý muốn.
-- Weak item/skill được suy ra từ persisted evidence, không từ constant `strength` mock.
-- Progress tổng hợp có thể truy vết về attempts/reviews.
-- Logic có unit tests cho correct, incorrect, duplicate và boundary cases.
+- [ ] Học trên PC, mở điện thoại thấy đúng tiến độ.
+- [ ] Không overflow ngang ở 320–390 px; gõ Romaji ra Kana/Katakana trên bàn phím điện thoại.
+- [ ] Nút loa đọc được hoặc tự ẩn khi thiết bị không có giọng Nhật.
+- [ ] Không màn hình production nào import `lib/mock-data.ts`; CI xanh.
 
-### P0-7 — FSRS review
+## 9. Quyết định còn mở
 
-- Due queue chỉ chứa card đến hạn theo clock/timezone policy đã chốt.
-- Mỗi rating tạo đúng card state/due date theo FSRS version đã chọn.
-- Review history được append; refresh không mất history.
-- Gửi lặp cùng event không áp dụng rating hai lần.
-- Hai thiết bị submit cạnh tranh không âm thầm ghi đè card bằng stale state.
-- Practice/game attempt không reschedule official card nếu separation proposal được duyệt.
+Chi tiết: `docs/PROJECT_SPEC.md` §14 (các dòng không có ✅).
 
-### P0-8 — Dashboard/settings
+- Công thức "từ yếu" / skill strength (OD-10).
+- Kỹ thuật: atomic review bằng Postgres RPC hay transaction ở server (OD-16); test stack (OD-21); mức chấm trên server (OD-24); giữ hay bỏ Vercel Analytics (OD-25).
+- Ưu tiên từ nào trong số từ đang học dở; số câu mỗi phiên ~5 phút.
+- Furigana; tham số FSRS (desired retention) — MVP dùng mặc định.
 
-- Due, learned count, daily progress và weak items khớp persisted data.
-- Daily quota lưu qua refresh và đồng bộ thiết bị.
-- Empty/new-user state không hiển thị số mock.
-- Dashboard không cần advanced chart để đạt P0.
+## 10. Nhật ký quyết định (so với PLAN-01)
 
-### P0-9 — Backup/restore
-
-- Backup mới có schema version, export time và learner-owned data cần thiết.
-- Restore backup vừa export có thể tái tạo cùng content/progress/review state theo policy.
-- Invalid hoặc unsupported version không làm đổi data.
-- Người dùng nhìn thấy summary trước khi xác nhận restore.
-- Restore có test cho success, invalid file, duplicate/conflict và transaction failure.
-
-### P0-10 — Quality/release baseline
-
-- Typecheck và production build pass mà không cần bỏ qua TypeScript errors.
-- Critical E2E: sign in → learn → refresh → review → mở thiết bị/browser khác → thấy state mới.
-- Viewport mobile thông dụng không horizontal overflow ở critical flow.
-- Không có credential trong tracked files hoặc browser console.
-
-## 9. Open architecture/product decisions
-
-Các câu hỏi dưới đây cần chủ dự án quyết định. Implementation không nên tự chọn ngầm.
-
-### Quyết định kiến trúc
-
-1. **Data/auth platform:** Supabase PostgreSQL + Auth + RLS, hay Next.js với một hosted database/auth stack khác?
-2. **Authentication UX:** email/password, magic link hay provider login? Làm sao giới hạn app về đúng một learner account khi deploy public?
-3. **Server boundary:** dùng Server Actions cho internal UI mutations và Route Handlers chỉ cho import/export, hay chọn API contract khác?
-4. **FSRS library/version:** chọn `ts-fsrs` hay implementation khác? Ai sở hữu adapter và parameter version?
-5. **Atomic review:** transaction/RPC/row-lock được thực hiện ở database hay application layer nào?
-6. **Time policy:** timezone nghiệp vụ, thời điểm server chuẩn và định nghĩa “ngày học” là gì?
-7. **Deployment:** Vercel/Supabase Cloud hay nền tảng khác; region nào gần người dùng?
-8. **Environment strategy:** local/preview/production dùng database/project riêng đến mức nào?
-
-### Quyết định learning/product
-
-9. **Skill taxonomy:** Vocabulary và Kanji cần những skill/card type cụ thể nào trong P0?
-10. **Unlock/mastery rule:** bao nhiêu evidence và khoảng thời gian nào để unlock stage/card?
-11. **New-item selection:** random, weak prerequisite, frequency hay user chọn tự do?
-12. **Daily quota:** quota chung hay tách new Vocabulary/new Kanji/review?
-13. **Session resume:** refresh giữa session tiếp tục đúng step hay chỉ giữ completed attempt rồi tạo session mới?
-14. **Practice separation:** xác nhận game/practice không reschedule FSRS, chỉ ảnh hưởng weak-skill signal nếu có.
-15. **Kanji readings:** lưu toàn bộ On/Kun hay chỉ context-relevant readings cho N5 MVP?
-
-### Quyết định import/backup
-
-16. **Duplicate identity:** Vocabulary duplicate theo spelling+kana, external stable ID hay quy tắc khác?
-17. **Import conflict:** skip, update hay reject existing row? Field nào được phép update?
-18. **Kanji import:** cần UI/import file ở P0 hay seed/manual migration là đủ?
-19. **Backup scope:** bao gồm master content do app cung cấp hay chỉ learner-owned/progress data?
-20. **Restore semantics:** replace toàn bộ, merge, hay cho chọn; có cần automatic pre-restore backup không?
-21. **Backup security:** JSON plaintext download có đủ hay cần encryption/password?
-
-## 10. Decision gate trước implementation
-
-Không cần giải quyết toàn bộ 21 câu hỏi cùng lúc. Trước khi bắt đầu vertical slice đầu tiên, tối thiểu cần chốt:
-
-1. Data/auth platform và one-account strategy.
-2. Skill/card taxonomy tối thiểu.
-3. FSRS library + server-authoritative transaction boundary.
-4. Import duplicate/update policy.
-5. Backup/restore semantics.
-6. Timezone và study-day boundary.
-
-Sau khi chốt, các quyết định kiến trúc quan trọng nên được ghi thành ADR riêng thay vì chỉnh ngầm trong tài liệu scope.
+| PLAN-01 (14/10) | PLAN-02 (31/10) |
+| --- | --- |
+| Một learner profile | Nhiều người học, đăng nhập Google |
+| Không lesson cố định, free learning | Lộ trình từ mới cố định; nội dung ngày động |
+| Import CSV/JSON (P0-4) | Chỉ server seed; người học không import |
+| Backup/restore (P0-9) | Sau MVP |
+| Học và review tách rời | Gộp thành "Bài học hôm nay", review bắt buộc |
+| Mastery rule chưa chốt | 5 điểm stage, giãn cách, tối đa 3 điểm/stage/ngày |
+| Card taxonomy chưa chốt | 5 loại card, tạo theo stage, card giàn giáo bỏ theo điểm |
+| Kanji học chung trong MVP | Module Kanji độc lập sau MVP |
+| Practice ở P1 | Speed Matching ở P0 (cả vòng boss) |
+| Không có phát âm | Web Speech API |
+| Release 19/11 | Release mục tiêu 30/11 |
