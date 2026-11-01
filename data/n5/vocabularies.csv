@@ -1,0 +1,913 @@
+code,sort_order,expression,reading_kana,meaning_vi,romaji,han_viet,is_kana_only,jlpt_level
+n5-0001,1,私,わたし,tôi,,TƯ,false,5
+n5-0002,2,私たち,わたしたち,chúng tôi,,TƯ,false,5
+n5-0003,3,あなた,あなた,anh; chị; ông; bà; bạn (ngôi thứ 2 số ít),,,true,5
+n5-0004,4,あの人,あのひと,người kia,,NHÂN,false,5
+n5-0005,5,あの方,あのかた,vị kia (cách nói lịch sự của あのひと),,PHƯƠNG,false,5
+n5-0006,6,みなさん,みなさん,các bạn; các anh; các chị; mọi người,,,true,5
+n5-0007,7,さん,さん,anh ~; chị ~; ông ~; bà ~ (cách gọi người khác 1 cách lịch sự),,,true,5
+n5-0008,8,ちゃん,ちゃん,bé (dùng cho nữ) hoặc gọi thân mật cho trẻ con (cả nam lẫn nữ),,,true,5
+n5-0009,9,くん,くん,bé (dùng cho nam) hoặc gọi thân mật,,,true,5
+n5-0010,10,人,じん,người nước ~,,NHÂN,false,5
+n5-0011,11,先生,せんせい,giáo viên; bác sĩ,,TIÊN SINH,false,5
+n5-0012,12,教師,きょうし,giáo viên (dùng để nói đến nghề nghiệp),,GIÁO SƯ,false,5
+n5-0013,13,学生,がくせい,học sinh; sinh viên,,HỌC SINH,false,5
+n5-0014,14,会社員,かいしゃいん,nhân viên công ty,,HỘI XÃ VIÊN,false,5
+n5-0015,15,社員,しゃいん,nhân viên công ty ~,,XÃ VIÊN,false,5
+n5-0016,16,銀行員,ぎんこういん,nhân viên ngân hàng,,NGÂN HÀNH VIÊN,false,5
+n5-0017,17,医者,いしゃ,bác sĩ,,Y GIẢ,false,5
+n5-0018,18,研究者,けんきゅうしゃ,nhà nghiên cứu,,NGHIÊN CỨU GIẢ,false,5
+n5-0019,19,エンジニア,エンジニア,kỹ sư,,,true,5
+n5-0020,20,大学,だいがく,trường đại học,,ĐẠI HỌC,false,5
+n5-0021,21,病院,びょういん,bệnh viện,,BỆNH VIỆN,false,5
+n5-0022,22,電気,でんき,điện; đèn điện,,ĐIỆN KHÍ,false,5
+n5-0023,23,誰,だれ,ai (ngài nào; vị nào),,THUỲ,false,5
+n5-0024,24,歳,さい,tuổi,,TUẾ,false,5
+n5-0025,25,何歳,なんさい,mấy tuổi,,HÀ TUẾ,false,5
+n5-0026,26,はい,はい,vâng,,,true,5
+n5-0027,27,いいえ,いいえ,không,,,true,5
+n5-0028,28,失礼ですが,しつれいですが,xin lỗi (khi muốn nhờ ai việc gì đó),,THẤT LỄ,false,5
+n5-0029,29,お名前は,おなまえは,bạn tên gì?,,DANH TIỀN,false,5
+n5-0030,30,はじめまして,はじめまして,chào lần đầu gặp nhau,,,true,5
+n5-0031,31,どうぞよろしく,どうぞよろしく,rất hân hạnh được làm quen,,,true,5
+n5-0032,32,から来ました,からきました,đến từ ~,,LAI,false,5
+n5-0033,33,アメリカ,アメリカ,Mỹ,,,true,5
+n5-0034,34,イギリス,イギリス,Anh,,,true,5
+n5-0035,35,インド,インド,Ấn Độ,,,true,5
+n5-0036,36,インドネシア,インドネシア,Indonesia,,,true,5
+n5-0037,37,韓国,かんこく,Hàn Quốc,,HÀN QUỐC,false,5
+n5-0038,38,タイ,タイ,Thái Lan,,,true,5
+n5-0039,39,中国,ちゅうごく,Trung Quốc,,TRUNG QUỐC,false,5
+n5-0040,40,ドイツ,ドイツ,Đức,,,true,5
+n5-0041,41,日本,にほん,Nhật,,NHẬT BẢN,false,5
+n5-0042,42,フランス,フランス,Pháp,,,true,5
+n5-0043,43,ブラジル,ブラジル,Brazil,,,true,5
+n5-0044,44,さくら大学,さくらだいがく,trường ĐH Sakura (Hoa Anh Đào),,ĐẠI HỌC,false,5
+n5-0045,45,これ,これ,cái này; đây (vật ở gần người nói),,,true,5
+n5-0046,46,それ,それ,cái đó; đó (vật ở gần người nghe),,,true,5
+n5-0047,47,あれ,あれ,cái kia; kia (vật ở xa cả người nói và người nghe); ô! (câu cảm thán khi phát hiện hoặc thấy cái gì đó lạ; hoặc bất ngờ),,,true,5
+n5-0048,48,この,この,~ này,,,true,5
+n5-0049,49,その,その,~ đó,,,true,5
+n5-0050,50,あの,あの,~ kia,,,true,5
+n5-0051,51,本,ほん,sách,,BẢN,false,5
+n5-0052,52,辞書,じしょ,từ điển,,TỪ THƯ,false,5
+n5-0053,53,雑誌,ざっし,tạp chí,,TẠP CHÍ,false,5
+n5-0054,54,新聞,しんぶん,báo,,TÂN VĂN,false,5
+n5-0055,55,ノート,ノート,vở,,,true,5
+n5-0056,56,手帳,てちょう,sổ tay,,THỦ TRƯỚNG,false,5
+n5-0057,57,名刺,めいし,danh thiếp,,DANH THÍCH,false,5
+n5-0058,58,カード,カード,thẻ; cạc,,,true,5
+n5-0059,59,テレホンカード,テレホンカード,thẻ điện thoại,,,true,5
+n5-0060,60,鉛筆,えんぴつ,bút chì,,DUYÊN BÚT,false,5
+n5-0061,61,ボールペン,ボールペン,bút bi,,,true,5
+n5-0062,62,シャープペンシル,シャープペンシル,bút chì kim; bút chì bấm,,,true,5
+n5-0063,63,かぎ,かぎ,chìa khóa,,,true,5
+n5-0064,64,時計,とけい,đồng hồ,,THỜI KẾ,false,5
+n5-0065,65,傘,かさ,ô; dù,,TẢN,false,5
+n5-0066,66,かばん,かばん,cặp sách; túi sách,,,true,5
+n5-0067,67,テープ,テープ,băng [cát-xét],,,true,5
+n5-0068,68,テープレコーダー,テープレコーダー,máy ghi âm,,,true,5
+n5-0069,69,テレビ,テレビ,tivi,,,true,5
+n5-0070,70,ラジオ,ラジオ,radio,,,true,5
+n5-0071,71,カメラ,カメラ,máy ảnh,,,true,5
+n5-0072,72,コンピュータ,コンピュータ,máy vi tính,,,true,5
+n5-0073,73,自動車,じどうしゃ,ô tô; xe hơi,,TỰ ĐỘNG XA,false,5
+n5-0074,74,机,つくえ,cái bàn,,KỶ,false,5
+n5-0075,75,いす,いす,ghế,,,true,5
+n5-0076,76,チョコレート,チョコレート,chocolate,,,true,5
+n5-0077,77,コーヒー,コーヒー,cà phê,,,true,5
+n5-0078,78,英語,えいご,tiếng Anh,,ANH NGỮ,false,5
+n5-0079,79,日本語,にほんご,tiếng Nhật,,NHẬT BẢN NGỮ,false,5
+n5-0080,80,語,ご,tiếng~,,NGỮ,false,5
+n5-0081,81,何,なん,cái gì,,HÀ,false,5
+n5-0082,82,そう,そう,đúng vậy,,,true,5
+n5-0083,83,違います,ちがいます,nhầm rồi,,VI,false,5
+n5-0084,84,そうですか,そうですか,thế à?,,,true,5
+n5-0085,85,あのう,あのう,à... (được sử dụng để thể hiện sự do dự),,,true,5
+n5-0086,86,ほんの気持ちです,ほんのきもちです,đây là chút quà nhỏ của tôi,,KHÍ TRÌ,false,5
+n5-0087,87,どうぞ,どうぞ,xin mời,,,true,5
+n5-0088,88,どうも,どうも,cảm ơn,,,true,5
+n5-0089,89,ありがとう,ありがとう,cảm ơn nhiều,,,true,5
+n5-0090,90,これからお世話になります,これからおせわになります,từ nay mong được anh; chị giúp đỡ,,THẾ THOẠI,false,5
+n5-0091,91,こちらこそよろしく,こちらこそよろしく,chính tôi mới mong được anh; chị giúp đỡ,,,true,5
+n5-0092,92,ここ,ここ,chỗ này; đây,,,true,5
+n5-0093,93,そこ,そこ,chỗ đó; đó,,,true,5
+n5-0094,94,あそこ,あそこ,chỗ kia; kia,,,true,5
+n5-0095,95,どこ,どこ,chỗ nào; đâu,,,true,5
+n5-0096,96,こちら,こちら,phía này; đằng này; chỗ này; đây (là cách nói lịch sự của ここ); cái này (cách nói lịch sự của “これ”),,,true,5
+n5-0097,97,そちら,そちら,phía đó; đằng đó; chỗ đó; đó (là cách nói lịch sự của そこ),,,true,5
+n5-0098,98,あちら,あちら,phía kia; đằng kia; chỗ kia; kia (cách nói lịch sự của あそこ),,,true,5
+n5-0099,99,どちら,どちら,phía nào; đằng nào; chỗ nào; đâu (cách nói lịch sự của どこ); cái nào,,,true,5
+n5-0100,100,教室,きょうしつ,lớp học; phòng học,,GIÁO THẤT,false,5
+n5-0101,101,食堂,しょくどう,nhà ăn,,THỰC ĐƯỜNG,false,5
+n5-0102,102,事務所,じむしょ,văn phòng,,SỰ VỤ SỞ,false,5
+n5-0103,103,会議室,かいぎしつ,phòng họp,,HỘI NGHỊ THẤT,false,5
+n5-0104,104,受付,うけつけ,bộ phận tiếp tân; phòng thường trực; lễ tân,,THỤ PHÓ,false,5
+n5-0105,105,ロビー,ロビー,hành lang; đại sảnh,,,true,5
+n5-0106,106,部屋,へや,căn phòng,,BỘ ỐC,false,5
+n5-0107,107,トイレ,トイレ,nhà vệ sinh; phòng vệ sinh; toa-lét,,,true,5
+n5-0108,108,階段,かいだん,cầu thang,,GIAI ĐOẠN,false,5
+n5-0109,109,エレベーター,エレベーター,thang máy,,,true,5
+n5-0110,110,エスカレーター,エスカレーター,thang cuốn,,,true,5
+n5-0111,111,お国,おくに,đất nước,,QUỐC,false,5
+n5-0112,112,会社,かいしゃ,công ty,,HỘI XÃ,false,5
+n5-0113,113,うち,うち,nhà,,,true,5
+n5-0114,114,電話,でんわ,máy điện thoại; điện thoại,,ĐIỆN THOẠI,false,5
+n5-0115,115,靴,くつ,giày,,NGOA,false,5
+n5-0116,116,ネクタイ,ネクタイ,cà vạt,,,true,5
+n5-0117,117,ワイン,ワイン,rượu vang,,,true,5
+n5-0118,118,たばこ,たばこ,thuốc lá,,,true,5
+n5-0119,119,売り場,うりば,quầy bán (trong một cửa hàng bách hóa),,MẠI TRƯỜNG,false,5
+n5-0120,120,地下,ちか,tầng hầm; dưới mặt đất,,ĐỊA HẠ,false,5
+n5-0121,121,階,かい,tầng thứ –,,GIAI,false,5
+n5-0122,122,何階,なんがい,tầng mấy,,HÀ GIAI,false,5
+n5-0123,123,円,えん,yên,,VIÊN,false,5
+n5-0124,124,いくら,いくら,bao nhiêu tiền; cho dù; thế nào,,,true,5
+n5-0125,125,百,ひゃく,trăm,,BÁCH,false,5
+n5-0126,126,千,せん,nghìn,,THIÊN,false,5
+n5-0127,127,万,まん,mười nghìn; vạn,,VẠN,false,5
+n5-0128,128,すみません,すみません,xin lỗi,,,true,5
+n5-0129,129,でございます,でございます,(cách nói lịch sự của 「です」),,,true,5
+n5-0130,130,見せてください,みせてください,cho tôi xem [~],,KIẾN,false,5
+n5-0131,131,じゃ,じゃ,thế thì; vậy thì; hẹn gặp lại [ngày mai].,,,true,5
+n5-0132,132,ください,ください,cho tôi [~],,,true,5
+n5-0133,133,新大阪,しんおおさか,tên một nhà ga ở Osaka,,TÂN ĐẠI BẢN,false,5
+n5-0134,134,イタリア,イタリア,Ý,,,true,5
+n5-0135,135,スイス,スイス,Thụy Sĩ,,,true,5
+n5-0136,136,おきます,おきます,thức dậy,,,true,5
+n5-0137,137,寝ます,ねます,ngủ,,TẨM,false,5
+n5-0138,138,働きます,はたらきます,làm việc,,ĐỘNG,false,5
+n5-0139,139,休みます,やすみます,nghỉ ngơi,,HƯU,false,5
+n5-0140,140,勉強します,べんきょうします,học tập,,MIỄN CƯỜNG,false,5
+n5-0141,141,終わります,おわります,kết thúc,,CHUNG,false,5
+n5-0142,142,デパート,デパート,cửa hàng bách hóa,,,true,5
+n5-0143,143,銀行,ぎんこう,ngân hàng,,NGÂN HÀNH,false,5
+n5-0144,144,郵便局,ゆうびんきょく,bưu điện,,BƯU TIỆN CỤC,false,5
+n5-0145,145,図書館,としょかん,thư viện,,ĐỒ THƯ QUÁN,false,5
+n5-0146,146,美術館,びじゅつかん,viện bảo tàng,,MỸ THUẬT QUÁN,false,5
+n5-0147,147,電話番号,でんわばんごう,số điện thoại,,ĐIỆN THOẠI PHIÊN HIỆU,false,5
+n5-0148,148,何番,なんばん,số mấy,,HÀ PHIÊN,false,5
+n5-0149,149,今,いま,bây giờ,,KIM,false,5
+n5-0150,150,時,じ,~giờ,,THỜI,false,5
+n5-0151,151,分,ふん,~phút,,PHÂN,false,5
+n5-0152,152,半,はん,phân nửa,,BÁN,false,5
+n5-0153,153,何時,なんじ,mấy giờ,,HÀ THỜI,false,5
+n5-0154,154,何分,なんぷん,mấy phút,,HÀ PHÂN,false,5
+n5-0155,155,午前,ごぜん,sáng (AM: trước 12 giờ),,NGỌ TIỀN,false,5
+n5-0156,156,午後,ごご,chiều (PM: sau 12 giờ),,NGỌ HẬU,false,5
+n5-0157,157,朝,あさ,sáng,,TRIÊU,false,5
+n5-0158,158,昼,ひる,trưa,,TRÚ,false,5
+n5-0159,159,晩,ばん,tối,,VÃN,false,5
+n5-0160,160,夜,よる,tối,,DẠ,false,5
+n5-0161,161,おととい,おととい,ngày hôm kia,,,true,5
+n5-0162,162,きのう,きのう,ngày hôm qua,,,true,5
+n5-0163,163,今日,きょう,hôm nay,,KIM NHẬT,false,5
+n5-0164,164,明日,あした,ngày mai,,MINH NHẬT,false,5
+n5-0165,165,あさって,あさって,ngày mốt,,,true,5
+n5-0166,166,今朝,けさ,sáng nay,,KIM TRIÊU,false,5
+n5-0167,167,こんばん,こんばん,tối nay,,,true,5
+n5-0168,168,ゆうべ,ゆうべ,tối hôm qua,,,true,5
+n5-0169,169,休み,やすみ,nghỉ ngơi (danh từ),,HƯU,false,5
+n5-0170,170,昼休み,ひるやすみ,nghỉ trưa,,TRÚ HƯU,false,5
+n5-0171,171,毎朝,まいあさ,mỗi sáng,,MỖI TRIÊU,false,5
+n5-0172,172,毎晩,まいばん,mỗi tối,,MỖI VÃN,false,5
+n5-0173,173,毎日,まいにち,mỗi ngày,,MỖI NHẬT,false,5
+n5-0174,174,ペキン,ペキン,Bắc Kinh,,,true,5
+n5-0175,175,バンコク,バンコク,Bangkok,,,true,5
+n5-0176,176,ロンドン,ロンドン,Luân Đôn,,,true,5
+n5-0177,177,ロサンゼルス,ロサンゼルス,Los Angeles,,,true,5
+n5-0178,178,大変ですね,たいへんですね,vất vả nhỉ,,ĐẠI BIẾN,false,5
+n5-0179,179,ばんごうあんない,ばんごうあんない,dịch vụ 116 (hỏi số điện thoại),,,true,5
+n5-0180,180,おといあわせ,おといあわせ,(số điện thoại) bạn muốn biết; hỏi là,,,true,5
+n5-0181,181,番線,ばんせん,sân ga số –,,PHIÊN TUYẾN,false,5
+n5-0182,182,行きます,いきます,đi,,HÀNH,false,5
+n5-0183,183,来ます,きます,đến,,LAI,false,5
+n5-0184,184,帰ります,かえります,về,,QUY,false,5
+n5-0185,185,学校,がっこう,trường học,,HỌC HIỆU,false,5
+n5-0186,186,スーパー,スーパー,siêu thị,,,true,5
+n5-0187,187,駅,えき,ga; nhà ga,,DỊCH,false,5
+n5-0188,188,飛行機,ひこうき,máy bay,,PHI HÀNH CƠ,false,5
+n5-0189,189,船,ふね,thuyền; tàu thủy,,THUYỀN,false,5
+n5-0190,190,電車,でんしゃ,tàu điện,,ĐIỆN XA,false,5
+n5-0191,191,地下鉄,ちかてつ,tàu điện ngầm,,ĐỊA HẠ THIẾT,false,5
+n5-0192,192,新幹線,しんかんせん,tàu Shinkansen (tàu điện siêu tốc của Nhật),,TÂN CÁN TUYẾN,false,5
+n5-0193,193,バス,バス,xe buýt,,,true,5
+n5-0194,194,タクシー,タクシー,tắc-xi,,,true,5
+n5-0195,195,自転車,じてんしゃ,xe đạp,,TỰ CHUYỂN XA,false,5
+n5-0196,196,歩いて,あるいて,đi bộ,,BỘ,false,5
+n5-0197,197,人,ひと,người,,NHÂN,false,5
+n5-0198,198,友達,ともだち,bạn; bạn bè,,HỮU ĐẠT,false,5
+n5-0199,199,彼,かれ,anh ấy; bạn trai,,BỈ,false,5
+n5-0200,200,彼女,かのじょ,chị ấy; bạn gái,,BỈ NỮ,false,5
+n5-0201,201,家族,かぞく,gia đình,,GIA TỘC,false,5
+n5-0202,202,先週,せんしゅう,tuần trước,,TIÊN CHU,false,5
+n5-0203,203,今週,こんしゅう,tuần này,,KIM CHU,false,5
+n5-0204,204,来週,らいしゅう,tuần sau,,LAI CHU,false,5
+n5-0205,205,先月,せんげつ,tháng trước,,TIÊN NGUYỆT,false,5
+n5-0206,206,今月,こんげつ,tháng này,,KIM NGUYỆT,false,5
+n5-0207,207,来月,らいげつ,tháng sau,,LAI NGUYỆT,false,5
+n5-0208,208,去年,きょねん,năm ngoái,,KHỨ NIÊN,false,5
+n5-0209,209,ことし,ことし,năm nay,,,true,5
+n5-0210,210,来年,らいねん,năm sau,,LAI NIÊN,false,5
+n5-0211,211,月,がつ,tháng –,,NGUYỆT,false,5
+n5-0212,212,何月,なんがつ,tháng mấy,,HÀ NGUYỆT,false,5
+n5-0213,213,一日,ついたち,ngày mồng 1,,NHẤT NHẬT,false,5
+n5-0214,214,二日,ふつか,ngày mồng 2; 2 ngày,,NHỊ NHẬT,false,5
+n5-0215,215,三日,みっか,ngày mồng 3; 3 ngày,,TAM NHẬT,false,5
+n5-0216,216,四日,よっか,ngày mồng 4; 4 ngày,,TỨ NHẬT,false,5
+n5-0217,217,五日,いつか,ngày mồng 5; 5 ngày,,NGŨ NHẬT,false,5
+n5-0218,218,六日,むいか,ngày mồng 6; 6 ngày,,LỤC NHẬT,false,5
+n5-0219,219,七日,なのか,ngày mồng 7; 7 ngày,,THẤT NHẬT,false,5
+n5-0220,220,八日,ようか,ngày mồng 8; 8 ngày,,BÁT NHẬT,false,5
+n5-0221,221,九日,ここのか,ngày mồng 9; 9 ngày,,CỬU NHẬT,false,5
+n5-0222,222,十日,とおか,ngày mồng 10; 10 ngày,,THẬP NHẬT,false,5
+n5-0223,223,十四日,じゅうよっか,ngày 14; 14 ngày,,THẬP TỨ NHẬT,false,5
+n5-0224,224,二十日,はつか,ngày 20; 20 ngày,,NHỊ THẬP NHẬT,false,5
+n5-0225,225,二十四日,にじゅうよっか,ngày 24; 24 ngày,,NHỊ THẬP TỨ NHẬT,false,5
+n5-0226,226,日,にち,ngày -; – ngày,,NHẬT,false,5
+n5-0227,227,何日,なんにち,ngày mấy; ngày bao nhiêu; mấy ngày; bao nhiêu ngày,,HÀ NHẬT,false,5
+n5-0228,228,いつ,いつ,bao giờ; khi nào,,,true,5
+n5-0229,229,誕生日,たんじょうび,sinh nhật,,ĐẢN SINH NHẬT,false,5
+n5-0230,230,普通,ふつう,tàu thường (dừng cả ở các ga lẻ),,PHỔ THÔNG,false,5
+n5-0231,231,急行,きゅうこう,tàu tốc hành,,CẤP HÀNH,false,5
+n5-0232,232,特急,とっきゅう,tàu tốc hành đặc biệt,,ĐẶC CẤP,false,5
+n5-0233,233,次の,つぎの,tiếp theo,,THỨ,false,5
+n5-0234,234,どういたしまして,どういたしまして,không có chi,,,true,5
+n5-0235,235,食べます,たべます,ăn,,THỰC,false,5
+n5-0236,236,飲みます,のみます,uống; uống thuốc,,ẨM,false,5
+n5-0237,237,吸います,すいます,hút [thuốc lá],,HẤP,false,5
+n5-0238,238,見ます,みます,xem; nhìn; trông,,KIẾN,false,5
+n5-0239,239,聞きます,ききます,nghe; hỏi (giáo viên),,VĂN,false,5
+n5-0240,240,読みます,よみます,đọc,,ĐỘC,false,5
+n5-0241,241,書きます,かきます,viết; vẽ,,THƯ,false,5
+n5-0242,242,買います,かいます,mua,,MÃI,false,5
+n5-0243,243,撮ります,とります,chụp [ảnh],,TOÁT,false,5
+n5-0244,244,します,します,làm,,,true,5
+n5-0245,245,会います,あいます,gặp [bạn],,HỘI,false,5
+n5-0246,246,ごはん,ごはん,cơm; bữa ăn,,,true,5
+n5-0247,247,朝ごはん,あさごはん,cơm sáng,,TRIÊU,false,5
+n5-0248,248,昼ごはん,ひるごはん,cơm trưa,,TRÚ,false,5
+n5-0249,249,晩ごはん,ばんごはん,cơm tối,,VÃN,false,5
+n5-0250,250,パン,パン,bánh mì,,,true,5
+n5-0251,251,卵,たまご,trứng,,NOÃN,false,5
+n5-0252,252,肉,にく,thịt,,NHỤC,false,5
+n5-0253,253,魚,さかな,cá,,NGƯ,false,5
+n5-0254,254,野菜,やさい,rau,,DÃ THÁI,false,5
+n5-0255,255,果物,くだもの,hoa quả; trái cây,,QUẢ VẬT,false,5
+n5-0256,256,水,みず,nước,,THỦY,false,5
+n5-0257,257,お茶,おちゃ,trà (nói chung); trà đạo,,TRÀ,false,5
+n5-0258,258,紅茶,こうちゃ,trà đen,,HỒNG TRÀ,false,5
+n5-0259,259,牛乳,ぎゅうにゅう,sữa bò,,NGƯU NHŨ,false,5
+n5-0260,260,ジュース,ジュース,nước hoa quả,,,true,5
+n5-0261,261,ビール,ビール,bia,,,true,5
+n5-0262,262,お酒,おさけ,rượu; rượu sake,,TỬU,false,5
+n5-0263,263,ビデオ,ビデオ,video; băng video; đầu video,,,true,5
+n5-0264,264,映画,えいが,phim; điện ảnh,,ÁNH HOẠ,false,5
+n5-0265,265,手紙,てがみ,thư,,THỦ CHỈ,false,5
+n5-0266,266,レポート,レポート,báo cáo,,,true,5
+n5-0267,267,写真,しゃしん,ảnh,,TẢ CHÂN,false,5
+n5-0268,268,店,みせ,cửa hàng; tiệm,,ĐIẾM,false,5
+n5-0269,269,レストラン,レストラン,nhà hàng,,,true,5
+n5-0270,270,庭,にわ,vườn,,ĐÌNH,false,5
+n5-0271,271,宿題,しゅくだい,bài tập về nhà (~をします: làm bài tập),,TÚC ĐỀ,false,5
+n5-0272,272,テニス,テニス,quần vợt (~をします: đánh quần vợt),,,true,5
+n5-0273,273,サッカー,サッカー,bóng đá (~をします: chơi bóng đá),,,true,5
+n5-0274,274,お花見,おはなみ,việc ngắm hoa anh đào (~をします: ngắm hoa anh đào),,HOA KIẾN,false,5
+n5-0275,275,何,なに,cái gì; gì,,HÀ,false,5
+n5-0276,276,いっしょに,いっしょに,cùng; cùng nhau,,,true,5
+n5-0277,277,ちょっと,ちょっと,một chút; [~ thì] có lẽ không được rồi. (cách từ chối khéo khi nhận được một lời mời nào đó),,,true,5
+n5-0278,278,いつも,いつも,luôn luôn; lúc nào cũng,,,true,5
+n5-0279,279,時々,ときどき,thỉnh thoảng,,THỜI THỜI,false,5
+n5-0280,280,それから,それから,sau đó; tiếp theo,,,true,5
+n5-0281,281,ええ,ええ,vâng; được (cách nói thân mật của 「はい」),,,true,5
+n5-0282,282,いいですね,いいですね,được đấy nhỉ.; hay quá.,,,true,5
+n5-0283,283,わかりました,わかりました,tôi hiểu rồi; vâng ạ.,,,true,5
+n5-0284,284,何ですか,なんですか,có gì đấy ạ?; cái gì vậy?; vâng có tôi. (câu trả lời khi ai đó gọi tên mình),,HÀ,false,5
+n5-0285,285,メキシコ,メキシコ,Mexico,,,true,5
+n5-0286,286,切る,きる,cắt,,THIẾT,false,5
+n5-0287,287,送る,おくる,gửi,,TỐNG,false,5
+n5-0288,288,あげる,あげる,tặng,,,true,5
+n5-0289,289,もらう,もらう,nhận,,,true,5
+n5-0290,290,貸す,かす,cho mượn,,THẢI,false,5
+n5-0291,291,借りる,かりる,mượn,,TÁ,false,5
+n5-0292,292,かける,かける,mang,,,true,5
+n5-0293,293,手,て,tay,,THỦ,false,5
+n5-0294,294,はし,はし,cầu,,,true,5
+n5-0295,295,スプーン,スプーン,muỗng,,,true,5
+n5-0296,296,ナイフ,ナイフ,con dao,,,true,5
+n5-0297,297,フォーク,フォーク,nĩa,,,true,5
+n5-0298,298,はさみ,はさみ,cái kéo,,,true,5
+n5-0299,299,ファクス,ファクス,máy fax,,,true,5
+n5-0300,300,ワープロ,ワープロ,máy đánh chữ,,,true,5
+n5-0301,301,パソコン,パソコン,máy tính,,,true,5
+n5-0302,302,パンチ,パンチ,cái đục lỗ,,,true,5
+n5-0303,303,ホッチキス,ホッチキス,cái dập ghim,,,true,5
+n5-0304,304,セロテープ,セロテープ,băng dính,,,true,5
+n5-0305,305,けしゴム,けしゴム,cục tẩy,,,true,5
+n5-0306,306,かみ,かみ,tóc,,,true,5
+n5-0307,307,花,はな,hoa,,HOA,false,5
+n5-0308,308,シャツ,シャツ,áo sơ mi,,,true,5
+n5-0309,309,プレゼント,プレゼント,quà tặng,,,true,5
+n5-0310,310,荷物,にもつ,hàng hóa,,HÀ VẬT,false,5
+n5-0311,311,お金,おかね,tiền,,KIM,false,5
+n5-0312,312,きっぷ,きっぷ,vé (tàu; xe),,,true,5
+n5-0313,313,クリスマス,クリスマス,lễ Giáng sinh,,,true,5
+n5-0314,314,父,ちち,cha mình,,PHỤ,false,5
+n5-0315,315,母,はは,mẹ mình,,MẪU,false,5
+n5-0316,316,これから,これから,từ bây giờ-,,,true,5
+n5-0317,317,お父さん,おとうさん,cha (người khác),,PHỤ,false,5
+n5-0318,318,お母さん,おかあさん,mẹ (người khác),,MẪU,false,5
+n5-0319,319,もう,もう,đã rồi; thêm~,,,true,5
+n5-0320,320,まだ,まだ,vẫn còn; vẫn chưa,,,true,5
+n5-0321,321,ごめんなさい,ごめんなさい,xin lỗi,,,true,5
+n5-0322,322,いらっしゃい,いらっしゃい,xin mời,,,true,5
+n5-0323,323,いってきます,いってきます,tôi đi đây,,,true,5
+n5-0324,324,しつれします,しつれします,xin thất lễ,,,true,5
+n5-0325,325,旅行,りょこう,du lịch,,LỮ HÀNH,false,5
+n5-0326,326,お土産,おみやげ,quà lưu niệm,,THỔ SẢN,false,5
+n5-0327,327,ヨーロッパ,ヨーロッパ,Châu Âu,,,true,5
+n5-0328,328,みにくい,みにくい,xấu,,,true,5
+n5-0329,329,ハンサム,ハンサム,đẹp trai,,,true,5
+n5-0330,330,きれい,きれい,(cảnh) đẹp; đẹp (gái); sạch,,,true,5
+n5-0331,331,静か,しずか,yên tĩnh,,TĨNH,false,5
+n5-0332,332,賑やか,にぎやか,nhộn nhịp,,CHẨN,false,5
+n5-0333,333,有名,ゆうめい,nổi tiếng,,HỮU DANH,false,5
+n5-0334,334,親切,しんせつ,tử tế,,THÂN THIẾT,false,5
+n5-0335,335,元気,げんき,khỏe,,NGUYÊN KHÍ,false,5
+n5-0336,336,暇,ひま,rảnh rỗi,,HẠ,false,5
+n5-0337,337,忙しい,いそがしい,bận rộn,,MANG,false,5
+n5-0338,338,便利,べんり,tiện lợi,,TIỆN LỢI,false,5
+n5-0339,339,すてき,すてき,tuyệt vời,,,true,5
+n5-0340,340,大きい,おおきい,to; lớn,,ĐẠI,false,5
+n5-0341,341,小さい,ちいさい,nhỏ; bé,,TIỂU,false,5
+n5-0342,342,新しい,あたらしい,mới,,TÂN,false,5
+n5-0343,343,古い,ふるい,cũ,,CỔ,false,5
+n5-0344,344,いい,いい,tốt; thích; chọn; dùng [cafe],,,true,5
+n5-0345,345,悪い,わるい,xấu,,ÁC,false,5
+n5-0346,346,熱い,あつい,nóng,,NHIỆT,false,5
+n5-0347,347,冷たい,つめたい,lạnh,,LÃNH,false,5
+n5-0348,348,暑い,あつい,(trời) nóng (dùng cho thời tiết),,THỬ,false,5
+n5-0349,349,寒い,さむい,(trời) lạnh (dùng cho thời tiết),,HÀN,false,5
+n5-0350,350,難しい,むずかしい,khó,,NAN,false,5
+n5-0351,351,優しい,やさしい,dễ,,ƯU,false,5
+n5-0352,352,きびしい,きびしい,nghiêm khắc,,,true,5
+n5-0353,353,やさしい,やさしい,dịu dàng; hiền từ,,,true,5
+n5-0354,354,高い,たかい,đắt; cao,,CAO,false,5
+n5-0355,355,安い,やすい,rẻ,,AN,false,5
+n5-0356,356,低い,ひくい,thấp,,ĐÊ,false,5
+n5-0357,357,おもしろい,おもしろい,thú vị,,,true,5
+n5-0358,358,おいしい,おいしい,ngon,,,true,5
+n5-0359,359,楽しい,たのしい,vui vẻ,,LẠC,false,5
+n5-0360,360,白い,しろい,trắng,,BẠCH,false,5
+n5-0361,361,黒い,くろい,đen,,HẮC,false,5
+n5-0362,362,赤い,あかい,đỏ,,XÍCH,false,5
+n5-0363,363,青い,あおい,xanh,,THANH,false,5
+n5-0364,364,桜,さくら,hoa anh đào,,ANH,false,5
+n5-0365,365,山,やま,núi,,SƠN,false,5
+n5-0366,366,町,まち,thành phố,,ĐINH,false,5
+n5-0367,367,食べ物,たべもの,thức ăn,,THỰC VẬT,false,5
+n5-0368,368,所,ところ,chỗ,,SỞ,false,5
+n5-0369,369,りょう,りょう,ký túc xá,,,true,5
+n5-0370,370,勉強,べんきょう,học tập (danh từ),,MIỄN CƯỜNG,false,5
+n5-0371,371,生活,せいかつ,cuộc sống,,SINH HOẠT,false,5
+n5-0372,372,お仕事,おしごと,công việc,,SĨ SỰ,false,5
+n5-0373,373,どう,どう,như thế nào,,,true,5
+n5-0374,374,どんな,どんな,~nào,,,true,5
+n5-0375,375,どれ,どれ,cái nào,,,true,5
+n5-0376,376,分かります,わかります,hiểu; nắm được,,PHÂN,false,5
+n5-0377,377,あります,あります,có (sở hữu); có (tồn tại; dùng cho đồ vật); được tổ chức,,,true,5
+n5-0378,378,好き,すき,thích,,HẢO,false,5
+n5-0379,379,嫌い,きらい,ghét; không thích,,HIỀM,false,5
+n5-0380,380,上手,じょうず,giỏi; khéo; giỏi; khéo,,THƯỢNG THỦ,false,5
+n5-0381,381,下手,へた,kém,,HẠ THỦ,false,5
+n5-0382,382,料理,りょうり,món ăn; việc nấu ăn,,LIỆU LÝ,false,5
+n5-0383,383,飲み物,のみもの,đồ uống,,ẨM VẬT,false,5
+n5-0384,384,スポーツ,スポーツ,thể thao (~をします:chơi thể thao),,,true,5
+n5-0385,385,野球,やきゅう,bóng chày (~をします:chơi bóng chày),,DÃ CẦU,false,5
+n5-0386,386,ダンス,ダンス,nhảy; khiêu vũ (~をします:nhảy; khiêu vũ),,,true,5
+n5-0387,387,音楽,おんがく,âm nhạc,,ÂM LẠC,false,5
+n5-0388,388,歌,うた,bài hát,,CA,false,5
+n5-0389,389,クラシック,クラシック,nhạc cổ điển,,,true,5
+n5-0390,390,ジャズ,ジャズ,nhạc jazz,,,true,5
+n5-0391,391,コンサート,コンサート,buổi hòa nhạc,,,true,5
+n5-0392,392,カラオケ,カラオケ,karaoke,,,true,5
+n5-0393,393,歌舞伎,かぶき,kabuki (một loại ca kịch truyền thống của Nhật),,CA VŨ KỸ,false,5
+n5-0394,394,絵,え,tranh; hội họa,,HỘI,false,5
+n5-0395,395,字,じ,chữ,,TỰ,false,5
+n5-0396,396,漢字,かんじ,chữ hán,,HÁN TỰ,false,5
+n5-0397,397,ひらがな,ひらがな,chữ Hiragana,,,true,5
+n5-0398,398,かたかな,かたかな,chữ Katakana,,,true,5
+n5-0399,399,ローマ字,ローマじ,chữ La Mã,,TỰ,false,5
+n5-0400,400,細かいお金,こまかいおかね,tiền lẻ,,TẾ KIM,false,5
+n5-0401,401,チケット,チケット,vé (xem hòa nhạc; xem phim),,,true,5
+n5-0402,402,時間,じかん,thời gian,,THỜI GIAN,false,5
+n5-0403,403,用事,ようじ,việc bận; công chuyện,,DỤNG SỰ,false,5
+n5-0404,404,約束,やくそく,cuộc hẹn; lời hứa,,ƯỚC THÚC,false,5
+n5-0405,405,ご主人,ごしゅじん,chồng (dùng khi nói về chồng người khác),,CHỦ NHÂN,false,5
+n5-0406,406,夫,おっと,chồng (dùng khi nói về chồng mình),,PHU,false,5
+n5-0407,407,奥さん,おくさん,vợ (dùng khi nói về vợ người khác),,ÁO,false,5
+n5-0408,408,妻,つま,vợ (dùng khi nói về vợ mình),,THÊ,false,5
+n5-0409,409,子ども,こども,con cái,,TỬ,false,5
+n5-0410,410,よく,よく,tốt; rõ (chỉ mức độ); thường,,,true,5
+n5-0411,411,だいたい,だいたい,đại khái; đại thể,,,true,5
+n5-0412,412,たくさん,たくさん,nhiều,,,true,5
+n5-0413,413,少し,すこし,ít; một ít,,THIỂU,false,5
+n5-0414,414,全然,ぜんぜん,hoàn toàn ~ không,,TOÀN NHIÊN,false,5
+n5-0415,415,早く,はやく,sớm; nhanh,,TẢO,false,5
+n5-0416,416,から,から,vì ~,,,true,5
+n5-0417,417,どうして,どうして,tại sao,,,true,5
+n5-0418,418,残念です,ざんねんです,thật đáng tiếc nhỉ; buồn nhỉ,,TÀN NIỆM,false,5
+n5-0419,419,もしもし,もしもし,a-lô,,,true,5
+n5-0420,420,ああ,ああ,a (cách nói khi đã gặp được đúng người trên điện thoại),,,true,5
+n5-0421,421,いっしょにいかがですか,いっしょにいかがですか,anh; chị cùng ~ (làm cái gì đó) với chúng tôi được không?,,,true,5
+n5-0422,422,だめですか,だめですか,không được à?,,,true,5
+n5-0423,423,またこんどおねがいします,またこんどおねがいします,hẹn lần sau,,,true,5
+n5-0424,424,います,います,có; ở (tồn tại; dùng cho người và động vật); có (động vật),,,true,5
+n5-0425,425,いろいろ,いろいろ,nhiều; đa dạng,,,true,5
+n5-0426,426,男の人,おとこのひと,người đàn ông,,NAM NHÂN,false,5
+n5-0427,427,女の人,おんなのひと,người đàn bà,,NỮ NHÂN,false,5
+n5-0428,428,男の子,おとこのこ,cậu con trai,,NAM TỬ,false,5
+n5-0429,429,女の子,おんなのこ,cô con gái,,NỮ TỬ,false,5
+n5-0430,430,犬,いぬ,chó,,KHUYỂN,false,5
+n5-0431,431,猫,ねこ,mèo,,MIÊU,false,5
+n5-0432,432,木,き,cây; gỗ,,MỘC,false,5
+n5-0433,433,物,もの,vật; đồ vật,,VẬT,false,5
+n5-0434,434,フィルム,フィルム,phim,,,true,5
+n5-0435,435,電池,でんち,pin,,ĐIỆN TRÌ,false,5
+n5-0436,436,箱,はこ,hộp,,TƯƠNG,false,5
+n5-0437,437,スイッチ,スイッチ,công tắc,,,true,5
+n5-0438,438,冷蔵庫,れいぞうこ,tủ lạnh,,LÃNH TÀNG KHỐ,false,5
+n5-0439,439,テーブル,テーブル,bàn,,,true,5
+n5-0440,440,ベッド,ベッド,giường,,,true,5
+n5-0441,441,棚,たな,giá sách,,BẰNG,false,5
+n5-0442,442,ドア,ドア,cửa,,,true,5
+n5-0443,443,窓,まど,cửa sổ,,SONG,false,5
+n5-0444,444,ポスト,ポスト,hộp thư; hòm thư,,,true,5
+n5-0445,445,ビル,ビル,toà nhà,,,true,5
+n5-0446,446,公園,こうえん,công viên,,CÔNG VIÊN,false,5
+n5-0447,447,喫茶店,きっさてん,quán giải khát; quán cà-phê,,KHIẾT TRÀ ĐIẾM,false,5
+n5-0448,448,本屋,ほんや,hiệu sách,,BẢN ỐC,false,5
+n5-0449,449,屋,や,hiệu ~; cửa hàng ~; cửa hàng–,,ỐC,false,5
+n5-0450,450,乗り場,のりば,bến xe; điểm lên xuống xe,,THỪA TRƯỜNG,false,5
+n5-0451,451,県,けん,tỉnh,,HUYỆN,false,5
+n5-0452,452,上,うえ,trên,,THƯỢNG,false,5
+n5-0453,453,下,した,dưới,,HẠ,false,5
+n5-0454,454,前,まえ,trước,,TIỀN,false,5
+n5-0455,455,後ろ,うしろ,sau,,HẬU,false,5
+n5-0456,456,右,みぎ,phải,,HỮU,false,5
+n5-0457,457,左,ひだり,trái,,TẢ,false,5
+n5-0458,458,中,なか,trong; giữa,,TRUNG,false,5
+n5-0459,459,外,そと,ngoài,,NGOẠI,false,5
+n5-0460,460,隣,となり,bên cạnh,,LÂN,false,5
+n5-0461,461,近く,ちかく,gần,,CẬN,false,5
+n5-0462,462,間,あいだ,giữa,,GIAN,false,5
+n5-0463,463,や,や,~ và ~; [v.v.],,,true,5
+n5-0464,464,いちばん,いちばん,~ nhất (いちばん うえ:vị trí cao nhất),,,true,5
+n5-0465,465,段目,だんめ,giá thứ -; tầng thứ – (「だん」 được dùng cho giá sách v.v.),,ĐOẠN MỤC,false,5
+n5-0466,466,チリソース,チリソース,tương ớt (chili sauce),,,true,5
+n5-0467,467,かかります,かかります,mất; tốn,,,true,5
+n5-0468,468,ひとつ,ひとつ,1 cái (đồ vật),,,true,5
+n5-0469,469,ふたつ,ふたつ,2 cái,,,true,5
+n5-0470,470,みっつ,みっつ,3 cái,,,true,5
+n5-0471,471,よっつ,よっつ,4 cái,,,true,5
+n5-0472,472,いつつ,いつつ,5 cái,,,true,5
+n5-0473,473,むっつ,むっつ,6 cái,,,true,5
+n5-0474,474,ななつ,ななつ,7 cái,,,true,5
+n5-0475,475,やっつ,やっつ,8 cái,,,true,5
+n5-0476,476,ここのつ,ここのつ,9 cái,,,true,5
+n5-0477,477,とお,とお,10 cái,,,true,5
+n5-0478,478,いくつ,いくつ,bao nhiêu cái,,,true,5
+n5-0479,479,一人,ひとり,1 người,,NHẤT NHÂN,false,5
+n5-0480,480,二人,ふたり,2 người,,NHỊ NHÂN,false,5
+n5-0481,481,人,にん,~người,,NHÂN,false,5
+n5-0482,482,だい,だい,~cái; chiếc (máy móc),,,true,5
+n5-0483,483,まい,まい,~tờ; (những vật mỏng như áo; giấy...),,,true,5
+n5-0484,484,かい,かい,~lần; tầng lầu,,,true,5
+n5-0485,485,りんご,りんご,quả táo,,,true,5
+n5-0486,486,みかん,みかん,quýt,,,true,5
+n5-0487,487,サンドイッチ,サンドイッチ,sandwich,,,true,5
+n5-0488,488,カレー,カレー,(cơm) cà ri,,,true,5
+n5-0489,489,アイスクリーム,アイスクリーム,kem,,,true,5
+n5-0490,490,切手,きって,tem,,THIẾT THỦ,false,5
+n5-0491,491,葉書,はがき,bưu thiếp,,DIỆP THƯ,false,5
+n5-0492,492,封筒,ふうとう,phong bì,,PHONG ĐỒNG,false,5
+n5-0493,493,速達,そくたつ,chuyển phát nhanh,,TỐC ĐẠT,false,5
+n5-0494,494,書留,かきとめ,gửi bảo đảm,,THƯ LƯU,false,5
+n5-0495,495,簡単,かんたん,đơn giản; dễ,,GIẢN ĐƠN,false,5
+n5-0496,496,近い,ちかい,gần,,CẬN,false,5
+n5-0497,497,遠い,とおい,xa,,VIỄN,false,5
+n5-0498,498,速い,はやい,nhanh; sớm,,TỐC,false,5
+n5-0499,499,遅い,おそい,chậm; muộn,,TRÌ,false,5
+n5-0500,500,多い,おおい,nhiều [người],,ĐA,false,5
+n5-0501,501,少ない,すくない,ít [người],,THIỂU,false,5
+n5-0502,502,温かい,あたたかい,ấm,,ÔN,false,5
+n5-0503,503,涼しい,すずしい,mát,,LƯƠNG,false,5
+n5-0504,504,甘い,あまい,ngọt,,CAM,false,5
+n5-0505,505,辛い,からい,cay,,TÂN,false,5
+n5-0506,506,重い,おもい,nặng,,TRÙNG,false,5
+n5-0507,507,軽い,かるい,nhẹ,,KHINH,false,5
+n5-0508,508,季節,きせつ,mùa,,QUÝ TIẾT,false,5
+n5-0509,509,春,はる,mùa xuân,,XUÂN,false,5
+n5-0510,510,夏,なつ,mùa hè,,HẠ,false,5
+n5-0511,511,秋,あき,mùa thu,,THU,false,5
+n5-0512,512,冬,ふゆ,mùa đông,,ĐÔNG,false,5
+n5-0513,513,天気,てんき,thời tiết,,THIÊN KHÍ,false,5
+n5-0514,514,雨,あめ,mưa,,VŨ,false,5
+n5-0515,515,雪,ゆき,tuyết,,TUYẾT,false,5
+n5-0516,516,曇り,くもり,có mây,,ĐÀM,false,5
+n5-0517,517,ホテル,ホテル,khách sạn,,,true,5
+n5-0518,518,空港,くうこう,sân bay,,KHÔNG CẢNG,false,5
+n5-0519,519,海,うみ,biển; đại dương,,HẢI,false,5
+n5-0520,520,世界,せかい,thế giới,,THẾ GIỚI,false,5
+n5-0521,521,パーティー,パーティー,tiệc (~をします:tổ chức tiệc),,,true,5
+n5-0522,522,お祭り,おまつり,lễ hội,,TẾ,false,5
+n5-0523,523,試験,しけん,kỳ thi; bài thi,,THÍ NGHIỆM,false,5
+n5-0524,524,すき焼き,すきやき,sukiyaki (món thịt bò nấu rau),,THIÊU,false,5
+n5-0525,525,刺身,さしみ,sashimi (món gỏi cá sống),,THÍCH THÂN,false,5
+n5-0526,526,おすし,おすし,sushi,,,true,5
+n5-0527,527,てんぷら,てんぷら,tempura (món hải sản và rau chiên tẩm bột),,,true,5
+n5-0528,528,生け花,いけばな,nghệ thuật cắm hoa (~をします:cắm hoa),,SINH HOA,false,5
+n5-0529,529,紅葉,もみじ,lá đỏ,,HỒNG DIỆP,false,5
+n5-0530,530,初めて,はじめて,lần đầu tiên,,SƠ,false,5
+n5-0531,531,どちらも,どちらも,cả hai,,,true,5
+n5-0532,532,ずっと,ずっと,(hơn) hẳn (dùng để nhấn mạnh sự khác biệt giữa hai đối tượng),,,true,5
+n5-0533,533,ただいま,ただいま,tôi đã về đây. (dùng nói khi về đến nhà),,,true,5
+n5-0534,534,お帰りなさい,おかえりなさい,anh; chị đã về đấy à. (dùng để nói với ai đó mới về đến nhà),,QUY,false,5
+n5-0535,535,すごいですね,すごいですね,ghê quá nhỉ.; hay quá nhỉ.,,,true,5
+n5-0536,536,でも,でも,nhưng,,,true,5
+n5-0537,537,疲れました,つかれました,tôi mệt rồi,,BÌ,false,5
+n5-0538,538,ホンコン,ホンコン,Hồng Kông,,,true,5
+n5-0539,539,シンガポール,シンガポール,Singapore,,,true,5
+n5-0540,540,遊びます,あそびます,chơi,,DU,false,5
+n5-0541,541,泳ぎます,およぎます,bơi,,VỊNH,false,5
+n5-0542,542,迎えます,むかえます,đón,,NGHINH,false,5
+n5-0543,543,疲れます,つかれます,mệt,,BÌ,false,5
+n5-0544,544,出します,だします,gửi[thư]; lấy ra; rút (tiền); nộp (báo cáo),,XUẤT,false,5
+n5-0545,545,入ります,はいります,vào [quán giải khát]; vào; nhập học [đại học]; tắm bồn,,NHẬP,false,5
+n5-0546,546,出ます,でます,ra; ra khỏi [quán giải khát]; ra; tốt nghiệp [đại học]; ra; đi ra,,XUẤT,false,5
+n5-0547,547,結婚します,けっこんします,kết hôn; lập gia đình; cưới,,KẾT HÔN,false,5
+n5-0548,548,買い物します,かいものします,mua hàng,,MÃI VẬT,false,5
+n5-0549,549,食事します,しょくじします,ăn cơm,,THỰC SỰ,false,5
+n5-0550,550,散歩します,さんぽします,đi dạo [ở công viên],,TÁN BỘ,false,5
+n5-0551,551,大変,たいへん,vất vả; khó khăn; khổ,,ĐẠI BIẾN,false,5
+n5-0552,552,欲しい,ほしい,muốn có,,DỤC,false,5
+n5-0553,553,寂しい,さびしい,buồn; cô đơn,,TỊCH,false,5
+n5-0554,554,広い,ひろい,rộng,,QUẢNG,false,5
+n5-0555,555,狭い,せまい,chật; hẹp,,HIỆP,false,5
+n5-0556,556,市役所,しやくしょ,văn phòng hành chính quận; thành phố,,THỊ DỊCH SỞ,false,5
+n5-0557,557,プール,プール,bể bơi,,,true,5
+n5-0558,558,川,かわ,sông,,XUYÊN,false,5
+n5-0559,559,経済,けいざい,kinh tế,,KINH TẾ,false,5
+n5-0560,560,美術,びじゅつ,mỹ thuật,,MỸ THUẬT,false,5
+n5-0561,561,釣り,つり,việc câu cá (~をします:câu cá),,ĐIẾU,false,5
+n5-0562,562,スキー,スキー,việc trượt tuyết (~をします: trượt tuyết),,,true,5
+n5-0563,563,会議,かいぎ,họp; cuộc họp (~をします: họp; tổ chức cuộc họp),,HỘI NGHỊ,false,5
+n5-0564,564,登録,とうろく,việc đăng ký (~をします:đăng ký),,ĐĂNG LỤC,false,5
+n5-0565,565,週末,しゅうまつ,cuối tuần,,CHU MẠT,false,5
+n5-0566,566,ごろ,ごろ,khoảng ~ (dùng cho thời gian),,,true,5
+n5-0567,567,何か,なにか,cái gì đó,,HÀ,false,5
+n5-0568,568,どこか,どこか,đâu đó; chỗ nào đó,,,true,5
+n5-0569,569,おなかがすきました,おなかがすきました,(tôi) đói rồi.,,,true,5
+n5-0570,570,おなかがいっぱいです,おなかがいっぱいです,(tôi) no rồi.,,,true,5
+n5-0571,571,のどがかわきました,のどがかわきました,(tôi) khát.,,,true,5
+n5-0572,572,そうですね,そうですね,đúng thế. (câu nói khi muốn tỏ thái độ tán thành với người cùng nói chuyện),,,true,5
+n5-0573,573,ロシア,ロシア,Nga,,,true,5
+n5-0574,574,そうしましょう,そうしましょう,nhất trí.; chúng ta thống nhất như thế.,,,true,5
+n5-0575,575,ていしょく,ていしょく,cơm suất; cơm phần,,,true,5
+n5-0576,576,ご注文は,ごちゅうもんは,mời anh; chị gọi món,,CHÚ VĂN,false,5
+n5-0577,577,牛どん,ぎゅうどん,món cơm thịt bò,,NGƯU,false,5
+n5-0578,578,少々お待ちください,しょうしょうおまちください,xin vui lòng đợi một chút,,THIỂU THIỂU ĐÃI,false,5
+n5-0579,579,別々に,べつべつに,để riêng ra,,BIỆT BIỆT,false,5
+n5-0580,580,つけます,つけます,bật (điện; máy điều hòa),,,true,5
+n5-0581,581,消します,けします,tắt (điện; máy điều hòa),,TIÊU,false,5
+n5-0582,582,開けます,あけます,mở (cửa; cửa sổ),,KHAI,false,5
+n5-0583,583,閉めます,しめます,đóng (cửa; cửa sổ),,BẾ,false,5
+n5-0584,584,急ぎます,いそぎます,vội; gấp,,CẤP,false,5
+n5-0585,585,待ちます,まちます,đợi; chờ,,ĐÃI,false,5
+n5-0586,586,止めます,とめます,dừng (băng; ô tô); đỗ (ô tô),,CHỈ,false,5
+n5-0587,587,曲がります,まがります,rẽ; quẹo [phải],,KHÚC,false,5
+n5-0588,588,持ちます,もちます,mang; cầm,,TRÌ,false,5
+n5-0589,589,取ります,とります,lấy (muối); thêm (tuổi),,THỦ,false,5
+n5-0590,590,手伝います,てつだいます,giúp (làm việc),,THỦ TRUYỆN,false,5
+n5-0591,591,呼びます,よびます,gọi (taxi; tên),,HÔ,false,5
+n5-0592,592,話します,はなします,nói; nói chuyện,,THOẠI,false,5
+n5-0593,593,見せます,みせます,cho xem; trình,,KIẾN,false,5
+n5-0594,594,教えます,おしえます,nói; cho biết,,GIÁO,false,5
+n5-0595,595,始めます,はじめます,bắt đầu,,THUỶ,false,5
+n5-0596,596,降ります,ふります,rơi [mưa; tuyết~],,GIÁNG,false,5
+n5-0597,597,コピーします,コピーします,copy,,,true,5
+n5-0598,598,エアコン,エアコン,máy điều hòa,,,true,5
+n5-0599,599,パスポート,パスポート,hộ chiếu,,,true,5
+n5-0600,600,名前,なまえ,tên,,DANH TIỀN,false,5
+n5-0601,601,住所,じゅうしょ,địa chỉ,,TRÚ SỞ,false,5
+n5-0602,602,地図,ちず,bản đồ,,ĐỊA ĐỒ,false,5
+n5-0603,603,塩,しお,muối,,DIÊM,false,5
+n5-0604,604,砂糖,さとう,đường,,SA ĐƯỜNG,false,5
+n5-0605,605,読み方,よみかた,cách đọc,,ĐỘC PHƯƠNG,false,5
+n5-0606,606,方,かた,cách ~,,PHƯƠNG,false,5
+n5-0607,607,ゆっくり,ゆっくり,chậm; thong thả; thoải mái,,,true,5
+n5-0608,608,すぐ,すぐ,ngay; lập tức,,,true,5
+n5-0609,609,また,また,lại (~đến),,,true,5
+n5-0610,610,あとで,あとで,sau,,,true,5
+n5-0611,611,もう少し,もうすこし,thêm một chút nữa thôi,,THIỂU,false,5
+n5-0612,612,いいですよ,いいですよ,được chứ.; được ạ.,,,true,5
+n5-0613,613,さあ,さあ,thôi; nào (dùng để thúc giục hoặc khuyến khích ai làm gì),,,true,5
+n5-0614,614,まっすぐ,まっすぐ,thẳng,,,true,5
+n5-0615,615,お釣り,おつり,tiền lẻ,,ĐIẾU,false,5
+n5-0616,616,これでお願いします,これでおねがいします,gửi anh tiền này,,NGUYỆN,false,5
+n5-0617,617,立ちます,たちます,đứng,,LẬP,false,5
+n5-0618,618,座ります,すわります,ngồi,,TOẠ,false,5
+n5-0619,619,使います,つかいます,dùng; sử dụng,,SỬ,false,5
+n5-0620,620,置きます,おきます,đặt; để,,TRÍ,false,5
+n5-0621,621,作ります,つくります,làm; chế tạo; sản xuất,,TÁC,false,5
+n5-0622,622,売ります,うります,bán,,MẠI,false,5
+n5-0623,623,知ります,しります,biết,,TRI,false,5
+n5-0624,624,住みます,すみます,sống; ở,,TRÚ,false,5
+n5-0625,625,研究します,けんきゅうします,nghiên cứu,,NGHIÊN CỨU,false,5
+n5-0626,626,知っています,しっています,biết,,TRI,false,5
+n5-0627,627,住んでいます,すんでいます,sống [ở Osaka],,TRÚ,false,5
+n5-0628,628,資料,しりょう,tài liệu; tư liệu,,TƯ LIỆU,false,5
+n5-0629,629,カタログ,カタログ,ca-ta-lô,,,true,5
+n5-0630,630,時刻表,じこくひょう,bảng giờ tàu chạy,,THỜI KHẮC BIỂU,false,5
+n5-0631,631,服,ふく,quần áo,,PHỤC,false,5
+n5-0632,632,製品,せいひん,sản phẩm,,CHẾ PHẨM,false,5
+n5-0633,633,ソフト,ソフト,phần mềm,,,true,5
+n5-0634,634,専門,せんもん,chuyên môn,,CHUYÊN MÔN,false,5
+n5-0635,635,歯医者,はいしゃ,nha sĩ,,XỈ Y GIẢ,false,5
+n5-0636,636,床屋,とこや,hiệu cắt tóc,,SÀNG ỐC,false,5
+n5-0637,637,プレイガイド,プレイガイド,quầy bán vé (trong nhà hát),,,true,5
+n5-0638,638,独身,どくしん,độc thân,,ĐỘC THÂN,false,5
+n5-0639,639,特に,とくに,đặc biệt,,ĐẶC,false,5
+n5-0640,640,思い出します,おもいだします,nhớ lại; hồi tưởng,,TƯ XUẤT,false,5
+n5-0641,641,ご家族,ごかぞく,gia đình (dùng cho người khác),,GIA TỘC,false,5
+n5-0642,642,いらっしゃいます,いらっしゃいます,thể kính trọng của 「います」,,,true,5
+n5-0643,643,高校,こうこう,trường trung học phổ thông,,CAO HIỆU,false,5
+n5-0644,644,乗ります,のります,đi; lên [tàu],,THỪA,false,5
+n5-0645,645,降ります,おります,xuống [tàu],,GIÁNG,false,5
+n5-0646,646,乗り換えます,のりかえます,chuyển; đổi (tàu),,THỪA HOÁN,false,5
+n5-0647,647,浴びます,あびます,tắm [vòi hoa sen],,DỤC,false,5
+n5-0648,648,入れます,いれます,cho vào; bỏ vào,,NHẬP,false,5
+n5-0649,649,やめます,やめます,bỏ; thôi [việc công ty],,,true,5
+n5-0650,650,押します,おします,bấm; ấn (nút),,ÁP,false,5
+n5-0651,651,若い,わかい,trẻ,,NHƯỢC,false,5
+n5-0652,652,長い,ながい,dài,,TRƯỜNG,false,5
+n5-0653,653,短い,みじかい,ngắn,,ĐOẢN,false,5
+n5-0654,654,明るい,あかるい,sáng,,MINH,false,5
+n5-0655,655,暗い,くらい,tối,,ÁM,false,5
+n5-0656,656,背が高い,せがたかい,cao (dùng cho người),,BỐI CAO,false,5
+n5-0657,657,頭がいい,あたまがいい,thông minh,,ĐẦU,false,5
+n5-0658,658,体,からだ,người; cơ thể,,THỂ,false,5
+n5-0659,659,頭,あたま,đầu,,ĐẦU,false,5
+n5-0660,660,髪,かみ,tóc,,PHÁT,false,5
+n5-0661,661,顔,かお,mặt,,NHAN,false,5
+n5-0662,662,目,め,mắt; thứー; số ー (biểu thị thứ tự),,MỤC,false,5
+n5-0663,663,耳,みみ,tai,,NHĨ,false,5
+n5-0664,664,歯,は,răng,,XỈ,false,5
+n5-0665,665,おなか,おなか,bụng,,,true,5
+n5-0666,666,足,あし,chân,,TÚC,false,5
+n5-0667,667,サービス,サービス,dịch vụ,,,true,5
+n5-0668,668,ジョギング,ジョギング,việc chạy bộ (~をします: chạy bộ),,,true,5
+n5-0669,669,シャワー,シャワー,vòi hoa sen,,,true,5
+n5-0670,670,緑,みどり,màu xanh lá cây,,LỤC,false,5
+n5-0671,671,お寺,おてら,chùa,,TỰ,false,5
+n5-0672,672,神社,じんじゃ,đền thờ đạo thần,,THẦN XÃ,false,5
+n5-0673,673,りゅうがくせい,りゅうがくせい,lưu học sinh; du học sinh; lưu học sinh; du học sinh,,,true,5
+n5-0674,674,一番,いちばん,số―; số-,,NHẤT PHIÊN,false,5
+n5-0675,675,どうやって,どうやって,làm thế nào~,,,true,5
+n5-0676,676,どの,どの,cái nào~ (dùng với trường hợp từ ba thứ trở lên),,,true,5
+n5-0677,677,まだまだです,まだまだです,"[không,] tôi còn kém lắm (cách nói khiêm nhường khi ai đó khen)",,,true,5
+n5-0678,678,まず,まず,trước hết; đầu tiên,,,true,5
+n5-0679,679,キャッシュカード,キャッシュカード,thẻ ngân hàng; thẻ ATM,,,true,5
+n5-0680,680,暗証番号,あんしょうばんごう,mã số bí mật (mật khẩu),,ÁM CHỨNG PHIÊN HIỆU,false,5
+n5-0681,681,次に,つぎに,tiếp theo,,THỨ,false,5
+n5-0682,682,確認,かくにん,sự xác nhận; sự kiểm tra (~します:xác nhận),,XÁC NHẬN,false,5
+n5-0683,683,金額,きんがく,số tiền; khoản tiền,,KIM NGẠCH,false,5
+n5-0684,684,ボタン,ボタン,nút,,,true,5
+n5-0685,685,アジア,アジア,châu Á,,,true,5
+n5-0686,686,ベトナム,ベトナム,Việt Nam,,,true,5
+n5-0687,687,覚えます,おぼえます,nhớ,,GIÁC,false,5
+n5-0688,688,忘れます,わすれます,quên,,VONG,false,5
+n5-0689,689,なくします,なくします,mất; đánh mất,,,true,5
+n5-0690,690,払います,はらいます,trả tiền,,PHẤT,false,5
+n5-0691,691,返します,かえします,trả lại,,PHẢN,false,5
+n5-0692,692,出かけます,でかけます,ra ngoài,,XUẤT,false,5
+n5-0693,693,脱ぎます,ぬぎます,cởi (quần áo; giầy),,THOÁT,false,5
+n5-0694,694,持って行きます,もっていきます,mang đi,,TRÌ HÀNH,false,5
+n5-0695,695,持って来ます,もってきます,mang đến,,TRÌ LAI,false,5
+n5-0696,696,心配します,しんぱいします,lo lắng,,TÂM PHỐI,false,5
+n5-0697,697,残業します,ざんぎょうします,làm thêm giờ,,TÀN NGHIỆP,false,5
+n5-0698,698,出張します,しゅっちょうします,đi công tác,,XUẤT TRƯƠNG,false,5
+n5-0699,699,大切,たいせつ,quan trọng,,ĐẠI THIẾT,false,5
+n5-0700,700,大丈夫,だいじょうぶ,không sao; không có vấn đề gì,,ĐẠI TRƯỢNG PHU,false,5
+n5-0701,701,危ない,あぶない,nguy hiểm,,NGUY,false,5
+n5-0702,702,問題,もんだい,vấn đề,,VẤN ĐỀ,false,5
+n5-0703,703,答え,こたえ,câu trả lời,,ĐÁP,false,5
+n5-0704,704,禁煙,きんえん,cấm hút thuốc,,CẤM YÊN,false,5
+n5-0705,705,健康保険証,けんこうほけんしょう,thẻ bảo hiềm (y tế),,KIỆN KHANG BẢO HIỂM CHỨNG,false,5
+n5-0706,706,風,かぜ,cảm; cúm,,PHONG,false,5
+n5-0707,707,熱,ねつ,sốt,,NHIỆT,false,5
+n5-0708,708,病気,びょうき,ốm; bệnh,,BỆNH KHÍ,false,5
+n5-0709,709,薬,くすり,thuốc,,DƯỢC,false,5
+n5-0710,710,おふろ,おふろ,bồn tắm,,,true,5
+n5-0711,711,上着,うわぎ,áo khoác,,THƯỢNG TRƯỚC,false,5
+n5-0712,712,下着,したぎ,quần áo lót,,HẠ TRƯỚC,false,5
+n5-0713,713,までに,までに,trước ~ (chỉ thời gian),,,true,5
+n5-0714,714,ですから,ですから,vì thế; vì vậy; do đó,,,true,5
+n5-0715,715,どうしましたか,どうしましたか,có vấn đề gì?; anh; chị bị làm sao?,,,true,5
+n5-0716,716,のど,のど,họng,,,true,5
+n5-0717,717,おだいじに,おだいじに,anh; chị nhớ giữ gìn sức khỏe. (nói với người bị ốm),,,true,5
+n5-0718,718,できます,できます,có thể,,,true,5
+n5-0719,719,洗います,あらいます,rửa,,TẨY,false,5
+n5-0720,720,弾きます,ひきます,chơi (chơi 1 loại nhạc cụ),,ĐÀN,false,5
+n5-0721,721,歌います,うたいます,hát,,CA,false,5
+n5-0722,722,集めます,あつめます,sưu tập,,TẬP,false,5
+n5-0723,723,捨てます,すてます,vứt,,XẢ,false,5
+n5-0724,724,かえます,かえます,đổi,,,true,5
+n5-0725,725,運転します,うんてんします,lái xe,,VẬN CHUYỂN,false,5
+n5-0726,726,予約します,よやくします,đặt chỗ trước,,DỰ ƯỚC,false,5
+n5-0727,727,見学します,けんがくします,tham quan mục đích học tập,,KIẾN HỌC,false,5
+n5-0728,728,国際,こくさい,quốc tế,,QUỐC TẾ,false,5
+n5-0729,729,現金,げんきん,tiền mặt,,HIỆN KIM,false,5
+n5-0730,730,趣味,しゅみ,sở thích,,THÚ VỊ,false,5
+n5-0731,731,日記,にっき,nhật kí,,NHẬT KÝ,false,5
+n5-0732,732,祈り,いのり,cầu nguyện,,KỲ,false,5
+n5-0733,733,課長,かちょう,tổ trưởng,,KHOÁ TRƯỜNG,false,5
+n5-0734,734,部長,ぶちょう,trưởng phòng,,BỘ TRƯỜNG,false,5
+n5-0735,735,社長,しゃちょう,giám đốc,,XÃ TRƯỜNG,false,5
+n5-0736,736,動物,どうぶつ,động vật,,ĐỘNG VẬT,false,5
+n5-0737,737,馬,うま,ngựa,,MÃ,false,5
+n5-0738,738,へえ,へえ,thế à,,,true,5
+n5-0739,739,ピアノ,ピアノ,đàn piano,,,true,5
+n5-0740,740,メートル,メートル,mét,,,true,5
+n5-0741,741,それはおもしろいですね,それはおもしろいですね,hay nhỉ,,,true,5
+n5-0742,742,牧場,ぼくじょう,trang trại,,MỤC TRƯỜNG,false,5
+n5-0743,743,本当ですか,ほんとうですか,thật không?,,BẢN ĐƯƠNG,false,5
+n5-0744,744,ぜひ,ぜひ,nhất định,,,true,5
+n5-0745,745,登ります,のぼります,leo (núi),,ĐĂNG,false,5
+n5-0746,746,練習します,れんしゅうします,luyện tập; thực hành,,LUYỆN TẬP,false,5
+n5-0747,747,掃除します,そうじします,dọn dẹp,,TẢO TRỪ,false,5
+n5-0748,748,洗濯します,せんたくします,giặt giũ,,TẨY TRẠC,false,5
+n5-0749,749,なります,なります,trở nên; trở thành,,,true,5
+n5-0750,750,泊まります,とまります,trọ,,BẠC,false,5
+n5-0751,751,眠い,ねむい,buồn ngủ,,MIÊN,false,5
+n5-0752,752,強い,つよい,mạnh,,CƯỜNG,false,5
+n5-0753,753,弱い,よわい,yếu,,NHƯỢC,false,5
+n5-0754,754,調子,ちょうし,tình trạng; trạng thái,,ĐIỆU TỬ,false,5
+n5-0755,755,調子が悪い,ちょうしがわるい,tình trạng xấu,,ĐIỆU TỬ ÁC,false,5
+n5-0756,756,調子がいい,ちょうしがいい,tình trạng tốt,,ĐIỆU TỬ,false,5
+n5-0757,757,相撲,すもう,vật sumo,,TƯƠNG PHÁC,false,5
+n5-0758,758,パチンコ,パチンコ,trò chơi pachinko,,,true,5
+n5-0759,759,ゴルフ,ゴルフ,gôn,,,true,5
+n5-0760,760,日,ひ,ngày,,NHẬT,false,5
+n5-0761,761,もうすぐ,もうすぐ,sắp sửa,,,true,5
+n5-0762,762,だんだん,だんだん,dần dần,,,true,5
+n5-0763,763,一度,いちど,một lần,,NHẤT ĐỘ,false,5
+n5-0764,764,一度も,いちども,chưa lần nào,,NHẤT ĐỘ,false,5
+n5-0765,765,おかげさまで,おかげさまで,cám ơn (khi nhận được sự giúp đỡ của ai đó),,,true,5
+n5-0766,766,乾杯,かんぱい,nâng cốc,,CÀN BÔI,false,5
+n5-0767,767,実は,じつは,sự tình là,,THẬT,false,5
+n5-0768,768,ダイエット,ダイエット,ăn kiêng,,,true,5
+n5-0769,769,何回も,なんかいも,nhiều lần,,HÀ HỒI,false,5
+n5-0770,770,しかし,しかし,tuy nhiên,,,true,5
+n5-0771,771,無理,むり,quá sức,,VÔ LÝ,false,5
+n5-0772,772,体にいい,からだにいい,tốt cho sức khỏe,,THỂ,false,5
+n5-0773,773,ケーキ,ケーキ,bánh ga-tô,,,true,5
+n5-0774,774,要ります,いります,cần (visa),,YẾU,false,5
+n5-0775,775,調べます,しらべます,tìm hiểu; điều tra,,ĐIỆU,false,5
+n5-0776,776,直します,なおします,sửa; chữa,,TRỰC,false,5
+n5-0777,777,修理します,しゅうりします,sửa chữa; tu sữa,,TU LÝ,false,5
+n5-0778,778,電話します,でんわします,gọi điện thoại,,ĐIỆN THOẠI,false,5
+n5-0779,779,僕,ぼく,tớ,,BỘC,false,5
+n5-0780,780,君,きみ,cậu; bạn,,QUÂN,false,5
+n5-0781,781,君,くん,(hậu tố theo sau tên của em trai),,QUÂN,false,5
+n5-0782,782,うん,うん,có (cách nói thân mật của “はい”),,,true,5
+n5-0783,783,ううん,ううん,không (cách nói thân mật của “いいえ”),,,true,5
+n5-0784,784,サラリーマン,サラリーマン,người làm việc cho các công ty,,,true,5
+n5-0785,785,言葉,ことば,từ; tiếng,,NGÔN DIỆP,false,5
+n5-0786,786,物価,ぶっか,giá cả; mức giá; vật giá,,VẬT GIÁ,false,5
+n5-0787,787,着物,きもの,kimono (trang phục truyền thống của Nhật Bản),,TRƯỚC VẬT,false,5
+n5-0788,788,ビザ,ビザ,visa,,,true,5
+n5-0789,789,始め,はじめ,bắt đầu,,THUỶ,false,5
+n5-0790,790,終わり,おわり,kết thúc,,CHUNG,false,5
+n5-0791,791,こっち,こっち,phía này,,,true,5
+n5-0792,792,そっち,そっち,phía đó,,,true,5
+n5-0793,793,あっち,あっち,phía kia,,,true,5
+n5-0794,794,どっち,どっち,ở đâu,,,true,5
+n5-0795,795,この間,このあいだ,hôm nọ,,GIAN,false,5
+n5-0796,796,みんなで,みんなで,mọi người,,,true,5
+n5-0797,797,けど,けど,nhưng (cách nói thân mật của “が”),,,true,5
+n5-0798,798,国へ帰るの,くにへかえるの,anh; chị có về nước không?,,QUỐC QUY,false,5
+n5-0799,799,どうするの,どうするの,anh; chị tính sao?,,,true,5
+n5-0800,800,どうしようかな,どうしようかな,tính sao đây; để tôi xem,,,true,5
+n5-0801,801,よかったら,よかったら,nếu anh; chị thích thì,,,true,5
+n5-0802,802,色々,いろいろ,nhiều thứ; đa dạng,,SẮC SẮC,false,5
+n5-0803,803,思います,おもいます,nghĩ,,TƯ,false,5
+n5-0804,804,言います,いいます,nói,,NGÔN,false,5
+n5-0805,805,足ります,たります,đủ,,TÚC,false,5
+n5-0806,806,勝ちます,かちます,thắng,,THẮNG,false,5
+n5-0807,807,負けます,まけます,thua,,PHỤ,false,5
+n5-0808,808,役に立ちます,やくにたちます,giúp ích,,DỊCH LẬP,false,5
+n5-0809,809,むだ,むだ,vô ích,,,true,5
+n5-0810,810,不便,ふべん,bất tiện,,BẤT TIỆN,false,5
+n5-0811,811,同じ,おなじ,giống,,ĐỒNG,false,5
+n5-0812,812,すごい,すごい,giỏi,,,true,5
+n5-0813,813,首相,しゅしょう,thủ tướng,,THỦ TƯƠNG,false,5
+n5-0814,814,大統領,だいとうりょう,tổng thống,,ĐẠI THỐNG LĨNH,false,5
+n5-0815,815,政治,せいじ,chính trị,,CHÍNH TRỊ,false,5
+n5-0816,816,ニュース,ニュース,tin tức,,,true,5
+n5-0817,817,スピーチ,スピーチ,bài phát biểu,,,true,5
+n5-0818,818,試合,しあい,trận đấu,,THÍ HỢP,false,5
+n5-0819,819,アルバイト,アルバイト,việc làm thêm,,,true,5
+n5-0820,820,意見,いけん,ý kiến,,Ý KIẾN,false,5
+n5-0821,821,話,はなし,câu chuyện,,THOẠI,false,5
+n5-0822,822,ユーモア,ユーモア,hài hước,,,true,5
+n5-0823,823,デザイン,デザイン,thiết kế,,,true,5
+n5-0824,824,交通,こうつう,giao thông,,GIAO THÔNG,false,5
+n5-0825,825,ラッシュ,ラッシュ,giờ cao điểm,,,true,5
+n5-0826,826,最近,さいきん,gần đây,,TỐI CẬN,false,5
+n5-0827,827,たぶん,たぶん,chắc; có thể,,,true,5
+n5-0828,828,きっと,きっと,chắc chắn; nhất định,,,true,5
+n5-0829,829,本当に,ほんとうに,thật sự,,BẢN ĐƯƠNG,false,5
+n5-0830,830,そんなに,そんなに,(không) ~ lắm,,,true,5
+n5-0831,831,について,について,theo ~ về,,,true,5
+n5-0832,832,しかたがありません,しかたがありません,không còn cách nào khác,,,true,5
+n5-0833,833,しばらくですね,しばらくですね,lâu rồi không gặp,,,true,5
+n5-0834,834,見ないと,みないと,phải xem...,,KIẾN,false,5
+n5-0835,835,もちろん,もちろん,tất nhiên,,,true,5
+n5-0836,836,カンガルー,カンガルー,kanguru,,,true,5
+n5-0837,837,着ます,きます,mặc (áo sơ mi; ..),,TRƯỚC,false,5
+n5-0838,838,はきます,はきます,mang (giày; ...),,,true,5
+n5-0839,839,かぶります,かぶります,đội (nón; ...),,,true,5
+n5-0840,840,かけます,かけます,đeo (kính; ...),,,true,5
+n5-0841,841,生まれます,うまれます,sinh ra,,SINH,false,5
+n5-0842,842,コート,コート,áo khoác,,,true,5
+n5-0843,843,スーツ,スーツ,com-lê,,,true,5
+n5-0844,844,セーター,セーター,áo len,,,true,5
+n5-0845,845,帽子,ぼうし,nón; mũ,,MẠO TỬ,false,5
+n5-0846,846,眼鏡,めがね,kính,,NHÃN KÍNH,false,5
+n5-0847,847,おめでとうございます,おめでとうございます,chúc mừng,,,true,5
+n5-0848,848,家賃,やちん,tiền nhà,,GIA NHẪM,false,5
+n5-0849,849,うーん,うーん,để tôi xem; ừ; thế nào nhỉ,,,true,5
+n5-0850,850,ダイニングキッチン,ダイニングキッチン,bếp kèm phòng ăn,,,true,5
+n5-0851,851,わしつ,わしつ,phòng kiểu Nhật,,,true,5
+n5-0852,852,押し入れ,おしいれ,chỗ để chăn gối trong phòng kiểu Nhật,,ÁP NHẬP,false,5
+n5-0853,853,布団,ふとん,chăn; đệm,,BỐ ĐOÀN,false,5
+n5-0854,854,アパート,アパート,nhà chung cư,,,true,5
+n5-0855,855,パリ,パリ,Pa-ri,,,true,5
+n5-0856,856,万里の長城,ばんりのちょうじょう,Vạn lý trường thành,,VẠN LÝ TRƯỜNG THÀNH,false,5
+n5-0857,857,余暇開発センター,よかかいはつセンター,trung tâm phát triển hoạt động giải trí cho người dân,,DƯ HẠ KHAI PHÁT,false,5
+n5-0858,858,レジャー白書,レジャーはくしょ,sách trắng về sử dụng thời gian rảnh rỗi,,BẠCH THƯ,false,5
+n5-0859,859,道,みち,đường,,ĐẠO,false,5
+n5-0860,860,交差点,こうさてん,ngã tư,,GIAO SAI ĐIỂM,false,5
+n5-0861,861,信号,しんごう,đèn tín hiệu,,TÍN HIỆU,false,5
+n5-0862,862,引越しします,ひっこしします,chuyển nhà,,DẪN VIỆT,false,5
+n5-0863,863,回します,まわします,vặn (nút),,HỒI,false,5
+n5-0864,864,引きます,ひきます,kéo,,DẪN,false,5
+n5-0865,865,変えます,かえます,đổi,,BIẾN,false,5
+n5-0866,866,触ります,さわります,sờ; chạm vào,,XÚC,false,5
+n5-0867,867,動きます,うごきます,chuyển động; chạy,,ĐỘNG,false,5
+n5-0868,868,歩きます,あるきます,đi bộ (trên đường),,BỘ,false,5
+n5-0869,869,渡ります,わたります,qua; đi qua (cầu),,ĐỘ,false,5
+n5-0870,870,気を付けます,きをつけます,chú ý; cẩn thận,,KHÍ PHÓ,false,5
+n5-0871,871,電気屋,でんきや,cửa hàng đồ điện,,ĐIỆN KHÍ ỐC,false,5
+n5-0872,872,故障,こしょう,hỏng,,CỐ CHƯỚNG,false,5
+n5-0873,873,サイズ,サイズ,cỡ; kích thước,,,true,5
+n5-0874,874,音,おと,âm thanh,,ÂM,false,5
+n5-0875,875,機械,きかい,máy móc,,CƠ GIỚI,false,5
+n5-0876,876,つまみ,つまみ,núm vặn,,,true,5
+n5-0877,877,角,かど,góc,,GIÁC,false,5
+n5-0878,878,橋,はし,cầu,,KIỀU,false,5
+n5-0879,879,駐車場,ちゅうしゃじょう,bãi đỗ xe,,TRÚ XA TRƯỜNG,false,5
+n5-0880,880,お正月,おしょうがつ,tết dương lịch,,CHÍNH NGUYỆT,false,5
+n5-0881,881,ごちそうさまでした,ごちそうさまでした,xin cảm ơn anh chị đã đãi tôi bữa cơm,,,true,5
+n5-0882,882,建物,たてもの,tòa nhà,,KIẾN VẬT,false,5
+n5-0883,883,外国人登録証,がいこくじんとうろくしょう,thẻ đăng kí người nước ngoài; thẻ đăng kí ngoại kiều,,NGOẠI QUỐC NHÂN ĐĂNG LỤC CHỨNG,false,5
+n5-0884,884,くれます,くれます,cho; tặng (tôi),,,true,5
+n5-0885,885,連れて行きます,つれていきます,dẫn đi,,LIÊN HÀNH,false,5
+n5-0886,886,連れて来ます,つれてきます,dẫn đến,,LIÊN LAI,false,5
+n5-0887,887,送ります,おくります,đưa đi; đưa đến; tiễn,,TỐNG,false,5
+n5-0888,888,紹介します,しょうかいします,giới thiệu,,THIỆU GIỚI,false,5
+n5-0889,889,案内します,あんないします,hướng dẫn; chỉ đường,,ÁN NỘI,false,5
+n5-0890,890,説明します,せつめいします,giải thích; trình bày,,THUYẾT MINH,false,5
+n5-0891,891,いれます,いれます,pha (cà phê),,,true,5
+n5-0892,892,おじいさん,おじいさん,ông nội; ông ngoại; ông,,,true,5
+n5-0893,893,おばあさん,おばあさん,bà nội; bà ngoại; bà,,,true,5
+n5-0894,894,準備,じゅんび,chuẩn bị,,CHUẨN BỊ,false,5
+n5-0895,895,意味,いみ,ý nghĩa,,Ý VỊ,false,5
+n5-0896,896,お菓子,おかし,bánh kẹo,,QUẢ TỬ,false,5
+n5-0897,897,全部,ぜんぶ,toàn bộ; tất cả,,TOÀN BỘ,false,5
+n5-0898,898,考えます,かんがえます,nghĩ; suy nghĩ,,KHẢO,false,5
+n5-0899,899,着きます,つきます,đến (ga),,TRƯỚC,false,5
+n5-0900,900,留学します,りゅうがくします,du học,,LƯU HỌC,false,5
+n5-0901,901,田舎,いなか,quê; nông thôn,,ĐIỀN XÁ,false,5
+n5-0902,902,大使館,たいしかん,đại sứ quán,,ĐẠI SỬ QUÁN,false,5
+n5-0903,903,グループ,グループ,nhóm; bạn bè,,,true,5
+n5-0904,904,チャンス,チャンス,cơ hội,,,true,5
+n5-0905,905,億,おく,một trăm triệu,,ỨC,false,5
+n5-0906,906,もし,もし,nếu,,,true,5
+n5-0907,907,転勤,てんきん,chuyển công tác,,CHUYỂN CẦN,false,5
+n5-0908,908,こと,こと,việc,,,true,5
+n5-0909,909,一杯飲みましょう,いっぱいのみましょう,chúng ta cùng uống nhé,,NHẤT BÔI ẨM,false,5
+n5-0910,910,どうぞお元気で,どうぞおげんきで,chúc anh chị mạnh khỏe (câu nói trước khi chia tay với ai đó mà có lẽ lâu nữa mới gặp lại),,NGUYÊN KHÍ,false,5
+n5-0911,911,お世話になりました,おせわになりました,anh; chị đã giúp tôi nhiều,,THẾ THOẠI,false,5
+n5-0912,912,頑張ります,がんばります,cố gắng,,NGOAN TRƯƠNG,false,5
