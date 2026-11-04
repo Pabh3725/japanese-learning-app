@@ -90,7 +90,7 @@ Card tạo lúc **04/11 21:00** (学校 qua Stage 4) → theo R5 đến hạn **
 
 So sánh: nếu lần nào cũng Good (Kịch bản B), khoảng cách tăng rất nhanh: 2 → 11 → 46 → 163 → 498 ngày. Nếu lần nào cũng Easy (Kịch bản C): 8 → 66 → 397 ngày.
 
-## 7. Phát hiện ảnh hưởng tới thiết kế (cần chốt trước SRS-02/SRS-03)
+## 7. Phát hiện ảnh hưởng tới thiết kế (F1 đã chốt; F2–F5 là đề xuất cho SRS-02/SRS-03)
 
 ### F1 — Card giàn giáo gần như không bao giờ bị bỏ chỉ nhờ review
 
@@ -98,11 +98,13 @@ Với toàn Good, card đạt **10 điểm ở lần ôn thứ 10 — năm 2061*
 
 Ngược lại, giữ card giàn giáo lại cũng **không tốn bao nhiêu**: sau ~5 lần ôn, nó chỉ xuất hiện vài lần mỗi năm.
 
-Phương án (chủ dự án chọn):
+Các phương án đã cân nhắc:
 
-- (a) Giữ nguyên: bỏ card nhờ practice; không luyện thì card tồn tại nhưng hiếm gặp.
-- (b) Thêm điều kiện thay thế: bỏ card khi **S ≥ 60 ngày** (FSRS đã coi là nhớ chắc), bất kể điểm.
+- **(a) Giữ nguyên — ĐÃ CHỌN (chủ dự án, 2026-11-04):** card giàn giáo được bỏ nhờ practice; không luyện thì card vẫn tồn tại nhưng hiếm gặp. `RULES_V2` và `docs/learning-rules.md` R6 không đổi.
+- (b) Thêm điều kiện thay thế: bỏ card khi S ≥ 60 ngày (FSRS đã coi là nhớ chắc), bất kể điểm.
 - (c) Hạ mốc điểm.
+
+Hệ quả cần nhớ khi làm UI: chế độ Luyện tập (SMART-03) là con đường chính để bỏ card giàn giáo, nên nên ưu tiên đưa từ còn card giàn giáo vào bài luyện (đã có trong FR-PR-05).
 
 ### F2 — Bước học ngắn trong ngày (learning steps)
 
