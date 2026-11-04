@@ -1,6 +1,6 @@
 # SRS-01 — FSRS trong Projap: khái niệm, ánh xạ điểm, vòng đời một card
 
-> Trạng thái: **Draft — chờ Người B review**
+> Trạng thái: **Draft — chờ Người B review** (thêm §9 SRS-02, 2026-11-04)
 >
 > Ngày: 2026-11-04
 >
@@ -127,3 +127,40 @@ MVP dùng tham số mặc định và desired retention 0,9. Tối ưu tham số
 1. Card có S = 30 ngày được ôn đúng hạn và trả lời Good. Lần sau khoảng bao lâu? *(Lớn hơn 30 ngày nhiều — xem Kịch bản B: 46 → 163.)*
 2. Vì sao một lần Again làm D tăng mạnh mà ba lần Good sau đó chỉ làm D giảm rất ít? *(D phản ánh "card này khó với bạn"; FSRS hạ D chậm để không quá lạc quan.)*
 3. Practice có làm đổi `due` không? *(Không — chỉ cộng điểm card; xem R6.)*
+
+## 9. SRS-02 — Bộ tính lịch trong code
+
+Ngày: 2026-11-04 · Code: `lib/srs/scheduler.ts` · Test: `lib/srs/__tests__/scheduler.test.ts` (14 test)
+
+### 9.1 Card = 2 nửa
+
+| Nửa | Kiểu | Ai tính |
+| --- | --- | --- |
+| Lịch | `Schedule` (state, due, stability, difficulty, scheduledDays, learningSteps, reps, lapses, lastReviewAt) | ts-fsrs |
+| Điểm | `CardPointsState` (type, status, points, bộ đếm practice) | `lib/learning` (ENG-02) |
+
+Điểm **stage** của từ không thuộc card và không thuộc SRS-02 (xem ENG-02, VOC-04).
+
+### 9.2 Cách dùng
+
+```ts
+import { createScheduler } from '@/lib/srs'
+
+const scheduler = createScheduler()                       // production: fuzz bật
+// test: createScheduler({ enableFuzz: false })
+
+scheduler.createCardsForStage(4, false, now)              // → ReviewCard[] (New, due 00:00 hôm sau, 0 điểm)
+const { card, log } = scheduler.reviewCard(card, answer, now)
+// card: lịch mới + điểm mới (+ status 'retired' nếu đủ mốc)
+// log:  rating, ratingNumber 1–4, cardPointsDelta, state/due trước–sau… → SRS-03 ghi review_logs
+```
+
+- `now` luôn truyền vào, không tự đọc đồng hồ.
+- `reviewCard` **báo lỗi** khi card không `active` (đã bỏ / tạm dừng vì từ bị loại) hoặc khi `now` sớm hơn lần ôn trước — gặp ở đây là có bug chỗ khác (chủ dự án chọn, 2026-11-04).
+- `Schedule.state` dùng số 0–3, khớp cột `review_cards.state`; `ratingNumber` khớp `review_logs.rating`.
+- Chỉ `fromFsrs` / `toFsrs` biết tên trường của ts-fsrs; phần còn lại của app không import `ts-fsrs` trực tiếp.
+
+### 9.3 ts-fsrs 6.0.0 (dự án) so với 5.4.2 (SRS-01)
+
+Chạy cùng `fsrs-demo.mjs` trên hai bản: **mọi con số lịch giống hệt** (state, S, D, due) → bảng §6 dùng làm test được.
+Khác biệt duy nhất: `f.get_retrievability(card, now, false)` **báo lỗi** ở bản 6 — hàm tính R đã đổi cách gọi. SRS-02 không dùng R; ai làm Dashboard / "từ yếu" (SMART-02) cần xem lại API bản 6.
