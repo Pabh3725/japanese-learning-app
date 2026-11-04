@@ -146,6 +146,8 @@ Nếu sau này có **UI import** trong app, thêm policy INSERT/UPDATE cho ngư�
 | `learner_skill_progress` | own | own | own | — | Số liệu skill |
 | `checkpoint_completions` | own | own | — | — | Huy chương đã đạt: không sửa, không xóa |
 | `learner_settings` ✱ | own | own | own | — | Quota, timezone |
+| `learner_vocabulary_exclusions` | own | own | own | — | Loại từ khỏi lộ trình; khôi phục bằng UPDATE (DB-03) |
+| `learner_daily_plans` | own | own | own | — | Trạng thái mỗi ngày học (DB-03) |
 
 ### 6.3 Daily Lessons
 
@@ -155,6 +157,7 @@ Nếu sau này có **UI import** trong app, thêm policy INSERT/UPDATE cho ngư�
 | `lesson_queue_items` | own | own | own | — | UPDATE `status`. `payload` chứa đáp án không được gửi nguyên xuống client |
 | `lesson_attempts` | own | own | — | — | **Append-only** |
 | `xp_events` | own | own | — | — | Append-only; chống cộng trùng bằng `client_event_id` |
+| `exercise_logs` | own | own | — | — | **Append-only**; mỗi câu học Stage (DB-03) |
 
 ### 6.4 FSRS Review
 
@@ -168,7 +171,13 @@ Nếu sau này có **UI import** trong app, thêm policy INSERT/UPDATE cho ngư�
 | Bảng | SELECT | INSERT | UPDATE | DELETE | Ghi chú |
 | --- | --- | --- | --- | --- | --- |
 | `practice_sessions` | own | own | own | — | UPDATE `ended_at` |
-| `practice_attempts` | own | own | — | — | Append-only. **Không** có quyền nào chạm `review_cards` |
+| `practice_attempts` | own | own | — | — | Append-only. Trỏ tới `review_cards` để cộng điểm card (DB-03) nhưng không đổi lịch FSRS |
+
+Ràng buộc chung cho §6.2–6.5 (SEC-03):
+
+- INSERT/UPDATE ở bảng con còn phải qua kiểm tra **bản ghi cha cũng là của người ghi** (`private.owns_*`), vì khóa ngoại không kiểm tra chủ sở hữu.
+- `authenticated` không có quyền `TRUNCATE` ở mọi bảng (RLS không chặn `TRUNCATE`) và chỉ có quyền đọc ở bảng §6.1. `anon` không có quyền nào.
+- Thêm bảng mới phải thêm policy, revoke `anon`, revoke `TRUNCATE` và thêm vào `OWNED_TABLES` trong `supabase/tests/rls/helpers.ts`.
 
 ### 6.6 Vì sao không có DELETE
 
@@ -273,6 +282,8 @@ Browser client của Supabase **chỉ dùng cho đăng nhập/đăng xuất**, k
 | 8 | Đã đăng nhập, INSERT vào `vocabularies` | Bị từ chối (chỉ script) |
 | 9 | Tìm `sb_secret_` trong `.next/static` sau `pnpm build` và trong Git history | Không tìm thấy |
 | 10 | Response trang Dashboard | Có `Cache-Control` không cho cache công khai |
+
+Kịch bản 2, 5–8 được tự động hóa bằng hai tài khoản thật qua Data API (SEC-03): `pnpm exec supabase start` rồi `pnpm test:rls`. Bộ test chỉ chạy trên stack local. Trên project thật, dùng `supabase/tests/sec03_two_accounts.sql` trong SQL Editor; script tự hoàn tác dữ liệu thử.
 
 ## 12. Quyết định (đã chốt 2026-10-23)
 

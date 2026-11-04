@@ -2,7 +2,7 @@
 -- SEC-03 · Test RLS với 2 tài khoản (gộp phần test query của TEST-01)
 --
 -- Cách chạy: Supabase Dashboard → SQL Editor → New query → dán TOÀN BỘ file → Run.
--- Cần chạy sau Migration 3 (DB-03) và Migration 4 (SEC-03).
+-- Cần chạy sau Migration 3 (DB-03) và Migration 4, 5 (SEC-03).
 --
 -- Cách hoạt động: script tạo 2 người dùng thử A và B, rồi "đóng vai" từng người
 -- giống hệt request thật từ app:
@@ -75,7 +75,7 @@ declare
   ua   uuid := gen_random_uuid();   -- người dùng A
   ub   uuid := gen_random_uuid();   -- người dùng B
   v1   uuid;
-  lv_a uuid; rc_a uuid;
+  lv_a uuid; rc_a uuid; ps_a uuid;
   lv_b uuid; ls_b uuid; qi_b uuid; rc_b uuid; ps_b uuid;
   n    bigint;
   tbl  text;
@@ -259,6 +259,27 @@ begin
     select count(*) into n from public.review_cards where learner_vocabulary_id = lv_b;
     t := t || 'T28 Không có card lạ nào gắn vào từ của B'::text;
     r := r || (case when n = 1 then 'PASS' else 'FAIL — có ' || n || ' card trên từ của B' end);
+
+    -- ---------- Các chỗ vá ở Migration 5 ----------
+    perform pg_temp.act_as(ua);
+    insert into public.practice_sessions (user_id, game_code) values (ua, 'speed_matching') returning id into ps_a;
+    t := t || 'T29 A gắn lượt chơi của mình vào card của B'::text;
+    r := r || pg_temp.expect_error(format(
+      $q$ insert into public.practice_attempts (user_id, practice_session_id, vocabulary_id, review_card_id, client_event_id, skill_code, is_correct)
+          values (%L, %L, %L, %L, gen_random_uuid(), 'meaning', true) $q$, ua, ps_a, v1, rc_b), '42501');
+
+    t := t || 'T30 Client TRUNCATE bảng card của mình'::text;
+    r := r || pg_temp.expect_error('truncate public.review_cards cascade', '42501');
+
+    t := t || 'T31 Client TRUNCATE bảng từ điển'::text;
+    r := r || pg_temp.expect_error('truncate public.vocabularies cascade', '42501');
+
+    perform pg_temp.act_as(null);
+    t := t || 'T32 Chưa đăng nhập đọc learner_vocabulary_exclusions'::text;
+    r := r || pg_temp.expect_error('select count(*) from public.learner_vocabulary_exclusions', '42501');
+
+    t := t || 'T33 Chưa đăng nhập đọc learner_daily_plans'::text;
+    r := r || pg_temp.expect_error('select count(*) from public.learner_daily_plans', '42501');
 
     -- Kết thúc khối nháp: báo lỗi có chủ đích để hoàn tác TOÀN BỘ
     raise exception 'sec03_rollback';
