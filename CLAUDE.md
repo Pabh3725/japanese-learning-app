@@ -4,12 +4,12 @@
 
 ## Đọc trước mọi task
 
-1. `docs/PROJECT_SPEC.md` — Single Source of Truth (Learning Design V6). Khi tài liệu khác mâu thuẫn, spec này được ưu tiên.
+1. `docs/PROJECT_SPEC.md` — Single Source of Truth (Learning Design V7). Khi tài liệu khác mâu thuẫn, spec này được ưu tiên.
 2. Tài liệu chi tiết theo nhu cầu:
    - `docs/architecture.md` (ARCH-03) — DAL, Auth/session, ADR.
    - `docs/ux-flow-audit.md` (UX-01) — mã `UXI-xx`, `FG-xx`.
    - `docs/ui-audit.md` (ARCH-02) — hiện trạng source v0.
-   - `docs/mvp-scope.md` (PLAN-01) — P0/P1, acceptance criteria.
+   - `docs/mvp-scope.md` (PLAN-02) — P0/P1, acceptance criteria.
 3. Task được giao theo Task ID trong plan dự án (vd. `DB-01`, `VOC-03`). Đọc mục spec liên quan trước khi lên plan.
 
 ## Nhãn trạng thái trong spec
@@ -23,7 +23,7 @@
 
 - Inspect → plan → **chờ duyệt** → implement.
 - Không commit, push, merge hoặc deploy khi chưa được chủ dự án đồng ý.
-- Làm trên branch `feature/*` hoặc `docs/*`, không làm trực tiếp trên `main`. Mọi thay đổi vào `main` qua Pull Request có review.
+- Làm trên branch `feature/*` hoặc `docs/*`, không commit trực tiếp trên `main`. Gộp vào `main` bằng `git merge --no-ff <branch>`, không bắt buộc Pull Request/review (chủ dự án quyết định 2026-11-04). Merge theo thứ tự phụ thuộc giữa các task.
 - Không sửa file ngoài phạm vi task.
 
 ## Ràng buộc kỹ thuật
