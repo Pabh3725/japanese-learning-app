@@ -14,7 +14,7 @@
 >
 > **Ghi chú phiên bản learning flow:** ARCH-03 và UX-01 viết theo "Learning Flow V5". Tài liệu này dùng **Design V7** — chủ dự án chốt ngày 2026-10-31 (PLAN-02), thay cho các phần tương ứng của Design V6 (2026-10-16). Khác biệt V5→V6 ở §12.6; khác biệt **V6→V7 ở §17**. Nhãn **CONFIRMED (V7)** đánh dấu quyết định mới ngày 2026-10-31.
 >
-> **Tóm tắt V7:** nhiều người học (đăng nhập Google); nội dung cố định do server seed; lộ trình từ mới cố định; "Bài học hôm nay" gộp review FSRS bắt buộc + học stage, chia thành các phiên ~5 phút; card FSRS tạo theo từng stage; qua stage bằng điểm; Practice không đổi lịch FSRS nhưng cộng điểm card. Kế hoạch task hiện hành: tab "Tasks v2" của Google Sheet kế hoạch dự án.
+> **Tóm tắt V7:** nhiều người học (đăng nhập username + mật khẩu); nội dung cố định do server seed; lộ trình từ mới cố định; "Bài học hôm nay" gộp review FSRS bắt buộc + học stage, chia thành các phiên ~5 phút; card FSRS tạo theo từng stage; qua stage bằng điểm; Practice không đổi lịch FSRS nhưng cộng điểm card. Kế hoạch task hiện hành: tab "Tasks v2" của Google Sheet kế hoạch dự án.
 
 ## Cách đọc tài liệu
 
@@ -57,7 +57,7 @@ Frontend hiện tại được tạo bằng v0 và là nền tảng UI sẽ đư
 ### 1.3 Người dùng — CONFIRMED (V7)
 
 - **Nhiều người học** (V7, thay "một người học duy nhất" của V6), người Việt, học qua tiếng Việt.
-- Đăng ký / đăng nhập **chỉ bằng Google (Gmail)**; mỗi tài khoản có dữ liệu học riêng, cách ly bằng RLS.
+- Tự đăng ký / đăng nhập bằng **username + mật khẩu** (không cần email); mỗi tài khoản có dữ liệu học riêng, cách ly bằng RLS. *(AUTH-01, 2026-11-04: thay cho Google)*
 - Dùng trên PC và điện thoại, cần cùng một tiến độ.
 - Có lợi thế Hán Việt: âm Hán Việt là một kênh ghi nhớ quan trọng cho từ chứa Kanji.
 
@@ -67,7 +67,7 @@ Không có teacher/student hay admin portal trong MVP. Nội dung do developer q
 
 - Nội dung: Vocabulary N5 (dataset hoàn chỉnh đã có, kèm Hán Việt toàn từ và liên kết Kanji) — CONFIRMED (V7).
 - Hai module trong MVP: **Bài học hôm nay** (Daily Lessons + FSRS Review gộp) và **Practice**. Module Kanji độc lập: sau MVP.
-- Persistence + Google Auth + sync qua Supabase; nhiều người học.
+- Persistence + Auth (username + mật khẩu) + sync qua Supabase; nhiều người học.
 - Không import/backup trong MVP.
 - Chi tiết P0/P1/Out of Scope: §13.
 
@@ -722,7 +722,7 @@ Bảng đầy đủ và quy tắc ranh giới client/server: `docs/architecture.
 | Client Components (v0) | Tương tác, feedback tạm thời bằng hàm grading thuần; gửi **sự kiện** (answer, `hintUsed`, `revealed`, `clientEventId`), không gửi kết luận. |
 | Server Components | Đọc qua DAL, truyền DTO tối thiểu. |
 | Server Actions | Mutation từ UI: `submitAttempt`, `submitReview`, `updateSettings`… Tự kiểm tra auth trong từng action. (ADR-005 Proposed) |
-| Route Handlers | Auth callback (Google OAuth). V7: không có import/backup trong MVP. (ADR-005 Proposed) |
+| Route Handlers | Đăng xuất (`/auth/signout`). Đăng nhập/đăng ký dùng Server Functions. V7: không có import/backup trong MVP. (ADR-005 Proposed) |
 | `proxy.ts` | Refresh session cookie, redirect optimistic — **không** phải lớp authorization chính (Next.js 16 đổi `middleware` → `proxy`). |
 | Data Access Layer (`server-only`) | `getClaims()` → authorization → query → DTO; gọi domain module. (ADR-004 Proposed) |
 | Domain modules (pure TS) | Grading, checkpoint evaluation, Learning Queue, FSRS adapter; không I/O; unit test. (ADR-007 Proposed) |
@@ -733,9 +733,9 @@ Server-authoritative: grading, checkpoint và FSRS được tính lại trên se
 ### 9.3 Authentication — CONFIRMED (V7)
 
 - Provider: Supabase Auth — CONFIRMED.
-- Phương thức: **chỉ Google OAuth (Gmail)** — CONFIRMED (V7, OD-18).
-- **Nhiều người học**: ai có tài khoản Google đều đăng ký được; lần đăng nhập đầu tự tạo settings mặc định — CONFIRMED (V7). (Thay đề xuất "chỉ một tài khoản" của ARCH-03.)
-- Cần OAuth client trên Google Cloud và redirect URL cho cả dev và prod.
+- Phương thức: **username + mật khẩu**, không email — Supabase provider Email với địa chỉ nội bộ `username@users.projap.invalid`; "Confirm email" tắt — CONFIRMED (V7, OD-18; đổi từ Google ngày 2026-11-04).
+- **Nhiều người học**: ai cũng tự đăng ký được; tài khoản mới tự có settings mặc định (trigger database) — CONFIRMED (V7). (Thay đề xuất "chỉ một tài khoản" của ARCH-03.)
+- Quên mật khẩu: không có tự phục hồi qua email; admin đặt lại trong Supabase Dashboard. Chi tiết: `docs/security.md`.
 - Session cookie qua `@supabase/ssr`, refresh trong `proxy.ts`, authorization bằng `getClaims()` (không dùng `getSession()` để authorize) — PROPOSED (ADR-003).
 - Chỉ publishable/anon key được `NEXT_PUBLIC_`; service-role key không dùng ở request path, **chỉ dùng cho `pnpm seed`** trên máy dev/CI — CONFIRMED (V7).
 - Mọi mutation gắn identity từ session trusted; client không tự chọn `user_id` — PROPOSED.
@@ -1051,7 +1051,7 @@ Bản đầy đủ kèm acceptance criteria chi tiết: `docs/mvp-scope.md` (PLA
 | ID | Hạng mục | Nhãn |
 | --- | --- | --- |
 | P0-01 | Giữ và nối UI v0 (shell, theme, components) với dữ liệu thật; giữ copy tiếng Anh | CONFIRMED |
-| P0-02 | Supabase Auth với **Google OAuth**, **nhiều người học**, RLS theo `user_id`, sync desktop/mobile | CONFIRMED (V7) |
+| P0-02 | Supabase Auth với **username + mật khẩu**, **nhiều người học**, RLS theo `user_id`, sync desktop/mobile | CONFIRMED (V7) |
 | P0-03 | Schema + **seed server-side** (`pnpm seed`, idempotent, ID ổn định) cho Vocabulary/Kanji N5 + quan hệ | CONFIRMED (V7) |
 | P0-04 | **Bài học hôm nay**: review bắt buộc + từ dở + từ mới theo lộ trình cố định, chia phiên ~5 phút, ngưỡng due, chế độ xen kẽ/review trước, học thêm (mượn quota) | CONFIRMED (V7) |
 | P0-05 | 5 Stage, 4 Skill, **điểm stage** (5 điểm, yêu cầu bắt buộc, giãn cách ≥4 câu, ≤3 điểm/stage/ngày), attempt log | CONFIRMED (V7) |
@@ -1083,7 +1083,7 @@ N4–N1; Grammar, Listening hiểu, Speaking; nhận dạng nét viết tay; gõ
 
 **Tài khoản**
 
-- [ ] Hai tài khoản Google khác nhau đăng nhập được; không đọc/ghi được dữ liệu của nhau.
+- [ ] Hai tài khoản (username khác nhau) đăng nhập được; không đọc/ghi được dữ liệu của nhau.
 - [ ] Người chưa đăng nhập không đọc/ghi learner data; client không ghi được bảng nội dung.
 - [ ] Không có secret (service role key) trong Git hoặc client bundle.
 
@@ -1144,7 +1144,7 @@ N4–N1; Grammar, Listening hiểu, Speaking; nhận dạng nét viết tay; gõ
 | **OD-15** ✅ | Practice trong P0 hay P1 — **V7: Speed Matching vào P0 (§8.1)** | Có cần ít nhất một game có log trong MVP | Roadmap | Phase plan |
 | **OD-16** | Kỹ thuật: duyệt ADR-003…007 của ARCH-03; atomic review (D-04: Postgres RPC hay transaction server) | ADR-005 đề xuất Server Actions cho mutation UI, Route Handlers cho file/auth callback | Kiến trúc | AUTH-01, REVIEW-01 |
 | **OD-17** ✅ | Kỹ thuật: FSRS library & parameters — **V7: `ts-fsrs`, tham số mặc định (§7.5)** | `ts-fsrs`? version, desired retention, optimize | Review | SPEC-03 |
-| **OD-18** ✅ | Kỹ thuật: Auth UX & one-account — **V7: Google OAuth, nhiều người học (§9.3)** | Email/password, magic link, OAuth; tắt signup/allowlist | Auth | AUTH-01 |
+| **OD-18** ✅ | Kỹ thuật: Auth UX & one-account — **V7: username + mật khẩu, nhiều người học (§9.3)** | Email/password, magic link, OAuth; tắt signup/allowlist | Auth | AUTH-01 |
 | **OD-19** ✅ | Kỹ thuật: Time policy — **V7: UTC+7, lưu UTC (§6.1)** | Timezone nghiệp vụ (UTC+7?), ranh giới "ngày học" | Due, streak, quota | SPEC-03 |
 | **OD-20** ✅ | Kỹ thuật: Deployment & environments — **V7: Vercel + Supabase Cloud, dev/prod tách (§9.1)** | Vercel + Supabase Cloud? Region; local/preview/prod | Hạ tầng | Release |
 | **OD-21** | Kỹ thuật: Test stack | Vitest/Jest, E2E (Playwright?) | Quality | QA-01 |
@@ -1267,7 +1267,7 @@ Engine thuần (checkpoint/queue/grading) không phụ thuộc database, có th�
 
 | Chủ đề | V6 (2026-10-16) | V7 (2026-10-31) |
 | --- | --- | --- |
-| Người dùng | Một người học | Nhiều người học, đăng nhập Google |
+| Người dùng | Một người học | Nhiều người học, đăng nhập username + mật khẩu |
 | Nội dung | Import CSV/JSON; backup/restore | Chỉ server seed (`pnpm seed`), idempotent theo ID ổn định; không import; backup sau MVP |
 | Module | Ba module độc lập; không bắt buộc review | "Bài học hôm nay" gộp review (bắt buộc) + học; Practice riêng |
 | Lộ trình | Động / Learning Path đang cân nhắc | Lộ trình từ mới cố định; nội dung ngày động; loại/khôi phục từ |
@@ -1278,7 +1278,7 @@ Engine thuần (checkpoint/queue/grading) không phụ thuộc database, có th�
 | Card FSRS | Taxonomy và eligibility PENDING | 5 loại card, tạo theo stage (E2); card giàn giáo bỏ ở 30/40 điểm |
 | Review | Tự lật thẻ, tự chọn rating | Bài tập máy chấm → rating; Easy chỉ cho bài gõ/ghép |
 | Practice | P1; không ảnh hưởng gì ngoài log | Speed Matching vào P0 (+ vòng boss); cộng điểm card |
-| Kỹ thuật | Library FSRS, auth, deploy PENDING | `ts-fsrs`, Google OAuth, `wanakana`, Web Speech, Vercel + Supabase dev/prod, CI |
+| Kỹ thuật | Library FSRS, auth, deploy PENDING | `ts-fsrs`, username + mật khẩu, `wanakana`, Web Speech, Vercel + Supabase dev/prod, CI |
 | Kanji độc lập | Có trong MVP, flow PENDING | Sau MVP |
 | Ngôn ngữ UI | PENDING | Giữ tiếng Anh |
 
