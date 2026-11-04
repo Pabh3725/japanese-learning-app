@@ -378,11 +378,11 @@ Một Attempt chỉ được tính vào checkpoint khi **tất cả** điều ki
 3. Không xem đáp án trước khi trả lời.
 4. Được **xen kẽ** với câu khác (không phải lặp lại ngay sau một lượt của cùng từ/skill).
 
-**Khoảng cách tối thiểu — CONFIRMED (V7, OD-04):** giữa hai lần được tính điểm của cùng một từ phải có **ít nhất 4 câu của từ khác**; mỗi Stage của một từ được cộng **tối đa 3 điểm mỗi ngày** (ngày theo giờ Việt Nam). Vì vậy mỗi Stage tính điểm cần ít nhất 2 ngày.
+**Khoảng cách tối thiểu — CONFIRMED (V7, OD-04):** một câu của một từ chỉ được tính điểm (cộng **hoặc trừ**) khi có **ít nhất 4 câu khác** xen giữa nó và câu trước đó của cùng từ (câu review và câu học đều tính; câu vòng boss không tính). Mỗi Stage của một từ được cộng **tối đa +3 điểm mỗi ngày** (trần chỉ áp cho điểm cộng; ngày theo giờ Việt Nam). Vì vậy mỗi Stage tính điểm cần ít nhất 2 ngày. Chi tiết: `docs/learning-rules.md`.
 
 #### Checkpoint bằng điểm — CONFIRMED (V7), thay threshold đếm lượt của V6
 
-Mỗi câu trong Stage được chấm điểm: **đúng +1**, **đúng nhờ hint 0**, **sai −1** (không âm dưới 0). Qua Stage khi **đạt 5 điểm** và mỗi yêu cầu bắt buộc dưới đây có ít nhất 1 điểm.
+Mỗi câu trong Stage được chấm điểm: **đúng +1**, **đúng nhờ hint 0**, **sai −1**; điểm stage **có thể âm**. Qua Stage khi **đạt 5 điểm** và mỗi yêu cầu bắt buộc dưới đây có ít nhất 1 điểm.
 
 | Stage | Điều kiện qua | Yêu cầu bắt buộc (mỗi yêu cầu ≥ 1 điểm) |
 | --- | --- | --- |
@@ -401,7 +401,7 @@ Cấu hình nằm trong **một module có version**, không hard-code trong UI:
 // PROPOSED — minh họa hình dạng cấu hình, không phải code đã tồn tại
 export const VOCAB_STAGE_RULES_V2 = {
   version: 2,
-  points: { correct: 1, hint: 0, wrong: -1, passAt: 5, maxPerStagePerDay: 3 },
+  points: { correct: 1, hint: 0, wrong: -1, passAt: 5, maxPositivePerStagePerDay: 3, floor: null },
   spacing: { minOtherWordQuestions: 4 },
   stage2: { required: ['kana_to_meaning', 'meaning_to_kana', 'hiragana_assembly'] },
   stage4: { required: ['kanji_recognition', 'kanji_assembly', 'hanviet_recognition', 'hanviet_assembly'] },
@@ -607,7 +607,8 @@ ARCH-03 §7.3 mô tả E1 ("đạt Stage 5 → eligible") — **không còn áp 
 | `vocab.meaning_hanviet` | nghĩa ↔ HỌC HIỆU | Từ có Kanji | Giữ |
 | `kanji.*` | 学 → HỌC / nghĩa | Kanji độc lập | Sau MVP |
 
-- **Điểm card:** review FSRS Again −1, Hard 0, Good +1, Easy +2; practice Again −1, Hard 0, Good +1.
+- **Điểm card:** review FSRS Again −1, Hard 0, Good +1, Easy +2; practice Again −1, Hard 0, Good +1, **tối đa +3 điểm từ practice mỗi card mỗi ngày**. Điểm card có thể âm.
+- Card mới tạo được ôn lần đầu **từ ngày học hôm sau** (không ôn ngay trong ngày vừa học).
 - Card bị bỏ (`retired_at`) không còn được lên lịch; lịch sử review vẫn giữ.
 - Từ bị người học loại khỏi lộ trình (FR-VO-06): card chuyển `suspended`, khôi phục được.
 
