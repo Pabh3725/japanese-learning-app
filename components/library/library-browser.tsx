@@ -1,34 +1,67 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Search } from 'lucide-react'
-import { kanjiList, vocabulary } from '@/lib/mock-data'
+import { matchesKanji, matchesVocab } from '@/lib/library/search'
+import type { KanjiListItem, VocabListItem, VocabProgress } from '@/lib/library/types'
 import { cn } from '@/lib/utils'
 
 type Tab = 'vocab' | 'kanji'
 
-function StrengthDots({ value }: { value: number }) {
-  const filled = Math.round(value * 5)
+/** Hiển thị từng đợt để trang nhẹ trên điện thoại (912 từ). */
+const PAGE_SIZE = 60
+
+function progressStage(p: VocabProgress): number {
+  if (p.kind === 'complete') return 5
+  if (p.kind === 'learning') return p.stage
+  return 0
+}
+
+function progressLabel(p: VocabProgress): string {
+  if (p.kind === 'complete') return 'Learned'
+  if (p.kind === 'learning') return `Stage ${p.stage}`
+  return 'Not started'
+}
+
+function StageDots({ progress }: { progress: VocabProgress }) {
+  const filled = progressStage(progress)
+  const label = progressLabel(progress)
   return (
-    <span className="flex gap-1" role="img" aria-label={`Memory strength ${filled} of 5`}>
-      {Array.from({ length: 5 }, (_, i) => (
-        <span key={i} className={cn('size-1.5 rounded-full', i < filled ? 'bg-success' : 'bg-[#2e3440]')} />
-      ))}
+    <span className="flex items-center gap-2">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <span className="flex gap-1" role="img" aria-label={`${label}, ${filled} of 5 stages`}>
+        {Array.from({ length: 5 }, (_, i) => (
+          <span
+            key={i}
+            className={cn(
+              'size-1.5 rounded-full',
+              i < filled ? (progress.kind === 'complete' ? 'bg-success' : 'bg-primary') : 'bg-[#2e3440]',
+            )}
+          />
+        ))}
+      </span>
     </span>
   )
 }
 
-export function LibraryBrowser() {
+export function LibraryBrowser({ vocabulary, kanji }: { vocabulary: VocabListItem[]; kanji: KanjiListItem[] }) {
   const [tab, setTab] = useState<Tab>('vocab')
   const [query, setQuery] = useState('')
-  const q = query.trim().toLowerCase()
+  const [visible, setVisible] = useState(PAGE_SIZE)
 
-  const vocabResults = vocabulary.filter((v) =>
-    [v.word, v.kana, v.romaji, v.meaning, v.hanViet].some((f) => f.toLowerCase().includes(q)),
-  )
-  const kanjiResults = kanjiList.filter((k) =>
-    [k.char, k.hanViet, k.meaning, k.onyomi, k.kunyomi].some((f) => f.toLowerCase().includes(q)),
-  )
+  const vocabResults = useMemo(() => vocabulary.filter((v) => matchesVocab(v, query)), [vocabulary, query])
+  const kanjiResults = useMemo(() => kanji.filter((k) => matchesKanji(k, query)), [kanji, query])
+  const total = tab === 'vocab' ? vocabResults.length : kanjiResults.length
+
+  function changeQuery(value: string) {
+    setQuery(value)
+    setVisible(PAGE_SIZE)
+  }
+
+  function changeTab(value: Tab) {
+    setTab(value)
+    setVisible(PAGE_SIZE)
+  }
 
   return (
     <div>
@@ -40,13 +73,13 @@ export function LibraryBrowser() {
               type="button"
               role="tab"
               aria-selected={tab === t}
-              onClick={() => setTab(t)}
+              onClick={() => changeTab(t)}
               className={cn(
                 'h-10 flex-1 rounded-xl px-5 text-sm font-medium transition-colors sm:flex-none',
                 tab === t ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-subtle',
               )}
             >
-              {t === 'vocab' ? `Vocabulary (${vocabulary.length})` : `Kanji (${kanjiList.length})`}
+              {t === 'vocab' ? `Vocabulary (${vocabulary.length})` : `Kanji (${kanji.length})`}
             </button>
           ))}
         </div>
@@ -56,8 +89,8 @@ export function LibraryBrowser() {
           <input
             type="search"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by word, reading, or meaning"
+            onChange={(e) => changeQuery(e.target.value)}
+            placeholder="Search by word, reading, meaning or Hán Việt"
             className="h-13 w-full rounded-2xl border border-border bg-card pr-4 pl-11 text-sm outline-none placeholder:text-muted-foreground focus:border-cyan"
           />
         </label>
@@ -67,19 +100,21 @@ export function LibraryBrowser() {
         {tab === 'vocab' ? (
           vocabResults.length ? (
             <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {vocabResults.map((v) => (
+              {vocabResults.slice(0, visible).map((v) => (
                 <li key={v.id} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5">
                   <div className="flex items-start justify-between gap-2">
-                    <p lang="ja" className="font-jp text-3xl font-medium">{v.word}</p>
-                    <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">{v.jlpt}</span>
+                    <p lang="ja" className="font-jp text-3xl font-medium">{v.expression}</p>
+                    <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground tabular-nums">
+                      #{v.sortOrder}
+                    </span>
                   </div>
                   <div>
-                    <p lang="ja" className="font-jp text-cyan">{v.kana}</p>
-                    <p className="text-xs tracking-wider text-yellow uppercase">{v.hanViet}</p>
+                    {v.reading !== v.expression && <p lang="ja" className="font-jp text-cyan">{v.reading}</p>}
+                    {v.hanViet && <p className="text-xs tracking-wider text-yellow uppercase">{v.hanViet}</p>}
                   </div>
-                  <div className="mt-auto flex items-center justify-between">
+                  <div className="mt-auto flex flex-wrap items-end justify-between gap-2">
                     <p className="font-medium">{v.meaning}</p>
-                    <StrengthDots value={v.strength} />
+                    <StageDots progress={v.progress} />
                   </div>
                 </li>
               ))}
@@ -89,17 +124,34 @@ export function LibraryBrowser() {
           )
         ) : kanjiResults.length ? (
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {kanjiResults.map((k) => (
+            {kanjiResults.slice(0, visible).map((k) => (
               <li key={k.id} className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-5 text-center">
-                <p lang="ja" className="font-jp text-5xl font-medium">{k.char}</p>
+                <p lang="ja" className="font-jp text-5xl font-medium">{k.character}</p>
                 <p className="mt-1 text-sm font-semibold tracking-wider text-yellow">{k.hanViet}</p>
                 <p className="text-sm text-subtle">{k.meaning}</p>
-                <p className="text-xs text-muted-foreground">{k.strokes} strokes</p>
+                {(k.onyomi.length > 0 || k.kunyomi.length > 0) && (
+                  <p lang="ja" className="font-jp text-xs text-muted-foreground">
+                    {[...k.onyomi, ...k.kunyomi].join('・')}
+                  </p>
+                )}
+                {k.strokes !== null && <p className="text-xs text-muted-foreground">{k.strokes} strokes</p>}
               </li>
             ))}
           </ul>
         ) : (
           <EmptyState query={query} />
+        )}
+
+        {total > visible && (
+          <div className="mt-6 flex justify-center">
+            <button
+              type="button"
+              onClick={() => setVisible((n) => n + PAGE_SIZE)}
+              className="h-11 rounded-xl border border-border bg-secondary px-5 text-sm font-medium hover:bg-[#252a35]"
+            >
+              Show more ({total - visible} left)
+            </button>
+          </div>
         )}
       </div>
     </div>
@@ -110,7 +162,7 @@ function EmptyState({ query }: { query: string }) {
   return (
     <div className="rounded-3xl border border-dashed border-border p-10 text-center">
       <p className="font-medium">No results for &ldquo;{query}&rdquo;</p>
-      <p className="mt-1 text-sm text-muted-foreground">Try a reading, romaji, or Sino-Vietnamese word.</p>
+      <p className="mt-1 text-sm text-muted-foreground">Try a reading, a meaning without accents, or a Sino-Vietnamese word.</p>
     </div>
   )
 }

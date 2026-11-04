@@ -3,6 +3,11 @@
 -- Nguồn: docs/PROJECT_SPEC.md V7 §6–§7, §10; docs/learning-rules.md (ENG-01);
 --        docs/data-spec.md §6 (schema drift cần ghi lại)
 --
+-- Sửa khi gộp (Người A, 2026-11-04):
+--   - Đổi tên 20261104000001 → 20261104000003 (AUTH-01 …000002 đã chạy trước).
+--   - File test chuyển sang supabase/tests/db03_checks.sql.
+--   - Thêm mục 7–9: loại từ (R8), trần practice +3/ngày (R6), trạng thái ngày học (R7).
+--
 -- Nguyên tắc: CHỈ THÊM. Không drop bảng/cột, không xoá dòng dữ liệu.
 -- Chạy lại nhiều lần vẫn an toàn (IF NOT EXISTS / bắt duplicate_object).
 --
@@ -161,4 +166,119 @@ using ( (select auth.uid()) = user_id );
 
 create policy "Owner can insert own exercise_logs"
 on public.exercise_logs for insert to authenticated
+with check ( (select auth.uid()) = user_id );
+
+
+-- -----------------------------------------------------------------------------
+-- 7. learner_vocabulary_exclusions — Loại / khôi phục từ khỏi lộ trình (R8)
+--    Bảng riêng vì từ CHƯA HỌC không có dòng learner_vocabulary.
+--    Không xoá dòng (SEC-D5): khôi phục = đặt excluded_at = null.
+--    Card của từ bị loại coi là "suspended" khi truy vấn (join bảng này),
+--    không cần sửa từng card → khôi phục là card active lại ngay, giữ nguyên lịch.
+-- -----------------------------------------------------------------------------
+create table if not exists public.learner_vocabulary_exclusions (
+  user_id        uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  vocabulary_id  uuid not null references public.vocabularies (id) on delete restrict,
+  excluded_at    timestamptz default now(),      -- null = đã khôi phục
+  created_at     timestamptz not null default now(),
+  updated_at     timestamptz not null default now(),
+
+  primary key (user_id, vocabulary_id)
+);
+comment on table public.learner_vocabulary_exclusions is
+  'Từ người học loại khỏi lộ trình (R8). excluded_at null = đã khôi phục.';
+
+create index if not exists learner_vocabulary_exclusions_active_idx
+  on public.learner_vocabulary_exclusions (user_id) where excluded_at is not null;
+
+drop trigger if exists set_updated_at on public.learner_vocabulary_exclusions;
+create trigger set_updated_at before update on public.learner_vocabulary_exclusions
+  for each row execute function public.set_updated_at();
+
+alter table public.learner_vocabulary_exclusions enable row level security;
+
+drop policy if exists "Owner can read own exclusions"   on public.learner_vocabulary_exclusions;
+drop policy if exists "Owner can insert own exclusions" on public.learner_vocabulary_exclusions;
+drop policy if exists "Owner can update own exclusions" on public.learner_vocabulary_exclusions;
+
+create policy "Owner can read own exclusions"
+on public.learner_vocabulary_exclusions for select to authenticated
+using ( (select auth.uid()) = user_id );
+
+create policy "Owner can insert own exclusions"
+on public.learner_vocabulary_exclusions for insert to authenticated
+with check ( (select auth.uid()) = user_id );
+
+create policy "Owner can update own exclusions"
+on public.learner_vocabulary_exclusions for update to authenticated
+using ( (select auth.uid()) = user_id )
+with check ( (select auth.uid()) = user_id );
+
+
+-- -----------------------------------------------------------------------------
+-- 8. Practice cộng điểm card, tối đa +3 / card / ngày học (R6, CONFIRMED 7a)
+-- -----------------------------------------------------------------------------
+alter table public.review_cards
+  -- Số điểm CỘNG từ practice trong ngày học practice_points_date (trần chỉ áp cho điểm cộng)
+  add column if not exists practice_points_today smallint not null default 0
+                                                 check (practice_points_today between 0 and 3),
+  add column if not exists practice_points_date  date;   -- ngày học giờ VN
+
+-- Mỗi lượt practice ghi lại card được cộng/trừ (null = không ánh xạ vào card nào,
+-- hoặc card chưa tồn tại / đã bỏ → không cộng điểm).
+alter table public.practice_attempts
+  add column if not exists review_card_id uuid references public.review_cards (id) on delete set null,
+  add column if not exists card_points    smallint not null default 0 check (card_points between -1 and 1),
+  add column if not exists study_date     date;
+
+alter table public.practice_attempts drop constraint if exists practice_attempts_points_need_card;
+alter table public.practice_attempts
+  add constraint practice_attempts_points_need_card check (review_card_id is not null or card_points = 0);
+
+create index if not exists practice_attempts_review_card_idx
+  on public.practice_attempts (review_card_id) where review_card_id is not null;
+
+
+-- -----------------------------------------------------------------------------
+-- 9. learner_daily_plans — Trạng thái mỗi ngày học (R7)
+--    Một dòng / người / ngày học (giờ VN), tạo lúc dựng Bài học hôm nay lần đầu.
+--    due_snapshot  = D, chụp một lần, cố định cả ngày (bước 1).
+--    borrowed_for_next = số từ "Học thêm" đã mượn của ngày học kế tiếp (bước 8).
+--    → Số từ mượn trước cho hôm nay = borrowed_for_next của ngày học hôm trước.
+-- -----------------------------------------------------------------------------
+create table if not exists public.learner_daily_plans (
+  user_id            uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  study_date         date not null,
+  due_snapshot       integer  not null check (due_snapshot >= 0),
+  borrowed_for_next  smallint not null default 0 check (borrowed_for_next >= 0),
+  completed_at       timestamptz,                   -- xong Bài học hôm nay
+  created_at         timestamptz not null default now(),
+  updated_at         timestamptz not null default now(),
+
+  primary key (user_id, study_date)
+);
+comment on table public.learner_daily_plans is
+  'Một dòng mỗi ngày học: số due chụp đầu ngày (D) và số từ mượn của ngày kế tiếp (R7).';
+
+drop trigger if exists set_updated_at on public.learner_daily_plans;
+create trigger set_updated_at before update on public.learner_daily_plans
+  for each row execute function public.set_updated_at();
+
+alter table public.learner_daily_plans enable row level security;
+
+drop policy if exists "Owner can read own daily plans"   on public.learner_daily_plans;
+drop policy if exists "Owner can insert own daily plans" on public.learner_daily_plans;
+drop policy if exists "Owner can update own daily plans" on public.learner_daily_plans;
+
+create policy "Owner can read own daily plans"
+on public.learner_daily_plans for select to authenticated
+using ( (select auth.uid()) = user_id );
+
+create policy "Owner can insert own daily plans"
+on public.learner_daily_plans for insert to authenticated
+with check ( (select auth.uid()) = user_id );
+
+create policy "Owner can update own daily plans"
+on public.learner_daily_plans for update to authenticated
+using ( (select auth.uid()) = user_id )
 with check ( (select auth.uid()) = user_id );

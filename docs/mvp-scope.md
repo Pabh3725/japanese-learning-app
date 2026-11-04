@@ -10,12 +10,12 @@
 
 Định nghĩa **MVP v0.1 làm gì, không làm gì, và thế nào là xong**. Mọi task trong kế hoạch "Tasks v2" dịch từ tài liệu này sang code.
 
-**MVP thành công khi:** một người học thật đăng nhập Google, học một từ mới qua đủ các Stage, từ đó sinh card, hôm sau card xuất hiện trong bài học để ôn, và tiến độ giống nhau trên PC và điện thoại.
+**MVP thành công khi:** một người học thật đăng ký bằng username + mật khẩu, học một từ mới qua đủ các Stage, từ đó sinh card, hôm sau card xuất hiện trong bài học để ôn, và tiến độ giống nhau trên PC và điện thoại.
 
 ## 2. Confirmed product requirements
 
 1. Web app học **Vocabulary JLPT N5** cho người Việt; N4 làm sau.
-2. **Nhiều người học**, đăng nhập **chỉ bằng Google**; mỗi người có tiến độ, lịch ôn, settings riêng.
+2. **Nhiều người học**, tự đăng ký bằng **username + mật khẩu** (không cần email); mỗi người có tiến độ, lịch ôn, settings riêng.
 3. Nội dung **cố định**, chỉ server seed; người học không import. Data N5 hoàn chỉnh đã có (kèm Hán Việt toàn từ, liên kết Kanji).
 4. **Lộ trình từ mới cố định**; nội dung mỗi ngày tính động từ review + từ đang học dở + từ mới.
 5. Một luồng hằng ngày **"Bài học hôm nay"**: review FSRS **bắt buộc**, chia thành các phiên ~5 phút, phải hoàn thành trong ngày.
@@ -39,9 +39,9 @@
 
 Giữ navigation, theme, typography, components; thay mock bằng dữ liệu thật; giữ copy tiếng Anh. *(Spec §11)*
 
-### P0-2 — Tài khoản Google, nhiều người học, đồng bộ
+### P0-2 — Tài khoản username + mật khẩu, nhiều người học, đồng bộ
 
-- Supabase Auth với Google OAuth; lần đăng nhập đầu tạo settings mặc định.
+- Supabase Auth, đăng nhập bằng username + mật khẩu (không email); tài khoản mới tự có settings mặc định.
 - RLS: bảng nội dung chỉ SELECT; bảng tiến độ, log, settings theo `auth.uid() = user_id`.
 - Service role key chỉ dùng cho seed, không bao giờ ở client. *(Spec §9.3, §10.7)*
 
@@ -130,7 +130,7 @@ N4–N1; Grammar, nghe hiểu, speaking; nhận dạng nét viết tay; gõ Kanj
 ## 7. Luồng học end-to-end
 
 ```text
-Đăng nhập Google
+Đăng ký / đăng nhập (username + mật khẩu)
   │
   v
 Dashboard: due hôm nay · từ dở · từ mới · tiến độ lộ trình
@@ -153,7 +153,7 @@ Dữ liệu trên server → PC và mobile thấy cùng tiến độ
 
 ### Tài khoản và bảo mật
 
-- [ ] Hai tài khoản Google khác nhau đăng nhập được và không đọc/ghi được dữ liệu của nhau.
+- [ ] Hai tài khoản (username khác nhau) đăng nhập được và không đọc/ghi được dữ liệu của nhau.
 - [ ] Người chưa đăng nhập không đọc/ghi learner data; client không ghi được bảng nội dung.
 - [ ] Không có service role key trong Git hoặc client bundle.
 
@@ -211,7 +211,7 @@ Chi tiết: `docs/PROJECT_SPEC.md` §14 (các dòng không có ✅).
 
 | PLAN-01 (14/10) | PLAN-02 (31/10) |
 | --- | --- |
-| Một learner profile | Nhiều người học, đăng nhập Google |
+| Một learner profile | Nhiều người học, đăng nhập username + mật khẩu |
 | Không lesson cố định, free learning | Lộ trình từ mới cố định; nội dung ngày động |
 | Import CSV/JSON (P0-4) | Chỉ server seed; người học không import |
 | Backup/restore (P0-9) | Sau MVP |
