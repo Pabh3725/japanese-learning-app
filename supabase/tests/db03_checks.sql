@@ -1,5 +1,6 @@
 -- =============================================================================
 -- DB-03 · Kiểm tra schema và RLS (thay db02_checks.sql sau Migration 3)
+-- Chạy SAU migration 20261104000003_db03_multiuser_stage_points.sql
 --
 -- Cách chạy: Supabase Dashboard → SQL Editor → New query → dán toàn bộ file → Run.
 --
@@ -45,6 +46,7 @@ declare
   ls  uuid;
   qi  uuid;
   rc  uuid;
+  ps  uuid;
   ev  uuid := gen_random_uuid();
   n   integer;
 begin
@@ -212,9 +214,10 @@ begin
     where s.nspname = 'public' and c.relkind = 'r' and c.relrowsecurity
       and c.relname in ('vocabularies','kanji','vocabulary_kanji','learner_settings','learner_vocabulary',
                         'learner_skill_progress','checkpoint_completions','lesson_sessions','lesson_queue_items',
-                        'lesson_attempts','xp_events','review_cards','review_logs','practice_sessions','practice_attempts','exercise_logs');
-    t := t || 'T20 Cả 16 bảng đã bật RLS'::text;
-    r := r || (case when n = 16 then 'PASS' else 'FAIL — chỉ ' || n || '/16 bảng bật RLS' end);
+                        'lesson_attempts','xp_events','review_cards','review_logs','practice_sessions','practice_attempts','exercise_logs',
+                        'learner_vocabulary_exclusions','learner_daily_plans');
+    t := t || 'T20 Cả 18 bảng đã bật RLS'::text;
+    r := r || (case when n = 18 then 'PASS' else 'FAIL — chỉ ' || n || '/18 bảng bật RLS' end);
 
     select count(*) into n from pg_policies where schemaname = 'public' and 'anon' = any (roles);
     t := t || 'T21 Không có policy nào cho người chưa đăng nhập (anon)'::text;
@@ -237,8 +240,8 @@ begin
     r := r || (case when n = 0 then 'PASS' else 'FAIL — có ' || n || ' policy ghi' end);
 
     select count(*) into n from pg_policies where schemaname = 'public';
-    t := t || 'T25 Tổng số policy = 36 (34 của SEC-01 + 2 của exercise_logs)'::text;
-    r := r || (case when n = 36 then 'PASS' else 'FAIL — có ' || n || ' policy' end);
+    t := t || 'T25 Tổng số policy = 42 (34 SEC-01 + 2 exercise_logs + 3 exclusions + 3 daily_plans)'::text;
+    r := r || (case when n = 42 then 'PASS' else 'FAIL — có ' || n || ' policy' end);
 
     -- ---------- DB-03: điểm, settings, exercise_logs ----------
     begin
@@ -253,7 +256,8 @@ begin
     r := r || pg_temp.expect_error(format(
       $q$ update public.learner_vocabulary set stage_points_today = 4 where id = %L $q$, lv), '23514');
 
-    insert into public.learner_settings (user_id) values (u);
+    -- AUTH-01: trigger đã tự tạo settings khi tạo user → chỉ thêm nếu chưa có
+    insert into public.learner_settings (user_id) values (u) on conflict (user_id) do nothing;
     t := t || 'T28 Settings mặc định 20 / 120 / 80 / mixed'::text;
     r := r || (case when exists (select 1 from public.learner_settings
                                  where user_id = u and daily_new_limit = 20 and review_cap = 120
@@ -286,6 +290,39 @@ begin
       $q$ insert into public.exercise_logs (user_id, learner_vocabulary_id, client_event_id, stage_number,
             exercise_type, outcome, points, counted, study_date, day_seq)
           values (%L, %L, %L, 2, 'kana_to_meaning', 'correct', 1, true, current_date, 2) $q$, u, lv, ev), '23505');
+
+    -- ---------- Bổ sung khi gộp: loại từ, trần practice, ngày học ----------
+    begin
+      insert into public.learner_vocabulary_exclusions (user_id, vocabulary_id) values (u, v2);
+      update public.learner_vocabulary_exclusions set excluded_at = null where user_id = u and vocabulary_id = v2;
+      t := t || 'T33 Loại từ chưa học rồi khôi phục (phải THÀNH CÔNG)'::text;  r := r || 'PASS'::text;
+    exception when others then
+      t := t || 'T33 Loại từ chưa học rồi khôi phục (phải THÀNH CÔNG)'::text;  r := r || ('FAIL — ' || sqlerrm);
+    end;
+
+    t := t || 'T34 Loại cùng một từ hai lần (UNIQUE)'::text;
+    r := r || pg_temp.expect_error(format(
+      $q$ insert into public.learner_vocabulary_exclusions (user_id, vocabulary_id) values (%L, %L) $q$, u, v2), '23505');
+
+    t := t || 'T35 Practice cộng quá +3 điểm/ngày cho một card (CHECK 0–3)'::text;
+    r := r || pg_temp.expect_error(format(
+      $q$ update public.review_cards set practice_points_today = 4 where id = %L $q$, rc), '23514');
+
+    insert into public.practice_sessions (user_id, game_code) values (u, 'speed_matching') returning id into ps;
+    t := t || 'T36 Lượt practice có điểm nhưng không gắn card (CHECK)'::text;
+    r := r || pg_temp.expect_error(format(
+      $q$ insert into public.practice_attempts (user_id, practice_session_id, vocabulary_id, client_event_id, skill_code, is_correct, card_points)
+          values (%L, %L, %L, %L, 'kana', true, 1) $q$,
+      u, ps, v1, gen_random_uuid()), '23514');
+
+    insert into public.learner_daily_plans (user_id, study_date, due_snapshot) values (u, current_date, 50);
+    t := t || 'T37 Hai dòng ngày học cho cùng một ngày (UNIQUE)'::text;
+    r := r || pg_temp.expect_error(format(
+      $q$ insert into public.learner_daily_plans (user_id, study_date, due_snapshot) values (%L, current_date, 10) $q$, u), '23505');
+
+    t := t || 'T38 Số due chụp bị âm (CHECK)'::text;
+    r := r || pg_temp.expect_error(format(
+      $q$ update public.learner_daily_plans set due_snapshot = -1 where user_id = %L $q$, u), '23514');
 
     -- Kết thúc khối nháp: cố tình báo lỗi để hoàn tác TOÀN BỘ dữ liệu thử
     raise exception 'db03_rollback';
