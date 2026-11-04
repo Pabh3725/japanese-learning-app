@@ -166,6 +166,8 @@ Nếu sau này có **UI import** trong app, thêm policy INSERT/UPDATE cho ngư�
 | `review_cards` | own | own | own | — | INSERT khi tạo card; UPDATE chỉ qua luồng submit review (server) |
 | `review_logs` | own | own | — | — | **Append-only**; ghi cùng transaction với UPDATE card |
 
+**SRS-03 (2026-11-04):** luồng submit review = hàm Postgres `public.submit_review` (`security invoker` → RLS vẫn áp dụng; `anon` không có quyền gọi). Cập nhật card + ghi nhật ký trong một transaction; chống gửi trùng bằng `client_event_id`, chống ghi đè giữa 2 thiết bị bằng `version`. App gọi qua `lib/dal/review.ts` (lịch và điểm do server tính, giờ ôn = giờ server). Người dùng vẫn có thể tự gọi hàm này bằng JWT của mình để sửa điểm **của chính mình** — rủi ro đã chấp nhận ở SEC-D4. Test: `supabase/tests/srs03_checks.sql`.
+
 ### 6.5 Practice
 
 | Bảng | SELECT | INSERT | UPDATE | DELETE | Ghi chú |
