@@ -17,9 +17,9 @@ export default function LearnPage() {
 
       <div className="grid gap-4 md:grid-cols-2">
         <LearningCard
-          href="/learn/session?mode=vocab"
+          href="/learn/intro"
           title="New Vocabulary"
-          description="5 words · about 6 minutes"
+          description="10 words at a time"
           sample="語"
           count={userProfile.newToday}
           countLabel="new today"
