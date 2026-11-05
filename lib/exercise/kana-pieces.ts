@@ -1,8 +1,9 @@
 // VOC-03 — Bài ghép kana: tách từ thành mảnh, sinh mảnh nhiễu, chấm đáp án.
 // Pure: không gọi database. `random` truyền vào để test lặp lại được.
 
-/** Số mảnh nhiễu thêm vào mỗi câu. */
-export const KANA_DISTRACTORS = 3
+/** Số mảnh nhiễu mỗi câu: bằng số mảnh của từ, trong khoảng này. Đủ nhiều thì mới xen giữa được các mảnh đáp án. */
+export const KANA_DISTRACTORS_MIN = 3
+export const KANA_DISTRACTORS_MAX = 6
 
 /** Số từ mỗi lượt. Tạm thời: SES-01 / REV-02 sẽ thay phần chọn câu. */
 export const KANA_ASSEMBLY_WORDS_PER_ROUND = 10
@@ -32,13 +33,47 @@ function shuffle<T>(items: readonly T[], random: () => number): T[] {
 }
 
 /** Mảnh nhiễu cùng bảng chữ với từ, không trùng mảnh nào của đáp án. Từ pha cả hai bảng chữ thì lấy từ cả hai. */
-export function pickKanaDistractors(pieces: readonly string[], random: () => number, count = KANA_DISTRACTORS): string[] {
+export function pickKanaDistractors(pieces: readonly string[], random: () => number): string[] {
+  const count = Math.min(KANA_DISTRACTORS_MAX, Math.max(KANA_DISTRACTORS_MIN, pieces.length))
   const text = pieces.join('')
   const candidates = [
     ...(/[ぁ-ゖ]/.test(text) ? HIRAGANA : []),
     ...(/[ァ-ヺ]/.test(text) ? KATAKANA : []),
   ].filter((char) => !pieces.includes(char))
   return shuffle(candidates, random).slice(0, count)
+}
+
+/**
+ * Trộn mảnh đáp án vào giữa mảnh nhiễu. Xáo ngẫu nhiên thuần để 83% câu có mảnh đáp án liền nhau,
+ * người học chỉ cần sắp lại một cụm. Ở đây mảnh đáp án được rải vào các khe giữa mảnh nhiễu,
+ * nên chỉ liền nhau khi số mảnh nhiều hơn số khe, và không giữ đúng thứ tự của từ.
+ */
+export function mixKanaPieces(pieces: readonly string[], distractors: readonly string[], random: () => number): string[] {
+  const answerOrder = (pool: readonly string[]) => pool.filter((piece) => pieces.includes(piece)).join('')
+  const reading = pieces.join('')
+  let pool = spreadIntoGaps(pieces, distractors, random)
+  for (let tries = 0; tries < 10 && pieces.length > 1 && answerOrder(pool) === reading; tries++) {
+    pool = spreadIntoGaps(pieces, distractors, random)
+  }
+  if (answerOrder(pool) !== reading) return pool
+
+  // Hiếm khi vẫn đúng thứ tự sau 10 lần: đổi chỗ hai mảnh đáp án khác nhau. Từ chỉ một loại mảnh thì giữ nguyên.
+  const positions = pool.flatMap((piece, i) => (pieces.includes(piece) ? [i] : []))
+  const other = positions.find((i) => pool[i] !== pool[positions[0]])
+  if (other === undefined) return pool
+  const swapped = [...pool]
+  ;[swapped[positions[0]], swapped[other]] = [swapped[other], swapped[positions[0]]]
+  return swapped
+}
+
+function spreadIntoGaps(pieces: readonly string[], distractors: readonly string[], random: () => number): string[] {
+  const answer = shuffle(pieces, random)
+  const gapCount = distractors.length + 1
+  const gaps = shuffle(Array.from({ length: gapCount }, (_, i) => i), random)
+  const buckets: string[][] = Array.from({ length: gapCount }, () => [])
+  answer.forEach((piece, i) => buckets[gaps[i % gapCount]].push(piece))
+  const others = shuffle(distractors, random)
+  return buckets.flatMap((bucket, i) => (i < others.length ? [...bucket, others[i]] : bucket))
 }
 
 export interface KanaAssemblyQuestion {
@@ -50,7 +85,7 @@ export interface KanaAssemblyQuestion {
 
 export function buildKanaAssemblyQuestion(reading: string, random: () => number): KanaAssemblyQuestion {
   const pieces = splitKana(reading)
-  return { slots: pieces.length, pool: shuffle([...pieces, ...pickKanaDistractors(pieces, random)], random) }
+  return { slots: pieces.length, pool: mixKanaPieces(pieces, pickKanaDistractors(pieces, random), random) }
 }
 
 export function isKanaAssemblyCorrect(placed: readonly string[], reading: string): boolean {
