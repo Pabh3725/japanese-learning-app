@@ -110,6 +110,14 @@ export const OWNED_TABLES: OwnedTable[] = [
     row: (p, n) => ({ learner_vocabulary_id: p.lv, skill_code: SKILLS[n] }),
   },
   {
+    table: 'learner_stage_schedules',
+    key: ['id'],
+    appendOnly: false,
+    patch: { stage_points: 1 },
+    // Stage 2 do trigger tự tạo; ở đây dùng stage khác để không đụng UNIQUE.
+    row: (p, n) => ({ learner_vocabulary_id: p.lv, stage_number: [4, 5][n] }),
+  },
+  {
     table: 'checkpoint_completions',
     key: ['id'],
     appendOnly: true,

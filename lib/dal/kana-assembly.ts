@@ -36,10 +36,15 @@ export async function getKanaAssemblyWords(): Promise<KanaAssemblyWord[]> {
   const [words, excluded] = await Promise.all([
     supabase
       .from('learner_vocabulary')
-      .select('id, vocabulary_id, last_practiced_at, vocabularies!inner(reading_kana, meaning_vi, sort_order)')
+      .select(
+        'id, vocabulary_id, last_practiced_at, vocabularies!inner(reading_kana, meaning_vi, sort_order), ' +
+          'learner_stage_schedules!inner(stage_number)',
+      )
       .eq('user_id', user.id)
-      .eq('current_stage', 2)
       .eq('learning_status', 'learning')
+      // V8: Stage 2 chạy tới khi hoàn tất, kể cả sau khi đã mở stage sau. SCH-02 sẽ lọc thêm theo hạn.
+      .eq('learner_stage_schedules.stage_number', 2)
+      .is('learner_stage_schedules.completed_at', null)
       .range(0, MAX_ROWS - 1),
     supabase
       .from('learner_vocabulary_exclusions')
@@ -80,12 +85,15 @@ export async function submitKanaAssembly(input: unknown): Promise<SubmitKanaAsse
   const user = await requireUser()
   const supabase = await createClient()
 
-  const { data, error } = await supabase
-    .from('learner_vocabulary')
-    .select('id, vocabularies!inner(reading_kana)')
-    .eq('id', req.learnerVocabularyId)
-    .eq('user_id', user.id)
-    .maybeSingle()
+  const [{ data, error }, daySeq] = await Promise.all([
+    supabase
+      .from('learner_vocabulary')
+      .select('id, vocabularies!inner(reading_kana)')
+      .eq('id', req.learnerVocabularyId)
+      .eq('user_id', user.id)
+      .maybeSingle(),
+    getNextDaySeq(studyDate(new Date())),
+  ])
   if (error) throw new Error(`Không đọc được learner_vocabulary: ${error.message}`)
   if (!data) return { status: 'not_found' }
 
@@ -95,9 +103,10 @@ export async function submitKanaAssembly(input: unknown): Promise<SubmitKanaAsse
   const saved = await submitExercise({
     learnerVocabularyId: req.learnerVocabularyId,
     clientEventId: req.clientEventId,
+    stage: 2,
     exercise: 'kana_assembly',
     outcome: correct ? 'correct' : 'wrong',
-    daySeq: await getNextDaySeq(studyDate(new Date())),
+    daySeq,
     responseMs: req.responseMs,
   })
 

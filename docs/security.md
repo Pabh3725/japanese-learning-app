@@ -148,6 +148,7 @@ Nếu sau này có **UI import** trong app, thêm policy INSERT/UPDATE cho ngư�
 | `learner_settings` ✱ | own | own | own | — | Quota, timezone |
 | `learner_vocabulary_exclusions` | own | own | own | — | Loại từ khỏi lộ trình; khôi phục bằng UPDATE (DB-03) |
 | `learner_daily_plans` | own | own | own | — | Trạng thái mỗi ngày học (DB-03) |
+| `learner_stage_schedules` | own | own | own | — | Điểm và lịch từng Stage (SCH-01) |
 
 ### 6.3 Daily Lessons
 

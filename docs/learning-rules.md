@@ -1,6 +1,6 @@
 # ENG-01 — Luật học (Learning Rules) `RULES_V3`
 
-> Trạng thái: **Đã chốt thiết kế V8 — code chưa cập nhật**. `lib/learning/` vẫn đang theo `RULES_V2` cho tới task SCH-01.
+> Trạng thái: **Đã chốt thiết kế V8**. Stage đã có trong code (`lib/learning/` theo `RULES_V3`, SCH-01); R7 làm ở SES-01, R10 ở KJ-02.
 >
 > Ngày: 2026-11-05 (bản V7: 2026-11-01)
 >
@@ -91,16 +91,22 @@ Hệ quả: sai liên tiếp trong vòng 4 câu chỉ bị trừ **một lần**
 
 ## 6. R4 — Mở stage sau và hoàn tất stage
 
-**Mở stage sau** ngay khi **cả hai** điều kiện đúng — CONFIRMED (V8):
+Mốc riêng từng stage — CONFIRMED (V8, 2026-11-05):
 
-1. Điểm stage ≥ **5**.
-2. Mọi **yêu cầu bắt buộc** của Stage đã có **ít nhất một lần được +1** (tính từ lúc vào Stage này, xuyên qua các ngày).
+| Stage | Mở stage sau | Hoàn tất |
+| --- | --- | --- |
+| 2 | 5 điểm | 8 điểm |
+| 4 | 6 điểm | 10 điểm |
+| 5, từ có Kanji | Không có | 10 điểm |
+| 5, từ chỉ có Kana | Không có | 8 điểm |
 
-**Hoàn tất stage** khi đã mở stage sau (Stage 5: đã đủ yêu cầu Skill) và điểm stage ≥ **10**: dừng lịch, dừng bài tập của stage đó, chạy R5. — CONFIRMED (V8)
+**Mở stage sau** ngay khi đạt mốc điểm **và** mọi **yêu cầu bắt buộc** của Stage đã có **ít nhất một lần được +1** (tính từ lúc vào Stage này, xuyên qua các ngày).
+
+**Hoàn tất stage** khi đã đạt mốc hoàn tất, đã mở stage sau (Stage 5: đã đủ yêu cầu Skill): dừng lịch, dừng bài tập của stage đó, chạy R5.
 
 **Hoàn thành từ** khi mọi stage tính điểm của từ đều hoàn tất.
 
-Điểm tụt xuống dưới 5 sau khi đã mở không đóng stage sau.
+Điểm tụt xuống dưới mốc sau khi đã mở không đóng stage sau.
 
 | Stage | Yêu cầu bắt buộc |
 | --- | --- |
@@ -125,11 +131,11 @@ Khi mở stage sau: điểm stage hiện tại **giữ nguyên**, stage kế ti�
 | Vừa hoàn tất | Tạo card |
 | --- | --- |
 | Stage 1 | — |
-| Stage 2 (10 điểm) | `vocab.meaning_kana` |
+| Stage 2 (8 điểm) | `vocab.meaning_kana` |
 | Stage 3 (xem xong) | `vocab.kana_hanviet` |
 | Stage 4 (10 điểm) | `vocab.meaning_kanji`, `vocab.kanji_meaning_hanviet` |
 | Stage 5 có Kanji (10 điểm) | `vocab.meaning_hanviet` |
-| Stage 5 chỉ Kana (10 điểm) | — (đã có `vocab.meaning_kana` từ Stage 2) |
+| Stage 5 chỉ Kana (8 điểm) | — (đã có `vocab.meaning_kana` từ Stage 2) |
 
 - Card mới: trạng thái FSRS `New`, điểm card 0, **đến hạn lần đầu lúc 00:00 ngày học hôm sau**. — CONFIRMED (6a)
 - Tạo card idempotent: hoàn tất Stage hai lần (ví dụ do submit trùng) không tạo card thứ hai. — PROPOSED
@@ -207,6 +213,8 @@ Chạy thật `ts-fsrs` với tham số mặc định, tắt fuzz, đúng mọi 
 | **2 ngày (đã chọn)** | **Ngày 6** | **Ngày 16** |
 | 1 ngày | Ngày 4 | Ngày 9 |
 
+Các mốc đã chốt khi đúng mọi câu, tối đa 2 ngày: 6 điểm ngày 8, 8 điểm ngày 12. `ts-fsrs` 6.0.0 không áp `maximum_interval` ở bước chuyển Learning sang Review khi trả lời muộn, nên `lib/srs/stage-scheduler.ts` tự chặn.
+
 ## 10b. R10 — Khu Kanji (V8)
 
 Độc lập với Stage và điểm của từ vựng. Spec §18.6.
@@ -222,7 +230,7 @@ Chạy thật `ts-fsrs` với tham số mặc định, tắt fuzz, đúng mọi 
 
 Quy ước: `#n` là thứ tự câu trong ngày học (đã bỏ câu vòng boss).
 
-> **V8:** các ví dụ dưới đây viết theo V7. Khác biệt chính: 5 điểm mở stage sau nhưng stage vẫn chạy tiếp; card tạo ở 10 điểm; gap chỉ tính trong Learn. VD2, VD6 và VD9 đã cập nhật; VD1, VD3, VD4 vẫn đúng về cách cộng trừ điểm. ENG-02 phải cập nhật test theo các ví dụ này.
+> **V8:** mốc mở stage sau không còn dừng stage; stage chạy tiếp tới mốc hoàn tất mới tạo card; gap chỉ tính trong Learn. VD2, VD6 và VD9 đã cập nhật; VD1, VD3, VD4 vẫn đúng về cách cộng trừ điểm.
 
 ### VD1 — Giãn cách chặn spam (R3)
 
@@ -236,7 +244,7 @@ Quy ước: `#n` là thứ tự câu trong ngày học (đã bỏ câu vòng bos
 
 ### VD2 — Đủ điểm nhưng thiếu dạng bắt buộc (R4)
 
-学校, Stage 2, điểm 6; đã có +1 từ `kana_to_meaning` và `meaning_to_kana`, **chưa** có từ `kana_assembly` → **chưa qua**. Câu ghép Kana được giãn cách, `correct`, chưa chạm trần → +1 → điểm 7, đủ 3 yêu cầu → **mở Stage 3**; Stage 2 vẫn chạy tiếp. Khi Stage 2 đạt 10 điểm → hoàn tất, tạo `vocab.meaning_kana` (R5).
+学校, Stage 2, điểm 6; đã có +1 từ `kana_to_meaning` và `meaning_to_kana`, **chưa** có từ `kana_assembly` → **chưa qua**. Câu ghép Kana được giãn cách, `correct`, chưa chạm trần → +1 → điểm 7, đủ 3 yêu cầu → **mở Stage 3**; Stage 2 vẫn chạy tiếp. Câu đúng tiếp theo đạt 8 điểm → hoàn tất, tạo `vocab.meaning_kana` (R5).
 
 ### VD3 — Trần 3 điểm cộng mỗi ngày (R3)
 
@@ -265,8 +273,8 @@ Quy ước: `#n` là thứ tự câu trong ngày học (đã bỏ câu vòng bos
 ### VD6 — テレビ đi trọn đường (R1, R4, R5, R6)
 
 1. Stage 1: xem xong → Stage 2.
-2. Stage 2: qua vài ngày, đạt 5 điểm, có +1 từ cả 3 dạng (mảnh ghép là Katakana テ・レ・ビ) → **mở Stage 5**, Stage 2 vẫn chạy. Đạt 10 điểm → hoàn tất Stage 2, tạo `vocab.meaning_kana`.
-3. Stage 5: yêu cầu S1 (ghép hoặc chọn nghĩa 1/6) và S2 (gõ `terebi` → テレビ); đạt 10 điểm → hoàn tất Stage 5. Khi cả Stage 2 và 5 đều hoàn tất → **hoàn thành vòng học ban đầu**, không tạo card mới.
+2. Stage 2: qua vài ngày, đạt 5 điểm, có +1 từ cả 3 dạng (mảnh ghép là Katakana テ・レ・ビ) → **mở Stage 5**, Stage 2 vẫn chạy. Đạt 8 điểm → hoàn tất Stage 2, tạo `vocab.meaning_kana`.
+3. Stage 5: yêu cầu S1 (ghép hoặc chọn nghĩa 1/6) và S2 (gõ `terebi` → テレビ); đạt 8 điểm → hoàn tất Stage 5. Khi cả Stage 2 và 5 đều hoàn tất → **hoàn thành vòng học ban đầu**, không tạo card mới.
 4. `vocab.meaning_kana` của テレビ **không bao giờ bị bỏ**, kể cả khi điểm card vượt 30.
 
 ### VD7 — Rating khi review (R2)
@@ -319,9 +327,14 @@ Settings mặc định (20 từ / 200 câu Stage / 120 card / ngưỡng 80).
 export const RULES_V3 = {
   version: 3,
   timezone: 'Asia/Ho_Chi_Minh',
-  stagePoints: { correct: 1, hint: 0, wrong: -1, unlockNextAt: 5, completeAt: 10, maxPositivePerStagePerDay: 3, floor: null },
-  stageSchedule: { maximumIntervalDays: 2, ratings: ['Again', 'Hard', 'Good'] },
-  spacing: { minGap: 4, excludeBossRound: true, learnOnly: true },
+  stagePoints: { correct: 1, hint: 0, wrong: -1, maxPositivePerStagePerDay: 3 },
+  stageThresholds: {
+    2: { unlockNextAt: 5, completeAt: 8 },
+    4: { unlockNextAt: 6, completeAt: 10 },
+    5: { completeAt: { withKanji: 10, kanaOnly: 8 } },
+  },
+  stageSchedule: { maximumIntervalDays: 2 },
+  spacing: { minGap: 4 }, // chỉ đếm trong Learn, không tính câu Review và câu vòng boss
   review: { easyMaxMs: 3000, easyExerciseKinds: ['typing', 'assembly'] },
   cardPoints: {
     review: { again: -1, hard: 0, good: 1, easy: 2 },

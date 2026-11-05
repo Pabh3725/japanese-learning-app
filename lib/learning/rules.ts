@@ -1,10 +1,10 @@
-// RULES_V2 — mọi con số của luật học nằm ở đây, không hard-code chỗ khác.
+// RULES_V3 — mọi con số của luật học nằm ở đây, không hard-code chỗ khác.
 // Nguồn: docs/learning-rules.md §12. Đổi luật = đổi file này + tăng version.
 
 import type { CardType, ExerciseCode, ExerciseKind, Skill, Stage } from './types'
 
-export const RULES_V2 = {
-  version: 2,
+export const RULES_V3 = {
+  version: 3,
   timezone: 'Asia/Ho_Chi_Minh',
   /** Việt Nam không có giờ mùa hè nên dùng độ lệch cố định UTC+7. */
   utcOffsetMinutes: 7 * 60,
@@ -12,9 +12,17 @@ export const RULES_V2 = {
     correct: 1,
     hint: 0,
     wrong: -1,
-    passAt: 5,
     maxPositivePerStagePerDay: 3,
   },
+  /** V8: mỗi stage có mốc riêng. Mở stage sau ≠ hoàn tất; stage chạy tiếp tới khi hoàn tất. */
+  stageThresholds: {
+    2: { unlockNextAt: 5, completeAt: 8 },
+    4: { unlockNextAt: 6, completeAt: 10 },
+    5: { completeAt: { withKanji: 10, kanaOnly: 8 } },
+  },
+  /** Lịch FSRS của Stage. Không giới hạn thì đúng mọi câu phải hơn 35 năm mới đạt 10 điểm. */
+  stageSchedule: { maximumIntervalDays: 2 },
+  /** Chỉ đếm câu trong khu Learn. Câu Review và câu vòng boss không tính. */
   spacing: { minGap: 4 },
   review: {
     easyMaxMs: 3000,
@@ -29,7 +37,7 @@ export const RULES_V2 = {
     'vocab.meaning_kana': 30,
     'vocab.kana_hanviet': 40,
   } as Partial<Record<CardType, number>>,
-  defaults: { newPerDay: 20, reviewCap: 120, unlockThreshold: 80, mode: 'mixed' as const },
+  defaults: { newPerDay: 20, stageCap: 200, reviewCap: 120, unlockThreshold: 80, kanjiNewPerDay: 5, kanjiCap: 50 },
   borrow: { maxDaysAhead: 1 },
 } as const
 
@@ -76,7 +84,7 @@ export const STAGE_EXERCISES: Record<2 | 4 | 5, readonly ExerciseCode[]> = {
   ],
 }
 
-/** Yêu cầu bắt buộc để qua Stage 2 và 4 (mỗi dạng ≥ 1 lần được +1). */
+/** Yêu cầu bắt buộc để mở stage sau ở Stage 2 và 4 (mỗi dạng ≥ 1 lần được +1). */
 export const REQUIRED_EXERCISES: Record<2 | 4, readonly ExerciseCode[]> = {
   2: ['kana_to_meaning', 'meaning_to_kana', 'kana_assembly'],
   4: ['kanji_recognition', 'kanji_assembly', 'hanviet_recognition', 'hanviet_assembly'],
@@ -88,7 +96,7 @@ export const REQUIRED_SKILLS_STAGE5 = {
   kanaOnly: ['S1', 'S2'] as readonly Skill[],
 }
 
-/** Card được tạo khi vừa qua mỗi Stage (từ có Kanji). */
+/** Card được tạo khi hoàn tất mỗi Stage (từ có Kanji). */
 export const CARDS_ON_PASS: Record<Stage, readonly CardType[]> = {
   1: [],
   2: ['vocab.meaning_kana'],
