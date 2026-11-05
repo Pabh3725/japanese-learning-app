@@ -1,0 +1,7 @@
+'use server'
+
+import { completeStage3, type CompleteStage3Response } from '@/lib/dal/stage3'
+
+export async function completeStage3Action(learnerVocabularyId: string): Promise<CompleteStage3Response> {
+  return completeStage3(learnerVocabularyId)
+}
