@@ -55,18 +55,18 @@ export function createSupabaseSeedDb(url: string, serviceRoleKey: string): SeedD
  */
 export function assertServiceRoleKey(key: string): void {
   if (key.startsWith('sb_publishable_')) {
-    throw new Error('SUPABASE_SERVICE_ROLE_KEY đang là publishable key. Cần secret key (sb_secret_...) hoặc service_role key.')
+    throw new Error('SUPABASE_SECRET_KEY đang là publishable key. Cần secret key (sb_secret_...) hoặc service_role key.')
   }
   if (key.startsWith('sb_secret_')) return
   const payload = key.split('.')[1]
-  if (!payload) throw new Error('SUPABASE_SERVICE_ROLE_KEY không đúng định dạng.')
+  if (!payload) throw new Error('SUPABASE_SECRET_KEY không đúng định dạng.')
   try {
     const role = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')).role
     if (role !== 'service_role') {
-      throw new Error(`SUPABASE_SERVICE_ROLE_KEY có role "${role}", cần "service_role" (đây có thể là anon key).`)
+      throw new Error(`SUPABASE_SECRET_KEY có role "${role}", cần "service_role" (đây có thể là anon key).`)
     }
   } catch (e) {
-    if (e instanceof SyntaxError) throw new Error('SUPABASE_SERVICE_ROLE_KEY không đúng định dạng.')
+    if (e instanceof SyntaxError) throw new Error('SUPABASE_SECRET_KEY không đúng định dạng.')
     throw e
   }
 }

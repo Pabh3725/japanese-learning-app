@@ -1,6 +1,8 @@
-# SEC-01 — Auth & Authorization cho một người dùng
+# SEC-01 — Auth & Authorization (cập nhật AUTH-01 theo Design V7)
 
 > Trạng thái: **Đã chốt — chủ dự án duyệt ngày 2026-10-23** (đồng ý toàn bộ SEC-D1…D5, xem §12)
+>
+> **Cập nhật 2026-11-04 (AUTH-01, Design V7):** ứng dụng phục vụ **nhiều người học**, đăng nhập bằng **username + mật khẩu** (không cần email), ai cũng tự đăng ký được. Các mục bị thay đổi được đánh dấu **V7**; SEC-D1 được thay bằng SEC-D6, SEC-D7 (§12).
 >
 > Ngày: 2026-10-21
 >
@@ -14,10 +16,10 @@ Nhãn dùng trong tài liệu: **CONFIRMED** (đã chốt) · **PROPOSED** (đ�
 
 ## 1. Mục tiêu bảo mật
 
-Ứng dụng chạy public trên Internet nhưng chỉ phục vụ **một người học**. Yêu cầu:
+Ứng dụng chạy public trên Internet và phục vụ **nhiều người học** (V7). Yêu cầu:
 
-1. Người lạ mở URL không đọc, không ghi được dữ liệu học.
-2. Chỉ chủ tài khoản đăng nhập được; không ai tự đăng ký thêm tài khoản.
+1. Người chưa đăng nhập không đọc, không ghi được dữ liệu học.
+2. Mỗi người học chỉ đọc/ghi được dữ liệu **của chính mình**; ai cũng tự đăng ký được (V7).
 3. Mọi thao tác ghi đi qua server đã xác thực; client không tự chọn `user_id`.
 4. Không secret nào nằm trong client bundle, Git hoặc log.
 5. Kể cả khi code server có bug, database vẫn chặn truy cập trái phép (RLS).
@@ -38,31 +40,38 @@ Nhãn dùng trong tài liệu: **CONFIRMED** (đã chốt) · **PROPOSED** (đ�
 | --- | --- | --- |
 | T1 | Người lạ mở URL, xem trang | `proxy.ts` redirect về `/login`; page gọi DAL `getClaims()` |
 | T2 | Người lạ gọi thẳng Supabase Data API bằng publishable key (key này công khai trong browser) | Không có policy cho role `anon` → mọi truy vấn bị từ chối |
-| T3 | Người lạ tự đăng ký tài khoản rồi đọc dữ liệu | Tắt sign-up; RLS so `user_id = auth.uid()` nên tài khoản lạ không thấy dữ liệu của chủ |
+| T3 | Một người học (hoặc người lạ vừa đăng ký) đọc dữ liệu của người khác | V7: ai cũng tự đăng ký được; RLS so `user_id = auth.uid()` nên mỗi tài khoản chỉ thấy dòng của mình. Đây là lớp bảo vệ chính, nên mọi bảng user-owned bắt buộc có RLS |
 | T4 | Gọi trực tiếp Server Action bằng POST, bỏ qua UI | Mỗi Server Action/Route Handler tự gọi `getClaims()` |
 | T5 | Client gửi `user_id` giả | Server không nhận `user_id` từ client; DB đặt `default auth.uid()` + `WITH CHECK` |
 | T6 | Lộ secret key | Secret key chỉ ở máy dev/CI cho script; không có trong app runtime, Git, `NEXT_PUBLIC_*` |
 | T7 | CDN/ISR cache response chứa cookie session của người khác | Trang có dữ liệu cá nhân luôn dynamic; áp cache headers từ Supabase client |
 | T8 | XSS đánh cắp session | Không render HTML thô từ dữ liệu import; React escape mặc định |
-| T9 | Brute-force mật khẩu | Mật khẩu mạnh; rate limit có sẵn của Supabase Auth; MFA (P1) |
+| T9 | Brute-force mật khẩu | Mật khẩu tối thiểu 8 ký tự; rate limit có sẵn của Supabase Auth; Supabase lưu mật khẩu đã băm (app không bao giờ thấy) |
+| T12 | Dò username nào tồn tại | Đăng nhập sai chỉ báo chung "Wrong username or password". Form đăng ký vẫn lộ "username đã có người dùng" — chấp nhận ở MVP (username không phải bí mật) |
+| T10 | Open redirect qua tham số `next` ở `/login` | Chỉ nhận đường dẫn nội bộ bắt đầu bằng `/`, không phải `//` (AUTH-01) |
+| T11 | Đăng xuất ngoài ý muốn qua link hoặc prefetch | `/auth/signout` chỉ nhận POST (AUTH-01) |
 
-**Rủi ro chấp nhận (PROPOSED):** chủ tài khoản, khi đã đăng nhập, về kỹ thuật có thể dùng chính JWT của mình gọi Data API để ghi thẳng vào bảng tiến độ (vd. tự tạo checkpoint). Vì người đó cũng là người duy nhất dùng app, đây là "tự gian lận", không phải lỗ hổng lộ dữ liệu. MVP chấp nhận rủi ro này; nếu muốn chặn hẳn, xem §8 SEC-D4.
+**Rủi ro chấp nhận (PROPOSED):** người học, khi đã đăng nhập, về kỹ thuật có thể dùng chính JWT của mình gọi Data API để ghi thẳng vào bảng tiến độ **của mình** (vd. tự cộng điểm). RLS vẫn chặn ghi vào dữ liệu người khác, nên đây là "tự gian lận", không phải lỗ hổng lộ dữ liệu. MVP chấp nhận rủi ro này; nếu muốn chặn hẳn, xem SEC-D4. V7: khi có nhiều người học và có so sánh giữa người dùng (leaderboard), cần xem lại rủi ro này.
 
 ## 4. Mô hình danh tính
 
 | Mục | Quyết định | Nhãn |
 | --- | --- | --- |
 | Provider | Supabase Auth | CONFIRMED |
-| Số tài khoản | Đúng 1 (chủ dự án) | CONFIRMED |
-| Phương thức đăng nhập | **Email + password** | PROPOSED (SEC-D1) |
-| Tạo tài khoản | Tạo thủ công trong Supabase Dashboard (Authentication → Users) | PROPOSED |
-| Đăng ký công khai | **Tắt** ("Allow new users to sign up" = off) | PROPOSED |
-| Đánh dấu chủ | `app_metadata.role = "owner"` (chỉ đặt được bằng secret key/Dashboard; người dùng không tự sửa được) | PROPOSED |
-| MFA (TOTP) | Tùy chọn, P1 | PROPOSED |
+| Số tài khoản | **Nhiều người học** | CONFIRMED (V7) |
+| Phương thức đăng nhập | **Username + mật khẩu**, không email (Supabase provider Email với địa chỉ nội bộ `username@users.projap.invalid`) | CONFIRMED (V7, SEC-D6) |
+| Tạo tài khoản | Người học tự đăng ký ở `/login` | CONFIRMED (V7) |
+| Đăng ký công khai | **Mở**; "Confirm email" **tắt** (không có email thật để gửi) | CONFIRMED (V7, SEC-D7) |
+| Quên mật khẩu | Không có tự phục hồi qua email; admin đặt lại trong Supabase Dashboard (Authentication → Users) | CONFIRMED (V7) — giới hạn đã biết |
+| Settings mặc định | Trigger `on_auth_user_created` tạo `learner_settings` khi có tài khoản mới | IMPLEMENTED (AUTH-01) |
+| Đánh dấu chủ | Không cần trong MVP | V7 (bỏ) |
+| MFA | Không có trong MVP | V7 |
 | Session | Cookie qua `@supabase/ssr`; refresh trong `proxy.ts` | PROPOSED (ARCH-03 ADR-003) |
 | Kiểm tra ở server | `supabase.auth.getClaims()` trong DAL | PROPOSED |
 
-Lý do chọn email + password cho MVP: đăng nhập được ngay trên cả PC và điện thoại, không phụ thuộc email server. Magic link cần gửi email mỗi lần đăng nhập; SMTP mặc định của Supabase có giới hạn gửi rất thấp, chỉ hợp để thử. OAuth (Google) cần thêm cấu hình Google Cloud, không cần thiết cho một người.
+Lý do V7 chọn username + mật khẩu (2026-11-04): đơn giản nhất cho người học, không cần email hay cấu hình Google Cloud; vẫn an toàn vì Supabase quản lý mật khẩu và RLS cách ly dữ liệu. Phương án "chỉ username, không mật khẩu" đã bị loại vì ai biết username là vào được tài khoản người khác, và server sẽ phải dùng secret key trong request path.
+
+Luồng đăng nhập (AUTH-01): form `/login` → Server Function `signIn`/`signUp` → `signInWithPassword` / `signUp` với email nội bộ → Supabase ghi cookie session → chuyển về trang người dùng định vào. Quy tắc username: 3–20 ký tự, chữ thường, số, gạch dưới (`lib/auth/username.ts`).
 
 ### Quy tắc dùng hàm auth ở server
 
@@ -137,6 +146,8 @@ Nếu sau này có **UI import** trong app, thêm policy INSERT/UPDATE cho ngư�
 | `learner_skill_progress` | own | own | own | — | Số liệu skill |
 | `checkpoint_completions` | own | own | — | — | Huy chương đã đạt: không sửa, không xóa |
 | `learner_settings` ✱ | own | own | own | — | Quota, timezone |
+| `learner_vocabulary_exclusions` | own | own | own | — | Loại từ khỏi lộ trình; khôi phục bằng UPDATE (DB-03) |
+| `learner_daily_plans` | own | own | own | — | Trạng thái mỗi ngày học (DB-03) |
 
 ### 6.3 Daily Lessons
 
@@ -146,6 +157,7 @@ Nếu sau này có **UI import** trong app, thêm policy INSERT/UPDATE cho ngư�
 | `lesson_queue_items` | own | own | own | — | UPDATE `status`. `payload` chứa đáp án không được gửi nguyên xuống client |
 | `lesson_attempts` | own | own | — | — | **Append-only** |
 | `xp_events` | own | own | — | — | Append-only; chống cộng trùng bằng `client_event_id` |
+| `exercise_logs` | own | own | — | — | **Append-only**; mỗi câu học Stage (DB-03) |
 
 ### 6.4 FSRS Review
 
@@ -154,12 +166,20 @@ Nếu sau này có **UI import** trong app, thêm policy INSERT/UPDATE cho ngư�
 | `review_cards` | own | own | own | — | INSERT khi tạo card; UPDATE chỉ qua luồng submit review (server) |
 | `review_logs` | own | own | — | — | **Append-only**; ghi cùng transaction với UPDATE card |
 
+**SRS-03 (2026-11-04):** luồng submit review = hàm Postgres `public.submit_review` (`security invoker` → RLS vẫn áp dụng; `anon` không có quyền gọi). Cập nhật card + ghi nhật ký trong một transaction; chống gửi trùng bằng `client_event_id`, chống ghi đè giữa 2 thiết bị bằng `version`. App gọi qua `lib/dal/review.ts` (lịch và điểm do server tính, giờ ôn = giờ server). Người dùng vẫn có thể tự gọi hàm này bằng JWT của mình để sửa điểm **của chính mình** — rủi ro đã chấp nhận ở SEC-D4. Test: `supabase/tests/srs03_checks.sql`.
+
 ### 6.5 Practice
 
 | Bảng | SELECT | INSERT | UPDATE | DELETE | Ghi chú |
 | --- | --- | --- | --- | --- | --- |
 | `practice_sessions` | own | own | own | — | UPDATE `ended_at` |
-| `practice_attempts` | own | own | — | — | Append-only. **Không** có quyền nào chạm `review_cards` |
+| `practice_attempts` | own | own | — | — | Append-only. Trỏ tới `review_cards` để cộng điểm card (DB-03) nhưng không đổi lịch FSRS |
+
+Ràng buộc chung cho §6.2–6.5 (SEC-03):
+
+- INSERT/UPDATE ở bảng con còn phải qua kiểm tra **bản ghi cha cũng là của người ghi** (`private.owns_*`), vì khóa ngoại không kiểm tra chủ sở hữu.
+- `authenticated` không có quyền `TRUNCATE` ở mọi bảng (RLS không chặn `TRUNCATE`) và chỉ có quyền đọc ở bảng §6.1. `anon` không có quyền nào.
+- Thêm bảng mới phải thêm policy, revoke `anon`, revoke `TRUNCATE` và thêm vào `OWNED_TABLES` trong `supabase/tests/rls/helpers.ts`.
 
 ### 6.6 Vì sao không có DELETE
 
@@ -243,9 +263,9 @@ Browser client của Supabase **chỉ dùng cho đăng nhập/đăng xuất**, k
 
 ## 10. Cấu hình Supabase Dashboard (checklist cho AUTH-01)
 
-- [ ] Authentication → Sign-in providers: bật Email, **tắt "Allow new users to sign up"**.
-- [ ] Tạo user chủ dự án thủ công; đặt `app_metadata.role = "owner"`.
-- [ ] Authentication → URL Configuration: Site URL = domain production; Redirect URLs gồm `http://localhost:3000/**` và domain production.
+- [ ] Authentication → Sign In / Providers: **Email bật**, **"Confirm email" tắt** (V7).
+- [ ] "Allow new users to sign up": **bật** (V7 — nhiều người học).
+- [ ] Authentication → URL Configuration: Site URL = domain production (tạm thời `http://localhost:3000`); Redirect URLs gồm `http://localhost:3000/**` và domain production.
 - [ ] API keys: dùng publishable/secret key mới; không dùng legacy `anon`/`service_role`.
 - [ ] Mọi bảng trong `public` bật RLS; Security Advisor không báo bảng thiếu RLS.
 - [ ] Môi trường dev và production dùng project riêng nếu có thể (OD-20, ARCH-03 D-08).
@@ -257,13 +277,15 @@ Browser client của Supabase **chỉ dùng cho đăng nhập/đăng xuất**, k
 | 1 | Chưa đăng nhập, mở `/` | Redirect `/login` |
 | 2 | Chưa đăng nhập, gọi Data API `select * from lesson_attempts` bằng publishable key | 0 dòng / bị từ chối |
 | 3 | Chưa đăng nhập, POST trực tiếp Server Action `submitReview` | 401, không có log mới |
-| 4 | Gọi API sign-up | Bị từ chối |
-| 5 | Tài khoản test thứ hai (tạo bằng Dashboard trên project dev) đọc bảng tiến độ | Chỉ thấy dữ liệu của chính nó (0 dòng) |
+| 4 | Đăng nhập với mật khẩu sai 10 lần liên tiếp | Bị Supabase giới hạn tốc độ; thông báo không cho biết username có tồn tại không |
+| 5 | Tài khoản thứ hai đăng nhập, đọc bảng tiến độ | Chỉ thấy dữ liệu của chính nó; có đúng 1 dòng `learner_settings` của mình |
 | 6 | Đã đăng nhập, INSERT `lesson_attempts` với `user_id` của người khác | Bị `WITH CHECK` từ chối |
 | 7 | Đã đăng nhập, UPDATE/DELETE `review_logs` | Bị từ chối (không có policy) |
 | 8 | Đã đăng nhập, INSERT vào `vocabularies` | Bị từ chối (chỉ script) |
 | 9 | Tìm `sb_secret_` trong `.next/static` sau `pnpm build` và trong Git history | Không tìm thấy |
 | 10 | Response trang Dashboard | Có `Cache-Control` không cho cache công khai |
+
+Kịch bản 2, 5–8 được tự động hóa bằng hai tài khoản thật qua Data API (SEC-03): `pnpm exec supabase start` rồi `pnpm test:rls`. Bộ test chỉ chạy trên stack local. Trên project thật, dùng `supabase/tests/sec03_two_accounts.sql` trong SQL Editor; script tự hoàn tác dữ liệu thử.
 
 ## 12. Quyết định (đã chốt 2026-10-23)
 
@@ -276,6 +298,15 @@ Chủ dự án đồng ý toàn bộ đề xuất dưới đây. Các mục tron
 | SEC-D3 | Ghi content (import) qua đâu ở MVP | Script local với secret key; UI import + policy owner để sau |
 | SEC-D4 | Chấp nhận rủi ro chủ tài khoản tự ghi thẳng qua Data API | Chấp nhận ở MVP. Nếu muốn chặn: thu hồi INSERT/UPDATE của `authenticated` trên bảng tiến độ và ghi qua DB function `security definer` |
 | SEC-D5 | Không mở DELETE; restore/reset qua DB function | Có |
+
+**Quyết định V7 (chốt 2026-11-04, AUTH-01):**
+
+| ID | Câu hỏi | Quyết định |
+| --- | --- | --- |
+| SEC-D1 | Phương thức đăng nhập | **Thay bằng SEC-D6** |
+| SEC-D6 | Phương thức đăng nhập | Username + mật khẩu, không email; không dùng Google OAuth |
+| SEC-D7 | Ai được đăng ký | Bất kỳ ai; cách ly dữ liệu bằng RLS |
+| SEC-D8 | Tạo settings mặc định | Trigger database `on_auth_user_created`, không phụ thuộc code app |
 
 ## 13. Liên kết
 

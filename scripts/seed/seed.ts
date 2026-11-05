@@ -4,7 +4,8 @@
 //
 // Biến môi trường (đặt trong .env.local, KHÔNG commit):
 //   NEXT_PUBLIC_SUPABASE_URL   URL project (hoặc SUPABASE_URL)
-//   SUPABASE_SERVICE_ROLE_KEY  secret / service_role key — KHÔNG có prefix NEXT_PUBLIC_
+//   SUPABASE_SECRET_KEY        secret key (sb_secret_...) — KHÔNG có prefix NEXT_PUBLIC_
+//                              (tên cũ SUPABASE_SERVICE_ROLE_KEY vẫn đọc được)
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -30,9 +31,9 @@ async function main() {
       // không có file thì dùng biến môi trường sẵn có
     }
     const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const key = process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY
     if (!url || !key) {
-      throw new Error('Thiếu NEXT_PUBLIC_SUPABASE_URL hoặc SUPABASE_SERVICE_ROLE_KEY trong .env.local.')
+      throw new Error('Thiếu NEXT_PUBLIC_SUPABASE_URL hoặc SUPABASE_SECRET_KEY trong .env.local.')
     }
     // Nạp supabase-js chỉ khi cần DB, để --check chạy được ở mọi nơi
     const { assertServiceRoleKey, createSupabaseSeedDb } = await import('./db')
