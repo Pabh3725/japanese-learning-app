@@ -7,9 +7,7 @@ import {
   buildChoiceQuestion,
   canBeDistractor,
   gradeChoice,
-  chooseStage2Exercise,
   pickDueWords,
-  STAGE2_EXERCISES,
   sameMeaning,
   seededRng,
   STAGE2_CHOICE_EXERCISES,
@@ -133,24 +131,6 @@ describe('Chấm điểm (D1 — server chấm)', () => {
     expect(gradeChoice(GAKKOU, 'kana_to_meaning', 'học sinh')).toBe('wrong')
     expect(gradeChoice(GAKKOU, 'meaning_to_kana', 'がっこう')).toBe('correct')
     expect(gradeChoice(GAKKOU, 'meaning_to_kana', 'trường học')).toBe('wrong')
-  })
-})
-
-describe('chooseStage2Exercise — ưu tiên dạng bắt buộc chưa có điểm (R9)', () => {
-  it('chỉ còn thiếu một dạng thì luôn chọn dạng đó', () => {
-    for (let seed = 1; seed < 20; seed++) {
-      expect(chooseStage2Exercise(['kana_to_meaning', 'meaning_to_kana'], seededRng(seed))).toBe('kana_assembly')
-    }
-  })
-
-  it('chưa có điểm dạng nào: cả 3 dạng đều có thể xuất hiện', () => {
-    const seen = new Set(Array.from({ length: 60 }, (_, seed) => chooseStage2Exercise([], seededRng(seed + 1))))
-    expect(seen).toEqual(new Set(STAGE2_EXERCISES))
-  })
-
-  it('đủ cả 3 dạng: vẫn xoay vòng trong 3 dạng', () => {
-    const seen = new Set(Array.from({ length: 60 }, (_, seed) => chooseStage2Exercise(STAGE2_EXERCISES, seededRng(seed + 1))))
-    expect(seen).toEqual(new Set(STAGE2_EXERCISES))
   })
 })
 

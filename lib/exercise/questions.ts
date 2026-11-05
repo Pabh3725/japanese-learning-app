@@ -126,28 +126,17 @@ export function seededRng(seed: number): Rng {
 }
 
 // ---------------------------------------------------------------------------
-// SCH-02 — Chọn từ đến hẹn và dạng bài cho một lượt Stage 2
+// SCH-02 — Chọn từ đến hẹn cho một lượt
 // ---------------------------------------------------------------------------
 
 /** Số câu mỗi lượt. Tạm thời: SES-01 / REV-02 sẽ thay phần chọn câu. */
-export const STAGE2_WORDS_PER_ROUND = 10
-
-/** 3 dạng bắt buộc của Stage 2 (câu nghe là AUD-02). */
-export type Stage2Exercise = Stage2ChoiceExercise | 'kana_assembly'
-export const STAGE2_EXERCISES: readonly Stage2Exercise[] = [...STAGE2_CHOICE_EXERCISES, 'kana_assembly']
-
-/** R9 — Ưu tiên dạng bắt buộc chưa có điểm; đủ cả rồi thì chọn ngẫu nhiên để xoay vòng. */
-export function chooseStage2Exercise(earned: readonly string[], rng: Rng = Math.random): Stage2Exercise {
-  const missing = STAGE2_EXERCISES.filter((code) => !earned.includes(code))
-  const from = missing.length > 0 ? missing : STAGE2_EXERCISES
-  return from[Math.floor(rng() * from.length)]
-}
+export const WORDS_PER_ROUND = 10
 
 /** Lấy từ đã đến hẹn, quá hẹn lâu nhất trước, hòa thì theo lộ trình. Không đổi mảng gốc. */
 export function pickDueWords<T extends { dueAt: string; sortOrder: number }>(
   rows: readonly T[],
   now: Date,
-  limit: number = STAGE2_WORDS_PER_ROUND,
+  limit: number = WORDS_PER_ROUND,
 ): T[] {
   const nowMs = now.getTime()
   return rows

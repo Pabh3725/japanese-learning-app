@@ -13,6 +13,7 @@ export function ChoiceExercise({
   onAnswer,
   instant = false,
   wrongNote,
+  promptNode,
 }: {
   step: ChoiceStep
   onComplete: (correct: boolean) => void
@@ -22,6 +23,8 @@ export function ChoiceExercise({
   instant?: boolean
   /** Câu nhắc khi trả lời sai. */
   wrongNote?: string
+  /** Thay cho đề dạng chữ, ví dụ nút loa của câu nghe. */
+  promptNode?: React.ReactNode
 }) {
   const [selected, setSelected] = useState<string | null>(null)
   const [status, setStatus] = useState<CheckStatus>('idle')
@@ -91,7 +94,7 @@ export function ChoiceExercise({
         />
       }
     >
-      <PromptDisplay prompt={step.prompt} />
+      {promptNode ?? <PromptDisplay prompt={step.prompt} />}
     </ExercisePanel>
   )
 }

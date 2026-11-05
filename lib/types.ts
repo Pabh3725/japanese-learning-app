@@ -66,7 +66,10 @@ export interface AssemblyStep extends BaseStep {
   answer: string[]
   /** Số ô đáp án khi server giữ đáp án (answer rỗng). Mặc định: answer.length. */
   slots?: number
-  pieceKind: 'kana' | 'kanji'
+  /** 'word': mảnh là chữ Latin (Hán Việt, nghĩa), ô rộng theo nội dung. */
+  pieceKind: 'kana' | 'kanji' | 'word'
+  /** Kana giữ cố định xen giữa các ô (null = một ô). 休みます → [null, 'みます']. */
+  template?: (string | null)[]
   joiner?: string
   explanation: string
 }
@@ -79,6 +82,8 @@ export interface RecallStep extends BaseStep {
   accepted: string[]
   displayAnswer: string
   explanation: string
+  /** Đổi chữ khi gõ. Mặc định không đổi. */
+  input?: 'hiragana' | 'katakana' | 'text'
 }
 
 export type LearningStep =

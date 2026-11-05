@@ -29,6 +29,7 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
   const [graded, setGraded] = useState<{ answer: string[]; explanation?: string } | null>(null)
   const locked = status !== 'idle' || checking
   const isKanji = step.pieceKind === 'kanji'
+  const isWord = step.pieceKind === 'word'
   const slots = step.slots ?? step.answer.length
   const answer = graded?.answer ?? step.answer
   const full = placed.length === slots
@@ -61,7 +62,8 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
     setStatus(result.correct ? 'correct' : 'incorrect')
   }
 
-  const pieceText = isKanji ? 'text-[30px] md:text-[34px]' : 'text-[26px] md:text-[30px]'
+  const pieceText = isWord ? 'text-base md:text-lg' : isKanji ? 'text-[30px] md:text-[34px]' : 'text-[26px] md:text-[30px]'
+  let nextSlot = 0
 
   return (
     <ExercisePanel
@@ -73,12 +75,16 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
             className={cn('flex min-h-20 flex-wrap items-center justify-center gap-2', status === 'incorrect' && 'animate-shake')}
             aria-label="Your answer"
           >
-            {Array.from({ length: slots }, (_, slot) => {
+            {(step.template ?? Array.from({ length: slots }, () => null)).map((part, i) => {
+              if (part !== null) {
+                return <span key={`fixed-${i}`} lang="ja" className={cn('font-jp text-muted-foreground', pieceText)}>{part}</span>
+              }
+              const slot = nextSlot++
               const poolIndex = placed[slot]
               const piece = poolIndex !== undefined ? step.pool[poolIndex] : null
               return (
                 <Fragment key={slot}>
-                  {slot > 0 && step.joiner && (
+                  {slot > 0 && step.joiner?.trim() && (
                     <span className="text-xl text-muted-foreground" aria-hidden="true">{step.joiner}</span>
                   )}
                   <button
@@ -87,7 +93,8 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
                     disabled={!piece || locked}
                     aria-label={piece ? `Remove ${piece}` : `Empty slot ${slot + 1}`}
                     className={cn(
-                      'flex size-16 items-center justify-center rounded-2xl border-2 font-jp transition-all duration-150 md:size-[72px]',
+                      'flex items-center justify-center rounded-2xl border-2 transition-all duration-150',
+                      isWord ? 'h-14 min-w-20 px-3 font-semibold' : 'size-16 font-jp md:size-[72px]',
                       pieceText,
                       !piece && 'border-dashed border-border bg-transparent',
                       piece && status === 'idle' && 'animate-pop border-primary/60 bg-primary/10 hover:border-primary',
@@ -95,7 +102,7 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
                       piece && status === 'incorrect' && 'border-error bg-error/10',
                     )}
                   >
-                    {piece && <span lang="ja">{piece}</span>}
+                    {piece && <span lang={isWord ? undefined : 'ja'}>{piece}</span>}
                   </button>
                 </Fragment>
               )
@@ -116,12 +123,13 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
                   aria-hidden={used}
                   tabIndex={used ? -1 : undefined}
                   className={cn(
-                    'flex size-14 items-center justify-center rounded-2xl border border-border bg-card font-jp shadow-[0_3px_0_0_#2e3440] transition-all duration-150 md:size-16',
+                    'flex items-center justify-center rounded-2xl border border-border bg-card shadow-[0_3px_0_0_#2e3440] transition-all duration-150',
+                    isWord ? 'h-12 min-w-14 px-3 font-medium' : 'size-14 font-jp md:size-16',
                     pieceText,
                     used ? 'invisible' : 'hover:-translate-y-0.5 hover:border-[#3b4250] active:translate-y-0.5 active:shadow-none disabled:opacity-50',
                   )}
                 >
-                  <span lang="ja">{piece}</span>
+                  <span lang={isWord ? undefined : 'ja'}>{piece}</span>
                 </button>
               )
             })}

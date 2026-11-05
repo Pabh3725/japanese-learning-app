@@ -27,9 +27,36 @@ export default function LearnPage() {
         />
         <LearningCard
           href="/learn/stage2"
-          title="Practice due words"
-          description="Stage 2 · choose and build"
-          sample="組"
+          title="Stage 2 · Kana"
+          description="Choose, listen and build the reading"
+          sample="か"
+          count={10}
+          countLabel="per round"
+          tone="yellow"
+        />
+        <LearningCard
+          href="/learn/stage3"
+          title="Stage 3 · Reveal Kanji"
+          description="See how a word you know is written"
+          sample="字"
+          count={10}
+          countLabel="per round"
+          tone="pink"
+        />
+        <LearningCard
+          href="/learn/stage4"
+          title="Stage 4 · Kanji"
+          description="Choose and build Kanji and Sino-Vietnamese"
+          sample="漢"
+          count={10}
+          countLabel="per round"
+          tone="cyan"
+        />
+        <LearningCard
+          href="/learn/stage5"
+          title="Stage 5 · Recall"
+          description="Type and build from memory"
+          sample="憶"
           count={10}
           countLabel="per round"
           tone="yellow"
