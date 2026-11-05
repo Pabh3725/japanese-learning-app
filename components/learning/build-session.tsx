@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from 'react'
 import { submitKanaAssemblyAction } from '@/app/learn/build/actions'
 import { SessionComplete } from '@/components/learning/session-complete'
 import { SessionHeader } from '@/components/learning/session-header'
+import { WRONG_ANSWER_NOTE } from '@/components/learning/exercise-footer'
 import { AssemblyExercise, type AssemblyGrade } from '@/components/learning/steps/assembly-exercise'
+import type { SubmitExerciseResponse } from '@/lib/dal/exercise'
 import type { KanaAssemblyWord } from '@/lib/dal/kana-assembly'
 import type { AssemblyStep } from '@/lib/types'
 
@@ -25,8 +27,10 @@ function toStep(word: KanaAssemblyWord): AssemblyStep {
   }
 }
 
-function pointsNote(delta: number | undefined, passedStage: number | null | undefined) {
-  if (passedStage) return `Stage ${passedStage} complete!`
+function pointsNote(result: SubmitExerciseResponse['result']) {
+  if (result?.completed) return 'Stage 2 complete! New review card created.'
+  if (result?.unlockedStage) return 'Next stage unlocked! Stage 2 continues.'
+  const delta = result?.delta
   if (delta === undefined) return undefined
   if (delta > 0) return '+1 point'
   if (delta < 0) return '−1 point'
@@ -84,7 +88,7 @@ export function BuildSession({ words }: { words: KanaAssemblyWord[] }) {
         return {
           correct: res.correct,
           answer: res.answer,
-          explanation: pointsNote(res.result?.delta, res.result?.passedStage),
+          explanation: pointsNote(res.result),
         }
       }
       // Từ đã sang stage khác (ví dụ học trên máy khác): câu này không còn hiệu lực.
@@ -107,7 +111,7 @@ export function BuildSession({ words }: { words: KanaAssemblyWord[] }) {
         current={index}
         total={words.length}
       />
-      <AssemblyExercise key={word.clientEventId} step={toStep(word)} onComplete={next} onGrade={grade} />
+      <AssemblyExercise key={word.clientEventId} step={toStep(word)} onComplete={next} onGrade={grade} wrongNote={WRONG_ANSWER_NOTE} />
     </div>
   )
 }

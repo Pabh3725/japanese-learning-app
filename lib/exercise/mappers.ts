@@ -1,12 +1,19 @@
-// VOC-04 — Đổi dữ liệu qua lại giữa database và engine luật học (lib/learning, ENG-02).
+// VOC-04, SCH-01 — Đổi dữ liệu qua lại giữa database và engine luật học (lib/learning).
 // Pure: không gọi database, không đọc giờ hệ thống. lib/dal/exercise.ts dùng các hàm này.
 // Cùng khuôn với lib/srs/mappers.ts (SRS-03).
 
 import { EXERCISES } from '../learning/rules'
-import { allowedExercises, type StageAttempt, type StageAttemptResult, type WordState } from '../learning/stage'
+import {
+  allowedExercises,
+  requiredScoredStages,
+  type StageAttempt,
+  type StageAttemptResult,
+  type StageState,
+} from '../learning/stage'
 import { firstDueAt } from '../learning/cards'
 import { studyDate } from '../learning/time'
-import type { ExerciseCode, Outcome, Stage, StudyDate } from '../learning/types'
+import type { ExerciseCode, Outcome, ScoredStage, StudyDate } from '../learning/types'
+import type { Schedule, ScheduleState } from '../srs/scheduler'
 
 // ---------------------------------------------------------------------------
 // 1. Kiểm tra dữ liệu trình duyệt gửi lên — KHÔNG tin trình duyệt
@@ -15,6 +22,8 @@ import type { ExerciseCode, Outcome, Stage, StudyDate } from '../learning/types'
 /** Những gì trình duyệt được phép gửi. Điểm, stage, card… server tự tính. */
 export interface SubmitExerciseRequest {
   learnerVocabularyId: string
+  /** Stage của câu này: một dạng bài có thể thuộc nhiều stage (kana_to_meaning ở Stage 2 và 4). */
+  stage: ScoredStage
   /** Mã riêng cho MỖI lần bấm (crypto.randomUUID()). Gửi lại → cùng mã. */
   clientEventId: string
   exercise: ExerciseCode
@@ -26,6 +35,7 @@ export interface SubmitExerciseRequest {
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const OUTCOMES: readonly Outcome[] = ['correct', 'hint', 'wrong']
+const SCORED_STAGES: readonly number[] = [2, 4, 5]
 
 /** Dữ liệu lạ / thiếu / sai kiểu → null. */
 export function parseSubmitExerciseRequest(input: unknown): SubmitExerciseRequest | null {
@@ -34,6 +44,7 @@ export function parseSubmitExerciseRequest(input: unknown): SubmitExerciseReques
 
   const ok =
     typeof v.learnerVocabularyId === 'string' && UUID.test(v.learnerVocabularyId) &&
+    typeof v.stage === 'number' && SCORED_STAGES.includes(v.stage) &&
     typeof v.clientEventId === 'string' && UUID.test(v.clientEventId) &&
     typeof v.exercise === 'string' && Object.hasOwn(EXERCISES, v.exercise) &&
     typeof v.outcome === 'string' && (OUTCOMES as readonly string[]).includes(v.outcome) &&
@@ -43,6 +54,7 @@ export function parseSubmitExerciseRequest(input: unknown): SubmitExerciseReques
 
   return {
     learnerVocabularyId: v.learnerVocabularyId as string,
+    stage: v.stage as ScoredStage,
     clientEventId: v.clientEventId as string,
     exercise: v.exercise as ExerciseCode,
     outcome: v.outcome as Outcome,
@@ -52,52 +64,69 @@ export function parseSubmitExerciseRequest(input: unknown): SubmitExerciseReques
 }
 
 // ---------------------------------------------------------------------------
-// 2. Database → WordState (đầu vào của engine)
+// 2. Database → trạng thái của engine và lịch
 // ---------------------------------------------------------------------------
 
-/** Một dòng learner_vocabulary như Supabase trả về. */
-export interface LearnerVocabularyRow {
+/** Một dòng learner_stage_schedules như Supabase trả về (timestamp là chuỗi ISO). */
+export interface StageScheduleRow {
   id: string
-  current_stage: number
-  learning_status: string
+  stage_number: number
+  state: number
+  due_at: string
+  stability: number
+  difficulty: number
+  scheduled_days: number
+  learning_steps: number
+  reps: number
+  lapses: number
+  last_review_at: string | null
   stage_points: number
   stage_points_today: number
   points_date: string | null
+  unlocked_next_at: string | null
+  completed_at: string | null
   version: number
 }
 
-/** Phần WordState không nằm trong learner_vocabulary — suy ra từ nhật ký. */
-export interface WordContext {
+/** Phần StageState không nằm trong dòng lịch — suy ra từ nhật ký. */
+export interface StageContext {
   isKanaOnly: boolean
   earned: readonly ExerciseCode[]
   lastSeq: number | null
   lastSeqDate: StudyDate | null
 }
 
-export function rowToWordState(row: LearnerVocabularyRow, ctx: WordContext): WordState | null {
-  if (row.learning_status === 'initial_complete') {
-    return { ...baseState(row, ctx), stage: 'complete' }
-  }
-  if (row.learning_status !== 'learning') return null
-  if (![1, 2, 3, 4, 5].includes(row.current_stage)) return null
-  return { ...baseState(row, ctx), stage: row.current_stage as Stage }
-}
-
-function baseState(row: LearnerVocabularyRow, ctx: WordContext) {
+export function rowToStageState(row: StageScheduleRow, ctx: StageContext): StageState | null {
+  if (!SCORED_STAGES.includes(row.stage_number)) return null
   return {
     isKanaOnly: ctx.isKanaOnly,
+    stage: row.stage_number as ScoredStage,
     points: row.stage_points,
     plusToday: row.stage_points_today,
     plusDate: row.points_date,
     earned: ctx.earned,
+    unlockedNext: row.unlocked_next_at !== null,
     lastSeq: ctx.lastSeq,
     lastSeqDate: ctx.lastSeqDate,
   }
 }
 
+export function rowToSchedule(row: StageScheduleRow): Schedule {
+  return {
+    state: row.state as ScheduleState,
+    due: new Date(row.due_at),
+    stability: row.stability,
+    difficulty: row.difficulty,
+    scheduledDays: row.scheduled_days,
+    learningSteps: row.learning_steps,
+    reps: row.reps,
+    lapses: row.lapses,
+    lastReviewAt: row.last_review_at ? new Date(row.last_review_at) : null,
+  }
+}
+
 /**
- * Q1 — "Dạng bài đã được +1 ở stage hiện tại" suy ra từ exercise_logs của stage đó.
- * Một từ không bao giờ quay lại stage cũ nên lọc theo stage_number là đủ.
+ * Q1 — "Dạng bài đã được +1 ở stage này" suy ra từ exercise_logs của stage đó.
  */
 export function deriveEarned(logs: readonly { exercise_type: string; points: number }[]): ExerciseCode[] {
   const out: ExerciseCode[] = []
@@ -110,73 +139,83 @@ export function deriveEarned(logs: readonly { exercise_type: string; points: num
 }
 
 /**
- * Q3 — Câu gần nhất của từ HÔM NAY, tính cả câu học lẫn câu review.
+ * Q3 — Câu gần nhất của từ HÔM NAY trong khu Learn, ở bất kỳ stage nào.
  * `seqs` là day_seq của các câu hôm nay (đã lọc theo ngày ở query); null = câu cũ chưa có day_seq.
  */
-export function deriveLastSeq(seqs: readonly (number | null)[], today: StudyDate): Pick<WordContext, 'lastSeq' | 'lastSeqDate'> {
+export function deriveLastSeq(seqs: readonly (number | null)[], today: StudyDate): Pick<StageContext, 'lastSeq' | 'lastSeqDate'> {
   const known = seqs.filter((s): s is number => typeof s === 'number')
   if (known.length === 0) return { lastSeq: null, lastSeqDate: null }
   return { lastSeq: Math.max(...known), lastSeqDate: today }
 }
 
-/** Dạng bài này có hợp lệ với trạng thái hiện tại của từ không. */
-export function canAnswer(state: WordState, exercise: ExerciseCode): boolean {
-  const { stage } = state
-  if (stage !== 2 && stage !== 4 && stage !== 5) return false
-  return allowedExercises(stage, state.isKanaOnly).includes(exercise)
+/** Dạng bài này có hợp lệ với stage của từ không. */
+export function canAnswer(state: StageState, exercise: ExerciseCode): boolean {
+  return allowedExercises(state.stage, state.isKanaOnly).includes(exercise)
 }
 
 // ---------------------------------------------------------------------------
-// 3. Kết quả engine → tham số hàm Postgres public.submit_exercise
+// 3. Kết quả engine → tham số hàm Postgres public.submit_stage_exercise
 // ---------------------------------------------------------------------------
 
-export interface SubmitExerciseInput {
-  learnerVocabularyId: string
+export interface SubmitStageExerciseInput {
+  scheduleId: string
   clientEventId: string
-  /** version của learner_vocabulary lúc server đọc (chống ghi đè giữa 2 thiết bị). */
+  /** version của dòng lịch lúc server đọc (chống ghi đè giữa 2 thiết bị). */
   expectedVersion: number
-  /** Stage của từ LÚC trả lời. */
-  stageBefore: 2 | 4 | 5
   attempt: StageAttempt
   result: StageAttemptResult
+  /** Lịch mới của stage, do lib/srs/stage-scheduler tính. */
+  schedule: Schedule
   responseMs?: number
 }
 
-export function toSubmitExerciseParams({
-  learnerVocabularyId,
+export function toSubmitStageExerciseParams({
+  scheduleId,
   clientEventId,
   expectedVersion,
-  stageBefore,
   attempt,
   result,
+  schedule,
   responseMs,
-}: SubmitExerciseInput) {
+}: SubmitStageExerciseInput) {
   const s = result.state
-  const completed = s.stage === 'complete'
   const hasCards = result.cardsCreated.length > 0
   return {
-    p_learner_vocabulary_id: learnerVocabularyId,
+    p_schedule_id: scheduleId,
     p_client_event_id: clientEventId,
     p_expected_version: expectedVersion,
     p_answered_at: attempt.now.toISOString(),
     // nhật ký
-    p_stage_number: stageBefore,
     p_exercise_type: attempt.exercise,
     p_outcome: attempt.outcome,
     p_points: result.delta,
     p_counted: result.counted,
     p_study_date: studyDate(attempt.now),
     p_day_seq: attempt.seq,
-    // trạng thái mới
-    p_new_stage: s.stage === 'complete' ? 5 : s.stage,
-    p_completed: completed,
+    p_response_time_ms: responseMs === undefined ? null : Math.round(responseMs),
+    // điểm của stage
     p_stage_points: s.points,
     p_stage_points_today: s.plusToday,
     p_points_date: s.plusDate,
+    // lịch của stage
+    p_state: schedule.state,
+    p_due_at: schedule.due.toISOString(),
+    p_stability: schedule.stability,
+    p_difficulty: schedule.difficulty,
+    p_scheduled_days: schedule.scheduledDays,
+    p_learning_steps: schedule.learningSteps,
+    p_reps: schedule.reps,
+    p_lapses: schedule.lapses,
+    p_last_review_at: schedule.lastReviewAt?.toISOString() ?? null,
+    // mở stage sau: Stage 3 chỉ có xem nên không có lịch, chỉ Stage 5 cần tạo lịch ở đây
+    p_unlocked_stage: result.unlockedStage,
+    p_open_schedule: result.unlockedStage === 5,
+    // hoàn tất stage
+    p_completed: result.completed,
+    p_required_stages: requiredScoredStages(s.isKanaOnly),
     // card mới — hạn đầu: 00:00 (giờ VN) ngày học hôm sau (R5)
     p_new_card_types: result.cardsCreated,
     p_new_cards_due_at: hasCards ? firstDueAt(attempt.now).toISOString() : null,
-    p_response_time_ms: responseMs === undefined ? null : Math.round(responseMs),
   }
 }
 
@@ -184,10 +223,10 @@ export type SubmitExerciseStatus = 'saved' | 'duplicate' | 'conflict' | 'not_fou
 
 const STATUSES: readonly SubmitExerciseStatus[] = ['saved', 'duplicate', 'conflict', 'not_found', 'stage_changed']
 
-/** Đọc kết quả jsonb của submit_exercise. Lạ → báo lỗi (không đoán). */
+/** Đọc kết quả jsonb của submit_stage_exercise. Lạ → báo lỗi (không đoán). */
 export function parseSubmitExerciseResult(data: unknown): SubmitExerciseStatus {
   const status = (data as { status?: unknown } | null)?.status
   const found = STATUSES.find((s) => s === status)
-  if (!found) throw new Error(`submit_exercise trả về kết quả lạ: ${JSON.stringify(data)}`)
+  if (!found) throw new Error(`submit_stage_exercise trả về kết quả lạ: ${JSON.stringify(data)}`)
   return found
 }

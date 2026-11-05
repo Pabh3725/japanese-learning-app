@@ -59,7 +59,7 @@ export interface SchedulerOptions {
   enableFuzz?: boolean
 }
 
-const RATING_TO_FSRS: Record<Rating, Grade> = {
+export const RATING_TO_FSRS: Record<Rating, Grade> = {
   Again: FsrsRating.Again,
   Hard: FsrsRating.Hard,
   Good: FsrsRating.Good,
@@ -125,7 +125,7 @@ export type Scheduler = ReturnType<typeof createScheduler>
 
 // ---- Chuyển đổi giữa kiểu Projap và kiểu ts-fsrs ----
 
-function fromFsrs(c: Card): Schedule {
+export function fromFsrs(c: Card): Schedule {
   return {
     state: c.state as number as ScheduleState,
     due: c.due,
@@ -139,7 +139,7 @@ function fromFsrs(c: Card): Schedule {
   }
 }
 
-function toFsrs(s: Schedule): Card {
+export function toFsrs(s: Schedule): Card {
   // Không truyền elapsed_days: trường cũ, ts-fsrs tự tính từ last_review (bỏ hẳn ở bản 6).
   return {
     state: s.state,

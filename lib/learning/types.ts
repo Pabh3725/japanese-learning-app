@@ -1,10 +1,13 @@
 // Kiểu dữ liệu dùng chung cho engine luật học (ENG-02).
-// Nguồn: docs/learning-rules.md (RULES_V2).
+// Nguồn: docs/learning-rules.md (RULES_V3).
 
 /** Kết quả chấm một câu: đúng (không gợi ý), đúng nhờ gợi ý, sai. */
 export type Outcome = 'correct' | 'hint' | 'wrong'
 
 export type Stage = 1 | 2 | 3 | 4 | 5
+
+/** Stage có điểm và lịch riêng. Stage 1 và 3 chỉ có xem. */
+export type ScoredStage = 2 | 4 | 5
 
 /** S1 Meaning · S2 Kana · S3 Kanji · S4 Hán Việt */
 export type Skill = 'S1' | 'S2' | 'S3' | 'S4'

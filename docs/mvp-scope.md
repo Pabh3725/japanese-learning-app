@@ -21,7 +21,7 @@
 3. Nội dung **cố định**, chỉ server seed; người học không import. Data N5 hoàn chỉnh đã có (kèm Hán Việt toàn từ, liên kết Kanji).
 4. **Lộ trình từ mới cố định**; nội dung mỗi ngày tính động từ review + từ đang học dở + từ mới.
 5. Ba khu riêng: **Learn** (học theo Stage), **Review** (ôn Card), **Kanji** (học từng chữ). Mỗi khu có lịch và bộ đếm riêng, chia phiên ~5 phút; câu chưa làm chuyển sang hôm sau.
-6. Mỗi từ đi qua **5 Stage**, có lịch FSRS riêng tối đa 2 ngày; **5 điểm mở stage sau, 10 điểm hoàn tất stage và tạo card**.
+6. Mỗi từ đi qua **5 Stage**, có lịch FSRS riêng tối đa 2 ngày; **mỗi stage có mốc riêng để mở stage sau, và mốc hoàn tất để tạo card**.
 7. Practice (Speed Matching) không đổi lịch FSRS nhưng **cộng điểm card**.
 8. Tiến độ bền vững sau refresh và đồng bộ PC ↔ mobile.
 9. Giữ visual language, Dark Theme, layout v0; **giữ copy tiếng Anh**.
@@ -67,7 +67,7 @@ Giữ navigation, theme, typography, components; thay mock bằng dữ liệu th
 
 ### P0-5 — Stage và điểm
 
-Cột "Qua stage" là điều kiện **mở stage sau**. Stage tính điểm chạy tiếp đến **10 điểm** mới hoàn tất và tạo card. Lịch hỏi do FSRS riêng của Stage quyết định, tối đa 2 ngày, không có Easy.
+Cột "Qua stage" là điều kiện **mở stage sau** theo V7; V8 đổi mốc: Stage 2 mở ở 5, hoàn tất ở 8; Stage 4 mở ở 6, hoàn tất ở 10; Stage 5 hoàn tất ở 10 (từ chỉ có Kana: 8). Stage chạy tiếp đến mốc hoàn tất mới tạo card. Lịch hỏi do FSRS riêng của Stage quyết định, tối đa 2 ngày, không có Easy.
 
 | Stage | Nội dung | Qua stage | Card tạo ra |
 | --- | --- | --- | --- |
@@ -181,7 +181,7 @@ Dữ liệu trên server → PC và mobile thấy cùng tiến độ
 
 ### Stage và điểm
 
-- [ ] `学校` đi 1 → 2 → 3 → 4 → 5; stage sau mở ở 5 điểm, card tạo ở 10 điểm (Stage 3: khi xem xong); đủ 5 loại card.
+- [ ] `学校` đi 1 → 2 → 3 → 4 → 5; Stage 2 mở ở 5 và tạo card ở 8; Stage 4 mở ở 6 và tạo card ở 10; Stage 5 tạo card ở 10 (Stage 3: khi xem xong); đủ 5 loại card.
 - [ ] Lịch Stage không có Easy và khoảng cách không quá 2 ngày.
 - [ ] `テレビ` đi 1 → 2 → 5, chỉ có card nghĩa – hira và giữ nó.
 - [ ] Đúng liên tiếp nhiều câu cùng một từ trong vài phút chỉ được +1; một stage không quá 3 điểm/ngày.
@@ -245,7 +245,7 @@ Chi tiết: `docs/PROJECT_SPEC.md` §14 (các dòng không có ✅).
 | --- | --- |
 | Gộp thành "Bài học hôm nay" | Learn, Review, Kanji tách riêng |
 | Stage dùng điểm, không có lịch | Stage có FSRS riêng, tối đa 2 ngày, không có Easy |
-| 5 điểm qua stage và tạo card | 5 điểm mở stage sau, 10 điểm hoàn tất và tạo card |
+| 5 điểm qua stage và tạo card | Mốc riêng từng stage: S2 5/8, S4 6/10, S5 10 (từ chỉ có Kana 8) |
 | Card chặn từ mới qua ngưỡng 80 | Thêm chặn khi câu Stage đến hẹn đạt trần (mặc định 200) |
 | Phải hoàn thành trong ngày | Câu chưa làm chuyển sang hôm sau |
 | Module Kanji sau MVP | Khu Kanji 516 chữ trong MVP |

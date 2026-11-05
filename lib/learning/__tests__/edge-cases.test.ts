@@ -6,7 +6,10 @@ import {
   applyStageAttempt,
   cardsToCreate,
   completeIntro,
-  hasPassedStage,
+  canComplete,
+  canUnlockNext,
+  completeAt,
+  requiredScoredStages,
   newCardState,
   nextStage,
   nextStudyDayStart,
@@ -70,15 +73,6 @@ describe('Điểm stage', () => {
     expect(r.delta).toBe(-1)
   })
 
-  it('Stage 1 và 3 không nhận câu tính điểm', () => {
-    expect(() =>
-      applyStageAttempt(word({ stage: 1 }), { exercise: 'kana_to_meaning', outcome: 'correct', seq: 1, now: vn('2026-11-01 20:00') }),
-    ).toThrow()
-    expect(() =>
-      applyStageAttempt(word({ stage: 3 }), { exercise: 'kanji_recognition', outcome: 'correct', seq: 1, now: vn('2026-11-01 20:00') }),
-    ).toThrow()
-  })
-
   it('dạng bài không thuộc Stage bị từ chối', () => {
     expect(() =>
       applyStageAttempt(word({ stage: 2 }), { exercise: 'kanji_assembly', outcome: 'correct', seq: 1, now: vn('2026-11-01 20:00') }),
@@ -86,23 +80,60 @@ describe('Điểm stage', () => {
   })
 
   it('Stage 4 nhận câu củng cố Kana/nghĩa nhưng câu đó không thay yêu cầu bắt buộc', () => {
-    const s = word({ stage: 4, points: 4, earned: ['kanji_recognition', 'kanji_assembly', 'hanviet_recognition'] })
+    const s = word({ stage: 4, points: 5, earned: ['kanji_recognition', 'kanji_assembly', 'hanviet_recognition'] })
     const r = applyStageAttempt(s, { exercise: 'kana_to_meaning', outcome: 'correct', seq: 1, now: vn('2026-11-01 20:00') })
-    expect(r.state.points).toBe(5)
-    expect(r.passedStage).toBe(null)
+    expect(r.state.points).toBe(6)
+    expect(r.unlockedStage).toBe(null)
   })
 
-  it('Stage 5 từ có Kanji cần đủ S1–S4', () => {
-    const base = { stage: 5 as const, points: 5 }
-    expect(hasPassedStage(word({ ...base, earned: ['meaning_assembly', 'kana_free_recall', 'kanji_recognition_6'] }))).toBe(false)
-    expect(
-      hasPassedStage(word({ ...base, earned: ['meaning_assembly', 'kana_free_recall', 'kanji_recognition_6', 'hanviet_free_recall'] })),
-    ).toBe(true)
+  it('mốc riêng từng stage: Stage 2 mở ở 5, Stage 4 mở ở 6', () => {
+    const all2 = ['kana_to_meaning', 'meaning_to_kana', 'kana_assembly'] as const
+    expect(canUnlockNext(word({ stage: 2, points: 4, earned: all2 }))).toBe(false)
+    expect(canUnlockNext(word({ stage: 2, points: 5, earned: all2 }))).toBe(true)
+    const all4 = ['kanji_recognition', 'kanji_assembly', 'hanviet_recognition', 'hanviet_assembly'] as const
+    expect(canUnlockNext(word({ stage: 4, points: 5, earned: all4 }))).toBe(false)
+    expect(canUnlockNext(word({ stage: 4, points: 6, earned: all4 }))).toBe(true)
+    expect(canUnlockNext(word({ stage: 5, points: 99 }))).toBe(false)
   })
 
-  it('đủ yêu cầu bắt buộc nhưng chưa đủ 5 điểm thì chưa qua', () => {
+  it('mốc hoàn tất: Stage 2 là 8, Stage 4 là 10, Stage 5 là 10 hoặc 8 với từ chỉ Kana', () => {
+    expect(completeAt(2, false)).toBe(8)
+    expect(completeAt(4, false)).toBe(10)
+    expect(completeAt(5, false)).toBe(10)
+    expect(completeAt(5, true)).toBe(8)
+  })
+
+  it('đủ điểm hoàn tất nhưng chưa mở stage sau thì chưa hoàn tất', () => {
+    expect(canComplete(word({ stage: 2, points: 8, unlockedNext: false }))).toBe(false)
+    expect(canComplete(word({ stage: 2, points: 8, unlockedNext: true }))).toBe(true)
+  })
+
+  it('đạt mốc mở và mốc hoàn tất trong cùng một câu', () => {
+    const s = word({ stage: 2, points: 7, earned: ['kana_to_meaning', 'meaning_to_kana'] })
+    const r = applyStageAttempt(s, { exercise: 'kana_assembly', outcome: 'correct', seq: 1, now: vn('2026-11-01 20:00') })
+    expect(r.unlockedStage).toBe(3)
+    expect(r.completed).toBe(true)
+    expect(r.cardsCreated).toEqual(['vocab.meaning_kana'])
+  })
+
+  it('sai sau khi đã mở stage sau: trừ điểm, nhưng không đóng stage đã mở', () => {
+    const s = word({ stage: 2, points: 5, unlockedNext: true, earned: ['kana_to_meaning', 'meaning_to_kana', 'kana_assembly'] })
+    const r = applyStageAttempt(s, { exercise: 'kana_to_meaning', outcome: 'wrong', seq: 1, now: vn('2026-11-01 20:00') })
+    expect(r.state.points).toBe(4)
+    expect(r.state.unlockedNext).toBe(true)
+    expect(r.unlockedStage).toBe(null)
+  })
+
+  it('Stage 5 từ có Kanji cần đủ S1–S4 và 10 điểm', () => {
+    const three = ['meaning_assembly', 'kana_free_recall', 'kanji_recognition_6'] as const
+    expect(canComplete(word({ stage: 5, points: 10, earned: three }))).toBe(false)
+    expect(canComplete(word({ stage: 5, points: 9, earned: [...three, 'hanviet_free_recall'] }))).toBe(false)
+    expect(canComplete(word({ stage: 5, points: 10, earned: [...three, 'hanviet_free_recall'] }))).toBe(true)
+  })
+
+  it('đủ yêu cầu bắt buộc nhưng chưa đủ điểm thì chưa mở', () => {
     const s = word({ stage: 2, points: 3, earned: ['kana_to_meaning', 'meaning_to_kana', 'kana_assembly'] })
-    expect(hasPassedStage(s)).toBe(false)
+    expect(canUnlockNext(s)).toBe(false)
   })
 })
 
@@ -123,8 +154,14 @@ describe('Luồng Stage và tạo card', () => {
     expect(cardsToCreate(5, true)).toEqual([])
   })
 
-  it('completeIntro chỉ cho Stage 1 và 3', () => {
-    expect(() => completeIntro(word({ stage: 2 }))).toThrow()
+  it('completeIntro: Stage 1 mở Stage 2, Stage 3 mở Stage 4 và tạo card', () => {
+    expect(completeIntro(1, false)).toEqual({ openedStage: 2, cardsCreated: [] })
+    expect(completeIntro(3, false)).toEqual({ openedStage: 4, cardsCreated: ['vocab.kana_hanviet'] })
+  })
+
+  it('các stage phải hoàn tất của từ', () => {
+    expect(requiredScoredStages(false)).toEqual([2, 4, 5])
+    expect(requiredScoredStages(true)).toEqual([2, 5])
   })
 })
 

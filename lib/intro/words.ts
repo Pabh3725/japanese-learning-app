@@ -1,7 +1,7 @@
 // VOC-01 — Stage 1: chọn từ mới để giới thiệu, đổi dòng DB thành DTO, tính stage sau khi xem xong.
 // Pure: không gọi database, không đọc giờ hệ thống. lib/dal/intro.ts dùng các hàm này.
 
-import { completeIntro, newWordState } from '../learning/stage'
+import { completeIntro } from '../learning/stage'
 import type { Stage } from '../learning/types'
 
 /** Số từ mỗi lần giới thiệu. Tạm thời, chưa áp quota từ mới/ngày: SES-01 sẽ thay phần chọn từ. */
@@ -79,9 +79,7 @@ export function pickNewWords<T extends { id: unknown }>(
 
 /** Stage của từ ngay sau khi xem xong thẻ Stage 1. Luật nằm ở engine (R1), không viết lại ở đây. */
 export function stageAfterIntro(isKanaOnly: boolean): Stage {
-  const { stage } = completeIntro(newWordState(isKanaOnly)).state
-  if (stage === 'complete') throw new Error('Stage 1 không thể dẫn tới hoàn thành')
-  return stage
+  return completeIntro(1, isKanaOnly).openedStage
 }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i

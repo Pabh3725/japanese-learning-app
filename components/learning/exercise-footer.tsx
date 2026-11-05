@@ -4,6 +4,9 @@ import { cn } from '@/lib/utils'
 
 export type CheckStatus = 'idle' | 'correct' | 'incorrect'
 
+/** Câu nhắc khi trả lời sai ở các màn học thật. */
+export const WRONG_ANSWER_NOTE = 'Hãy đọc lại 5 lần để nhớ từ nha'
+
 export function ContinueFooter({
   label,
   onClick,
@@ -34,6 +37,8 @@ interface ExerciseFooterProps {
   onContinue: () => void
   correctAnswer?: string
   explanation?: string
+  /** Chỉ hiện khi trả lời sai. */
+  wrongNote?: string
   checkLabel?: string
   secondary?: React.ReactNode
 }
@@ -45,6 +50,7 @@ export function ExerciseFooter({
   onContinue,
   correctAnswer,
   explanation,
+  wrongNote,
   checkLabel = 'Check',
   secondary,
 }: ExerciseFooterProps) {
@@ -76,6 +82,7 @@ export function ExerciseFooter({
                     Answer: <span lang="ja" className="font-jp text-base text-foreground">{correctAnswer}</span>
                   </p>
                 )}
+                {status === 'incorrect' && wrongNote && <p className="mt-1 text-sm font-medium text-yellow">{wrongNote}</p>}
                 {explanation && <p className="mt-0.5 text-sm text-muted-foreground">{explanation}</p>}
               </div>
             </div>

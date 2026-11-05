@@ -17,9 +17,11 @@ interface AssemblyExerciseProps {
   onComplete: (correct: boolean) => void
   /** Có thì server chấm; không có thì chấm ngay bằng step.answer. */
   onGrade?: (pieces: string[]) => Promise<AssemblyGrade>
+  /** Câu nhắc khi trả lời sai. */
+  wrongNote?: string
 }
 
-export function AssemblyExercise({ step, onComplete, onGrade }: AssemblyExerciseProps) {
+export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: AssemblyExerciseProps) {
   const [placed, setPlaced] = useState<number[]>([])
   const [status, setStatus] = useState<CheckStatus>('idle')
   const [checking, setChecking] = useState(false)
@@ -135,6 +137,7 @@ export function AssemblyExercise({ step, onComplete, onGrade }: AssemblyExercise
           onContinue={() => onComplete(status === 'correct')}
           correctAnswer={answer.join(step.joiner ? ` ${step.joiner} ` : '')}
           explanation={graded ? graded.explanation : step.explanation}
+          wrongNote={wrongNote}
           secondary={
             <>
               {error && <p role="alert" className="mb-2 text-sm text-error">{error}</p>}

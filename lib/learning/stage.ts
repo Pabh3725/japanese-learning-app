@@ -1,42 +1,45 @@
-// R1, R3, R4 — Stage, giãn cách, điểm stage, qua Stage. docs/learning-rules.md §3, §5, §6.
+// R1, R3, R4 — Stage, giãn cách, điểm stage, mở stage sau, hoàn tất. docs/learning-rules.md §3, §5, §6.
+// V8: mỗi từ × mỗi Stage tính điểm có điểm và lịch riêng, nên một từ có thể chạy nhiều stage cùng lúc.
 
 import {
   CARDS_ON_PASS,
   EXERCISES,
   REQUIRED_EXERCISES,
   REQUIRED_SKILLS_STAGE5,
-  RULES_V2,
+  RULES_V3,
   STAGE_EXERCISES,
 } from './rules'
 import { scoreExercise } from './scoring'
 import { studyDate } from './time'
-import type { CardType, ExerciseCode, Outcome, Stage, StudyDate } from './types'
+import type { CardType, ExerciseCode, Outcome, ScoredStage, Stage, StudyDate } from './types'
 
-/** Trạng thái học của một từ (một người học). Tương ứng một dòng `learner_vocabulary`. */
-export interface WordState {
+/** Trạng thái của một từ ở một Stage tính điểm. Tương ứng một dòng `learner_stage_schedules`. */
+export interface StageState {
   isKanaOnly: boolean
-  /** 'complete' = đã hoàn thành vòng học ban đầu. */
-  stage: Stage | 'complete'
-  /** Điểm stage hiện tại; có thể âm. */
+  stage: ScoredStage
+  /** Điểm của stage này; có thể âm. Giữ nguyên sau khi đã mở stage sau. */
   points: number
-  /** Số lần được +1 trong ngày `plusDate` ở Stage hiện tại. */
+  /** Số lần được +1 trong ngày `plusDate` ở stage này. */
   plusToday: number
   plusDate: StudyDate | null
-  /** Dạng bài đã từng được +1 ở Stage hiện tại. */
+  /** Dạng bài đã từng được +1 ở stage này. */
   earned: readonly ExerciseCode[]
-  /** Số thứ tự (trong ngày) của câu gần nhất thuộc từ này, kể cả câu review. */
+  /** Đã mở stage sau (Stage 5 không có stage sau nên luôn false). Không bao giờ đóng lại. */
+  unlockedNext: boolean
+  /** Số thứ tự (trong ngày, trong khu Learn) của câu gần nhất thuộc từ này, ở bất kỳ stage nào. */
   lastSeq: number | null
   lastSeqDate: StudyDate | null
 }
 
-export function newWordState(isKanaOnly: boolean): WordState {
+export function newStageState(stage: ScoredStage, isKanaOnly: boolean): StageState {
   return {
     isKanaOnly,
-    stage: 1,
+    stage,
     points: 0,
     plusToday: 0,
     plusDate: null,
     earned: [],
+    unlockedNext: false,
     lastSeq: null,
     lastSeqDate: null,
   }
@@ -58,34 +61,36 @@ export function nextStage(stage: Stage, isKanaOnly: boolean): Stage | 'complete'
   }
 }
 
-/** R5 — Card tạo ra khi vừa qua `stage`. */
+/** Các stage phải hoàn tất thì từ mới hoàn thành vòng học ban đầu. */
+export function requiredScoredStages(isKanaOnly: boolean): ScoredStage[] {
+  return isKanaOnly ? [2, 5] : [2, 4, 5]
+}
+
+/** R5 — Card tạo ra khi hoàn tất `stage`. */
 export function cardsToCreate(stage: Stage, isKanaOnly: boolean): CardType[] {
   if (isKanaOnly && stage !== 2) return []
   return [...CARDS_ON_PASS[stage]]
+}
+
+/** Điểm cần để hoàn tất stage. */
+export function completeAt(stage: ScoredStage, isKanaOnly: boolean): number {
+  if (stage === 5) {
+    const { withKanji, kanaOnly } = RULES_V3.stageThresholds[5].completeAt
+    return isKanaOnly ? kanaOnly : withKanji
+  }
+  return RULES_V3.stageThresholds[stage].completeAt
 }
 
 /**
  * R3 — Câu được giãn cách khi từ chưa có câu nào hôm nay,
  * hoặc có ≥ 4 câu khác xen giữa (gap = seq − lastSeq − 1).
  */
-export function isSpaced(state: Pick<WordState, 'lastSeq' | 'lastSeqDate'>, seq: number, today: StudyDate): boolean {
+export function isSpaced(state: Pick<StageState, 'lastSeq' | 'lastSeqDate'>, seq: number, today: StudyDate): boolean {
   if (state.lastSeq === null || state.lastSeqDate !== today) return true
-  return seq - state.lastSeq - 1 >= RULES_V2.spacing.minGap
+  return seq - state.lastSeq - 1 >= RULES_V3.spacing.minGap
 }
 
-/**
- * Ghi nhận một câu review (hoặc câu bất kỳ không tính điểm stage) của từ này,
- * để luật giãn cách đo đúng khoảng cách. Câu vòng boss KHÔNG gọi hàm này.
- */
-export function touchWord(state: WordState, seq: number, now: Date): WordState {
-  return { ...state, lastSeq: seq, lastSeqDate: studyDate(now) }
-}
-
-/** R4 — Đã đủ điều kiện qua Stage chưa (chỉ Stage 2, 4, 5). */
-export function hasPassedStage(state: WordState): boolean {
-  const { stage, points, earned, isKanaOnly } = state
-  if (stage !== 2 && stage !== 4 && stage !== 5) return false
-  if (points < RULES_V2.stagePoints.passAt) return false
+function hasRequiredEarned({ stage, earned, isKanaOnly }: StageState): boolean {
   if (stage === 5) {
     const required = isKanaOnly ? REQUIRED_SKILLS_STAGE5.kanaOnly : REQUIRED_SKILLS_STAGE5.withKanji
     const skills = new Set(earned.map((code) => EXERCISES[code].skill))
@@ -94,27 +99,41 @@ export function hasPassedStage(state: WordState): boolean {
   return REQUIRED_EXERCISES[stage].every((code) => earned.includes(code))
 }
 
+/** R4 — Đủ điều kiện mở stage sau chưa. Stage 5 không có stage sau. */
+export function canUnlockNext(state: StageState): boolean {
+  if (state.stage === 5) return false
+  return state.points >= RULES_V3.stageThresholds[state.stage].unlockNextAt && hasRequiredEarned(state)
+}
+
+/** R4 — Đủ điều kiện hoàn tất stage chưa. Stage 2, 4 phải mở stage sau trước. */
+export function canComplete(state: StageState): boolean {
+  if (state.points < completeAt(state.stage, state.isKanaOnly)) return false
+  return state.stage === 5 ? hasRequiredEarned(state) : state.unlockedNext
+}
+
 export interface StageAttempt {
   exercise: ExerciseCode
   outcome: Outcome
-  /** Số thứ tự câu trong ngày học (không tính câu vòng boss). */
+  /** Số thứ tự câu trong ngày học (không tính câu Review, câu vòng boss). */
   seq: number
   now: Date
 }
 
 export interface StageAttemptResult {
-  state: WordState
+  state: StageState
   /** Điểm thực sự cộng/trừ vào điểm stage. */
   delta: number
   /** Câu thỏa giãn cách và không bị trần chặn (cột `counted`). */
   counted: boolean
-  /** Stage vừa qua (nếu có). */
-  passedStage: Stage | null
+  /** Stage vừa được mở nhờ câu này (có thể là Stage 3, chỉ có xem). */
+  unlockedStage: Stage | null
+  /** Stage này vừa hoàn tất. */
+  completed: boolean
   cardsCreated: CardType[]
 }
 
-/** Các dạng bài hợp lệ cho Stage hiện tại của từ. */
-export function allowedExercises(stage: 2 | 4 | 5, isKanaOnly: boolean): readonly ExerciseCode[] {
+/** Các dạng bài hợp lệ cho một Stage của từ. */
+export function allowedExercises(stage: ScoredStage, isKanaOnly: boolean): readonly ExerciseCode[] {
   const list = STAGE_EXERCISES[stage]
   if (stage === 5 && isKanaOnly) {
     return list.filter((code) => {
@@ -125,13 +144,10 @@ export function allowedExercises(stage: 2 | 4 | 5, isKanaOnly: boolean): readonl
   return list
 }
 
-/** R3 + R4 + R5 — Áp một câu học vào trạng thái của từ. */
-export function applyStageAttempt(state: WordState, attempt: StageAttempt): StageAttemptResult {
-  const { stage } = state
-  if (stage !== 2 && stage !== 4 && stage !== 5) {
-    throw new Error(`Stage ${stage} không có câu tính điểm`)
-  }
-  if (!allowedExercises(stage, state.isKanaOnly).includes(attempt.exercise)) {
+/** R3 + R4 + R5 — Áp một câu học vào trạng thái của từ ở stage này. */
+export function applyStageAttempt(state: StageState, attempt: StageAttempt): StageAttemptResult {
+  const { stage, isKanaOnly } = state
+  if (!allowedExercises(stage, isKanaOnly).includes(attempt.exercise)) {
     throw new Error(`Dạng bài ${attempt.exercise} không thuộc Stage ${stage}`)
   }
 
@@ -144,7 +160,7 @@ export function applyStageAttempt(state: WordState, attempt: StageAttempt): Stag
   let counted = false
   if (spaced) {
     if (raw > 0) {
-      const underCap = plusToday < RULES_V2.stagePoints.maxPositivePerStagePerDay
+      const underCap = plusToday < RULES_V3.stagePoints.maxPositivePerStagePerDay
       delta = underCap ? raw : 0
       counted = underCap
     } else {
@@ -153,7 +169,7 @@ export function applyStageAttempt(state: WordState, attempt: StageAttempt): Stag
     }
   }
 
-  let next: WordState = {
+  const next: StageState = {
     ...state,
     points: state.points + delta,
     plusToday: delta > 0 ? plusToday + 1 : plusToday,
@@ -166,38 +182,27 @@ export function applyStageAttempt(state: WordState, attempt: StageAttempt): Stag
     lastSeqDate: today,
   }
 
-  if (!hasPassedStage(next)) {
-    return { state: next, delta, counted, passedStage: null, cardsCreated: [] }
-  }
+  const unlockedNow = !state.unlockedNext && canUnlockNext(next)
+  if (unlockedNow) next.unlockedNext = true
+  const completed = canComplete(next)
 
-  next = advance(next, stage)
-  return { state: next, delta, counted, passedStage: stage, cardsCreated: cardsToCreate(stage, state.isKanaOnly) }
-}
-
-/** Stage 1 và 3: xem xong là qua. */
-export function completeIntro(state: WordState): {
-  state: WordState
-  passedStage: Stage
-  cardsCreated: CardType[]
-} {
-  const { stage } = state
-  if (stage !== 1 && stage !== 3) {
-    throw new Error(`Stage ${stage} không phải Stage giới thiệu`)
-  }
   return {
-    state: advance(state, stage),
-    passedStage: stage,
-    cardsCreated: cardsToCreate(stage, state.isKanaOnly),
+    state: next,
+    delta,
+    counted,
+    unlockedStage: unlockedNow ? (nextStage(stage, isKanaOnly) as Stage) : null,
+    completed,
+    cardsCreated: completed ? cardsToCreate(stage, isKanaOnly) : [],
   }
 }
 
-function advance(state: WordState, passed: Stage): WordState {
+/** Stage 1 và 3: xem xong là qua, mở stage kế tiếp ngay. */
+export function completeIntro(
+  stage: 1 | 3,
+  isKanaOnly: boolean,
+): { openedStage: Stage; cardsCreated: CardType[] } {
   return {
-    ...state,
-    stage: nextStage(passed, state.isKanaOnly),
-    points: 0,
-    plusToday: 0,
-    plusDate: null,
-    earned: [],
+    openedStage: nextStage(stage, isKanaOnly) as Stage,
+    cardsCreated: cardsToCreate(stage, isKanaOnly),
   }
 }

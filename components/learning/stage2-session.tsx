@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { SessionComplete } from '@/components/learning/session-complete'
 import { SessionHeader } from '@/components/learning/session-header'
+import { WRONG_ANSWER_NOTE } from '@/components/learning/exercise-footer'
 import { ChoiceExercise } from '@/components/learning/steps/choice-exercise'
 import { submitStage2Answer } from '@/app/learn/stage2/actions'
 import type { Stage2Question } from '@/lib/dal/stage2'
@@ -14,7 +15,7 @@ import type { ChoiceStep } from '@/lib/types'
 interface Saved {
   correct: boolean
   delta: number
-  passedStage: number | null
+  movedUp: boolean
 }
 
 function toStep(q: Stage2Question, i: number): ChoiceStep {
@@ -71,7 +72,7 @@ export function Stage2Session({ questions, wordCount }: { questions: Stage2Quest
   if (done) {
     const correct = saved.filter((s) => s.correct).length
     const points = saved.reduce((n, s) => n + s.delta, 0)
-    const moved = saved.filter((s) => s.passedStage !== null).length
+    const moved = saved.filter((s) => s.movedUp).length
     return (
       <div className="flex min-h-dvh flex-col">
         <SessionComplete
@@ -107,7 +108,7 @@ export function Stage2Session({ questions, wordCount }: { questions: Stage2Quest
       .then((res) => {
         const r = res.save
         if (r.status === 'saved' && r.result) {
-          setSaved((list) => [...list, { correct: res.outcome === 'correct', delta: r.result!.delta, passedStage: r.result!.passedStage }])
+          setSaved((list) => [...list, { correct: res.outcome === 'correct', delta: r.result!.delta, movedUp: r.result!.unlockedStage !== null || r.result!.completed }])
         } else if (r.status !== 'duplicate') {
           setWarning(`Some answers were not saved (${r.status}).`)
         }
@@ -120,7 +121,7 @@ export function Stage2Session({ questions, wordCount }: { questions: Stage2Quest
     <div className="flex min-h-dvh flex-col">
       <SessionHeader backHref="/learn" label="Stage 2" sublabel={`${wordCount} word${wordCount === 1 ? '' : 's'}`} current={index} total={questions.length} />
       {warning && <p role="alert" className="mx-auto mt-3 w-full max-w-2xl px-4 text-sm text-error">{warning}</p>}
-      <ChoiceExercise key={toStep(q, index).id} step={toStep(q, index)} onAnswer={answer} onComplete={() => setIndex((i) => i + 1)} />
+      <ChoiceExercise key={toStep(q, index).id} step={toStep(q, index)} onAnswer={answer} instant wrongNote={WRONG_ANSWER_NOTE} onComplete={() => setIndex((i) => i + 1)} />
     </div>
   )
 }

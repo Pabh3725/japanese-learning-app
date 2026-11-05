@@ -4,7 +4,9 @@ import { describe, expect, it } from 'vitest'
 import {
   buildKanaAssemblyQuestion,
   isKanaAssemblyCorrect,
-  KANA_DISTRACTORS,
+  KANA_DISTRACTORS_MAX,
+  KANA_DISTRACTORS_MIN,
+  mixKanaPieces,
   parseKanaAssemblyRequest,
   pickKanaDistractors,
   pickStage2Words,
@@ -66,7 +68,7 @@ describe('pickKanaDistractors', () => {
   it('từ Hiragana chỉ có mảnh Hiragana, không trùng đáp án', () => {
     const pieces = splitKana('がっこう')
     const out = pickKanaDistractors(pieces, seeded())
-    expect(out).toHaveLength(KANA_DISTRACTORS)
+    expect(out).toHaveLength(4) // bằng số mảnh của từ
     for (const d of out) {
       expect(d).toMatch(/^[ぁ-ゖ]$/)
       expect(pieces).not.toContain(d)
@@ -81,11 +83,45 @@ describe('pickKanaDistractors', () => {
   })
 })
 
+describe('số mảnh nhiễu theo độ dài từ', () => {
+  it('từ ngắn tối thiểu 3, từ dài tối đa 6', () => {
+    expect(pickKanaDistractors(['て'], seeded())).toHaveLength(KANA_DISTRACTORS_MIN)
+    expect(pickKanaDistractors(splitKana('おねがいします'), seeded())).toHaveLength(KANA_DISTRACTORS_MAX)
+  })
+})
+
+describe('mixKanaPieces — trộn kỹ', () => {
+  const hasAdjacentAnswer = (pool: string[], pieces: string[]) =>
+    pool.some((p, i) => i > 0 && pieces.includes(p) && pieces.includes(pool[i - 1]))
+
+  it('không mất mảnh nào', () => {
+    const pool = mixKanaPieces(['が', 'っ', 'こ', 'う'], ['く', 'せ', 'た', 'の'], seeded())
+    expect([...pool].sort()).toEqual(['が', 'っ', 'こ', 'う', 'く', 'せ', 'た', 'の'].sort())
+  })
+
+  it('trên toàn bộ data, nhiều lần xáo: đủ mảnh, không mảnh đáp án nào liền nhau khi đủ khe, không giữ đúng thứ tự', () => {
+    let seed = 1
+    for (const reading of readings) {
+      const pieces = splitKana(reading)
+      for (let run = 0; run < 20; run++) {
+        const random = seeded(seed++)
+        const distractors = pickKanaDistractors(pieces, random)
+        const pool = mixKanaPieces(pieces, distractors, random)
+        expect(pool).toHaveLength(pieces.length + distractors.length)
+        if (pieces.length <= distractors.length + 1) expect(hasAdjacentAnswer(pool, pieces)).toBe(false)
+        if (pieces.length > 1 && new Set(pieces).size > 1) {
+          expect(pool.filter((p) => pieces.includes(p)).join('')).not.toBe(reading)
+        }
+      }
+    }
+  })
+})
+
 describe('buildKanaAssemblyQuestion', () => {
   it('có đủ mảnh đáp án và mảnh nhiễu', () => {
     const q = buildKanaAssemblyQuestion('がっこう', seeded())
     expect(q.slots).toBe(4)
-    expect(q.pool).toHaveLength(4 + KANA_DISTRACTORS)
+    expect(q.pool).toHaveLength(4 + 4)
     for (const piece of ['が', 'っ', 'こ', 'う']) expect(q.pool).toContain(piece)
   })
   it('từ có chữ lặp giữ đủ số mảnh', () => {

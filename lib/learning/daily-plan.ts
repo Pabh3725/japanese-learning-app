@@ -1,7 +1,7 @@
 // R7 — Số lượng cho Bài học hôm nay và mượn quota. docs/learning-rules.md §9.
 // Chỉ tính SỐ LƯỢNG; việc chọn card/từ cụ thể thuộc SES-01.
 
-import { RULES_V2 } from './rules'
+import { RULES_V3 } from './rules'
 
 export interface StudySettings {
   newPerDay: number
@@ -10,9 +10,9 @@ export interface StudySettings {
 }
 
 export const DEFAULT_SETTINGS: StudySettings = {
-  newPerDay: RULES_V2.defaults.newPerDay,
-  reviewCap: RULES_V2.defaults.reviewCap,
-  unlockThreshold: RULES_V2.defaults.unlockThreshold,
+  newPerDay: RULES_V3.defaults.newPerDay,
+  reviewCap: RULES_V3.defaults.reviewCap,
+  unlockThreshold: RULES_V3.defaults.unlockThreshold,
 }
 
 export interface DailyPlanInput {
@@ -58,6 +58,6 @@ export function allowedBorrow({
   settings = DEFAULT_SETTINGS,
 }: BorrowInput): number {
   if (dueSnapshot >= settings.unlockThreshold) return 0
-  const room = settings.newPerDay * RULES_V2.borrow.maxDaysAhead - alreadyBorrowedForTomorrow
+  const room = settings.newPerDay * RULES_V3.borrow.maxDaysAhead - alreadyBorrowedForTomorrow
   return Math.max(0, Math.min(requested, room))
 }

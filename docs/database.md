@@ -430,7 +430,9 @@ Từ chỉ có Kana `これ`: `is_kana_only=true`, `han_viet=null`, không có d
 
 ---
 
-## 9. Bổ sung Design V8 (2026-11-05) — PROPOSED, chờ task SCH-01 và KJ-02
+## 9. Bổ sung Design V8 (2026-11-05)
+
+§9.1 và §9.2 đã có trong migration `20261105000003_sch01_stage_schedules.sql` (SCH-01). §9.3 chờ KJ-02.
 
 Spec §18 và `docs/learning-rules.md` (R9, R10) là nguồn chuẩn. Chỉ thêm, không xoá dữ liệu cũ.
 
@@ -443,13 +445,14 @@ Spec §18 và `docs/learning-rules.md` (R9, R10) là nguồn chuẩn. Chỉ thê
 | `stage_number` | Chỉ 2, 4, 5 |
 | `state`, `due_at`, `stability`, `difficulty`, `scheduled_days`, `learning_steps`, `reps`, `lapses`, `last_review_at` | Lịch FSRS, giống `review_cards`; `scheduled_days` tối đa 2 |
 | `stage_points`, `stage_points_today`, `points_date` | Chuyển từ `learner_vocabulary` |
-| `unlocked_next_at`, `completed_at` | Mốc 5 điểm và 10 điểm |
+| `unlocked_next_at`, `completed_at` | Đã mở stage sau và đã hoàn tất (mốc riêng từng stage) |
 | `version` | Chống hai máy ghi đè nhau |
 
 - Index `(user_id, due_at)` cho lịch đang chạy (`completed_at is null`).
 - `learner_vocabulary.current_stage` nghĩa mới: stage cao nhất **đã mở**. Các cột điểm cũ không dùng nữa, xoá ở một migration sau.
 - Dòng tiến độ đang có: tạo lịch đến hẹn ngay, chép điểm sang, card đã có giữ nguyên.
-- RPC `submit_exercise` được sửa để cập nhật bảng này, ghi `exercise_logs`, và tạo card khi hoàn tất, trong một transaction.
+- RPC mới `submit_stage_exercise` cập nhật bảng này, ghi `exercise_logs`, mở lịch Stage 5 và tạo card khi hoàn tất, trong một transaction. `submit_exercise` cũ giữ lại đến migration dọn dẹp để code cũ không hỏng lúc chờ deploy.
+- Trigger `on_learner_vocabulary_created` tự tạo lịch Stage 2 cho từ mới.
 
 ### 9.2 `learner_settings` — cột mới
 

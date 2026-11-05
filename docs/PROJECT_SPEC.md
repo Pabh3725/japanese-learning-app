@@ -386,7 +386,7 @@ Một Attempt chỉ được tính vào checkpoint khi **tất cả** điều ki
 
 **Khoảng cách tối thiểu — CONFIRMED (V7, OD-04):** một câu của một từ chỉ được tính điểm (cộng **hoặc trừ**) khi có **ít nhất 4 câu khác** xen giữa nó và câu trước đó của cùng từ (câu review và câu học đều tính; câu vòng boss không tính). Mỗi Stage của một từ được cộng **tối đa +3 điểm mỗi ngày** (trần chỉ áp cho điểm cộng; ngày theo giờ Việt Nam). Vì vậy mỗi Stage tính điểm cần ít nhất 2 ngày. Chi tiết: `docs/learning-rules.md`.
 
-> **V8:** 5 điểm chỉ mở stage sau; stage vẫn tiếp tục đến khi đạt 10 điểm mới tạo card (§18.3). Khi một câu đến hẹn là do lịch FSRS của Stage quyết định.
+> **V8:** mốc điểm chỉ mở stage sau; stage vẫn tiếp tục đến khi đạt mốc hoàn tất mới tạo card, và mỗi stage có mốc riêng (§18.3). Khi một câu đến hẹn là do lịch FSRS của Stage quyết định.
 
 #### Checkpoint bằng điểm — CONFIRMED (V7), thay threshold đếm lượt của V6
 
@@ -582,7 +582,7 @@ sequenceDiagram
 
 ### 7.3 Card eligibility — CONFIRMED (V8)
 
-**Stage hoàn tất ở 10 điểm thì tạo card của Stage đó** (§18.3). Stage 3 chỉ có xem nên xem xong là tạo card:
+**Stage đạt mốc hoàn tất thì tạo card của Stage đó** (§18.3). Stage 3 chỉ có xem nên xem xong là tạo card:
 
 | Qua Stage | Card được tạo |
 | --- | --- |
@@ -1062,7 +1062,7 @@ Bản đầy đủ kèm acceptance criteria chi tiết: `docs/mvp-scope.md` (PLA
 | P0-02 | Supabase Auth với **username + mật khẩu**, **nhiều người học**, RLS theo `user_id`, sync desktop/mobile | CONFIRMED (V7) |
 | P0-03 | Schema + **seed server-side** (`pnpm seed`, idempotent, ID ổn định) cho Vocabulary/Kanji N5 + quan hệ | CONFIRMED (V7) |
 | P0-04 | **Learn** và **Review** tách riêng, mỗi khu có lịch, bộ đếm và phiên ~5 phút riêng; từ mới theo lộ trình cố định, chặn bằng hai ngưỡng; học thêm (mượn quota) | CONFIRMED (V8) |
-| P0-05 | 5 Stage, 4 Skill, **lịch FSRS riêng cho Stage** (tối đa 2 ngày), **điểm stage** (5 mở stage sau, 10 hoàn tất, yêu cầu bắt buộc, giãn cách ≥4 câu, ≤3 điểm/stage/ngày), attempt log | CONFIRMED (V8) |
+| P0-05 | 5 Stage, 4 Skill, **lịch FSRS riêng cho Stage** (tối đa 2 ngày), **điểm stage** (mốc mở stage sau và hoàn tất riêng từng stage, yêu cầu bắt buộc, giãn cách ≥4 câu, ≤3 điểm/stage/ngày), attempt log | CONFIRMED (V8) |
 | P0-06 | Refresh/đổi thiết bị không mất kết quả (session mới từ state) | CONFIRMED (V7) |
 | P0-07 | FSRS (`ts-fsrs`): card tạo khi Stage hoàn tất, 5 loại card, bài tập máy chấm → rating, điểm card, bỏ card giàn giáo, server-authoritative, idempotent | CONFIRMED (V8) |
 | P0-08 | Dashboard từ dữ liệu thật, có lối vào và bộ đếm riêng cho Learn, Review, Kanji | CONFIRMED (V8) |
@@ -1314,23 +1314,28 @@ Chủ dự án chốt ngày 2026-11-05. Các con số về thời gian là ướ
 ### 18.2 Lịch của Stage
 
 - Đơn vị lịch: **mỗi từ × mỗi Stage tính điểm** (2, 4, 5). Từ có Kanji có tối đa 3 lịch; từ chỉ có Kana có 2.
-- Thuật toán: `ts-fsrs` với **khoảng cách tối đa 2 ngày**. Lý do: ở tham số mặc định, trả lời đúng mọi câu phải đến khoảng ngày 59 mới đạt 5 điểm và hơn 35 năm mới đạt 10 điểm, vì khoảng cách giãn quá nhanh.
+- Thuật toán: `ts-fsrs` với **khoảng cách tối đa 2 ngày**. Lý do: ở tham số mặc định, trả lời đúng mọi câu phải đến khoảng ngày 59 mới đạt 5 điểm và hơn 35 năm mới đạt 10 điểm, vì khoảng cách giãn quá nhanh. `ts-fsrs` 6.0.0 không áp giới hạn này ở bước chuyển Learning sang Review khi trả lời muộn, nên bộ tính lịch tự chặn.
 - Rating: sai = Again, gợi ý = Hard, đúng = Good. **Không có Easy.**
 - Các dạng bài trong một stage xoay vòng, ưu tiên dạng bắt buộc chưa có điểm.
 - Luật giãn cách ≥ 4 câu chỉ tính trong khu Learn. Câu Review không còn tính vào khoảng cách này.
 
 ### 18.3 Điểm và mốc của Stage
 
-| Mốc | Điều kiện | Kết quả |
-| --- | --- | --- |
-| Mở stage sau | Stage đạt **5 điểm** và đủ yêu cầu bắt buộc | Mở stage kế tiếp; stage hiện tại **vẫn tiếp tục** |
-| Hoàn tất stage | Stage đạt **10 điểm** | Dừng lịch và bài tập của stage đó, tạo card của stage |
-| Hoàn thành từ | Mọi stage tính điểm của từ đều hoàn tất | Hoàn thành vòng học ban đầu |
+Mỗi stage có mốc riêng:
 
+| Stage | Mở stage sau | Hoàn tất, tạo card | Điều kiện thêm |
+| --- | --- | --- | --- |
+| Stage 2 | 5 điểm | 8 điểm | Đủ 3 dạng bắt buộc để mở stage sau |
+| Stage 4 | 6 điểm | 10 điểm | Đủ 4 dạng bắt buộc để mở stage sau |
+| Stage 5, từ có Kanji | Không có | 10 điểm | Đủ 4 kỹ năng |
+| Stage 5, từ chỉ có Kana | Không có | 8 điểm | Đủ 2 kỹ năng |
+
+- Sau khi mở stage sau, stage hiện tại **vẫn tiếp tục** đến khi hoàn tất. Hoàn tất thì dừng lịch và bài tập của stage đó, tạo card của stage.
+- Từ hoàn thành vòng học ban đầu khi mọi stage tính điểm của nó đều hoàn tất.
 - Điểm giữ nguyên: đúng +1, gợi ý 0, sai −1; tối đa +3 điểm mỗi stage mỗi ngày; điểm có thể âm.
 - Sai sau khi đã mở stage sau: trừ điểm, nhưng không đóng stage đã mở.
 - Stage 1 và Stage 3 chỉ có xem. Xem xong Stage 3 thì tạo card kana–Hán Việt như V7.
-- Ước tính nếu đúng mọi câu: đạt 5 điểm khoảng ngày 6, đạt 10 điểm khoảng ngày 16; từ có Kanji xong sau khoảng 28 ngày.
+- Ước tính nếu đúng mọi câu: từ có Kanji cần tối thiểu 28 câu, có card chấm điểm đầu tiên khoảng ngày 12, hoàn thành khoảng ngày 30; từ chỉ có Kana cần tối thiểu 16 câu, hoàn thành khoảng ngày 18.
 
 ### 18.4 Card
 
@@ -1351,7 +1356,7 @@ Chủ dự án chốt ngày 2026-11-05. Các con số về thời gian là ướ
 - **Mở từ mới** khi card đến hạn đầu ngày dưới ngưỡng Card **và** câu Stage đến hẹn đầu ngày dưới "Câu Stage tối đa/ngày". Không có ô cài đặt riêng cho ngưỡng Stage.
 - Đổi cài đặt có hiệu lực ngay với phần từ mới còn lại hôm nay; câu và card đã đến hẹn giữ nguyên.
 - Settings hiện ước tính thời gian và số từ mới thực tế.
-- **Hệ quả của mặc định:** trung bình mỗi từ cần khoảng 26 câu đúng (có Kanji 30, chỉ Kana 20). Với 200 câu/ngày, về lâu dài chỉ học được khoảng 7–8 từ/ngày, học hết 912 từ trong khoảng 4 tháng. 20 từ mới chỉ là mức tối đa.
+- **Hệ quả của mặc định:** trung bình mỗi từ cần khoảng 24 câu đúng (có Kanji 28, chỉ Kana 16). Với 200 câu/ngày, về lâu dài chỉ học được khoảng 8 từ/ngày, học hết 912 từ trong khoảng 3,5 tháng. 20 từ mới chỉ là mức tối đa.
 
 ### 18.6 Khu Kanji
 

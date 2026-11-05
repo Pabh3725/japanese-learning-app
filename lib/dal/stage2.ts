@@ -48,10 +48,14 @@ export async function getStage2Session(): Promise<{ questions: Stage2Question[];
 
   const { data, error } = await supabase
     .from('learner_vocabulary')
-    .select('id, vocabularies!inner(id, reading_kana, meaning_vi)')
+    .select(
+      'id, vocabularies!inner(id, reading_kana, meaning_vi), learner_stage_schedules!inner(stage_number)',
+    )
     .eq('user_id', user.id)
     .eq('learning_status', 'learning')
-    .eq('current_stage', 2)
+    // V8: Stage 2 chạy tới khi hoàn tất, kể cả sau khi đã mở stage sau. SCH-02 sẽ lọc thêm theo hạn.
+    .eq('learner_stage_schedules.stage_number', 2)
+    .is('learner_stage_schedules.completed_at', null)
   if (error) throw new Error(`Không đọc được learner_vocabulary: ${error.message}`)
   const words = (data ?? []) as unknown as WordRow[]
   if (words.length === 0) return { questions: [], wordCount: 0 }
@@ -117,22 +121,25 @@ export async function answerStage2(input: unknown): Promise<Stage2AnswerResponse
   const supabase = await createClient()
 
   // Đáp án thật lấy từ database, không lấy từ trình duyệt
-  const { data, error } = await supabase
-    .from('learner_vocabulary')
-    .select('id, vocabularies!inner(id, reading_kana, meaning_vi)')
-    .eq('id', req.learnerVocabularyId)
-    .eq('user_id', user.id)
-    .maybeSingle()
+  const [{ data, error }, daySeq] = await Promise.all([
+    supabase
+      .from('learner_vocabulary')
+      .select('id, vocabularies!inner(id, reading_kana, meaning_vi)')
+      .eq('id', req.learnerVocabularyId)
+      .eq('user_id', user.id)
+      .maybeSingle(),
+    nextDaySeq(supabase, user.id, studyDate(new Date())),
+  ])
   if (error) throw new Error(`Không đọc được learner_vocabulary: ${error.message}`)
   if (!data) return { save: { status: 'not_found' } }
   const word = (data as unknown as WordRow).vocabularies
 
   const outcome = gradeChoice(word, req.exercise, req.chosen)
-  const daySeq = await nextDaySeq(supabase, user.id, studyDate(new Date()))
 
   const save = await submitExercise({
     learnerVocabularyId: req.learnerVocabularyId,
     clientEventId: req.clientEventId,
+    stage: 2,
     exercise: req.exercise,
     outcome,
     daySeq,
