@@ -7,7 +7,9 @@ import {
   buildChoiceQuestion,
   canBeDistractor,
   gradeChoice,
-  planStage2Session,
+  chooseStage2Exercise,
+  pickDueWords,
+  STAGE2_EXERCISES,
   sameMeaning,
   seededRng,
   STAGE2_CHOICE_EXERCISES,
@@ -134,19 +136,49 @@ describe('Chấm điểm (D1 — server chấm)', () => {
   })
 })
 
-describe('Kế hoạch phiên Stage 2', () => {
-  it('mỗi từ tối đa 2 câu (đủ 2 dạng), tối đa N câu, không từ nào đứng liền nhau', () => {
-    const words = ['a', 'b', 'c', 'd', 'e', 'f']
-    const plan = planStage2Session(words, 10, seededRng(3))
-    expect(plan).toHaveLength(10)
-    for (let i = 1; i < plan.length; i++) expect(plan[i].word === plan[i - 1].word).toBe(false)
-    for (const word of words) {
-      const types = plan.filter((p) => p.word === word).map((p) => p.exercise)
-      expect(new Set(types).size).toBe(types.length) // không lặp dạng trong một từ
+describe('chooseStage2Exercise — ưu tiên dạng bắt buộc chưa có điểm (R9)', () => {
+  it('chỉ còn thiếu một dạng thì luôn chọn dạng đó', () => {
+    for (let seed = 1; seed < 20; seed++) {
+      expect(chooseStage2Exercise(['kana_to_meaning', 'meaning_to_kana'], seededRng(seed))).toBe('kana_assembly')
     }
   })
 
-  it('ít từ → ít câu (2 từ → 4 câu)', () => {
-    expect(planStage2Session(['a', 'b'], 10, seededRng(1))).toHaveLength(4)
+  it('chưa có điểm dạng nào: cả 3 dạng đều có thể xuất hiện', () => {
+    const seen = new Set(Array.from({ length: 60 }, (_, seed) => chooseStage2Exercise([], seededRng(seed + 1))))
+    expect(seen).toEqual(new Set(STAGE2_EXERCISES))
+  })
+
+  it('đủ cả 3 dạng: vẫn xoay vòng trong 3 dạng', () => {
+    const seen = new Set(Array.from({ length: 60 }, (_, seed) => chooseStage2Exercise(STAGE2_EXERCISES, seededRng(seed + 1))))
+    expect(seen).toEqual(new Set(STAGE2_EXERCISES))
+  })
+})
+
+describe('pickDueWords — chỉ lấy từ đã đến hẹn', () => {
+  const now = new Date('2026-11-05T13:00:00Z')
+  const row = (id: string, dueAt: string, sortOrder: number) => ({ id, dueAt, sortOrder })
+
+  it('bỏ từ chưa đến hẹn; đúng giờ hẹn là đã đến hẹn', () => {
+    const rows = [row('later', '2026-11-05T13:00:01Z', 1), row('exact', '2026-11-05T13:00:00Z', 2)]
+    expect(pickDueWords(rows, now).map((r) => r.id)).toEqual(['exact'])
+  })
+
+  it('quá hẹn lâu nhất trước, hòa thì theo lộ trình', () => {
+    const rows = [
+      row('recent', '2026-11-05T12:00:00Z', 1),
+      row('old-b', '2026-11-04T12:00:00Z', 9),
+      row('old-a', '2026-11-04T12:00:00Z', 3),
+    ]
+    expect(pickDueWords(rows, now).map((r) => r.id)).toEqual(['old-a', 'old-b', 'recent'])
+  })
+
+  it('giới hạn số từ, không đổi mảng gốc', () => {
+    const rows = [row('b', '2026-11-05T12:00:00Z', 2), row('a', '2026-11-05T11:00:00Z', 1)]
+    expect(pickDueWords(rows, now, 1).map((r) => r.id)).toEqual(['a'])
+    expect(rows[0].id).toBe('b')
+  })
+
+  it('không còn từ đến hẹn → rỗng', () => {
+    expect(pickDueWords([row('later', '2026-11-06T00:00:00Z', 1)], now)).toEqual([])
   })
 })

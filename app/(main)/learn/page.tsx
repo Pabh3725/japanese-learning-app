@@ -26,9 +26,9 @@ export default function LearnPage() {
           tone="cyan"
         />
         <LearningCard
-          href="/learn/build"
-          title="Build the reading"
-          description="Stage 2 · assemble Kana from pieces"
+          href="/learn/stage2"
+          title="Practice due words"
+          description="Stage 2 · choose and build"
           sample="組"
           count={10}
           countLabel="per round"

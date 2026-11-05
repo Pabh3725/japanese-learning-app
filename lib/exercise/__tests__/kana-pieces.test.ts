@@ -9,9 +9,7 @@ import {
   mixKanaPieces,
   parseKanaAssemblyRequest,
   pickKanaDistractors,
-  pickStage2Words,
   splitKana,
-  type Stage2WordRow,
 } from '../kana-pieces'
 
 function seeded(seed = 1) {
@@ -143,27 +141,6 @@ describe('isKanaAssemblyCorrect', () => {
     expect(isKanaAssemblyCorrect(['こ', 'が', 'っ', 'う'], 'がっこう')).toBe(false)
     expect(isKanaAssemblyCorrect(['が', 'っ', 'こ'], 'がっこう')).toBe(false)
     expect(isKanaAssemblyCorrect([], 'がっこう')).toBe(false)
-  })
-})
-
-describe('pickStage2Words', () => {
-  const row = (id: string, sort: number, at: string | null): Stage2WordRow => ({
-    id,
-    last_practiced_at: at,
-    vocabularies: { reading_kana: 'あ', meaning_vi: 'a', sort_order: sort },
-  })
-
-  it('chưa luyện trước, rồi lâu chưa luyện, hòa thì theo lộ trình', () => {
-    const rows = [
-      row('recent', 1, '2026-11-05T10:00:00Z'),
-      row('old', 2, '2026-11-01T10:00:00Z'),
-      row('new-b', 9, null),
-      row('new-a', 3, null),
-    ]
-    expect(pickStage2Words(rows).map((r) => r.id)).toEqual(['new-a', 'new-b', 'old', 'recent'])
-  })
-  it('giới hạn số từ', () => {
-    expect(pickStage2Words([row('a', 1, null), row('b', 2, null)], 1).map((r) => r.id)).toEqual(['a'])
   })
 })
 

@@ -1,4 +1,4 @@
-// VOC-02 — Dựng câu chọn đáp án của Stage 2 và chấm câu trả lời.
+// VOC-02, SCH-02 — Dựng câu của Stage 2 và chấm câu trả lời.
 // Pure: không gọi database. `rng` truyền vào được → test cho kết quả cố định.
 // Luật đáp án nhiễu: docs/data-spec.md §5.
 
@@ -125,18 +125,33 @@ export function seededRng(seed: number): Rng {
   }
 }
 
-/**
- * Kế hoạch một phiên Stage 2: mỗi từ tối đa 2 câu (mỗi dạng một câu), xen kẽ các từ để
- * cùng một từ không đứng liền nhau (khi có ≥ 2 từ). Luật giãn cách vẫn do engine quyết định điểm.
- */
-export function planStage2Session<T>(words: readonly T[], maxQuestions: number, rng: Rng = Math.random) {
-  const order = shuffle(words, rng)
-  const n = order.length
-  const total = Math.min(maxQuestions, n * STAGE2_CHOICE_EXERCISES.length)
-  const firstType = order.map(() => (rng() < 0.5 ? 0 : 1))
-  return Array.from({ length: total }, (_, i) => {
-    const w = i % n
-    const round = Math.floor(i / n)
-    return { word: order[w], exercise: STAGE2_CHOICE_EXERCISES[(firstType[w] + round) % 2] }
-  })
+// ---------------------------------------------------------------------------
+// SCH-02 — Chọn từ đến hẹn và dạng bài cho một lượt Stage 2
+// ---------------------------------------------------------------------------
+
+/** Số câu mỗi lượt. Tạm thời: SES-01 / REV-02 sẽ thay phần chọn câu. */
+export const STAGE2_WORDS_PER_ROUND = 10
+
+/** 3 dạng bắt buộc của Stage 2 (câu nghe là AUD-02). */
+export type Stage2Exercise = Stage2ChoiceExercise | 'kana_assembly'
+export const STAGE2_EXERCISES: readonly Stage2Exercise[] = [...STAGE2_CHOICE_EXERCISES, 'kana_assembly']
+
+/** R9 — Ưu tiên dạng bắt buộc chưa có điểm; đủ cả rồi thì chọn ngẫu nhiên để xoay vòng. */
+export function chooseStage2Exercise(earned: readonly string[], rng: Rng = Math.random): Stage2Exercise {
+  const missing = STAGE2_EXERCISES.filter((code) => !earned.includes(code))
+  const from = missing.length > 0 ? missing : STAGE2_EXERCISES
+  return from[Math.floor(rng() * from.length)]
+}
+
+/** Lấy từ đã đến hẹn, quá hẹn lâu nhất trước, hòa thì theo lộ trình. Không đổi mảng gốc. */
+export function pickDueWords<T extends { dueAt: string; sortOrder: number }>(
+  rows: readonly T[],
+  now: Date,
+  limit: number = STAGE2_WORDS_PER_ROUND,
+): T[] {
+  const nowMs = now.getTime()
+  return rows
+    .filter((row) => Date.parse(row.dueAt) <= nowMs)
+    .sort((a, b) => Date.parse(a.dueAt) - Date.parse(b.dueAt) || a.sortOrder - b.sortOrder)
+    .slice(0, limit)
 }

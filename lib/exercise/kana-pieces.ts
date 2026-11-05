@@ -5,9 +5,6 @@
 export const KANA_DISTRACTORS_MIN = 3
 export const KANA_DISTRACTORS_MAX = 6
 
-/** Số từ mỗi lượt. Tạm thời: SES-01 / REV-02 sẽ thay phần chọn câu. */
-export const KANA_ASSEMBLY_WORDS_PER_ROUND = 10
-
 /** Kana nhỏ ghép với chữ đứng trước thành một âm: きょ, シャ, ティ, ファ. っ/ッ và ー là mảnh riêng. */
 const COMBINING_SMALL_KANA = new Set('ぁぃぅぇぉゃゅょゎァィゥェォャュョヮ')
 
@@ -90,28 +87,6 @@ export function buildKanaAssemblyQuestion(reading: string, random: () => number)
 
 export function isKanaAssemblyCorrect(placed: readonly string[], reading: string): boolean {
   return placed.join('') === reading
-}
-
-/** Từ đang ở Stage 2 trong DB. */
-export interface Stage2WordRow {
-  id: string
-  last_practiced_at: string | null
-  vocabularies: { reading_kana: string; meaning_vi: string; sort_order: number }
-}
-
-/** Chọn từ lâu chưa luyện trước (chưa luyện lần nào đứng đầu), hòa thì theo lộ trình. Không đổi mảng gốc. */
-export function pickStage2Words<T extends Stage2WordRow>(
-  rows: readonly T[],
-  limit: number = KANA_ASSEMBLY_WORDS_PER_ROUND,
-): T[] {
-  const lastSeen = (row: T) => (row.last_practiced_at ? Date.parse(row.last_practiced_at) : -Infinity)
-  return [...rows]
-    .sort((a, b) => {
-      const byTime = lastSeen(a) - lastSeen(b)
-      if (byTime !== 0 && !Number.isNaN(byTime)) return byTime
-      return a.vocabularies.sort_order - b.vocabularies.sort_order
-    })
-    .slice(0, limit)
 }
 
 export interface KanaAssemblyRequest {
