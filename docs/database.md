@@ -427,3 +427,39 @@ Từ chỉ có Kana `これ`: `is_kana_only=true`, `han_viet=null`, không có d
 - [x] Mọi bảng tiến độ/nhật ký có `user_id` (khớp SEC-01)
 - [x] Practice không có đường nối tới FSRS
 - [x] Chủ dự án duyệt các mục PROPOSED ở §1–2 (2026-10-23)
+
+---
+
+## 9. Bổ sung Design V8 (2026-11-05) — PROPOSED, chờ task SCH-01 và KJ-02
+
+Spec §18 và `docs/learning-rules.md` (R9, R10) là nguồn chuẩn. Chỉ thêm, không xoá dữ liệu cũ.
+
+### 9.1 `learner_stage_schedules` — lịch và điểm của từng Stage
+
+| Cột | Ghi chú |
+| --- | --- |
+| `id`, `user_id` | Như các bảng tiến độ khác |
+| `learner_vocabulary_id` | FK; unique cùng `stage_number` |
+| `stage_number` | Chỉ 2, 4, 5 |
+| `state`, `due_at`, `stability`, `difficulty`, `scheduled_days`, `learning_steps`, `reps`, `lapses`, `last_review_at` | Lịch FSRS, giống `review_cards`; `scheduled_days` tối đa 2 |
+| `stage_points`, `stage_points_today`, `points_date` | Chuyển từ `learner_vocabulary` |
+| `unlocked_next_at`, `completed_at` | Mốc 5 điểm và 10 điểm |
+| `version` | Chống hai máy ghi đè nhau |
+
+- Index `(user_id, due_at)` cho lịch đang chạy (`completed_at is null`).
+- `learner_vocabulary.current_stage` nghĩa mới: stage cao nhất **đã mở**. Các cột điểm cũ không dùng nữa, xoá ở một migration sau.
+- Dòng tiến độ đang có: tạo lịch đến hẹn ngay, chép điểm sang, card đã có giữ nguyên.
+- RPC `submit_exercise` được sửa để cập nhật bảng này, ghi `exercise_logs`, và tạo card khi hoàn tất, trong một transaction.
+
+### 9.2 `learner_settings` — cột mới
+
+`stage_cap` (200), `kanji_new_per_day` (5), `kanji_cap` (50). Cột `mode` không dùng nữa.
+
+### 9.3 Khu Kanji
+
+| Bảng | Cột chính |
+| --- | --- |
+| `learner_kanji_cards` | `user_id`, `kanji_id` (unique cùng user), các cột FSRS như `review_cards`, `version`, `introduced_at` |
+| `kanji_review_logs` | `user_id`, `card_id`, `client_event_id` (unique cùng user), `exercise_type`, `outcome`, `rating`, trạng thái và hạn trước/sau, `study_date`, `answered_at`; chỉ thêm, không sửa |
+
+Bảng mới phải có RLS, revoke `anon`, revoke `TRUNCATE` và được thêm vào `OWNED_TABLES` (`docs/security.md` §6.5).

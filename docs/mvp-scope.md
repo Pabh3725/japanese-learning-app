@@ -4,7 +4,9 @@
 >
 > Ngày: 2026-10-31
 >
-> Nguồn chuẩn: `docs/PROJECT_SPEC.md` **Design V7**. Tài liệu này tóm tắt phạm vi MVP và điều kiện nghiệm thu; chi tiết thiết kế xem các mục spec được dẫn. Khác biệt V6 → V7: spec §17.
+> **Cập nhật V8 (2026-11-05):** Learn, Review và Kanji tách riêng; Stage có lịch riêng; Kanji vào MVP. Chi tiết `docs/PROJECT_SPEC.md` §18. Khi mâu thuẫn, §18 được ưu tiên.
+>
+> Nguồn chuẩn: `docs/PROJECT_SPEC.md` **Design V8**. Tài liệu này tóm tắt phạm vi MVP và điều kiện nghiệm thu; chi tiết thiết kế xem các mục spec được dẫn. Khác biệt V6 → V7: spec §17.
 
 ## 1. Mục đích tài liệu
 
@@ -18,8 +20,8 @@
 2. **Nhiều người học**, tự đăng ký bằng **username + mật khẩu** (không cần email); mỗi người có tiến độ, lịch ôn, settings riêng.
 3. Nội dung **cố định**, chỉ server seed; người học không import. Data N5 hoàn chỉnh đã có (kèm Hán Việt toàn từ, liên kết Kanji).
 4. **Lộ trình từ mới cố định**; nội dung mỗi ngày tính động từ review + từ đang học dở + từ mới.
-5. Một luồng hằng ngày **"Bài học hôm nay"**: review FSRS **bắt buộc**, chia thành các phiên ~5 phút, phải hoàn thành trong ngày.
-6. Mỗi từ đi qua **5 Stage**; qua Stage bằng **điểm**; **card FSRS tạo theo từng Stage**.
+5. Ba khu riêng: **Learn** (học theo Stage), **Review** (ôn Card), **Kanji** (học từng chữ). Mỗi khu có lịch và bộ đếm riêng, chia phiên ~5 phút; câu chưa làm chuyển sang hôm sau.
+6. Mỗi từ đi qua **5 Stage**, có lịch FSRS riêng tối đa 2 ngày; **5 điểm mở stage sau, 10 điểm hoàn tất stage và tạo card**.
 7. Practice (Speed Matching) không đổi lịch FSRS nhưng **cộng điểm card**.
 8. Tiến độ bền vững sau refresh và đồng bộ PC ↔ mobile.
 9. Giữ visual language, Dark Theme, layout v0; **giữ copy tiếng Anh**.
@@ -51,21 +53,21 @@ Giữ navigation, theme, typography, components; thay mock bằng dữ liệu th
 - Sửa nội dung = sửa file seed rồi chạy lại; không làm mất tiến độ người học.
 - Mỗi từ có: ID ổn định, `sort_order`, cách viết, kana, romaji (`gakkou`), `meaning_vi`, Hán Việt toàn từ, `is_kana_only`, `emoji` (tuỳ chọn), liên kết Kanji. *(Spec §3.9, §10.1)*
 
-### P0-4 — Bài học hôm nay
+### P0-4 — Learn và Review tách riêng
 
-| Bước | Nội dung |
+| Khu | Nội dung |
 | --- | --- |
-| 1 | Card FSRS đến hạn, tối đa **trần review/ngày** |
-| 2 | Từ đang học dở Stage |
-| 3 | Từ mới theo lộ trình, theo quota, **chỉ khi số due đầu ngày < ngưỡng** |
+| Learn | Câu Stage đến hẹn, tối đa **câu Stage/ngày**; từ mới theo lộ trình, theo quota, **chỉ khi card đến hạn đầu ngày < ngưỡng Card và câu Stage đến hẹn đầu ngày < câu Stage/ngày** |
+| Review | Card đến hạn, tối đa **card/ngày** |
 
-- Chia thành các phiên ~5 phút; nghỉ giữa phiên được; phải hoàn thành trong ngày.
-- Chế độ **xen kẽ** (mặc định) hoặc **review trước**.
-- Không 2 câu liền nhau cùng dạng; cùng một từ cách ≥ 4 câu; vòng boss Speed Matching 30 giây khoảng mỗi 25 câu (khi đã có ≥ 6 từ).
+- Mỗi khu chia phiên ~5 phút; làm khu nào trước cũng được; câu chưa làm chuyển sang hôm sau.
+- Trong Learn: không 2 câu liền nhau cùng dạng; cùng một từ cách ≥ 4 câu; vòng boss Speed Matching 30 giây khoảng mỗi 25 câu (khi đã có ≥ 6 từ).
 - **Học thêm:** lấy từ tiếp theo, mượn quota ngày mai (tối đa 1 ngày), vẫn bị ngưỡng chặn; không kéo review sớm.
 - Refresh / đổi thiết bị: giữ kết quả đã trả lời, tạo hàng câu hỏi mới. *(Spec §6)*
 
 ### P0-5 — Stage và điểm
+
+Cột "Qua stage" là điều kiện **mở stage sau**. Stage tính điểm chạy tiếp đến **10 điểm** mới hoàn tất và tạo card. Lịch hỏi do FSRS riêng của Stage quyết định, tối đa 2 ngày, không có Easy.
 
 | Stage | Nội dung | Qua stage | Card tạo ra |
 | --- | --- | --- | --- |
@@ -98,14 +100,16 @@ Speed Matching ở chế độ Luyện tập (60 giây) và vòng boss (30 giây
 
 Due hôm nay, từ đang dở, từ mới còn mở, tiến độ lộ trình (x/N từ); nút "Bắt đầu học hôm nay", "Luyện tập", "Danh sách từ". Người dùng mới thấy empty state, không thấy số mock.
 
-### P0-9 — Settings (theo từng người học)
+### P0-9 — Settings (theo từng người học, tự chỉnh được)
 
-| Setting | Mặc định |
-| --- | --- |
-| Từ mới / ngày | 20 |
-| Tối đa review / ngày | 120 |
-| Ngưỡng due mở từ mới | 80 |
-| Chế độ | Xen kẽ |
+| Setting | Mặc định | Giới hạn |
+| --- | --- | --- |
+| Từ mới / ngày | 20 | 0–50 |
+| Câu Stage tối đa / ngày | 200 | 20–1000 |
+| Card ôn tối đa / ngày | 120 | 10–500 |
+| Ngưỡng Card để mở từ mới | 80 | 0–500 |
+| Chữ Kanji mới / ngày | 5 | 0–50 |
+| Câu Kanji tối đa / ngày | 50 | 10–500 |
 
 ### P0-10 — Library
 
@@ -119,9 +123,13 @@ Danh sách từ theo lộ trình kèm tiến độ (Stage, card, điểm); tìm 
 
 Typecheck và build pass khi tắt `ignoreBuildErrors`; unit test cho domain logic (điểm, stage, card, rating, hàng đợi); CI GitHub Actions (lint, typecheck, test) và `main` chỉ merge khi CI xanh; deploy Vercel + Supabase prod tách khỏi dev; không commit secret.
 
+### P0-13 — Khu Kanji
+
+Toàn bộ 516 chữ, độc lập với từ vựng. Xem thẻ giới thiệu, rồi mỗi chữ có một lịch FSRS, không Stage và điểm. Bốn dạng bài: chữ → chọn nghĩa; chữ → chọn hoặc gõ Hán Việt; nghĩa/Hán Việt → chọn chữ; chữ → chọn âm On/Kun. Rà soát 371 chữ bổ sung trước khi phát hành. *(Spec §18.6)*
+
 ## 5. Sau MVP (P1)
 
-Module Kanji độc lập; mini-game khác (Vocabulary Matching, Assembly games, Recall Challenge, Rapid Fire); backup/export; chia vòng 10 câu, hiệu ứng/rung khi đúng, bản đồ lộ trình, ảnh minh họa thật, streak, achievements; audio cloud TTS; progress charts nâng cao.
+Mini-game khác (Vocabulary Matching, Assembly games, Recall Challenge, Rapid Fire); backup/export; chia vòng 10 câu, hiệu ứng/rung khi đúng, bản đồ lộ trình, ảnh minh họa thật, streak, achievements; audio cloud TTS; progress charts nâng cao.
 
 ## 6. Out of scope cho MVP
 
@@ -164,15 +172,17 @@ Dữ liệu trên server → PC và mobile thấy cùng tiến độ
 
 ### Bài học hôm nay
 
-- [ ] Nội dung ngày đúng thứ tự due → từ dở → từ mới; tôn trọng trần review, quota, ngưỡng và chế độ.
-- [ ] Ví dụ (ngưỡng 80, trần 120): 50 due → 50 review + 20 từ mới; 100 due → 0 từ mới; 150 due → 120 review, 30 sang hôm sau.
+- [ ] Learn và Review hiện bộ đếm riêng; làm khu nào trước cũng được.
+- [ ] Ví dụ Review (ngưỡng 80, trần 120): 50 due → mở từ mới; 100 due → 0 từ mới; 150 due → 120 card, 30 sang hôm sau.
+- [ ] Câu Stage đến hẹn đầu ngày đạt 200 → không mở từ mới.
 - [ ] Nghỉ giữa các phiên không mất tiến độ trong ngày; refresh không chấm lại câu đã trả lời.
 - [ ] Không có 2 câu liền nhau cùng dạng; cùng một từ cách ≥ 4 câu.
 - [ ] "Học thêm" trừ đúng vào quota ngày mai, tối đa 1 ngày.
 
 ### Stage và điểm
 
-- [ ] `学校` đi 1 → 2 → 3 → 4 → 5 và tạo đúng 5 loại card ở đúng stage.
+- [ ] `学校` đi 1 → 2 → 3 → 4 → 5; stage sau mở ở 5 điểm, card tạo ở 10 điểm (Stage 3: khi xem xong); đủ 5 loại card.
+- [ ] Lịch Stage không có Easy và khoảng cách không quá 2 ngày.
 - [ ] `テレビ` đi 1 → 2 → 5, chỉ có card nghĩa – hira và giữ nó.
 - [ ] Đúng liên tiếp nhiều câu cùng một từ trong vài phút chỉ được +1; một stage không quá 3 điểm/ngày.
 - [ ] Không qua stage khi còn yêu cầu bắt buộc chưa có điểm.
@@ -184,6 +194,12 @@ Dữ liệu trên server → PC và mobile thấy cùng tiến độ
 - [ ] Submit trùng không áp dụng hai lần; review log được append.
 - [ ] Card giàn giáo bị bỏ đúng ở 30 / 40 điểm card.
 - [ ] Practice và vòng boss không đổi `due` nhưng cộng điểm card.
+
+### Kanji
+
+- [ ] Xem thẻ xong chữ có đúng một lịch; lịch này không ảnh hưởng tiến độ từ vựng.
+- [ ] Đủ 4 dạng bài; chữ không có Kun không bị hỏi Kun; đáp án nhiễu không tạo ra hai đáp án đúng.
+- [ ] Đã rà soát 371 chữ bổ sung.
 
 ### Library và Settings
 
@@ -222,3 +238,14 @@ Chi tiết: `docs/PROJECT_SPEC.md` §14 (các dòng không có ✅).
 | Practice ở P1 | Speed Matching ở P0 (cả vòng boss) |
 | Không có phát âm | Web Speech API |
 | Release 19/11 | Release mục tiêu 30/11 |
+
+## 11. Nhật ký quyết định V8 (05/11)
+
+| V7 | V8 |
+| --- | --- |
+| Gộp thành "Bài học hôm nay" | Learn, Review, Kanji tách riêng |
+| Stage dùng điểm, không có lịch | Stage có FSRS riêng, tối đa 2 ngày, không có Easy |
+| 5 điểm qua stage và tạo card | 5 điểm mở stage sau, 10 điểm hoàn tất và tạo card |
+| Card chặn từ mới qua ngưỡng 80 | Thêm chặn khi câu Stage đến hẹn đạt trần (mặc định 200) |
+| Phải hoàn thành trong ngày | Câu chưa làm chuyển sang hôm sau |
+| Module Kanji sau MVP | Khu Kanji 516 chữ trong MVP |
