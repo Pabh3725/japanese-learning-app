@@ -64,6 +64,8 @@ export interface AssemblyStep extends BaseStep {
   question: string
   pool: string[]
   answer: string[]
+  /** Số ô đáp án khi server giữ đáp án (answer rỗng). Mặc định: answer.length. */
+  slots?: number
   pieceKind: 'kana' | 'kanji'
   joiner?: string
   explanation: string

@@ -26,6 +26,15 @@ export default function LearnPage() {
           tone="cyan"
         />
         <LearningCard
+          href="/learn/build"
+          title="Build the reading"
+          description="Stage 2 · assemble Kana from pieces"
+          sample="組"
+          count={10}
+          countLabel="per round"
+          tone="yellow"
+        />
+        <LearningCard
           href="/learn/session?mode=kanji"
           title="New Kanji"
           description="3 characters · about 5 minutes"
