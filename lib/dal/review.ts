@@ -8,6 +8,7 @@ import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import type { ReviewAnswer } from '@/lib/learning/scoring'
+import { studyDate } from '@/lib/learning/time'
 import { createScheduler, type ReviewCard } from '@/lib/srs/scheduler'
 import {
   parseSubmitReviewResult,
@@ -29,8 +30,7 @@ export interface SubmitReviewRequest {
   /** Mã riêng cho MỖI lần bấm, do trình duyệt tạo (crypto.randomUUID()). Gửi lại → cùng mã. */
   clientEventId: string
   answer: ReviewAnswer
-  /** Ngày học + vị trí câu trong ngày (SES-01 cung cấp; chưa có thì bỏ trống). */
-  studyDate?: string
+  /** Vị trí câu trong ngày (SES-01 cung cấp; chưa có thì bỏ trống). Ngày học do SERVER tính (SRS-04). */
   daySeq?: number
 }
 
@@ -75,8 +75,9 @@ export async function submitReview(req: SubmitReviewRequest): Promise<SubmitRevi
   if (!card) throw new Error(`Card ${req.cardId} sai dạng (thiếu card_type?)`)
   if (card.points.status !== 'active') return { status: 'not_active' }
 
-  // 3. Tính lịch + điểm. Giờ ôn là giờ server, không lấy từ trình duyệt.
-  const result = scheduler.reviewCard(card, req.answer, new Date())
+  // 3. Tính lịch + điểm. Giờ ôn và ngày học là của SERVER, không lấy từ trình duyệt (SRS-04).
+  const now = new Date()
+  const result = scheduler.reviewCard(card, req.answer, now)
 
   // 4. Lưu trong một transaction
   const params = toSubmitReviewParams({
@@ -85,7 +86,7 @@ export async function submitReview(req: SubmitReviewRequest): Promise<SubmitRevi
     expectedVersion: row.version,
     answer: req.answer,
     result,
-    studyDate: req.studyDate,
+    studyDate: studyDate(now),
     daySeq: req.daySeq,
   })
   const { data: saved, error: rpcError } = await supabase.rpc('submit_review', params)
