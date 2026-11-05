@@ -11,19 +11,30 @@ export function ChoiceExercise({
   step,
   onComplete,
   onAnswer,
+  instant = false,
+  wrongNote,
 }: {
   step: ChoiceStep
   onComplete: (correct: boolean) => void
   /** Gọi đúng 1 lần khi bấm Check, với đáp án đã chọn — để server chấm và lưu (VOC-02). */
   onAnswer?: (chosen: string) => void
+  /** Bấm đáp án là chấm ngay, không cần bấm Check. */
+  instant?: boolean
+  /** Câu nhắc khi trả lời sai. */
+  wrongNote?: string
 }) {
   const [selected, setSelected] = useState<string | null>(null)
   const [status, setStatus] = useState<CheckStatus>('idle')
 
-  const check = () => {
-    if (!selected || status !== 'idle') return
-    setStatus(selected === step.answer ? 'correct' : 'incorrect')
-    onAnswer?.(selected)
+  const check = (chosen = selected) => {
+    if (!chosen || status !== 'idle') return
+    setStatus(chosen === step.answer ? 'correct' : 'incorrect')
+    onAnswer?.(chosen)
+  }
+
+  const choose = (option: string) => {
+    setSelected(option)
+    if (instant) check(option)
   }
 
   const stateFor = (option: string): AnswerState => {
@@ -36,7 +47,7 @@ export function ChoiceExercise({
   const onKey = useEffectEvent((e: KeyboardEvent) => {
     if (status !== 'idle' || e.target instanceof HTMLInputElement) return
     const n = Number(e.key)
-    if (n >= 1 && n <= step.options.length) setSelected(step.options[n - 1])
+    if (n >= 1 && n <= step.options.length) choose(step.options[n - 1])
     if (e.key === 'Enter' && selected) {
       e.preventDefault()
       check()
@@ -63,7 +74,7 @@ export function ChoiceExercise({
               kind={step.optionKind}
               state={stateFor(option)}
               disabled={status !== 'idle'}
-              onSelect={() => setSelected(option)}
+              onSelect={() => choose(option)}
             />
           ))}
         </div>
@@ -72,10 +83,11 @@ export function ChoiceExercise({
         <ExerciseFooter
           status={status}
           canCheck={selected !== null}
-          onCheck={check}
+          onCheck={() => check()}
           onContinue={() => onComplete(status === 'correct')}
           correctAnswer={step.answer}
           explanation={step.explanation}
+          wrongNote={wrongNote}
         />
       }
     >
