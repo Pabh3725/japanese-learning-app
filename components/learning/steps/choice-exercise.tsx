@@ -7,13 +7,23 @@ import { ExercisePanel } from '@/components/learning/exercise-panel'
 import { PromptDisplay } from '@/components/learning/prompt-display'
 import type { ChoiceStep } from '@/lib/types'
 
-export function ChoiceExercise({ step, onComplete }: { step: ChoiceStep; onComplete: (correct: boolean) => void }) {
+export function ChoiceExercise({
+  step,
+  onComplete,
+  onAnswer,
+}: {
+  step: ChoiceStep
+  onComplete: (correct: boolean) => void
+  /** Gọi đúng 1 lần khi bấm Check, với đáp án đã chọn — để server chấm và lưu (VOC-02). */
+  onAnswer?: (chosen: string) => void
+}) {
   const [selected, setSelected] = useState<string | null>(null)
   const [status, setStatus] = useState<CheckStatus>('idle')
 
   const check = () => {
-    if (!selected) return
+    if (!selected || status !== 'idle') return
     setStatus(selected === step.answer ? 'correct' : 'incorrect')
+    onAnswer?.(selected)
   }
 
   const stateFor = (option: string): AnswerState => {
