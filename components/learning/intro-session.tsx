@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { completeIntroAction } from '@/app/learn/intro/actions'
 import { SessionComplete } from '@/components/learning/session-complete'
 import { SessionHeader } from '@/components/learning/session-header'
+import { SpeakerButton } from '@/components/learning/speaker-button'
 import { KanaIntroExercise } from '@/components/learning/steps/kana-intro-exercise'
 import type { IntroWord } from '@/lib/intro/words'
 
@@ -68,7 +69,14 @@ export function IntroSession({ words }: { words: IntroWord[] }) {
         current={index}
         total={words.length}
       />
-      <KanaIntroExercise key={word.id} word={word} saving={saving} error={error} onComplete={complete} />
+      <KanaIntroExercise
+        key={word.id}
+        word={word}
+        saving={saving}
+        error={error}
+        onComplete={complete}
+        speaker={<SpeakerButton kana={word.reading} />}
+      />
     </div>
   )
 }
