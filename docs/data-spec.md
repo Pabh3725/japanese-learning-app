@@ -57,6 +57,7 @@ Ghi chú:
 | `han_viet` | `text` | Có điều kiện | Bắt buộc nếu `expression` có Kanji; `NULL` nếu từ chỉ-kana. Viết HOA, mỗi Kanji một âm, ngăn bằng dấu cách | `HỌC SINH` |
 | `is_kana_only` | `boolean` | Có | `true` khi và chỉ khi `expression` không chứa Kanji | `false` |
 | `jlpt_level` | `integer` | Có | N5 = `5` | `5` |
+| `emoji` | `text` | Không | Một emoji, không khoảng trắng. Để trống với từ trừu tượng | `🏫` |
 
 ### `code` và `sort_order` độc lập với nhau
 
@@ -228,6 +229,6 @@ Nghĩa của 145 chữ N5 gốc được viết thường chữ đầu cho thố
 4. **Dấu `;` đang dùng thay cho `/` trong một số câu**, ví dụ "anh; chị đã về đấy à" (ý là "anh/chị"). Nếu app tách nghĩa theo `;`, các câu này sẽ bị cắt sai.
 5. **`kanji.stroke_count` trống cả 516 dòng, `kanji.jlpt_level` trống ở 371 chữ bổ sung.** Đang để optional; cần nguồn dữ liệu Kanji đáng tin (ví dụ KANJIDIC) khi làm module Kanji.
 6. **Âm On/Kun và nghĩa của 371 chữ bổ sung** chưa được người rà soát.
-7. **Chưa có cột `emoji`** cho tính năng minh hoạ bằng emoji. Cần thêm (`text NULL`) trước khi làm tính năng đó.
+7. **Cột `emoji` (tuỳ chọn)** đã thêm vào cuối `vocabularies.csv` (2026-11-05), gán cho từ cụ thể; từ trừu tượng để trống. Danh sách chưa được người rà soát.
 
 Lưu ý: kiểm tra tự động đảm bảo đúng cấu trúc, nhưng không đảm bảo mọi nghĩa đều chính xác. Các lỗi nội dung ở trên được phát hiện khi đọc lướt, chưa phải rà soát toàn bộ 912 nghĩa.
