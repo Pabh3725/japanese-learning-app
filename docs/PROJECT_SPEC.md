@@ -2,9 +2,11 @@
 
 > **Vai trò:** Single Source of Truth cho sản phẩm, learning system, kiến trúc và trạng thái dự án.
 >
-> **Phiên bản:** 2.0 — Learning System Design V7
+> **Phiên bản:** 3.0 — Learning System Design V8
 >
-> **Ngày:** 2026-10-31 (V6: 2026-10-16)
+> **Ngày:** 2026-11-05 (V7: 2026-10-31; V6: 2026-10-16)
+>
+> **Đọc §18 trước.** §18 là bản mô tả đầy đủ của Design V8. Mọi chỗ khác trong tài liệu mâu thuẫn với §18 thì §18 được ưu tiên. Các bảng lịch sử V7 được giữ để truy vết quyết định.
 >
 > **Source đã kiểm tra:** repository `nihongo-app-design`, commit `afbd50d` (`chore: import original v0 UI`), branch hiện tại `docs/mvp-scope`.
 >
@@ -15,6 +17,8 @@
 > **Ghi chú phiên bản learning flow:** ARCH-03 và UX-01 viết theo "Learning Flow V5". Tài liệu này dùng **Design V7** — chủ dự án chốt ngày 2026-10-31 (PLAN-02), thay cho các phần tương ứng của Design V6 (2026-10-16). Khác biệt V5→V6 ở §12.6; khác biệt **V6→V7 ở §17**. Nhãn **CONFIRMED (V7)** đánh dấu quyết định mới ngày 2026-10-31.
 >
 > **Tóm tắt V7:** nhiều người học (đăng nhập username + mật khẩu); nội dung cố định do server seed; lộ trình từ mới cố định; "Bài học hôm nay" gộp review FSRS bắt buộc + học stage, chia thành các phiên ~5 phút; card FSRS tạo theo từng stage; qua stage bằng điểm; Practice không đổi lịch FSRS nhưng cộng điểm card. Kế hoạch task hiện hành: tab "Tasks v2" của Google Sheet kế hoạch dự án.
+>
+> **Tóm tắt V8 (2026-11-05):** web có ba khu riêng. **Learn** là phần học chính theo Stage, có lịch FSRS riêng; **Review** là phần ôn Card dài hạn, có lịch riêng; **Kanji** dạy từng chữ, gộp học và ôn vào một luồng, và nằm trong MVP. Không còn luồng gộp "Bài học hôm nay". Chi tiết: §18.
 
 ## Cách đọc tài liệu
 
@@ -48,7 +52,7 @@ Frontend hiện tại được tạo bằng v0 và là nền tảng UI sẽ đư
 | --- | --- |
 | G1 | Học Vocabulary và Kanji JLPT N5 trước, N4 sau. |
 | G2 | Ghi nhớ dài hạn nhờ Active Recall và FSRS, không chỉ "xem qua". |
-| G3 | Phiên học ngắn (~5 phút). Mỗi ngày hoàn thành "Bài học hôm nay" gồm một hoặc nhiều phiên; nghỉ giữa các phiên được, tiến độ trong ngày được giữ. *(V7)* |
+| G3 | Phiên học ngắn (~5 phút), nghỉ giữa các phiên được, tiến độ được giữ. Mỗi người tự chỉnh khối lượng trong Settings; câu chưa làm chuyển sang hôm sau, không phạt. *(V8)* |
 | G4 | Tiến độ được lưu bền vững và đồng bộ giữa desktop và mobile. |
 | G5 | ~~Import CSV/JSON; backup/restore~~ → **V7:** nội dung học cố định, chỉ server seed; người học không import. Backup/restore hoãn sau MVP. |
 | G6 | UI Dark Modern, Minimalist, Gamified; tái sử dụng frontend v0. |
@@ -66,7 +70,7 @@ Không có teacher/student hay admin portal trong MVP. Nội dung do developer q
 ### 1.4 Phạm vi N5 MVP — tóm tắt
 
 - Nội dung: Vocabulary N5 (dataset hoàn chỉnh đã có, kèm Hán Việt toàn từ và liên kết Kanji) — CONFIRMED (V7).
-- Hai module trong MVP: **Bài học hôm nay** (Daily Lessons + FSRS Review gộp) và **Practice**. Module Kanji độc lập: sau MVP.
+- MVP có bốn khu: **Learn**, **Review**, **Kanji** và **Practice** (V8, §18).
 - Persistence + Auth (username + mật khẩu) + sync qua Supabase; nhiều người học.
 - Không import/backup trong MVP.
 - Chi tiết P0/P1/Out of Scope: §13.
@@ -92,6 +96,8 @@ Các nguyên tắc dưới đây đều **CONFIRMED** về định hướng; con
 | **Checkpoint ≠ Mastery** | Đạt checkpoint nghĩa là đã có bằng chứng học ban đầu; trí nhớ dài hạn do FSRS theo dõi. Hoàn thành Stage 5 không đồng nghĩa với thành thạo. |
 
 ### 2.2 Module — CONFIRMED (V7)
+
+> **V8 thay mục này:** Learn và Review tách riêng, có thêm khu Kanji (§18). Bảng dưới là thiết kế V7, giữ để truy vết.
 
 V7 thay "ba module độc lập" của V6: Daily Lessons và FSRS Review được **gộp vào một luồng hằng ngày** là "Bài học hôm nay". Các loại event vẫn tách riêng (§4.1).
 
@@ -156,10 +162,10 @@ Chi tiết: §5, §6.
 | --- | --- | --- |
 | FR-KJ-01 | Mỗi Kanji có character, meanings, Hán Việt, readings. | CONFIRMED |
 | FR-KJ-02 | Một Kanji có thể thuộc nhiều Vocabulary. | CONFIRMED |
-| FR-KJ-03 | Module học Kanji độc lập bên cạnh Vocabulary. | CONFIRMED tồn tại — **sau MVP** (V7) |
-| FR-KJ-04 | Kanji độc lập có thể có FSRS card riêng. | CONFIRMED (có thể) |
-| FR-KJ-05 | Skill Taxonomy, Stage và checkpoint của Kanji độc lập. | PENDING |
-| FR-KJ-06 | Lưu toàn bộ On/Kun hay chỉ readings cần thiết cho N5. | PENDING (PLAN-01 Q15) |
+| FR-KJ-03 | Khu Kanji độc lập bên cạnh Vocabulary, dạy từng chữ. | CONFIRMED — **trong MVP** (V8, §18.6) |
+| FR-KJ-04 | Mỗi chữ có đúng một lịch FSRS riêng. | CONFIRMED (V8) |
+| FR-KJ-05 | Khu Kanji không có Stage và điểm; dạng bài theo §18.6. | CONFIRMED (V8) |
+| FR-KJ-06 | Lưu và kiểm tra toàn bộ On/Kun trong file data; chữ không có Kun thì không hỏi Kun. | CONFIRMED (V8) |
 | FR-KJ-07 | Stroke count, components. | PROPOSED (source v0 đã có trường này trong mock) |
 
 ### 3.5 FSRS Review
@@ -227,7 +233,7 @@ Chi tiết: §8.
 | --- | --- | --- |
 | FR-ST-01 | Daily goal và các switch. | IMPLEMENTED (UI demo, chỉ React state) |
 | FR-ST-02 | Settings lưu theo từng người học và đồng bộ giữa thiết bị. | CONFIRMED (V7) |
-| FR-ST-03 | Tham số học, mặc định: **20 từ mới/ngày**, **tối đa 120 review/ngày**, **ngưỡng due 80** (sáng có ≥ 80 card due thì không mở từ mới), chế độ **xen kẽ** (lựa chọn khác: review trước). | CONFIRMED (V7) |
+| FR-ST-03 | Tham số học do người học tự chỉnh, mặc định và giới hạn theo §18.5. Bỏ chế độ xen kẽ/review trước. | CONFIRMED (V8) |
 | FR-ST-04 | Romaji chỉ hiện ở Stage 1–2 (kiểu `gakkou`), ẩn từ Stage 3. Furigana: PENDING. | CONFIRMED (V7) phần Romaji |
 
 ---
@@ -380,6 +386,8 @@ Một Attempt chỉ được tính vào checkpoint khi **tất cả** điều ki
 
 **Khoảng cách tối thiểu — CONFIRMED (V7, OD-04):** một câu của một từ chỉ được tính điểm (cộng **hoặc trừ**) khi có **ít nhất 4 câu khác** xen giữa nó và câu trước đó của cùng từ (câu review và câu học đều tính; câu vòng boss không tính). Mỗi Stage của một từ được cộng **tối đa +3 điểm mỗi ngày** (trần chỉ áp cho điểm cộng; ngày theo giờ Việt Nam). Vì vậy mỗi Stage tính điểm cần ít nhất 2 ngày. Chi tiết: `docs/learning-rules.md`.
 
+> **V8:** 5 điểm chỉ mở stage sau; stage vẫn tiếp tục đến khi đạt 10 điểm mới tạo card (§18.3). Khi một câu đến hẹn là do lịch FSRS của Stage quyết định.
+
 #### Checkpoint bằng điểm — CONFIRMED (V7), thay threshold đếm lượt của V6
 
 Mỗi câu trong Stage được chấm điểm: **đúng +1**, **đúng nhờ hint 0**, **sai −1**; điểm stage **có thể âm**. Qua Stage khi **đạt 5 điểm** và mỗi yêu cầu bắt buộc dưới đây có ít nhất 1 điểm.
@@ -452,7 +460,7 @@ So khớp đáp án tự do (PROPOSED, dựa trên `normalizeAnswer` đã có): 
 
 ## 6. Daily Lesson System
 
-### 6.1 Bài học hôm nay và phiên ~5 phút — CONFIRMED (V7)
+### 6.1 Bài học hôm nay và phiên ~5 phút — V7, đã được thay bởi §18
 
 Mỗi ngày người học bấm **"Bắt đầu học hôm nay"**. Hệ thống dựng nội dung trong ngày theo thứ tự:
 
@@ -572,9 +580,9 @@ sequenceDiagram
 - Submit trùng (cùng event) không reschedule hai lần — CONFIRMED (V7).
 - Hai thiết bị submit cạnh tranh không ghi đè bằng state cũ — CONFIRMED (V7).
 
-### 7.3 Card eligibility — CONFIRMED (V7): phương án E2
+### 7.3 Card eligibility — CONFIRMED (V8)
 
-**Mỗi Stage xong tạo card của Stage đó** (OD-06 đóng):
+**Stage hoàn tất ở 10 điểm thì tạo card của Stage đó** (§18.3). Stage 3 chỉ có xem nên xem xong là tạo card:
 
 | Qua Stage | Card được tạo |
 | --- | --- |
@@ -1053,22 +1061,22 @@ Bản đầy đủ kèm acceptance criteria chi tiết: `docs/mvp-scope.md` (PLA
 | P0-01 | Giữ và nối UI v0 (shell, theme, components) với dữ liệu thật; giữ copy tiếng Anh | CONFIRMED |
 | P0-02 | Supabase Auth với **username + mật khẩu**, **nhiều người học**, RLS theo `user_id`, sync desktop/mobile | CONFIRMED (V7) |
 | P0-03 | Schema + **seed server-side** (`pnpm seed`, idempotent, ID ổn định) cho Vocabulary/Kanji N5 + quan hệ | CONFIRMED (V7) |
-| P0-04 | **Bài học hôm nay**: review bắt buộc + từ dở + từ mới theo lộ trình cố định, chia phiên ~5 phút, ngưỡng due, chế độ xen kẽ/review trước, học thêm (mượn quota) | CONFIRMED (V7) |
-| P0-05 | 5 Stage, 4 Skill, **điểm stage** (5 điểm, yêu cầu bắt buộc, giãn cách ≥4 câu, ≤3 điểm/stage/ngày), attempt log | CONFIRMED (V7) |
+| P0-04 | **Learn** và **Review** tách riêng, mỗi khu có lịch, bộ đếm và phiên ~5 phút riêng; từ mới theo lộ trình cố định, chặn bằng hai ngưỡng; học thêm (mượn quota) | CONFIRMED (V8) |
+| P0-05 | 5 Stage, 4 Skill, **lịch FSRS riêng cho Stage** (tối đa 2 ngày), **điểm stage** (5 mở stage sau, 10 hoàn tất, yêu cầu bắt buộc, giãn cách ≥4 câu, ≤3 điểm/stage/ngày), attempt log | CONFIRMED (V8) |
 | P0-06 | Refresh/đổi thiết bị không mất kết quả (session mới từ state) | CONFIRMED (V7) |
-| P0-07 | FSRS (`ts-fsrs`): card tạo theo stage, 5 loại card, bài tập máy chấm → rating, điểm card, bỏ card giàn giáo, server-authoritative, idempotent | CONFIRMED (V7) |
-| P0-08 | Dashboard từ dữ liệu thật + nút "Bắt đầu học hôm nay" | CONFIRMED (V7) |
-| P0-09 | Settings theo user: 20 từ mới, 120 review, ngưỡng 80, chế độ | CONFIRMED (V7) |
+| P0-07 | FSRS (`ts-fsrs`): card tạo khi Stage hoàn tất, 5 loại card, bài tập máy chấm → rating, điểm card, bỏ card giàn giáo, server-authoritative, idempotent | CONFIRMED (V8) |
+| P0-08 | Dashboard từ dữ liệu thật, có lối vào và bộ đếm riêng cho Learn, Review, Kanji | CONFIRMED (V8) |
+| P0-09 | Settings theo user, người học tự chỉnh khối lượng (§18.5) | CONFIRMED (V8) |
 | P0-10 | Library: danh sách theo lộ trình, tìm kiếm, tiến độ từng từ, loại/khôi phục từ | CONFIRMED (V7) |
 | P0-11 | Practice: Speed Matching (Luyện tập + vòng boss), practice log, cộng điểm card | CONFIRMED (V7) |
 | P0-12 | Trải nghiệm: đổi dạng câu liên tục, câu nghe (Web Speech), lật thẻ/lên stage, emoji, gõ Romaji → Kana (`wanakana`) | CONFIRMED (V7) |
 | P0-13 | Quality baseline: typecheck không bỏ qua, unit test domain logic, CI, không commit secret; deploy Vercel + Supabase prod | CONFIRMED (V7) |
+| P0-14 | **Khu Kanji**: 516 chữ, xem thẻ rồi vào một lịch FSRS, 4 dạng bài, quota riêng (§18.6) | CONFIRMED (V8) |
 
 ### 13.2 P1 / sau MVP
 
 | ID | Hạng mục |
 | --- | --- |
-| P1-01 | Module Kanji độc lập |
 | P1-02 | Mini-game khác (Vocabulary Matching, Assembly games, Recall Challenge, Rapid Fire) |
 | P1-03 | Backup/export dữ liệu người học |
 | P1-04 | Chia vòng 10 câu, hiệu ứng/rung khi đúng, bản đồ lộ trình, ảnh minh họa thật, streak, achievements |
@@ -1131,7 +1139,7 @@ N4–N1; Grammar, Listening hiểu, Speaking; nhận dạng nét viết tay; gõ
 | **OD-02** ✅ | FSRS Card Taxonomy — **V7: 5 loại card (§7.4)** | 1 card tổng hợp / 2 card (Meaning, Reading) / 4 card theo Skill; card Kana-only; card Kanji độc lập | `review_cards`, số review/ngày | SPEC-03, DB-01 |
 | **OD-03** ✅ | Learning Queue Algorithm — **V7 một phần: luật trộn hàng đợi (§6.1); trọng số skill yếu còn mở** | Cách chọn câu tiếp theo, trọng số skill yếu, độ dài khoảng xen kẽ, số lần lặp tối đa | Learning engine | SPEC-02 |
 | **OD-04** ✅ | Định nghĩa "độc lập" và "khoảng cách" — **V7: ≥4 câu từ khác, ≤3 điểm/stage/ngày (§5.4)** | Số câu xen giữa tối thiểu; có tính theo thời gian/phiên khác không | Checkpoint evaluation | SPEC-01 |
-| **OD-05** | Independent Kanji Learning Flow | Skill taxonomy, Stage, checkpoint cho Kanji; dùng flow v0 làm cơ sở? Quan hệ với tiến độ Kanji trong Vocabulary | Kanji module, schema | SPEC-04 |
+| **OD-05** ✅ | Independent Kanji Learning Flow — **V8: xem thẻ rồi vào một lịch FSRS, không Stage, không điểm (§18.6)** | Skill taxonomy, Stage, checkpoint cho Kanji; dùng flow v0 làm cơ sở? Quan hệ với tiến độ Kanji trong Vocabulary | Kanji module, schema | SPEC-04 |
 | **OD-06** ✅ | Card eligibility — **V7: E2 — tạo card theo stage (§7.3)** | E1 sau Stage 5 / E2 theo skill checkpoint / E3 tạo sớm, active sau | Nối Daily Lessons → Review | SPEC-03 |
 | **OD-07** ✅ | Session persistence — **V7: B — session mới từ state (§6.4)** | Resume chính xác (lưu queue) vs session mới từ state | `learning_sessions`, UX | SPEC-02, DB-01 |
 | **OD-08** ✅ | Daily Session Planner — **V7: 20 từ / 120 review / ngưỡng 80, chế độ xen kẽ (§3.10)** | Số từ mới/phiên, tỷ lệ mới/cũ, giới hạn/ngày, tách Vocab/Kanji | Settings, Dashboard | SPEC-02 |
@@ -1153,7 +1161,7 @@ N4–N1; Grammar, Listening hiểu, Speaking; nhận dạng nét viết tay; gõ
 | **OD-24** | Mức server grading (ARCH-03 D-07) | Gửi đáp án xuống client để feedback tức thì hay chấm hoàn toàn trên server | Latency, DTO | LEARN-01 |
 | **OD-25** | Giữ hay bỏ `@vercel/analytics` (D-09) | Quyền riêng tư dữ liệu học | Hosting | Release |
 | **OD-26** ✅ | Ngôn ngữ giao diện (D-13, UXI-17) — **V7: giữ tiếng Anh (§11.5)** | Copy tiếng Anh hay tiếng Việt; `lang` | Toàn bộ copy UI | LEARN-01 |
-| **OD-27** ✅ | Thời điểm module Kanji độc lập (C-15) — **V7: sau MVP (§13.2)** | P0 hay P1 | Roadmap | SPEC-04 |
+| **OD-27** ✅ | Thời điểm module Kanji độc lập (C-15) — **V8: trong MVP (§18.6), thay quyết định sau MVP của V7** | P0 hay P1 | Roadmap | SPEC-04 |
 
 **Ánh xạ với `docs/architecture.md` §10.2:** D-01 → OD-20 · D-02 → OD-18 · D-03 → OD-17 · D-04 → OD-16 (atomic review) · D-05 → OD-19 · D-06 → OD-07 · D-07 → OD-24 · D-08 → OD-20 · D-09 → OD-25 · D-10 → OD-05/OD-27 (phần "giữ module" đã CONFIRMED bởi V6) · D-11 → OD-03 · D-12 → OD-02 · D-13 → OD-26.
 
@@ -1281,6 +1289,93 @@ Engine thuần (checkpoint/queue/grading) không phụ thuộc database, có th�
 | Kỹ thuật | Library FSRS, auth, deploy PENDING | `ts-fsrs`, username + mật khẩu, `wanakana`, Web Speech, Vercel + Supabase dev/prod, CI |
 | Kanji độc lập | Có trong MVP, flow PENDING | Sau MVP |
 | Ngôn ngữ UI | PENDING | Giữ tiếng Anh |
+
+---
+
+## 18. Design V8 (2026-11-05) — CONFIRMED
+
+Chủ dự án chốt ngày 2026-11-05. Các con số về thời gian là ước tính, chưa đo trên người học thật.
+
+### 18.1 Ba khu học tách riêng
+
+| Khu | Dạy gì | Lịch | Event |
+| --- | --- | --- | --- |
+| **Learn** | Từ vựng theo Stage 1–5. Đây là phần học chính, không chỉ là phần giới thiệu. | FSRS riêng cho Stage, tối đa 2 ngày | `exercise_logs` |
+| **Review** | Card từ vựng đã tạo | FSRS cho Card, không giới hạn khoảng cách | `review_logs` |
+| **Kanji** | Từng chữ như 学, 校. Gộp học và ôn vào một luồng. | Một lịch FSRS cho mỗi chữ | Log riêng của Kanji |
+| **Practice** | Speed Matching | Không đổi lịch nào; chỉ cộng điểm card | `practice_attempts` |
+
+- Stage 3–4 của từ vựng vẫn ở Learn: phần này học cách viết và âm Hán Việt của **từ** (学校, HỌC HIỆU), khác với khu Kanji học **chữ**.
+- Bỏ luồng gộp "Bài học hôm nay" và cài đặt xen kẽ/review trước.
+- Làm khu nào trước cũng được; không bắt buộc xong Review mới vào Learn.
+- Câu chưa làm chuyển sang hôm sau, không có phạt. Bỏ yêu cầu "phải hoàn thành hết trong ngày".
+- Vòng boss Speed Matching nằm trong Learn: khoảng mỗi 25 câu, khi phiên có ít nhất 6 từ.
+
+### 18.2 Lịch của Stage
+
+- Đơn vị lịch: **mỗi từ × mỗi Stage tính điểm** (2, 4, 5). Từ có Kanji có tối đa 3 lịch; từ chỉ có Kana có 2.
+- Thuật toán: `ts-fsrs` với **khoảng cách tối đa 2 ngày**. Lý do: ở tham số mặc định, trả lời đúng mọi câu phải đến khoảng ngày 59 mới đạt 5 điểm và hơn 35 năm mới đạt 10 điểm, vì khoảng cách giãn quá nhanh.
+- Rating: sai = Again, gợi ý = Hard, đúng = Good. **Không có Easy.**
+- Các dạng bài trong một stage xoay vòng, ưu tiên dạng bắt buộc chưa có điểm.
+- Luật giãn cách ≥ 4 câu chỉ tính trong khu Learn. Câu Review không còn tính vào khoảng cách này.
+
+### 18.3 Điểm và mốc của Stage
+
+| Mốc | Điều kiện | Kết quả |
+| --- | --- | --- |
+| Mở stage sau | Stage đạt **5 điểm** và đủ yêu cầu bắt buộc | Mở stage kế tiếp; stage hiện tại **vẫn tiếp tục** |
+| Hoàn tất stage | Stage đạt **10 điểm** | Dừng lịch và bài tập của stage đó, tạo card của stage |
+| Hoàn thành từ | Mọi stage tính điểm của từ đều hoàn tất | Hoàn thành vòng học ban đầu |
+
+- Điểm giữ nguyên: đúng +1, gợi ý 0, sai −1; tối đa +3 điểm mỗi stage mỗi ngày; điểm có thể âm.
+- Sai sau khi đã mở stage sau: trừ điểm, nhưng không đóng stage đã mở.
+- Stage 1 và Stage 3 chỉ có xem. Xem xong Stage 3 thì tạo card kana–Hán Việt như V7.
+- Ước tính nếu đúng mọi câu: đạt 5 điểm khoảng ngày 6, đạt 10 điểm khoảng ngày 16; từ có Kanji xong sau khoảng 28 ngày.
+
+### 18.4 Card
+
+- 5 loại card, luật bỏ card giàn giáo, điểm card và Practice giữ như V7. Rating của Card vẫn có Easy.
+- Card mới đến hạn lần đầu lúc 00:00 ngày học hôm sau.
+
+### 18.5 Khối lượng do người học tự chỉnh
+
+| Cài đặt | Mặc định | Giới hạn | Áp dụng cho |
+| --- | --- | --- | --- |
+| Từ mới/ngày | 20 | 0–50 | Learn |
+| Câu Stage tối đa/ngày | 200 | 20–1000 | Learn |
+| Card ôn tối đa/ngày | 120 | 10–500 | Review |
+| Ngưỡng Card để mở từ mới | 80 | 0–500 | Learn |
+| Chữ Kanji mới/ngày | 5 | 0–50 | Kanji |
+| Câu Kanji tối đa/ngày | 50 | 10–500 | Kanji |
+
+- **Mở từ mới** khi card đến hạn đầu ngày dưới ngưỡng Card **và** câu Stage đến hẹn đầu ngày dưới "Câu Stage tối đa/ngày". Không có ô cài đặt riêng cho ngưỡng Stage.
+- Đổi cài đặt có hiệu lực ngay với phần từ mới còn lại hôm nay; câu và card đã đến hẹn giữ nguyên.
+- Settings hiện ước tính thời gian và số từ mới thực tế.
+- **Hệ quả của mặc định:** trung bình mỗi từ cần khoảng 26 câu đúng (có Kanji 30, chỉ Kana 20). Với 200 câu/ngày, về lâu dài chỉ học được khoảng 7–8 từ/ngày, học hết 912 từ trong khoảng 4 tháng. 20 từ mới chỉ là mức tối đa.
+
+### 18.6 Khu Kanji
+
+- **Phạm vi:** toàn bộ 516 chữ trong `kanji.csv`, theo thứ tự trong file. Độc lập với tiến độ từ vựng.
+- **Luồng:** xem thẻ giới thiệu một lần, rồi chữ đó có **một lịch FSRS** theo tham số mặc định. Không có Stage và điểm. Câu đến hạn và chữ mới nằm chung một phiên.
+- **Dạng bài** (máy chấm):
+
+| Dạng | Ví dụ | Ghi chú |
+| --- | --- | --- |
+| Chữ → chọn nghĩa | 学 → học | Loại đáp án nhiễu trùng nghĩa |
+| Chữ → chọn hoặc gõ Hán Việt | 学 → HỌC | Gõ thì bỏ dấu, không phân biệt hoa thường; loại đáp án nhiễu trùng âm |
+| Nghĩa/Hán Việt → chọn chữ | HỌC → 学 | Không dùng chữ có cùng âm hoặc cùng nghĩa làm đáp án nhiễu |
+| Chữ → chọn âm On hoặc Kun | 学 → ガク | Đáp án nhiễu không trùng âm nào của chữ; chữ không có Kun chỉ hỏi On |
+
+- **Rating:** sai = Again, gợi ý = Hard, đúng = Good. **Không có Easy.**
+- **Dữ liệu còn rủi ro:** On, Kun và nghĩa của 371 chữ bổ sung chưa được người rà soát (`data-spec` §2), nên có khả năng dạy sai. Phải có task rà soát trước khi phát hành (KJ-01). 94 chữ không có Kun. Chưa có số nét nên không có bài theo nét.
+- **Ước tính:** với 5 chữ mới/ngày, học hết 516 chữ trong khoảng 3,5 tháng.
+
+### 18.7 Việc phải làm trong code
+
+- Thêm lịch Stage và migration; sửa `submit_exercise` (VOC-04) và luật trong `lib/learning`.
+- Sửa VOC-02 và VOC-03 để chọn câu theo lịch đến hẹn.
+- Tách Dashboard, Learn, Review; thêm khu Kanji. Xem `docs/learning-rules.md` (RULES_V3) và `docs/database.md` §9.
+- Dữ liệu đang có: dòng tiến độ hiện tại được chuyển sang lịch Stage, giữ điểm; card đã tạo được giữ.
 
 ---
 
