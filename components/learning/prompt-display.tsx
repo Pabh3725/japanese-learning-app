@@ -1,4 +1,4 @@
-import { jpSizeClass } from '@/lib/learning-engine'
+import { jpSizeClass } from '@/lib/jp-size'
 import type { StepPrompt } from '@/lib/types'
 import { cn } from '@/lib/utils'
 

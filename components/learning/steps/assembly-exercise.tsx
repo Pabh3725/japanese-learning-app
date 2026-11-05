@@ -9,12 +9,27 @@ import { PromptDisplay } from '@/components/learning/prompt-display'
 import type { AssemblyStep } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
-export function AssemblyExercise({ step, onComplete }: { step: AssemblyStep; onComplete: (correct: boolean) => void }) {
+/** Kết quả chấm từ server. `null` = phiên đã tự chuyển câu, không cần hiện gì. */
+export type AssemblyGrade = { correct: boolean; answer: string[]; explanation?: string } | { error: string } | null
+
+interface AssemblyExerciseProps {
+  step: AssemblyStep
+  onComplete: (correct: boolean) => void
+  /** Có thì server chấm; không có thì chấm ngay bằng step.answer. */
+  onGrade?: (pieces: string[]) => Promise<AssemblyGrade>
+}
+
+export function AssemblyExercise({ step, onComplete, onGrade }: AssemblyExerciseProps) {
   const [placed, setPlaced] = useState<number[]>([])
   const [status, setStatus] = useState<CheckStatus>('idle')
-  const locked = status !== 'idle'
+  const [checking, setChecking] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [graded, setGraded] = useState<{ answer: string[]; explanation?: string } | null>(null)
+  const locked = status !== 'idle' || checking
   const isKanji = step.pieceKind === 'kanji'
-  const full = placed.length === step.answer.length
+  const slots = step.slots ?? step.answer.length
+  const answer = graded?.answer ?? step.answer
+  const full = placed.length === slots
 
   const add = (poolIndex: number) => {
     if (locked || full || placed.includes(poolIndex)) return
@@ -24,9 +39,24 @@ export function AssemblyExercise({ step, onComplete }: { step: AssemblyStep; onC
     if (locked) return
     setPlaced((p) => p.filter((_, i) => i !== slot))
   }
-  const check = () => {
+  const check = async () => {
     const built = placed.map((i) => step.pool[i])
-    setStatus(built.every((piece, i) => piece === step.answer[i]) ? 'correct' : 'incorrect')
+    if (!onGrade) {
+      setStatus(built.every((piece, i) => piece === step.answer[i]) ? 'correct' : 'incorrect')
+      return
+    }
+    if (checking) return
+    setChecking(true)
+    setError(null)
+    const result = await onGrade(built)
+    setChecking(false)
+    if (!result) return
+    if ('error' in result) {
+      setError(result.error)
+      return
+    }
+    setGraded({ answer: result.answer, explanation: result.explanation })
+    setStatus(result.correct ? 'correct' : 'incorrect')
   }
 
   const pieceText = isKanji ? 'text-[30px] md:text-[34px]' : 'text-[26px] md:text-[30px]'
@@ -41,7 +71,7 @@ export function AssemblyExercise({ step, onComplete }: { step: AssemblyStep; onC
             className={cn('flex min-h-20 flex-wrap items-center justify-center gap-2', status === 'incorrect' && 'animate-shake')}
             aria-label="Your answer"
           >
-            {step.answer.map((_, slot) => {
+            {Array.from({ length: slots }, (_, slot) => {
               const poolIndex = placed[slot]
               const piece = poolIndex !== undefined ? step.pool[poolIndex] : null
               return (
@@ -99,18 +129,22 @@ export function AssemblyExercise({ step, onComplete }: { step: AssemblyStep; onC
       footer={
         <ExerciseFooter
           status={status}
-          canCheck={full}
+          canCheck={full && !checking}
+          checkLabel={checking ? 'Checking…' : 'Check'}
           onCheck={check}
           onContinue={() => onComplete(status === 'correct')}
-          correctAnswer={step.answer.join(step.joiner ? ` ${step.joiner} ` : '')}
-          explanation={step.explanation}
+          correctAnswer={answer.join(step.joiner ? ` ${step.joiner} ` : '')}
+          explanation={graded ? graded.explanation : step.explanation}
           secondary={
-            placed.length > 0 ? (
-              <button type="button" onClick={() => setPlaced([])} className={actionButton({ variant: 'ghost', size: 'sm' })}>
-                <RotateCcw aria-hidden="true" />
-                Clear
-              </button>
-            ) : null
+            <>
+              {error && <p role="alert" className="mb-2 text-sm text-error">{error}</p>}
+              {placed.length > 0 && (
+                <button type="button" onClick={() => setPlaced([])} disabled={checking} className={actionButton({ variant: 'ghost', size: 'sm' })}>
+                  <RotateCcw aria-hidden="true" />
+                  Clear
+                </button>
+              )}
+            </>
           }
         />
       }
