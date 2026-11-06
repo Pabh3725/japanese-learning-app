@@ -24,6 +24,8 @@ export interface LearnOverview {
   sessions: number
   /** Lý do hôm nay không có thêm từ mới. */
   block: NewWordsBlock
+  /** Số câu Learn đã trả lời hôm nay. */
+  answeredToday: number
   /** Số từ có thể mượn thêm của ngày mai. */
   canBorrow: number
   newPerDay: number
@@ -152,6 +154,7 @@ export async function getLearnOverview(): Promise<LearnOverview> {
     questionsToday,
     sessions: sessionsFor(questionsToday + newToday + stage3Waiting),
     block,
+    answeredToday: limits.answeredToday,
     canBorrow: block ? 0 : Math.min(left - newToday, Math.max(0, newPerDay - limits.borrowedForNext)),
     newPerDay,
     wordsLeft: left,

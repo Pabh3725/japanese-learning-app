@@ -5,9 +5,9 @@ import { toneStyles } from '@/lib/tones'
 
 const items = [
   { href: '/practice/speed-matching', label: 'Speed Matching', meta: '60s', icon: Shuffle, tone: 'cyan' as const },
-  { href: '/practice', label: 'Rapid Fire', meta: '20 Qs', icon: Timer, tone: 'pink' as const },
-  { href: '/learn/session?mode=vocab', label: 'Word Builder', meta: 'Kana', icon: Blocks, tone: 'yellow' as const },
-  { href: '/practice', label: 'Recall Sprint', meta: 'Typing', icon: Keyboard, tone: 'primary' as const },
+  { href: null, label: 'Rapid Fire', meta: 'Coming soon', icon: Timer, tone: 'pink' as const },
+  { href: null, label: 'Word Builder', meta: 'Coming soon', icon: Blocks, tone: 'yellow' as const },
+  { href: null, label: 'Recall Sprint', meta: 'Coming soon', icon: Keyboard, tone: 'primary' as const },
 ]
 
 export function QuickTraining() {
@@ -25,23 +25,25 @@ export function QuickTraining() {
         {items.map((item) => {
           const styles = toneStyles[item.tone]
           const Icon = item.icon
+          const content = (
+            <>
+              <span className={cn('flex size-10 items-center justify-center rounded-xl', styles.soft)}>
+                <Icon className={cn('size-5', styles.text)} aria-hidden="true" />
+              </span>
+              <span>
+                <span className="block text-sm font-medium">{item.label}</span>
+                <span className="text-xs text-muted-foreground">{item.meta}</span>
+              </span>
+            </>
+          )
+          const className = 'flex h-full flex-col gap-3 rounded-2xl border border-border bg-card p-4'
           return (
             <li key={item.label}>
-              <Link
-                href={item.href}
-                className={cn(
-                  'flex h-full flex-col gap-3 rounded-2xl border border-border bg-card p-4 transition-all duration-200 hover:-translate-y-0.5',
-                  styles.ring,
-                )}
-              >
-                <span className={cn('flex size-10 items-center justify-center rounded-xl', styles.soft)}>
-                  <Icon className={cn('size-5', styles.text)} aria-hidden="true" />
-                </span>
-                <span>
-                  <span className="block text-sm font-medium">{item.label}</span>
-                  <span className="text-xs text-muted-foreground">{item.meta}</span>
-                </span>
-              </Link>
+              {item.href ? (
+                <Link href={item.href} className={cn(className, 'transition-all duration-200 hover:-translate-y-0.5', styles.ring)}>{content}</Link>
+              ) : (
+                <div className={cn(className, 'opacity-70')}>{content}</div>
+              )}
             </li>
           )
         })}

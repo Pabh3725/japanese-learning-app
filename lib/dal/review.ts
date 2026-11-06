@@ -223,6 +223,8 @@ export interface ReviewSessionData {
   questions: ReviewQuestion[]
   /** Đã ôn đủ trần hôm nay. */
   capReached: boolean
+  /** Số Card còn đến hạn sau phiên này, trong trần hôm nay. */
+  cardsLeft: number
 }
 
 /** Card quá hạn lâu nhất trước, không vượt trần mỗi ngày. */
@@ -235,7 +237,7 @@ export async function getReviewSession(): Promise<ReviewSessionData> {
     readExcludedIds(supabase, user.id),
   ])
   const remaining = Math.max(0, cap - reviewedToday)
-  if (remaining === 0) return { questions: [], capReached: true }
+  if (remaining === 0) return { questions: [], capReached: true, cardsLeft: 0 }
 
   const { data, error } = await supabase
     .from('review_cards')
@@ -247,10 +249,10 @@ export async function getReviewSession(): Promise<ReviewSessionData> {
     .range(0, PAGE - 1)
   if (error) throw new Error(`Không đọc được review_cards: ${error.message}`)
 
-  const cards = ((data ?? []) as unknown as DueCardRow[])
-    .filter((c) => !excludedIds.has(c.learner_vocabulary.vocabulary_id))
-    .slice(0, Math.min(CARDS_PER_ROUND, remaining))
-  if (cards.length === 0) return { questions: [], capReached: false }
+  const due = ((data ?? []) as unknown as DueCardRow[]).filter((c) => !excludedIds.has(c.learner_vocabulary.vocabulary_id))
+  const cards = due.slice(0, Math.min(CARDS_PER_ROUND, remaining))
+  if (cards.length === 0) return { questions: [], capReached: false, cardsLeft: 0 }
+  const cardsLeft = Math.min(due.length, remaining) - cards.length
 
   const [logs, pools, started] = await Promise.all([
     supabase
@@ -282,7 +284,7 @@ export async function getReviewSession(): Promise<ReviewSessionData> {
       clientEventId: randomUUID(),
     }
   })
-  return { questions, capReached: false }
+  return { questions, capReached: false, cardsLeft }
 }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i

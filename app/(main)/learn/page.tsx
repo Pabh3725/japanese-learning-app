@@ -44,7 +44,16 @@ export default async function LearnPage() {
               </p>
             )}
           </div>
-          {!hasWork && overview.canBorrow > 0 && <LearnMoreButton count={overview.canBorrow} />}
+          {!hasWork && (
+            <div className="flex flex-col gap-3">
+              {overview.answeredToday > 0 && (
+                <Link href="/learn/summary" className={actionButton({ variant: 'secondary', size: 'md' })}>
+                  See today&apos;s summary
+                </Link>
+              )}
+              {overview.canBorrow > 0 && <LearnMoreButton count={overview.canBorrow} />}
+            </div>
+          )}
           {hasWork && (
             <Link href="/learn/session" className={cn(actionButton({ size: 'lg' }), 'w-full md:w-auto md:px-10')}>
               <Play className="fill-current" aria-hidden="true" />

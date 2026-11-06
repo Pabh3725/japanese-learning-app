@@ -11,6 +11,8 @@ import { getReviewOverview } from '@/lib/dal/review'
 const EXPLORE = [
   { href: '/grammar', title: 'Grammar', body: 'Patterns by lesson, with exercises you choose.', sample: '文', badge: 'Preview' },
   { href: '/verbs', title: 'Verb forms', body: 'Practice て, た, ない, たい and more.', sample: '動', badge: 'Preview' },
+  { href: '/practice', title: 'Practice', body: 'Short games with the words you have met.', sample: '遊', badge: 'Games' },
+  { href: '/library', title: 'Word list', body: 'Browse every word by lesson and see your progress.', sample: '語', badge: 'Library' },
   { href: null, title: 'Kanji', body: 'Learn each character before it appears in a word.', sample: '字', badge: 'Coming soon' },
 ]
 

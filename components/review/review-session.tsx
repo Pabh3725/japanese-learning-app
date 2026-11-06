@@ -25,7 +25,7 @@ type ChoiceQ = Extract<ReviewQuestion, { kind: 'choice' }>
 type AssemblyQ = Extract<ReviewQuestion, { kind: 'assembly' }>
 type TypingQ = Extract<ReviewQuestion, { kind: 'typing' }>
 
-export function ReviewSession({ questions: initialQuestions, capReached }: { questions: ReviewQuestion[]; capReached: boolean }) {
+export function ReviewSession({ questions: initialQuestions, capReached, cardsLeft }: { questions: ReviewQuestion[]; capReached: boolean; cardsLeft: number }) {
   const [questions, setQuestions] = useState(initialQuestions)
   const router = useRouter()
   const voice = useJapaneseVoice()
@@ -63,7 +63,7 @@ export function ReviewSession({ questions: initialQuestions, capReached }: { que
       <div className="flex min-h-dvh flex-col">
         <SessionComplete
           title={pending > 0 ? 'Saving…' : 'Review done!'}
-          subtitle={warning ?? `You reviewed ${results.length} ${results.length === 1 ? 'card' : 'cards'}.`}
+          subtitle={warning ?? `You reviewed ${results.length} ${results.length === 1 ? 'card' : 'cards'}. ${cardsLeft > 0 ? `${cardsLeft} more ${cardsLeft === 1 ? 'card is' : 'cards are'} waiting.` : 'No more cards for now.'}`}
           stats={[
             { label: 'Correct', value: String(correct), tone: 'text-success' },
             { label: 'Wrong', value: String(wrong), tone: 'text-error' },

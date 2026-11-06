@@ -1,20 +1,20 @@
-import Image from 'next/image'
-import { Award, Lock } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
-import { achievements, userProfile, weeklyActivity } from '@/lib/mock-data'
-import { toneStyles } from '@/lib/tones'
+import { getLearnOverview } from '@/lib/dal/learn-overview'
+import { getProgressStats } from '@/lib/dal/progress'
+import { getReviewOverview } from '@/lib/dal/review'
 import { cn } from '@/lib/utils'
 
-const stats = [
-  { label: 'Day streak', value: String(userProfile.streak), tone: 'text-yellow' },
-  { label: 'Words learned', value: String(userProfile.vocabLearned), tone: 'text-cyan' },
-  { label: 'Kanji learned', value: String(userProfile.kanjiLearned), tone: 'text-pink' },
-  { label: 'Retention', value: `${Math.round(userProfile.retention * 100)}%`, tone: 'text-success' },
-]
-
-export default function ProgressPage() {
-  const maxMinutes = Math.max(...weeklyActivity.map((d) => d.minutes))
-  const totalMinutes = weeklyActivity.reduce((sum, d) => sum + d.minutes, 0)
+export default async function ProgressPage() {
+  const [progress, learn, review] = await Promise.all([getProgressStats(), getLearnOverview(), getReviewOverview()])
+  const cards = Object.values(review.byType).reduce((sum, n) => sum + n, 0)
+  const stats = [
+    { label: 'Day streak', value: String(progress.streak), tone: 'text-yellow' },
+    { label: 'Words completed', value: String(learn.completed), tone: 'text-cyan' },
+    { label: 'Review cards', value: String(cards), tone: 'text-pink' },
+    { label: 'Retention (30 days)', value: progress.retention === null ? '—' : `${Math.round(progress.retention * 100)}%`, tone: 'text-success' },
+  ]
+  const maxAnswered = Math.max(...progress.week.map((d) => d.answered))
+  const totalAnswered = progress.week.reduce((sum, d) => sum + d.answered, 0)
 
   return (
     <>
@@ -29,54 +29,30 @@ export default function ProgressPage() {
         ))}
       </dl>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
-        <section aria-labelledby="week-title" className="rounded-3xl border border-border bg-card p-6">
-          <div className="flex items-baseline justify-between">
-            <h2 id="week-title" className="font-semibold">This week</h2>
-            <p className="text-sm text-muted-foreground tabular-nums">{totalMinutes} min total</p>
-          </div>
+      <section aria-labelledby="week-title" className="mt-6 rounded-3xl border border-border bg-card p-6">
+        <div className="flex items-baseline justify-between">
+          <h2 id="week-title" className="font-semibold">Last 7 days</h2>
+          <p className="text-sm text-muted-foreground tabular-nums">{totalAnswered} {totalAnswered === 1 ? 'question' : 'questions'}</p>
+        </div>
+        {totalAnswered === 0 ? (
+          <p className="mt-6 text-sm text-muted-foreground">Your activity will appear here once you answer your first question.</p>
+        ) : (
           <ul className="mt-6 flex h-48 items-end gap-2 md:gap-4">
-            {weeklyActivity.map((d) => (
-              <li key={d.day} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
-                <span className="text-xs text-muted-foreground tabular-nums">{d.minutes}</span>
+            {progress.week.map((d) => (
+              <li key={d.date} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
+                <span className="text-xs text-muted-foreground tabular-nums">{d.answered}</span>
                 <div
                   className="w-full max-w-10 rounded-lg bg-primary/80"
-                  style={{ height: `${(d.minutes / maxMinutes) * 100}%` }}
-                  aria-label={`${d.day}: ${d.minutes} minutes`}
+                  style={{ height: `${(d.answered / maxAnswered) * 100}%` }}
+                  aria-label={`${d.label}: ${d.answered} questions`}
                   role="img"
                 />
-                <span className="text-xs text-subtle">{d.day}</span>
+                <span className="text-xs text-subtle">{d.label}</span>
               </li>
             ))}
           </ul>
-        </section>
-
-        <section aria-labelledby="ach-title" className="rounded-3xl border border-border bg-card p-6">
-          <div className="flex items-center justify-between">
-            <h2 id="ach-title" className="font-semibold">Achievements</h2>
-            <Image src="/images/mascot-trophy.png" alt="" width={48} height={48} className="size-12" />
-          </div>
-          <ul className="mt-4 flex flex-col gap-3">
-            {achievements.map((a) => {
-              const t = toneStyles[a.color]
-              return (
-                <li key={a.id} className={cn('flex items-center gap-3 rounded-2xl p-3', a.unlocked ? 'bg-secondary' : 'opacity-60')}>
-                  <span className={cn('flex size-10 shrink-0 items-center justify-center rounded-xl', a.unlocked ? cn(t.soft, t.text) : 'bg-secondary text-muted-foreground')}>
-                    {a.unlocked ? <Award className="size-5" aria-hidden="true" /> : <Lock className="size-4" aria-hidden="true" />}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium">
-                      {a.title}
-                      {!a.unlocked && <span className="sr-only"> (locked)</span>}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{a.description}</p>
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
-        </section>
-      </div>
+        )}
+      </section>
     </>
   )
 }
