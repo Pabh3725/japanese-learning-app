@@ -9,7 +9,11 @@ import {
   canComplete,
   canUnlockNext,
   completeAt,
+  reachedKanjiIntro,
   requiredScoredStages,
+  shouldRelearn,
+  stageStep,
+  trailingCount,
   newCardState,
   nextStage,
   nextStudyDayStart,
@@ -70,7 +74,7 @@ describe('Điểm stage', () => {
   it('sai sau khi chạm trần vẫn bị trừ', () => {
     const s = word({ stage: 2, points: 3, plusToday: 3, plusDate: '2026-11-01' })
     const r = applyStageAttempt(s, { exercise: 'kana_to_meaning', outcome: 'wrong', seq: 1, now: vn('2026-11-01 20:00') })
-    expect(r.delta).toBe(-1)
+    expect(r.delta).toBe(-2)
   })
 
   it('dạng bài không thuộc Stage bị từ chối', () => {
@@ -86,30 +90,58 @@ describe('Điểm stage', () => {
     expect(r.unlockedStage).toBe(null)
   })
 
-  it('mốc riêng từng stage: Stage 2 mở ở 5, Stage 4 mở ở 6', () => {
+  it('mốc riêng từng stage: Stage 2 mở ở 6, Stage 4 mở ở 10 và cần đủ 6 dạng', () => {
     const all2 = ['kana_to_meaning', 'meaning_to_kana', 'kana_assembly'] as const
-    expect(canUnlockNext(word({ stage: 2, points: 4, earned: all2 }))).toBe(false)
-    expect(canUnlockNext(word({ stage: 2, points: 5, earned: all2 }))).toBe(true)
-    const all4 = ['kanji_recognition', 'kanji_assembly', 'hanviet_recognition', 'hanviet_assembly'] as const
-    expect(canUnlockNext(word({ stage: 4, points: 5, earned: all4 }))).toBe(false)
-    expect(canUnlockNext(word({ stage: 4, points: 6, earned: all4 }))).toBe(true)
+    expect(canUnlockNext(word({ stage: 2, points: 5, earned: all2 }))).toBe(false)
+    expect(canUnlockNext(word({ stage: 2, points: 6, earned: all2 }))).toBe(true)
+    const all4 = ['hanviet_from_kana', 'kanji_char_meaning', 'kanji_recognition', 'kanji_assembly', 'hanviet_recognition', 'hanviet_assembly'] as const
+    expect(canUnlockNext(word({ stage: 4, points: 9, earned: all4 }))).toBe(false)
+    expect(canUnlockNext(word({ stage: 4, points: 10, earned: all4 }))).toBe(true)
+    expect(canUnlockNext(word({ stage: 4, points: 10, earned: all4.slice(1) }))).toBe(false)
     expect(canUnlockNext(word({ stage: 5, points: 99 }))).toBe(false)
   })
 
-  it('mốc hoàn tất: Stage 2 là 8, Stage 4 là 10, Stage 5 là 10 hoặc 8 với từ chỉ Kana', () => {
-    expect(completeAt(2, false)).toBe(8)
-    expect(completeAt(4, false)).toBe(10)
+  it('mốc hoàn tất: Stage 4 là 15, các stage khác là 10, kể cả từ chỉ Kana', () => {
+    expect(completeAt(2, false)).toBe(10)
+    expect(completeAt(4, false)).toBe(15)
     expect(completeAt(5, false)).toBe(10)
-    expect(completeAt(5, true)).toBe(8)
+    expect(completeAt(5, true)).toBe(10)
   })
 
   it('đủ điểm hoàn tất nhưng chưa mở stage sau thì chưa hoàn tất', () => {
-    expect(canComplete(word({ stage: 2, points: 8, unlockedNext: false }))).toBe(false)
-    expect(canComplete(word({ stage: 2, points: 8, unlockedNext: true }))).toBe(true)
+    expect(canComplete(word({ stage: 2, points: 10, unlockedNext: false, correctStreak: 3 }))).toBe(false)
+    expect(canComplete(word({ stage: 2, points: 10, unlockedNext: true, correctStreak: 3 }))).toBe(true)
+  })
+
+  it('đủ điểm nhưng chưa đúng 3 câu liên tiếp thì chưa hoàn tất', () => {
+    expect(canComplete(word({ stage: 2, points: 12, unlockedNext: true, correctStreak: 2 }))).toBe(false)
+  })
+
+  it('câu sai làm mất chuỗi đúng; câu đúng được 0 điểm vẫn nối chuỗi', () => {
+    const now = vn('2026-11-01 20:00')
+    const wrong = applyStageAttempt(word({ stage: 2, correctStreak: 2 }), { exercise: 'kana_to_meaning', outcome: 'wrong', seq: 1, now })
+    expect(wrong.state.correctStreak).toBe(0)
+    const tooSoon = applyStageAttempt(word({ stage: 2, correctStreak: 1, lastSeq: 1, lastSeqDate: '2026-11-01' }), { exercise: 'kana_to_meaning', outcome: 'correct', seq: 2, now })
+    expect(tooSoon.delta).toBe(0)
+    expect(tooSoon.state.correctStreak).toBe(2)
+  })
+
+  it('bước trong stage đi theo điểm và quay lại khi tụt', () => {
+    expect([3, 4, 9, -2].map((p) => stageStep(2, p))).toEqual(['choice', 'assembly', 'assembly', 'choice'])
+    expect([0, 2, 3, 6, 7, 14].map((p) => stageStep(4, p))).toEqual(['choice', 'choice', 'mixed', 'mixed', 'assembly', 'assembly'])
+    expect(stageStep(5, 0)).toBe('assembly')
+    expect([2, 3].map(reachedKanjiIntro)).toEqual([false, true])
+  })
+
+  it('đếm chuỗi từ câu mới nhất; sai 3 lần liên tiếp thì xem lại từ', () => {
+    expect(trailingCount(['wrong', 'wrong', 'correct', 'wrong'], 'wrong')).toBe(2)
+    expect(trailingCount(['correct', 'correct'], 'correct')).toBe(2)
+    expect(trailingCount([], 'wrong')).toBe(0)
+    expect([shouldRelearn(2), shouldRelearn(3), shouldRelearn(4)]).toEqual([false, true, true])
   })
 
   it('đạt mốc mở và mốc hoàn tất trong cùng một câu', () => {
-    const s = word({ stage: 2, points: 7, earned: ['kana_to_meaning', 'meaning_to_kana'] })
+    const s = word({ stage: 2, points: 9, correctStreak: 2, earned: ['kana_to_meaning', 'meaning_to_kana'] })
     const r = applyStageAttempt(s, { exercise: 'kana_assembly', outcome: 'correct', seq: 1, now: vn('2026-11-01 20:00') })
     expect(r.unlockedStage).toBe(3)
     expect(r.completed).toBe(true)
@@ -119,16 +151,16 @@ describe('Điểm stage', () => {
   it('sai sau khi đã mở stage sau: trừ điểm, nhưng không đóng stage đã mở', () => {
     const s = word({ stage: 2, points: 5, unlockedNext: true, earned: ['kana_to_meaning', 'meaning_to_kana', 'kana_assembly'] })
     const r = applyStageAttempt(s, { exercise: 'kana_to_meaning', outcome: 'wrong', seq: 1, now: vn('2026-11-01 20:00') })
-    expect(r.state.points).toBe(4)
+    expect(r.state.points).toBe(3)
     expect(r.state.unlockedNext).toBe(true)
     expect(r.unlockedStage).toBe(null)
   })
 
   it('Stage 5 từ có Kanji cần đủ S1–S4 và 10 điểm', () => {
     const three = ['meaning_assembly', 'kana_free_recall', 'kanji_recognition_6'] as const
-    expect(canComplete(word({ stage: 5, points: 10, earned: three }))).toBe(false)
-    expect(canComplete(word({ stage: 5, points: 9, earned: [...three, 'hanviet_free_recall'] }))).toBe(false)
-    expect(canComplete(word({ stage: 5, points: 10, earned: [...three, 'hanviet_free_recall'] }))).toBe(true)
+    expect(canComplete(word({ stage: 5, points: 10, correctStreak: 3, earned: three }))).toBe(false)
+    expect(canComplete(word({ stage: 5, points: 9, correctStreak: 3, earned: [...three, 'hanviet_free_recall'] }))).toBe(false)
+    expect(canComplete(word({ stage: 5, points: 10, correctStreak: 3, earned: [...three, 'hanviet_free_recall'] }))).toBe(true)
   })
 
   it('đủ yêu cầu bắt buộc nhưng chưa đủ điểm thì chưa mở', () => {

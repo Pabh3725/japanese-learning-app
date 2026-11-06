@@ -1,16 +1,18 @@
 'use client'
 
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useEffectEvent, useState } from 'react'
 import { RotateCcw } from 'lucide-react'
 import { actionButton } from '@/components/action-button'
 import { ExerciseFooter, type CheckStatus } from '@/components/learning/exercise-footer'
 import { ExercisePanel } from '@/components/learning/exercise-panel'
 import { PromptDisplay } from '@/components/learning/prompt-display'
+import type { WordReveal } from '@/lib/exercise/stage-questions'
+import { isShortcutEvent, pieceIndexForKey, pieceKeyLabel } from '@/lib/keyboard'
 import type { AssemblyStep } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 /** Kết quả chấm từ server. `null` = phiên đã tự chuyển câu, không cần hiện gì. */
-export type AssemblyGrade = { correct: boolean; answer: string[]; explanation?: string } | { error: string } | null
+export type AssemblyGrade = { correct: boolean; answer: string[]; explanation?: string; reveal?: WordReveal } | { error: string } | null
 
 interface AssemblyExerciseProps {
   step: AssemblyStep
@@ -26,9 +28,10 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
   const [status, setStatus] = useState<CheckStatus>('idle')
   const [checking, setChecking] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [graded, setGraded] = useState<{ answer: string[]; explanation?: string } | null>(null)
+  const [graded, setGraded] = useState<{ answer: string[]; explanation?: string; reveal?: WordReveal } | null>(null)
   const locked = status !== 'idle' || checking
   const isKanji = step.pieceKind === 'kanji'
+  const isWord = step.pieceKind === 'word'
   const slots = step.slots ?? step.answer.length
   const answer = graded?.answer ?? step.answer
   const full = placed.length === slots
@@ -57,11 +60,35 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
       setError(result.error)
       return
     }
-    setGraded({ answer: result.answer, explanation: result.explanation })
+    setGraded({ answer: result.answer, explanation: result.explanation, reveal: result.reveal })
     setStatus(result.correct ? 'correct' : 'incorrect')
   }
 
-  const pieceText = isKanji ? 'text-[30px] md:text-[34px]' : 'text-[26px] md:text-[30px]'
+  // Phím số chọn mảnh theo thứ tự và đặt vào ô trống bên trái nhất. `placed` luôn lấp từ trái sang.
+  const onKey = useEffectEvent((e: KeyboardEvent) => {
+    if (!isShortcutEvent(e) || status !== 'idle' || checking) return
+    if (e.key === 'Backspace') {
+      e.preventDefault()
+      setPlaced((p) => p.slice(0, -1))
+    } else if (e.key === 'Escape') {
+      setPlaced([])
+    } else if (e.key === 'Enter') {
+      if (!full) return
+      e.preventDefault()
+      void check()
+    } else {
+      const index = pieceIndexForKey(e.key)
+      if (index >= 0 && index < step.pool.length) add(index)
+    }
+  })
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => onKey(e)
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
+
+  const pieceText = isWord ? 'text-base md:text-lg' : isKanji ? 'text-[30px] md:text-[34px]' : 'text-[26px] md:text-[30px]'
+  let nextSlot = 0
 
   return (
     <ExercisePanel
@@ -73,12 +100,16 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
             className={cn('flex min-h-20 flex-wrap items-center justify-center gap-2', status === 'incorrect' && 'animate-shake')}
             aria-label="Your answer"
           >
-            {Array.from({ length: slots }, (_, slot) => {
+            {(step.template ?? Array.from({ length: slots }, () => null)).map((part, i) => {
+              if (part !== null) {
+                return <span key={`fixed-${i}`} lang="ja" className={cn('font-jp text-muted-foreground', pieceText)}>{part}</span>
+              }
+              const slot = nextSlot++
               const poolIndex = placed[slot]
               const piece = poolIndex !== undefined ? step.pool[poolIndex] : null
               return (
                 <Fragment key={slot}>
-                  {slot > 0 && step.joiner && (
+                  {slot > 0 && step.joiner?.trim() && (
                     <span className="text-xl text-muted-foreground" aria-hidden="true">{step.joiner}</span>
                   )}
                   <button
@@ -87,7 +118,8 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
                     disabled={!piece || locked}
                     aria-label={piece ? `Remove ${piece}` : `Empty slot ${slot + 1}`}
                     className={cn(
-                      'flex size-16 items-center justify-center rounded-2xl border-2 font-jp transition-all duration-150 md:size-[72px]',
+                      'flex items-center justify-center rounded-2xl border-2 transition-all duration-150',
+                      isWord ? 'h-14 min-w-20 px-3 font-semibold' : 'size-16 font-jp md:size-[72px]',
                       pieceText,
                       !piece && 'border-dashed border-border bg-transparent',
                       piece && status === 'idle' && 'animate-pop border-primary/60 bg-primary/10 hover:border-primary',
@@ -95,7 +127,7 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
                       piece && status === 'incorrect' && 'border-error bg-error/10',
                     )}
                   >
-                    {piece && <span lang="ja">{piece}</span>}
+                    {piece && <span lang={isWord ? undefined : 'ja'}>{piece}</span>}
                   </button>
                 </Fragment>
               )
@@ -116,16 +148,26 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
                   aria-hidden={used}
                   tabIndex={used ? -1 : undefined}
                   className={cn(
-                    'flex size-14 items-center justify-center rounded-2xl border border-border bg-card font-jp shadow-[0_3px_0_0_#2e3440] transition-all duration-150 md:size-16',
+                    'relative flex items-center justify-center rounded-2xl border border-border bg-card shadow-[0_3px_0_0_#2e3440] transition-all duration-150',
+                    isWord ? 'h-12 min-w-14 px-3 font-medium' : 'size-14 font-jp md:size-16',
                     pieceText,
                     used ? 'invisible' : 'hover:-translate-y-0.5 hover:border-[#3b4250] active:translate-y-0.5 active:shadow-none disabled:opacity-50',
                   )}
                 >
-                  <span lang="ja">{piece}</span>
+                  <span
+                    className="absolute top-0.5 left-1.5 hidden font-sans text-[10px] font-medium text-muted-foreground md:block"
+                    aria-hidden="true"
+                  >
+                    {pieceKeyLabel(i)}
+                  </span>
+                  <span lang={isWord ? undefined : 'ja'}>{piece}</span>
                 </button>
               )
             })}
           </div>
+          <p className="hidden text-center text-xs text-muted-foreground md:block">
+            Press a number to place a piece · Backspace to undo · Esc to clear · Enter to check
+          </p>
         </div>
       }
       footer={
@@ -138,6 +180,7 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
           correctAnswer={answer.join(step.joiner ? ` ${step.joiner} ` : '')}
           explanation={graded ? graded.explanation : step.explanation}
           wrongNote={wrongNote}
+          reveal={graded?.reveal}
           secondary={
             <>
               {error && <p role="alert" className="mb-2 text-sm text-error">{error}</p>}

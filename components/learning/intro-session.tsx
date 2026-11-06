@@ -4,15 +4,41 @@ import { useState, useTransition } from 'react'
 import { completeIntroAction } from '@/app/learn/intro/actions'
 import { SessionComplete } from '@/components/learning/session-complete'
 import { SessionHeader } from '@/components/learning/session-header'
+import { NoVoiceNote, SpeakerButton, useAutoSpeak } from '@/components/learning/speaker-button'
 import { KanaIntroExercise } from '@/components/learning/steps/kana-intro-exercise'
 import type { IntroWord } from '@/lib/intro/words'
 
 const SAVE_ERROR = "Couldn't save. Check your connection and try again."
 
-export function IntroSession({ words }: { words: IntroWord[] }) {
+/** Stage 1: hiện từ là đọc ngay; nút to để dễ bấm nghe lại. */
+function IntroSpeaker({ kana }: { kana: string }) {
+  useAutoSpeak(kana)
+  return (
+    <>
+      <SpeakerButton kana={kana} large />
+      <NoVoiceNote />
+    </>
+  )
+}
+
+export function IntroSession({ words, newPerDay, limitReached }: { words: IntroWord[]; newPerDay: number; limitReached: boolean }) {
   const [index, setIndex] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [saving, startSaving] = useTransition()
+
+  if (limitReached && words.length === 0) {
+    return (
+      <div className="flex min-h-dvh flex-col">
+        <SessionComplete
+          title="That's all for today"
+          subtitle={`You've met today's ${newPerDay} new ${newPerDay === 1 ? 'word' : 'words'}. Practice them, then come back tomorrow.`}
+          stats={[]}
+          primary={{ href: '/learn/stage2', label: 'Practice Stage 2' }}
+          secondary={{ href: '/settings', label: 'Change daily limit' }}
+        />
+      </div>
+    )
+  }
 
   if (words.length === 0) {
     return (
@@ -35,8 +61,8 @@ export function IntroSession({ words }: { words: IntroWord[] }) {
           title="New words met!"
           subtitle={`You met ${words.length} new ${words.length === 1 ? 'word' : 'words'}. Practice comes next.`}
           stats={[]}
-          primary={{ href: '/learn/intro', label: 'Meet more words' }}
-          secondary={{ href: '/', label: 'Back to Home' }}
+          primary={{ href: '/learn/stage2', label: 'Practice Stage 2' }}
+          secondary={{ href: '/learn/intro', label: 'Meet more words' }}
         />
       </div>
     )
@@ -68,7 +94,14 @@ export function IntroSession({ words }: { words: IntroWord[] }) {
         current={index}
         total={words.length}
       />
-      <KanaIntroExercise key={word.id} word={word} saving={saving} error={error} onComplete={complete} />
+      <KanaIntroExercise
+        key={word.id}
+        word={word}
+        saving={saving}
+        error={error}
+        onComplete={complete}
+        speaker={<IntroSpeaker kana={word.reading} />}
+      />
     </div>
   )
 }

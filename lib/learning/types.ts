@@ -1,5 +1,5 @@
 // Kiểu dữ liệu dùng chung cho engine luật học (ENG-02).
-// Nguồn: docs/learning-rules.md (RULES_V3).
+// Nguồn: docs/learning-rules.md (RULES_V4).
 
 /** Kết quả chấm một câu: đúng (không gợi ý), đúng nhờ gợi ý, sai. */
 export type Outcome = 'correct' | 'hint' | 'wrong'
@@ -22,6 +22,9 @@ export type ExerciseCode =
   | 'kana_assembly'
   | 'listening'
   // Stage 4
+  | 'hanviet_from_kana'
+  | 'kanji_char_meaning'
+  | 'listening_kanji'
   | 'kanji_recognition'
   | 'kanji_assembly'
   | 'hanviet_recognition'

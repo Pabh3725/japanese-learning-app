@@ -2,12 +2,12 @@
 // Dùng ts-fsrs như Card nhưng khác hai điểm: khoảng cách tối đa 2 ngày và không có Easy.
 
 import { createEmptyCard, fsrs, generatorParameters } from 'ts-fsrs'
-import { RULES_V3 } from '../learning/rules'
+import { RULES_V4 } from '../learning/rules'
 import { stageRating } from '../learning/scoring'
 import type { Outcome } from '../learning/types'
 import { fromFsrs, RATING_TO_FSRS, toFsrs, type Schedule } from './scheduler'
 
-const MAX_DAYS = RULES_V3.stageSchedule.maximumIntervalDays
+const MAX_DAYS = RULES_V4.stageSchedule.maximumIntervalDays
 const DAY_MS = 86_400_000
 
 // Fuzz của ts-fsrs chỉ tác động khoảng từ 2,5 ngày trở lên, nên với tối đa 2 ngày là không cần.

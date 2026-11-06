@@ -57,6 +57,7 @@ Ghi chú:
 | `han_viet` | `text` | Có điều kiện | Bắt buộc nếu `expression` có Kanji; `NULL` nếu từ chỉ-kana. Viết HOA, mỗi Kanji một âm, ngăn bằng dấu cách | `HỌC SINH` |
 | `is_kana_only` | `boolean` | Có | `true` khi và chỉ khi `expression` không chứa Kanji | `false` |
 | `jlpt_level` | `integer` | Có | N5 = `5` | `5` |
+| `emoji` | `text` | Không | Một emoji, không khoảng trắng. Để trống với từ trừu tượng | `🏫` |
 
 ### `code` và `sort_order` độc lập với nhau
 
@@ -88,9 +89,10 @@ Là các từ riêng biệt, mỗi từ một `code`. Hiện có: 人 (じん / 
 
 ## 5. Quy tắc khi dùng data trong app
 
-1. **Chọn đáp án nhiễu (distractor)**: loại mọi từ có `meaning_vi` trùng với đáp án đúng (so sánh sau khi `trim` và viết thường). Hiện có 17 nhóm từ trùng nghĩa, xem mục 8.
+1. **Chọn đáp án nhiễu (distractor)**: loại mọi từ có `meaning_vi` trùng với đáp án đúng (so sánh sau khi `trim` và viết thường). Hiện còn 3 nhóm trùng nghĩa và cùng cách đọc (`はし`, `かみ`, `かえます`), dòng chỉ Kana của các nhóm này đã bị bỏ khỏi lộ trình từ mới (`DUPLICATE_KANA_CODES`) nhưng còn trong dữ liệu vì có thể đã có người đang học; không được có hai từ khác cách đọc mà trùng nghĩa, vì đề nghĩa ở câu gõ và câu ghép phải chỉ có một đáp án (có test kiểm tra). Xem mục 8.
 2. **Từ cùng `expression`**: khi câu hỏi hiển thị `expression` mà không kèm cách đọc, không đưa các từ cùng `expression` làm đáp án nhiễu của nhau.
 3. **`NULL` là trạng thái hợp lệ**: UI phải xử lý được `romaji`, `han_viet` (từ chỉ-kana) và `stroke_count` bằng `NULL`.
+4. **Mảnh nhiễu của câu ghép Kana**: khoảng một nửa là mảnh dễ nhầm với đáp án (khác dấu `か/が`, nhìn giống `あ/お`, khác cỡ `つ/っ`, đọc gần `す/つ`), khoảng một phần ba là mảnh đặc biệt (`ー`, `っ`, hàng `ぱ`, âm ghép), còn lại là chữ thường. Không mảnh nhiễu nào trùng mảnh đáp án.
 
 ---
 
@@ -205,7 +207,7 @@ Nghĩa của 145 chữ N5 gốc được viết thường chữ đầu cho thố
 
 ### Còn mở (cần quyết định hoặc sửa tay)
 
-1. **17 nhóm từ trùng nghĩa** (app đã có quy tắc ở mục 5 để không sinh câu hỏi 2 đáp án đúng; sửa data giúp người học phân biệt tốt hơn):
+1. **Đã xử lý 14/17 nhóm từ trùng nghĩa (2026-11-06, làm rõ nghĩa của 24 từ để đề chỉ có một đáp án); còn 3 nhóm cùng cách đọc `はし`, `かみ`, `かえます`** (app đã có quy tắc ở mục 5 để không sinh câu hỏi 2 đáp án đúng; sửa data giúp người học phân biệt tốt hơn):
    - tối: 晩, 夜, 暗い
    - sáng: 朝, 明るい
    - đường: 砂糖, 道
@@ -228,6 +230,6 @@ Nghĩa của 145 chữ N5 gốc được viết thường chữ đầu cho thố
 4. **Dấu `;` đang dùng thay cho `/` trong một số câu**, ví dụ "anh; chị đã về đấy à" (ý là "anh/chị"). Nếu app tách nghĩa theo `;`, các câu này sẽ bị cắt sai.
 5. **`kanji.stroke_count` trống cả 516 dòng, `kanji.jlpt_level` trống ở 371 chữ bổ sung.** Đang để optional; cần nguồn dữ liệu Kanji đáng tin (ví dụ KANJIDIC) khi làm module Kanji.
 6. **Âm On/Kun và nghĩa của 371 chữ bổ sung** chưa được người rà soát.
-7. **Chưa có cột `emoji`** cho tính năng minh hoạ bằng emoji. Cần thêm (`text NULL`) trước khi làm tính năng đó.
+7. **Cột `emoji` (tuỳ chọn)** đã thêm vào cuối `vocabularies.csv` (2026-11-05), gán cho từ cụ thể; từ trừu tượng để trống. Danh sách chưa được người rà soát.
 
 Lưu ý: kiểm tra tự động đảm bảo đúng cấu trúc, nhưng không đảm bảo mọi nghĩa đều chính xác. Các lỗi nội dung ở trên được phát hiện khi đọc lướt, chưa phải rà soát toàn bộ 912 nghĩa.

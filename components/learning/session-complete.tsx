@@ -1,7 +1,12 @@
+'use client'
+
+import { useEffect, useEffectEvent } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { actionButton } from '@/components/action-button'
 import { Sparkles } from '@/components/sparkles'
+import { isShortcutEvent } from '@/lib/keyboard'
 import { cn } from '@/lib/utils'
 
 interface Stat {
@@ -20,6 +25,25 @@ interface SessionCompleteProps {
 }
 
 export function SessionComplete({ title, subtitle, stats, primary, secondary, onRestart }: SessionCompleteProps) {
+  const router = useRouter()
+
+  // Enter hoặc Space đi theo nút chính, R làm lại. Đang focus một nút hoặc link khác thì để trình duyệt tự bấm nút đó.
+  const onKey = useEffectEvent((e: KeyboardEvent) => {
+    if (!isShortcutEvent(e)) return
+    if (e.target instanceof HTMLAnchorElement || e.target instanceof HTMLButtonElement) return
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      router.push(primary.href)
+    } else if (onRestart && e.key.toLowerCase() === 'r') {
+      onRestart()
+    }
+  })
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => onKey(e)
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
+
   return (
     <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center gap-8 px-4 py-12 text-center animate-in fade-in zoom-in-95 duration-300">
       <div className="relative">
@@ -53,6 +77,9 @@ export function SessionComplete({ title, subtitle, stats, primary, secondary, on
             Do it again
           </button>
         )}
+        <p className="hidden text-xs text-muted-foreground md:block">
+          Press Enter for {primary.label}{onRestart ? ' · R to do it again' : ''}
+        </p>
       </div>
     </div>
   )

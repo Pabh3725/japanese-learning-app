@@ -94,6 +94,7 @@ export interface StageContext {
   earned: readonly ExerciseCode[]
   lastSeq: number | null
   lastSeqDate: StudyDate | null
+  correctStreak: number
 }
 
 export function rowToStageState(row: StageScheduleRow, ctx: StageContext): StageState | null {
@@ -108,6 +109,7 @@ export function rowToStageState(row: StageScheduleRow, ctx: StageContext): Stage
     unlockedNext: row.unlocked_next_at !== null,
     lastSeq: ctx.lastSeq,
     lastSeqDate: ctx.lastSeqDate,
+    correctStreak: ctx.correctStreak,
   }
 }
 

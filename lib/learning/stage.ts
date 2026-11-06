@@ -6,7 +6,7 @@ import {
   EXERCISES,
   REQUIRED_EXERCISES,
   REQUIRED_SKILLS_STAGE5,
-  RULES_V3,
+  RULES_V4,
   STAGE_EXERCISES,
 } from './rules'
 import { scoreExercise } from './scoring'
@@ -29,6 +29,8 @@ export interface StageState {
   /** Số thứ tự (trong ngày, trong khu Learn) của câu gần nhất thuộc từ này, ở bất kỳ stage nào. */
   lastSeq: number | null
   lastSeqDate: StudyDate | null
+  /** Số câu đúng liên tiếp gần nhất ở stage này, tính cả câu không được cộng điểm. */
+  correctStreak: number
 }
 
 export function newStageState(stage: ScoredStage, isKanaOnly: boolean): StageState {
@@ -42,6 +44,7 @@ export function newStageState(stage: ScoredStage, isKanaOnly: boolean): StageSta
     unlockedNext: false,
     lastSeq: null,
     lastSeqDate: null,
+    correctStreak: 0,
   }
 }
 
@@ -75,10 +78,10 @@ export function cardsToCreate(stage: Stage, isKanaOnly: boolean): CardType[] {
 /** Điểm cần để hoàn tất stage. */
 export function completeAt(stage: ScoredStage, isKanaOnly: boolean): number {
   if (stage === 5) {
-    const { withKanji, kanaOnly } = RULES_V3.stageThresholds[5].completeAt
+    const { withKanji, kanaOnly } = RULES_V4.stageThresholds[5].completeAt
     return isKanaOnly ? kanaOnly : withKanji
   }
-  return RULES_V3.stageThresholds[stage].completeAt
+  return RULES_V4.stageThresholds[stage].completeAt
 }
 
 /**
@@ -87,7 +90,7 @@ export function completeAt(stage: ScoredStage, isKanaOnly: boolean): number {
  */
 export function isSpaced(state: Pick<StageState, 'lastSeq' | 'lastSeqDate'>, seq: number, today: StudyDate): boolean {
   if (state.lastSeq === null || state.lastSeqDate !== today) return true
-  return seq - state.lastSeq - 1 >= RULES_V3.spacing.minGap
+  return seq - state.lastSeq - 1 >= RULES_V4.spacing.minGap
 }
 
 function hasRequiredEarned({ stage, earned, isKanaOnly }: StageState): boolean {
@@ -102,12 +105,13 @@ function hasRequiredEarned({ stage, earned, isKanaOnly }: StageState): boolean {
 /** R4 — Đủ điều kiện mở stage sau chưa. Stage 5 không có stage sau. */
 export function canUnlockNext(state: StageState): boolean {
   if (state.stage === 5) return false
-  return state.points >= RULES_V3.stageThresholds[state.stage].unlockNextAt && hasRequiredEarned(state)
+  return state.points >= RULES_V4.stageThresholds[state.stage].unlockNextAt && hasRequiredEarned(state)
 }
 
 /** R4 — Đủ điều kiện hoàn tất stage chưa. Stage 2, 4 phải mở stage sau trước. */
 export function canComplete(state: StageState): boolean {
   if (state.points < completeAt(state.stage, state.isKanaOnly)) return false
+  if (state.correctStreak < RULES_V4.completion.correctStreak) return false
   return state.stage === 5 ? hasRequiredEarned(state) : state.unlockedNext
 }
 
@@ -160,7 +164,7 @@ export function applyStageAttempt(state: StageState, attempt: StageAttempt): Sta
   let counted = false
   if (spaced) {
     if (raw > 0) {
-      const underCap = plusToday < RULES_V3.stagePoints.maxPositivePerStagePerDay
+      const underCap = plusToday < RULES_V4.stagePoints.maxPositivePerStagePerDay
       delta = underCap ? raw : 0
       counted = underCap
     } else {
@@ -180,6 +184,7 @@ export function applyStageAttempt(state: StageState, attempt: StageAttempt): Sta
         : state.earned,
     lastSeq: attempt.seq,
     lastSeqDate: today,
+    correctStreak: attempt.outcome === 'correct' ? state.correctStreak + 1 : 0,
   }
 
   const unlockedNow = !state.unlockedNext && canUnlockNext(next)
@@ -205,4 +210,33 @@ export function completeIntro(
     openedStage: nextStage(stage, isKanaOnly) as Stage,
     cardsCreated: cardsToCreate(stage, isKanaOnly),
   }
+}
+
+/** Bước hiện tại của từ trong một stage. Stage 5 không chia bước. */
+export type StageStep = 'choice' | 'mixed' | 'assembly'
+
+export function stageStep(stage: ScoredStage, points: number): StageStep {
+  if (stage === 2) return points < RULES_V4.stageSteps[2].assemblyFrom ? 'choice' : 'assembly'
+  if (stage === 4) {
+    const { kanjiIntroAt, assemblyFrom } = RULES_V4.stageSteps[4]
+    if (points < kanjiIntroAt) return 'choice'
+    return points < assemblyFrom ? 'mixed' : 'assembly'
+  }
+  return 'assembly'
+}
+
+/** Từ ở Stage 4 đã đủ điểm để xem thẻ Giới thiệu Hán tự chưa. */
+export function reachedKanjiIntro(points: number): boolean {
+  return points >= RULES_V4.stageSteps[4].kanjiIntroAt
+}
+
+/** Đã sai liên tiếp đủ số câu để hiện lại thẻ giới thiệu chưa. */
+export function shouldRelearn(wrongStreak: number): boolean {
+  return wrongStreak >= RULES_V4.relearnAfterWrong
+}
+
+/** Số câu cùng kết quả liên tiếp ở đầu danh sách, câu mới nhất đứng đầu. */
+export function trailingCount(outcomes: readonly Outcome[], outcome: Outcome): number {
+  const other = outcomes.findIndex((o) => o !== outcome)
+  return other === -1 ? outcomes.length : other
 }

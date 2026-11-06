@@ -1,12 +1,10 @@
 // VOC-03 — Bài ghép kana: tách từ thành mảnh, sinh mảnh nhiễu, chấm đáp án.
 // Pure: không gọi database. `random` truyền vào để test lặp lại được.
+import { confusableKana } from './similarity'
 
 /** Số mảnh nhiễu mỗi câu: bằng số mảnh của từ, trong khoảng này. Đủ nhiều thì mới xen giữa được các mảnh đáp án. */
 export const KANA_DISTRACTORS_MIN = 3
 export const KANA_DISTRACTORS_MAX = 6
-
-/** Số từ mỗi lượt. Tạm thời: SES-01 / REV-02 sẽ thay phần chọn câu. */
-export const KANA_ASSEMBLY_WORDS_PER_ROUND = 10
 
 /** Kana nhỏ ghép với chữ đứng trước thành một âm: きょ, シャ, ティ, ファ. っ/ッ và ー là mảnh riêng. */
 const COMBINING_SMALL_KANA = new Set('ぁぃぅぇぉゃゅょゎァィゥェォャュョヮ')
@@ -23,6 +21,26 @@ export function splitKana(reading: string): string[] {
 const HIRAGANA = Array.from('あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをんがぎぐげござじずぜぞだでどばびぶべぼ')
 const KATAKANA = Array.from('アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワンガギグゲゴザジズゼゾダデドバビブベボ')
 
+function combine(heads: string, smalls: string): string[] {
+  return Array.from(heads).flatMap((head) => Array.from(smalls, (small) => head + small))
+}
+
+/**
+ * Các mảnh đặc biệt, chia theo loại. Nếu chỉ chữ thường được làm mảnh nhiễu thì cứ thấy ー, っ, しゃ hay ぱ
+ * là biết chắc thuộc đáp án. Chọn theo loại chứ không theo từng mảnh, vì âm ghép rất nhiều sẽ lấn hết ー và っ.
+ */
+const SPECIAL_HIRAGANA: readonly (readonly string[])[] = [
+  ['っ'],
+  Array.from('ぱぴぷぺぽ'),
+  combine('きしちにひみりぎじびぴ', 'ゃゅょ'),
+]
+const SPECIAL_KATAKANA: readonly (readonly string[])[] = [
+  ['ー'],
+  ['ッ'],
+  Array.from('パピプペポ'),
+  [...combine('キシチニヒミリギジビピ', 'ャュョ'), 'ファ', 'フィ', 'フェ', 'フォ', 'ティ'],
+]
+
 function shuffle<T>(items: readonly T[], random: () => number): T[] {
   const copy = [...items]
   for (let i = copy.length - 1; i > 0; i--) {
@@ -32,15 +50,45 @@ function shuffle<T>(items: readonly T[], random: () => number): T[] {
   return copy
 }
 
-/** Mảnh nhiễu cùng bảng chữ với từ, không trùng mảnh nào của đáp án. Từ pha cả hai bảng chữ thì lấy từ cả hai. */
+/** Mảnh dễ nhầm với các mảnh đáp án, chia đều cho từng mảnh để không dồn hết vào một chữ. */
+function pickConfusables(pieces: readonly string[], count: number, random: () => number): string[] {
+  const queues = shuffle([...new Set(pieces)], random).map((piece) =>
+    shuffle(confusableKana(piece).filter((other) => !pieces.includes(other)), random),
+  )
+  const picked: string[] = []
+  for (let i = 0; picked.length < count && queues.some((queue) => i < queue.length); i++) {
+    for (const queue of queues) {
+      const other = queue[i]
+      if (other && picked.length < count && !picked.includes(other)) picked.push(other)
+    }
+  }
+  return picked
+}
+
+/**
+ * Mảnh nhiễu cùng bảng chữ với từ, không trùng mảnh nào của đáp án. Từ pha cả hai bảng chữ thì lấy từ cả hai.
+ * Khoảng một nửa là mảnh dễ nhầm với đáp án, khoảng một phần ba là mảnh đặc biệt (mỗi mảnh một loại), còn lại là chữ thường.
+ */
 export function pickKanaDistractors(pieces: readonly string[], random: () => number): string[] {
   const count = Math.min(KANA_DISTRACTORS_MAX, Math.max(KANA_DISTRACTORS_MIN, pieces.length))
   const text = pieces.join('')
-  const candidates = [
-    ...(/[ぁ-ゖ]/.test(text) ? HIRAGANA : []),
-    ...(/[ァ-ヺ]/.test(text) ? KATAKANA : []),
-  ].filter((char) => !pieces.includes(char))
-  return shuffle(candidates, random).slice(0, count)
+  const hasHiragana = /[ぁ-ゖ]/.test(text)
+  const hasKatakana = /[ァ-ヺ]/.test(text)
+
+  const confusables = pickConfusables(pieces, Math.floor(count / 2), random)
+  const isFree = (piece: string) => !pieces.includes(piece) && !confusables.includes(piece)
+
+  const specialGroups = [...(hasHiragana ? SPECIAL_HIRAGANA : []), ...(hasKatakana ? SPECIAL_KATAKANA : [])]
+    .map((group) => group.filter(isFree))
+    .filter((group) => group.length > 0)
+  const specials = shuffle(specialGroups, random)
+    .slice(0, Math.round(count / 3))
+    .map((group) => shuffle(group, random)[0])
+
+  const plain = [...(hasHiragana ? HIRAGANA : []), ...(hasKatakana ? KATAKANA : [])].filter(
+    (piece) => isFree(piece) && !specials.includes(piece),
+  )
+  return [...confusables, ...specials, ...shuffle(plain, random).slice(0, count - confusables.length - specials.length)]
 }
 
 /**
@@ -90,28 +138,6 @@ export function buildKanaAssemblyQuestion(reading: string, random: () => number)
 
 export function isKanaAssemblyCorrect(placed: readonly string[], reading: string): boolean {
   return placed.join('') === reading
-}
-
-/** Từ đang ở Stage 2 trong DB. */
-export interface Stage2WordRow {
-  id: string
-  last_practiced_at: string | null
-  vocabularies: { reading_kana: string; meaning_vi: string; sort_order: number }
-}
-
-/** Chọn từ lâu chưa luyện trước (chưa luyện lần nào đứng đầu), hòa thì theo lộ trình. Không đổi mảng gốc. */
-export function pickStage2Words<T extends Stage2WordRow>(
-  rows: readonly T[],
-  limit: number = KANA_ASSEMBLY_WORDS_PER_ROUND,
-): T[] {
-  const lastSeen = (row: T) => (row.last_practiced_at ? Date.parse(row.last_practiced_at) : -Infinity)
-  return [...rows]
-    .sort((a, b) => {
-      const byTime = lastSeen(a) - lastSeen(b)
-      if (byTime !== 0 && !Number.isNaN(byTime)) return byTime
-      return a.vocabularies.sort_order - b.vocabularies.sort_order
-    })
-    .slice(0, limit)
 }
 
 export interface KanaAssemblyRequest {

@@ -7,7 +7,7 @@ import {
   buildChoiceQuestion,
   canBeDistractor,
   gradeChoice,
-  planStage2Session,
+  pickDueWords,
   sameMeaning,
   seededRng,
   STAGE2_CHOICE_EXERCISES,
@@ -134,19 +134,31 @@ describe('Chấm điểm (D1 — server chấm)', () => {
   })
 })
 
-describe('Kế hoạch phiên Stage 2', () => {
-  it('mỗi từ tối đa 2 câu (đủ 2 dạng), tối đa N câu, không từ nào đứng liền nhau', () => {
-    const words = ['a', 'b', 'c', 'd', 'e', 'f']
-    const plan = planStage2Session(words, 10, seededRng(3))
-    expect(plan).toHaveLength(10)
-    for (let i = 1; i < plan.length; i++) expect(plan[i].word === plan[i - 1].word).toBe(false)
-    for (const word of words) {
-      const types = plan.filter((p) => p.word === word).map((p) => p.exercise)
-      expect(new Set(types).size).toBe(types.length) // không lặp dạng trong một từ
-    }
+describe('pickDueWords — chỉ lấy từ đã đến hẹn', () => {
+  const now = new Date('2026-11-05T13:00:00Z')
+  const row = (id: string, dueAt: string, sortOrder: number) => ({ id, dueAt, sortOrder })
+
+  it('bỏ từ chưa đến hẹn; đúng giờ hẹn là đã đến hẹn', () => {
+    const rows = [row('later', '2026-11-05T13:00:01Z', 1), row('exact', '2026-11-05T13:00:00Z', 2)]
+    expect(pickDueWords(rows, now).map((r) => r.id)).toEqual(['exact'])
   })
 
-  it('ít từ → ít câu (2 từ → 4 câu)', () => {
-    expect(planStage2Session(['a', 'b'], 10, seededRng(1))).toHaveLength(4)
+  it('quá hẹn lâu nhất trước, hòa thì theo lộ trình', () => {
+    const rows = [
+      row('recent', '2026-11-05T12:00:00Z', 1),
+      row('old-b', '2026-11-04T12:00:00Z', 9),
+      row('old-a', '2026-11-04T12:00:00Z', 3),
+    ]
+    expect(pickDueWords(rows, now).map((r) => r.id)).toEqual(['old-a', 'old-b', 'recent'])
+  })
+
+  it('giới hạn số từ, không đổi mảng gốc', () => {
+    const rows = [row('b', '2026-11-05T12:00:00Z', 2), row('a', '2026-11-05T11:00:00Z', 1)]
+    expect(pickDueWords(rows, now, 1).map((r) => r.id)).toEqual(['a'])
+    expect(rows[0].id).toBe('b')
+  })
+
+  it('không còn từ đến hẹn → rỗng', () => {
+    expect(pickDueWords([row('later', '2026-11-06T00:00:00Z', 1)], now)).toEqual([])
   })
 })

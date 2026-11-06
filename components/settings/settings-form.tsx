@@ -1,7 +1,61 @@
 'use client'
 
-import { useId, useState } from 'react'
+import { useId, useState, useTransition } from 'react'
+import { saveNewPerDayAction } from '@/app/(main)/settings/actions'
+import { NEW_PER_DAY_OPTIONS } from '@/lib/learning/new-words'
 import { cn } from '@/lib/utils'
+
+/** Lưu ngay khi chọn. Lưu lỗi thì quay về giá trị cũ, để màn hình luôn khớp với dữ liệu thật. */
+function NewPerDaySetting({ initial }: { initial: number }) {
+  const [value, setValue] = useState(initial)
+  const [error, setError] = useState(false)
+  const [saving, startSaving] = useTransition()
+  // Giá trị cũ ngoài các lựa chọn (ví dụ 7) vẫn hiện để người học thấy đúng mức đang dùng
+  const options = (NEW_PER_DAY_OPTIONS as readonly number[]).includes(initial)
+    ? NEW_PER_DAY_OPTIONS
+    : [...NEW_PER_DAY_OPTIONS, initial].sort((a, b) => a - b)
+
+  const choose = (next: number) => {
+    const previous = value
+    setValue(next)
+    setError(false)
+    startSaving(async () => {
+      try {
+        const { status } = await saveNewPerDayAction(next)
+        if (status !== 'saved') throw new Error(status)
+      } catch {
+        setValue(previous)
+        setError(true)
+      }
+    })
+  }
+
+  return (
+    <section aria-labelledby="new-words-title" className="rounded-3xl border border-border bg-card p-6">
+      <h2 id="new-words-title" className="font-semibold">New words per day</h2>
+      <p className="mt-1 text-sm text-muted-foreground">Fewer words means fewer questions each day and more time to remember them.</p>
+      <div role="radiogroup" aria-labelledby="new-words-title" className="mt-4 grid grid-cols-5 gap-2">
+        {options.map((option) => (
+          <button
+            key={option}
+            type="button"
+            role="radio"
+            aria-checked={value === option}
+            disabled={saving}
+            onClick={() => choose(option)}
+            className={cn(
+              'h-12 rounded-2xl border-2 text-sm font-semibold tabular-nums transition-colors',
+              value === option ? 'border-primary bg-primary/12 text-primary' : 'border-border text-subtle hover:border-[#3b4250]',
+            )}
+          >
+            {option}
+          </button>
+        ))}
+      </div>
+      {error && <p role="alert" className="mt-3 text-sm text-error">Couldn&apos;t save. Check your connection and try again.</p>}
+    </section>
+  )
+}
 
 function SettingSwitch({ label, description, defaultChecked }: { label: string; description: string; defaultChecked?: boolean }) {
   const [checked, setChecked] = useState(!!defaultChecked)
@@ -29,11 +83,12 @@ function SettingSwitch({ label, description, defaultChecked }: { label: string; 
 
 const goals = [10, 20, 30, 50]
 
-export function SettingsForm() {
+export function SettingsForm({ newPerDay }: { newPerDay: number }) {
   const [goal, setGoal] = useState(30)
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">
+      <NewPerDaySetting initial={newPerDay} />
       <section aria-labelledby="goal-title" className="rounded-3xl border border-border bg-card p-6">
         <h2 id="goal-title" className="font-semibold">Daily goal</h2>
         <p className="mt-1 text-sm text-muted-foreground">Number of cards to study each day.</p>

@@ -4,7 +4,7 @@
 import { completeIntro } from '../learning/stage'
 import type { Stage } from '../learning/types'
 
-/** Số từ mỗi lần giới thiệu. Tạm thời, chưa áp quota từ mới/ngày: SES-01 sẽ thay phần chọn từ. */
+/** Số từ tối đa mỗi lần giới thiệu. Giới hạn trong ngày do lib/dal/intro.ts áp thêm. */
 export const INTRO_WORDS_PER_SESSION = 10
 
 /**
@@ -81,6 +81,12 @@ export function pickNewWords<T extends { id: unknown }>(
 export function stageAfterIntro(isKanaOnly: boolean): Stage {
   return completeIntro(1, isKanaOnly).openedStage
 }
+
+/**
+ * Dòng chỉ Kana của từ đã có dòng Kanji (はし/橋, かみ/髪, かえます/変えます). Học cả hai là học lại cùng một từ,
+ * nên người chưa gặp sẽ không gặp nữa. Không xóa khỏi dữ liệu vì có thể đã có người đang học.
+ */
+export const DUPLICATE_KANA_CODES: readonly string[] = ['n5-0294', 'n5-0306', 'n5-0724']
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 

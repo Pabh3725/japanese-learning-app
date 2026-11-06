@@ -1,6 +1,6 @@
 // R5, R6 — Card: hạn đầu tiên, điểm card, bỏ card giàn giáo. docs/learning-rules.md §7, §8.
 
-import { RULES_V3 } from './rules'
+import { RULES_V4 } from './rules'
 import { scorePractice, scoreReview, type ReviewAnswer } from './scoring'
 import { nextStudyDayStart, studyDate } from './time'
 import type { CardStatus, CardType, Outcome, Rating, StudyDate } from './types'
@@ -29,7 +29,7 @@ export function firstDueAt(createdAt: Date): Date {
 /** R6 — Card giàn giáo đã đủ điểm để bỏ chưa. */
 export function shouldRetire(card: Pick<CardPointsState, 'type' | 'points' | 'wordIsKanaOnly'>): boolean {
   if (card.type === 'vocab.meaning_kana' && card.wordIsKanaOnly) return false
-  const threshold = RULES_V3.retireAt[card.type]
+  const threshold = RULES_V4.retireAt[card.type]
   return threshold !== undefined && card.points >= threshold
 }
 
@@ -53,7 +53,7 @@ export function applyPracticeToCard(card: CardPointsState, outcome: Outcome, now
   const today = studyDate(now)
   const plusToday = card.practiceDate === today ? card.practicePlusToday : 0
   const raw = scorePractice(outcome)
-  const delta = raw > 0 && plusToday >= RULES_V3.practice.maxPositivePerCardPerDay ? 0 : raw
+  const delta = raw > 0 && plusToday >= RULES_V4.practice.maxPositivePerCardPerDay ? 0 : raw
   const withDay: CardPointsState = {
     ...card,
     practiceDate: today,
