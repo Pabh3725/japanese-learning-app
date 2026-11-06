@@ -2,7 +2,8 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
-import { isValidNewPerDay, newPerDayOf } from '@/lib/learning/new-words'
+import { isValidNewPerDay, isValidStudyLimit, newPerDayOf, type StudyLimitKey } from '@/lib/learning/new-words'
+import { RULES_V4 } from '@/lib/learning/rules'
 
 export async function getNewPerDay(): Promise<number> {
   const user = await requireUser()
@@ -19,6 +20,34 @@ export async function saveNewPerDay(value: unknown): Promise<{ status: 'saved' |
   const { error } = await supabase
     .from('learner_settings')
     .upsert({ user_id: user.id, daily_new_limit: value }, { onConflict: 'user_id' })
+  if (error) throw new Error(`Không lưu được learner_settings: ${error.message}`)
+  return { status: 'saved' }
+}
+
+export async function getStudyLimits(): Promise<Record<StudyLimitKey, number>> {
+  const user = await requireUser()
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('learner_settings')
+    .select('stage_cap, review_cap, unlock_threshold, kanji_new_per_day, kanji_cap')
+    .eq('user_id', user.id)
+    .maybeSingle()
+  if (error) throw new Error(`Không đọc được learner_settings: ${error.message}`)
+  const { defaults } = RULES_V4
+  return {
+    stage_cap: data?.stage_cap ?? defaults.stageCap,
+    review_cap: data?.review_cap ?? defaults.reviewCap,
+    unlock_threshold: data?.unlock_threshold ?? defaults.unlockThreshold,
+    kanji_new_per_day: data?.kanji_new_per_day ?? defaults.kanjiNewPerDay,
+    kanji_cap: data?.kanji_cap ?? defaults.kanjiCap,
+  }
+}
+
+export async function saveStudyLimit(key: unknown, value: unknown): Promise<{ status: 'saved' | 'invalid' }> {
+  if (!isValidStudyLimit(key, value)) return { status: 'invalid' }
+  const user = await requireUser()
+  const supabase = await createClient()
+  const { error } = await supabase.from('learner_settings').upsert({ user_id: user.id, [key]: value }, { onConflict: 'user_id' })
   if (error) throw new Error(`Không lưu được learner_settings: ${error.message}`)
   return { status: 'saved' }
 }

@@ -15,6 +15,7 @@ import {
   gradeStageAnswer,
   parseStageAnswerRequest,
   usableExercises,
+  withHint,
   type AssemblyQuestionData,
   type ChoiceQuestionData,
   type QuestionPools,
@@ -430,6 +431,34 @@ describe('Đáp án nhiễu khó hơn', () => {
   it('kanaSimilarity: bỏ qua dấu ゛゜và kiểu chữ', () => {
     expect(kanaSimilarity('がっこう', 'かっこう')).toBeGreaterThan(kanaSimilarity('がっこう', 'てれび'))
     expect(kanaSimilarity('テレビ', 'てれひ')).toBeGreaterThan(5)
+  })
+})
+
+describe('Câu ghép không cho biết số ô', () => {
+  it('bật cờ, vẫn đủ mảnh đáp án, không quá 18 mảnh, số mảnh nhiễu thay đổi', () => {
+    let seed = 1
+    for (const word of words.filter((w) => !w.is_kana_only)) {
+      for (const exercise of ['kanji_assembly_nohint', 'hanviet_assembly', 'kana_assembly'] as const) {
+        const q = buildStageQuestion(word, exercise, pools, seededRng(seed++), { blind: true }) as AssemblyQuestionData
+        expect(q.blind).toBe(true)
+        expect(q.pool.length).toBeLessThanOrEqual(18)
+        expect(q.pool.length).toBeGreaterThan(q.slots)
+      }
+    }
+    const sizes = new Set(Array.from({ length: 100 }, (_, i) => (buildStageQuestion(GAKKOU, 'kanji_assembly_nohint', pools, seededRng(i + 1), { blind: true }) as AssemblyQuestionData).pool.length))
+    expect(sizes.size).toBeGreaterThan(1)
+  })
+
+  it('câu thường không bật cờ; câu chọn không có cờ', () => {
+    expect(buildStageQuestion(GAKKOU, 'kana_assembly', pools, seededRng(1))).not.toHaveProperty('blind')
+    expect(buildStageQuestion(GAKKOU, 'kana_to_meaning', pools, seededRng(1), { blind: true })).not.toHaveProperty('blind')
+  })
+
+  it('đúng nhờ gợi ý không tính là đúng hoàn toàn; sai vẫn là sai', () => {
+    expect(withHint('correct', true)).toBe('hint')
+    expect(withHint('correct', false)).toBe('correct')
+    expect(withHint('correct', undefined)).toBe('correct')
+    expect(withHint('wrong', true)).toBe('wrong')
   })
 })
 

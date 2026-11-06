@@ -4,7 +4,7 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
-import { newPerDayOf, remainingNewToday } from '@/lib/learning/new-words'
+import { countMetToday, newPerDayOf, remainingNewToday } from '@/lib/learning/new-words'
 import { nextStudyDayStart } from '@/lib/learning/time'
 import { DUPLICATE_KANA_CODES, INTRO_WORDS_PER_SESSION, isVocabularyId, pickNewWords, stageAfterIntro, toIntroWord, type IntroVocabRow, type IntroWord } from '@/lib/intro/words'
 
@@ -21,6 +21,8 @@ export interface IntroData {
   newPerDay: number
   /** Đã học đủ từ mới hôm nay. */
   limitReached: boolean
+  /** Số từ mới còn học được hôm nay. */
+  remainingToday: number
 }
 
 /** Các từ mới cho phiên giới thiệu, theo thứ tự lộ trình, không vượt giới hạn trong ngày. */
@@ -47,7 +49,7 @@ export async function getIntroData(): Promise<IntroData> {
   if (settings.error) throw new Error(`Không đọc được learner_settings: ${settings.error.message}`)
 
   const newPerDay = newPerDayOf(settings.data?.daily_new_limit)
-  const metToday = (started.data ?? []).filter((r) => r.created_at >= startOfToday).length
+  const metToday = countMetToday(started.data ?? [], new Set(excluded.data?.map((r) => r.vocabulary_id)), startOfToday)
   const remaining = remainingNewToday(newPerDay, metToday)
   const picked = pickNewWords<IntroVocabRow>(
     (vocab.data ?? []).filter((row) => !DUPLICATE_KANA_CODES.includes(row.code)),
@@ -59,7 +61,7 @@ export async function getIntroData(): Promise<IntroData> {
   if (words.length < picked.length) {
     console.warn(`[intro] Bỏ qua ${picked.length - words.length} từ sai dạng`)
   }
-  return { words, newPerDay, limitReached: remaining === 0 }
+  return { words, newPerDay, limitReached: remaining === 0, remainingToday: remaining }
 }
 
 export interface CompleteIntroResponse {

@@ -6,9 +6,10 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { submitReviewAnswerAction } from '@/app/review/actions'
 import { WRONG_ANSWER_NOTE } from '@/components/learning/exercise-footer'
+import { KnownWordBar } from '@/components/learning/known-word-button'
 import { SessionComplete } from '@/components/learning/session-complete'
 import { SessionHeader } from '@/components/learning/session-header'
-import { ListeningPrompt, toAssemblyStep, toChoiceStep, toRecallStep } from '@/components/learning/stage-session'
+import { ListeningPrompt, toAssemblyStep, toChoiceStep, toRecallStep } from '@/components/learning/learn-practice'
 import { useJapaneseVoice } from '@/components/learning/speaker-button'
 import { AssemblyExercise, type AssemblyGrade } from '@/components/learning/steps/assembly-exercise'
 import { ChoiceExercise } from '@/components/learning/steps/choice-exercise'
@@ -24,7 +25,8 @@ type ChoiceQ = Extract<ReviewQuestion, { kind: 'choice' }>
 type AssemblyQ = Extract<ReviewQuestion, { kind: 'assembly' }>
 type TypingQ = Extract<ReviewQuestion, { kind: 'typing' }>
 
-export function ReviewSession({ questions, capReached }: { questions: ReviewQuestion[]; capReached: boolean }) {
+export function ReviewSession({ questions: initialQuestions, capReached }: { questions: ReviewQuestion[]; capReached: boolean }) {
+  const [questions, setQuestions] = useState(initialQuestions)
   const router = useRouter()
   const voice = useJapaneseVoice()
   const [index, setIndex] = useState(0)
@@ -94,7 +96,7 @@ export function ReviewSession({ questions, capReached }: { questions: ReviewQues
       .finally(() => setPending((n) => n - 1))
   }
 
-  const gradeOnServer = (current: AssemblyQ | TypingQ) => async (given: string | string[]): Promise<AssemblyGrade> => {
+  const gradeOnServer = (current: AssemblyQ | TypingQ) => async (given: string | string[], usedHint = false): Promise<AssemblyGrade> => {
     const elapsed = responseMs()
     try {
       await saveQueue.current
@@ -104,9 +106,10 @@ export function ReviewSession({ questions, capReached }: { questions: ReviewQues
         exercise: current.exercise,
         answer: given,
         responseMs: elapsed,
+        usedHint,
       })
       if (res.status === 'graded') {
-        const correct = res.outcome === 'correct'
+        const correct = res.outcome !== 'wrong'
         speak(res.reading)
         setResults((list) => [...list, correct])
         return { correct, answer: [res.answer], reveal: res.reveal }
@@ -120,6 +123,11 @@ export function ReviewSession({ questions, capReached }: { questions: ReviewQues
     } catch {
       return { error: SAVE_ERROR }
     }
+  }
+
+  /** Bỏ mọi card còn lại của từ này. Card đang hiện cũng bị bỏ nên câu kế tiếp tự hiện ra. */
+  const removeWord = (vocabularyId: string) => {
+    setQuestions((list) => list.filter((item, i) => i < index || item.vocabularyId !== vocabularyId))
   }
 
   const label = 'Review'
@@ -159,6 +167,7 @@ export function ReviewSession({ questions, capReached }: { questions: ReviewQues
   return (
     <div className="flex min-h-dvh flex-col">
       <SessionHeader backHref="/review" label="Daily Review" sublabel={`${index + 1} / ${questions.length}`} current={index} total={questions.length} />
+      <KnownWordBar vocabularyId={q.vocabularyId} onKnown={removeWord} />
       {warning && <p role="alert" className="mx-auto mt-3 w-full max-w-2xl px-4 text-sm text-error">{warning}</p>}
       {body}
     </div>

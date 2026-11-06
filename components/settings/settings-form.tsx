@@ -1,8 +1,8 @@
 'use client'
 
 import { useId, useState, useTransition } from 'react'
-import { saveNewPerDayAction } from '@/app/(main)/settings/actions'
-import { NEW_PER_DAY_OPTIONS } from '@/lib/learning/new-words'
+import { saveNewPerDayAction, saveStudyLimitAction } from '@/app/(main)/settings/actions'
+import { NEW_PER_DAY_OPTIONS, STUDY_LIMITS, type StudyLimitKey } from '@/lib/learning/new-words'
 import { cn } from '@/lib/utils'
 
 /** Lưu ngay khi chọn. Lưu lỗi thì quay về giá trị cũ, để màn hình luôn khớp với dữ liệu thật. */
@@ -83,12 +83,76 @@ function SettingSwitch({ label, description, defaultChecked }: { label: string; 
 
 const goals = [10, 20, 30, 50]
 
-export function SettingsForm({ newPerDay }: { newPerDay: number }) {
+/** Lưu khi rời ô. Số ngoài khoảng cho phép thì báo lỗi và trả về giá trị cũ. */
+function StudyLimitField({ limitKey, initial }: { limitKey: StudyLimitKey; initial: number }) {
+  const { label, hint, min, max } = STUDY_LIMITS[limitKey]
+  const id = useId()
+  const [text, setText] = useState(String(initial))
+  const [saved, setSaved] = useState(initial)
+  const [error, setError] = useState<string | null>(null)
+  const [, startSaving] = useTransition()
+
+  const commit = () => {
+    const value = Number(text)
+    if (value === saved) return
+    if (!Number.isInteger(value) || value < min || value > max) {
+      setError(`Enter a whole number from ${min} to ${max}.`)
+      setText(String(saved))
+      return
+    }
+    setError(null)
+    startSaving(async () => {
+      try {
+        const { status } = await saveStudyLimitAction(limitKey, value)
+        if (status !== 'saved') throw new Error(status)
+        setSaved(value)
+      } catch {
+        setText(String(saved))
+        setError("Couldn't save. Check your connection and try again.")
+      }
+    })
+  }
+
+  return (
+    <div className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <label htmlFor={id} className="text-sm font-medium">{label}</label>
+        <p className="text-sm text-muted-foreground">{hint}</p>
+        {error && <p role="alert" className="mt-1 text-sm text-error">{error}</p>}
+      </div>
+      <input
+        id={id}
+        type="number"
+        inputMode="numeric"
+        min={min}
+        max={max}
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') e.currentTarget.blur()
+        }}
+        className="h-11 w-full rounded-xl border-2 border-border bg-background px-3 text-right tabular-nums outline-none focus:border-primary sm:w-28"
+      />
+    </div>
+  )
+}
+
+export function SettingsForm({ newPerDay, limits }: { newPerDay: number; limits: Record<StudyLimitKey, number> }) {
   const [goal, setGoal] = useState(30)
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">
       <NewPerDaySetting initial={newPerDay} />
+
+      <section aria-labelledby="limits-title" className="rounded-3xl border border-border bg-card px-6 pt-6 pb-2">
+        <h2 id="limits-title" className="font-semibold">Daily limits</h2>
+        <div className="divide-y divide-border">
+          {(Object.keys(STUDY_LIMITS) as StudyLimitKey[]).map((key) => (
+            <StudyLimitField key={key} limitKey={key} initial={limits[key]} />
+          ))}
+        </div>
+      </section>
       <section aria-labelledby="goal-title" className="rounded-3xl border border-border bg-card p-6">
         <h2 id="goal-title" className="font-semibold">Daily goal</h2>
         <p className="mt-1 text-sm text-muted-foreground">Number of cards to study each day.</p>

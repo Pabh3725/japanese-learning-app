@@ -2,8 +2,10 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
+import { readDailyLimits } from '@/lib/dal/stage-session'
+import { newWordsBlockedBy, sessionsFor, type NewWordsBlock } from '@/lib/learn/session'
 import { DUPLICATE_KANA_CODES } from '@/lib/intro/words'
-import { newPerDayOf, remainingNewToday } from '@/lib/learning/new-words'
+import { countMetToday, newPerDayOf, remainingNewToday } from '@/lib/learning/new-words'
 import { RULES_V4 } from '@/lib/learning/rules'
 import { reachedKanjiIntro } from '@/lib/learning/stage'
 import { nextStudyDayStart } from '@/lib/learning/time'
@@ -17,6 +19,12 @@ export interface LearnOverview {
   stage3Waiting: number
   /** Số câu đang đến hẹn của từng Stage. */
   due: { 2: number; 4: number; 5: number }
+  /** Tổng số câu đến hẹn còn làm được hôm nay, sau khi áp trần. */
+  questionsToday: number
+  /** Số phiên còn lại hôm nay. */
+  sessions: number
+  /** Lý do hôm nay không có thêm từ mới. */
+  block: NewWordsBlock
   completed: number
   inProgress: number
   total: number
@@ -33,7 +41,7 @@ export async function getLearnOverview(): Promise<LearnOverview> {
   const user = await requireUser()
   const supabase = await createClient()
 
-  const [total, duplicates, started, excluded, settings, kanjiPending] = await Promise.all([
+  const [total, duplicates, started, excluded, limits, kanjiPending] = await Promise.all([
     supabase.from('vocabularies').select('id', { count: 'exact', head: true }),
     supabase.from('vocabularies').select('id').in('code', [...DUPLICATE_KANA_CODES]),
     supabase.from('learner_vocabulary').select('vocabulary_id, current_stage, learning_status, created_at').eq('user_id', user.id).range(0, PAGE - 1),
@@ -43,7 +51,7 @@ export async function getLearnOverview(): Promise<LearnOverview> {
       .eq('user_id', user.id)
       .not('excluded_at', 'is', null)
       .range(0, PAGE - 1),
-    supabase.from('learner_settings').select('daily_new_limit').eq('user_id', user.id).maybeSingle(),
+    readDailyLimits(supabase, user.id),
     // Từ ở Stage 4 đã đủ điểm mà chưa xem thẻ Giới thiệu Hán tự, kể cả khi chưa đến hẹn
     supabase
       .from('learner_stage_schedules')
@@ -59,7 +67,6 @@ export async function getLearnOverview(): Promise<LearnOverview> {
   if (duplicates.error) throw new Error(`Không đọc được vocabularies: ${duplicates.error.message}`)
   if (started.error) throw new Error(`Không đọc được learner_vocabulary: ${started.error.message}`)
   if (excluded.error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${excluded.error.message}`)
-  if (settings.error) throw new Error(`Không đọc được learner_settings: ${settings.error.message}`)
   if (kanjiPending.error) throw new Error(`Không đọc được learner_stage_schedules: ${kanjiPending.error.message}`)
 
   // Mỗi từ có tới 3 dòng lịch, nên số dòng có thể vượt 1000 mỗi lần của Data API
@@ -85,7 +92,8 @@ export async function getLearnOverview(): Promise<LearnOverview> {
   const startedIds = new Set(started.data?.map((r) => r.vocabulary_id))
   // Dòng trùng không tính vào lộ trình, trừ khi người học đã bắt đầu dòng đó
   const hiddenIds = (duplicates.data ?? []).map((r) => r.id).filter((id) => !startedIds.has(id))
-  const count = (total.count ?? 0) - hiddenIds.length
+  // Từ đã biết cũng không còn trong lộ trình
+  const count = (total.count ?? 0) - new Set([...hiddenIds, ...excludedIds]).size
 
   const due = { 2: 0, 4: 0, 5: 0 }
   for (const row of dueRows) {
@@ -96,16 +104,30 @@ export async function getLearnOverview(): Promise<LearnOverview> {
   const completed = active.filter((r) => r.learning_status === 'initial_complete').length
 
   const startOfToday = new Date(nextStudyDayStart(new Date()).getTime() - DAY_MS).toISOString()
-  const metToday = (started.data ?? []).filter((r) => r.created_at >= startOfToday).length
-  const left = count - new Set([...startedIds, ...excludedIds]).size
+  const metToday = countMetToday(started.data ?? [], excludedIds, startOfToday)
+  const left = count - active.length
   const kanjiWaiting = ((kanjiPending.data ?? []) as unknown as { learner_vocabulary: { vocabulary_id: string } }[]).filter(
     (r) => !excludedIds.has(r.learner_vocabulary.vocabulary_id),
   ).length
 
+  const dueTotal = due[2] + due[4] + due[5]
+  const block = newWordsBlockedBy({
+    cardsDue: limits.cardsDueToday,
+    unlockThreshold: limits.unlockThreshold,
+    stageDue: dueTotal + limits.answeredToday,
+    stageCap: limits.stageCap,
+  })
+  const newToday = block ? 0 : Math.min(left, remainingNewToday(newPerDayOf(limits.newPerDay), metToday))
+  const stage3Waiting = active.filter((r) => r.learning_status === 'learning' && r.current_stage === 3).length + kanjiWaiting
+  const questionsToday = Math.min(dueTotal, Math.max(0, limits.stageCap - limits.answeredToday))
+
   return {
-    newToday: Math.min(left, remainingNewToday(newPerDayOf(settings.data?.daily_new_limit), metToday)),
-    stage3Waiting: active.filter((r) => r.learning_status === 'learning' && r.current_stage === 3).length + kanjiWaiting,
+    newToday,
+    stage3Waiting,
     due,
+    questionsToday,
+    sessions: sessionsFor(questionsToday + newToday + stage3Waiting),
+    block,
     completed,
     inProgress: active.length - completed,
     total: count,

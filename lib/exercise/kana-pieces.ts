@@ -69,8 +69,8 @@ function pickConfusables(pieces: readonly string[], count: number, random: () =>
  * Mảnh nhiễu cùng bảng chữ với từ, không trùng mảnh nào của đáp án. Từ pha cả hai bảng chữ thì lấy từ cả hai.
  * Khoảng một nửa là mảnh dễ nhầm với đáp án, khoảng một phần ba là mảnh đặc biệt (mỗi mảnh một loại), còn lại là chữ thường.
  */
-export function pickKanaDistractors(pieces: readonly string[], random: () => number): string[] {
-  const count = Math.min(KANA_DISTRACTORS_MAX, Math.max(KANA_DISTRACTORS_MIN, pieces.length))
+export function pickKanaDistractors(pieces: readonly string[], random: () => number, extra = 0): string[] {
+  const count = Math.min(KANA_DISTRACTORS_MAX, Math.max(KANA_DISTRACTORS_MIN, pieces.length)) + extra
   const text = pieces.join('')
   const hasHiragana = /[ぁ-ゖ]/.test(text)
   const hasKatakana = /[ァ-ヺ]/.test(text)

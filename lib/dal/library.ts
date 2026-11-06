@@ -21,7 +21,7 @@ export async function getLibraryData(): Promise<LibraryData> {
   const user = await requireUser()
   const supabase = await createClient()
 
-  const [vocab, progress, kanji] = await Promise.all([
+  const [vocab, progress, kanji, known] = await Promise.all([
     supabase.from('vocabularies').select(VOCAB_COLUMNS).order('sort_order', { ascending: true }).range(0, MAX_ROWS - 1),
     // RLS đã chỉ trả dòng của chính user; lọc thêm user_id cho rõ ý và để query dùng index.
     supabase.from('learner_vocabulary').select(PROGRESS_COLUMNS).eq('user_id', user.id).range(0, MAX_ROWS - 1),
@@ -31,11 +31,13 @@ export async function getLibraryData(): Promise<LibraryData> {
       .order('jlpt_level', { ascending: false, nullsFirst: false })
       .order('character', { ascending: true })
       .range(0, MAX_ROWS - 1),
+    supabase.from('learner_vocabulary_exclusions').select('vocabulary_id').eq('user_id', user.id).not('excluded_at', 'is', null).range(0, MAX_ROWS - 1),
   ])
 
   if (vocab.error) throw new Error(`Không đọc được vocabularies: ${vocab.error.message}`)
   if (progress.error) throw new Error(`Không đọc được learner_vocabulary: ${progress.error.message}`)
   if (kanji.error) throw new Error(`Không đọc được kanji: ${kanji.error.message}`)
+  if (known.error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${known.error.message}`)
 
   // Dòng trùng chỉ còn hiện với người đang học dòng đó
   const startedIds = new Set(progress.data?.map((r) => r.vocabulary_id))
@@ -50,5 +52,6 @@ export async function getLibraryData(): Promise<LibraryData> {
     console.warn('[library] Có thể đã chạm giới hạn 1000 dòng — cần phân trang')
   }
 
-  return { vocabulary: vocabulary.items, kanji: kanjiList.items }
+  const knownIds = new Set(known.data?.map((r) => r.vocabulary_id))
+  return { vocabulary: vocabulary.items.map((item) => ({ ...item, known: knownIds.has(item.id) })), kanji: kanjiList.items }
 }

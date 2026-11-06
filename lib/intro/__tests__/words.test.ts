@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { INTRO_WORDS_PER_SESSION, isVocabularyId, pickNewWords, stageAfterIntro, toIntroWord } from '../words'
+import { INTRO_WORDS_PER_SESSION, isVocabularyId, parseVocabularyIds, pickNewWords, stageAfterIntro, toIntroWord } from '../words'
+import { countMetToday } from '../../learning/new-words'
 
 const gakkou = {
   id: 'v1',
@@ -84,5 +85,31 @@ describe('isVocabularyId', () => {
     expect(isVocabularyId('n5-0001')).toBe(false)
     expect(isVocabularyId(42)).toBe(false)
     expect(isVocabularyId(undefined)).toBe(false)
+  })
+})
+
+describe('parseVocabularyIds', () => {
+  const id = '11111111-1111-4111-8111-111111111111'
+  it('nhận danh sách UUID, bỏ trùng', () => {
+    expect(parseVocabularyIds([id, id])).toEqual([id])
+  })
+  it('từ chối dữ liệu lạ, rỗng hoặc quá dài', () => {
+    expect(parseVocabularyIds([])).toBe(null)
+    expect(parseVocabularyIds('x')).toBe(null)
+    expect(parseVocabularyIds([id, 'x'])).toBe(null)
+    expect(parseVocabularyIds(Array.from({ length: 201 }, () => id))).toBe(null)
+  })
+})
+
+describe('countMetToday', () => {
+  const start = '2026-11-06T00:00:00Z'
+  it('chỉ đếm từ gặp hôm nay, không đếm từ đã biết', () => {
+    const rows = [
+      { vocabulary_id: 'a', created_at: '2026-11-06T01:00:00Z' },
+      { vocabulary_id: 'b', created_at: '2026-11-06T02:00:00Z' },
+      { vocabulary_id: 'c', created_at: '2026-11-05T02:00:00Z' },
+    ]
+    expect(countMetToday(rows, new Set(), start)).toBe(2)
+    expect(countMetToday(rows, new Set(['b']), start)).toBe(1)
   })
 })

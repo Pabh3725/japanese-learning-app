@@ -10,7 +10,7 @@ import { requireUser } from '@/lib/dal/auth'
 import { randomUUID } from 'node:crypto'
 import { loadPools } from '@/lib/dal/stage-session'
 import { buildReviewQuestion, chooseReviewExercise, reviewExercises } from '@/lib/exercise/review-questions'
-import { gradeStageAnswer, wordReveal, type QuestionData, type StageWord, type WordReveal } from '@/lib/exercise/stage-questions'
+import { gradeStageAnswer, withHint, wordReveal, type QuestionData, type StageWord, type WordReveal } from '@/lib/exercise/stage-questions'
 import { EXERCISES, RULES_V4 } from '@/lib/learning/rules'
 import type { ReviewAnswer } from '@/lib/learning/scoring'
 import { nextStudyDayStart, studyDate } from '@/lib/learning/time'
@@ -212,6 +212,7 @@ export async function getReviewOverview(): Promise<ReviewOverview> {
 
 export type ReviewQuestion = QuestionData & {
   cardId: string
+  vocabularyId: string
   /** Mã cho lần nộp câu này, cấp ở server. */
   clientEventId: string
   /** Thông tin từ khi trả lời sai. Câu chọn đã có đáp án ở trình duyệt nên gửi sẵn. */
@@ -277,6 +278,7 @@ export async function getReviewSession(): Promise<ReviewSessionData> {
       ...question,
       ...(question.kind === 'choice' ? { reveal: wordReveal(word, known) } : {}),
       cardId: card.id,
+      vocabularyId: lv.vocabulary_id,
       clientEventId: randomUUID(),
     }
   })
@@ -291,6 +293,7 @@ interface ReviewAnswerRequest {
   exercise: ExerciseCode
   answer: string | string[]
   responseMs: number
+  usedHint?: boolean
 }
 
 function parseReviewAnswer(input: unknown): ReviewAnswerRequest | null {
@@ -304,7 +307,8 @@ function parseReviewAnswer(input: unknown): ReviewAnswerRequest | null {
     typeof v.clientEventId === 'string' && UUID.test(v.clientEventId) &&
     typeof v.exercise === 'string' && Object.hasOwn(EXERCISES, v.exercise) &&
     answerOk &&
-    typeof v.responseMs === 'number' && Number.isFinite(v.responseMs) && v.responseMs >= 0
+    typeof v.responseMs === 'number' && Number.isFinite(v.responseMs) && v.responseMs >= 0 &&
+    (v.usedHint === undefined || typeof v.usedHint === 'boolean')
   if (!ok) return null
   return v as unknown as ReviewAnswerRequest
 }
@@ -334,7 +338,10 @@ export async function submitReviewAnswer(input: unknown): Promise<SubmitReviewAn
   // Câu nghe trên máy không có giọng Nhật đổi sang meaning_to_kana, dạng này cũng thuộc card nghĩa–Kana
   if (!reviewExercises(card.card_type, lv.vocabularies).includes(req.exercise)) return { status: 'invalid' }
 
-  const { outcome, answer } = gradeStageAnswer(lv.vocabularies, req.exercise, req.answer)
+  const graded = gradeStageAnswer(lv.vocabularies, req.exercise, req.answer)
+  const { answer } = graded
+  // Đúng nhờ gợi ý quy ra Hard
+  const outcome = withHint(graded.outcome, req.usedHint)
   const saved = await submitReview({
     cardId: req.cardId,
     clientEventId: req.clientEventId,

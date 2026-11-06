@@ -1,7 +1,10 @@
-import { LearningCard } from '@/components/dashboard/learning-card'
+import Link from 'next/link'
+import { Play } from 'lucide-react'
+import { actionButton } from '@/components/action-button'
 import { PageHeader } from '@/components/page-header'
 import { ProgressBar } from '@/components/progress-bar'
 import { getLearnOverview } from '@/lib/dal/learn-overview'
+import { cn } from '@/lib/utils'
 
 const stages = [
   { step: '1', title: 'Meet', body: 'See the reading and meaning of a new word, and hear how it sounds.' },
@@ -13,58 +16,36 @@ const stages = [
 
 export default async function LearnPage() {
   const overview = await getLearnOverview()
+  const hasWork = overview.questionsToday + overview.newToday + overview.stage3Waiting > 0
 
   return (
     <>
-      <PageHeader eyebrow="学習" title="Learn" description="Pick up new words in short, guided sessions." />
+      <PageHeader eyebrow="学習" title="Learn" description="New words and practice, mixed into short sessions." />
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <LearningCard
-          href="/learn/intro"
-          title="Stage 1 · New words"
-          description="Meet new words with their sound and meaning"
-          sample="語"
-          count={overview.newToday}
-          countLabel="new today"
-          tone="cyan"
-        />
-        <LearningCard
-          href="/learn/stage2"
-          title="Stage 2 · Kana"
-          description="Choose first, then build the reading"
-          sample="か"
-          count={overview.due[2]}
-          countLabel="due now"
-          tone="yellow"
-        />
-        <LearningCard
-          href="/learn/stage3"
-          title="Stage 3 · Introductions"
-          description="Meet Sino-Vietnamese readings and Kanji"
-          sample="字"
-          count={overview.stage3Waiting}
-          countLabel="to meet"
-          tone="pink"
-        />
-        <LearningCard
-          href="/learn/stage4"
-          title="Stage 4 · Kanji"
-          description="Choose first, then build Kanji and Sino-Vietnamese"
-          sample="漢"
-          count={overview.due[4]}
-          countLabel="due now"
-          tone="cyan"
-        />
-        <LearningCard
-          href="/learn/stage5"
-          title="Stage 5 · Recall"
-          description="Type and build from memory"
-          sample="憶"
-          count={overview.due[5]}
-          countLabel="due now"
-          tone="yellow"
-        />
-      </div>
+      <section aria-labelledby="today-title" className="rounded-3xl border border-primary/30 bg-card p-6 md:p-8">
+        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-sm text-muted-foreground">Today</p>
+            <h2 id="today-title" className="mt-1 text-3xl font-semibold tabular-nums">
+              {hasWork ? `${overview.sessions} ${overview.sessions === 1 ? 'session' : 'sessions'}` : 'All caught up'}
+            </h2>
+            <p className="mt-2 text-sm text-subtle">
+              {overview.questionsToday} questions due · {overview.newToday} new words · {overview.stage3Waiting} new readings and Kanji to meet
+            </p>
+            {overview.block && (
+              <p className="mt-2 text-sm text-yellow">
+                {overview.block === 'cards' ? 'New words are paused: many cards are waiting in Review.' : "New words are paused: you've reached today's question limit."}
+              </p>
+            )}
+          </div>
+          {hasWork && (
+            <Link href="/learn/session" className={cn(actionButton({ size: 'lg' }), 'w-full md:w-auto md:px-10')}>
+              <Play className="fill-current" aria-hidden="true" />
+              Start learning
+            </Link>
+          )}
+        </div>
+      </section>
 
       <section aria-labelledby="path-title" className="mt-8 rounded-3xl border border-border bg-card p-6">
         <h2 id="path-title" className="font-semibold">JLPT N5 path</h2>

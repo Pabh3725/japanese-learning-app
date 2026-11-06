@@ -41,7 +41,7 @@ function reviewPrompt(type: CardType, exercise: ExerciseCode, word: StageWord): 
 }
 
 export function buildReviewQuestion(type: CardType, word: StageWord, exercise: ExerciseCode, pools: QuestionPools, rng: Rng = Math.random): QuestionData {
-  const question = buildStageQuestion(word, exercise, pools, rng)
+  const question = buildStageQuestion(word, exercise, pools, rng, { blind: true })
   const prompt = reviewPrompt(type, exercise, word)
   return prompt ? { ...question, prompt } : question
 }

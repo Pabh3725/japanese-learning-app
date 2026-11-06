@@ -1,11 +1,11 @@
 'use client'
 
-// Phiên một Stage tính điểm (2, 4, 5): mỗi từ đến hẹn một câu.
+// Phần câu hỏi của một phiên khu Learn: câu của Stage 2, 4, 5 đã trộn.
 // Câu chọn hiện kết quả ngay và lưu ở nền; câu ghép và câu gõ chờ server chấm vì đáp án không có ở trình duyệt.
 import { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { checkStageAnswerAction, submitMatchPenaltiesAction, submitStageAnswerAction } from '@/app/learn/actions'
 import { WRONG_ANSWER_NOTE } from '@/components/learning/exercise-footer'
+import { KnownWordBar } from '@/components/learning/known-word-button'
 import { SessionComplete } from '@/components/learning/session-complete'
 import { SessionHeader } from '@/components/learning/session-header'
 import { SpeakerButton, useJapaneseVoice } from '@/components/learning/speaker-button'
@@ -19,7 +19,6 @@ import type { MatchPenalty } from '@/lib/exercise/match-round'
 import type { AssemblyQuestionData, ChoiceQuestionData, TypingQuestionData, WordReveal } from '@/lib/exercise/stage-questions'
 import type { StageQuestion } from '@/lib/dal/stage-session'
 import { shouldRelearn } from '@/lib/learning/stage'
-import { formatVnDateTime } from '@/lib/learning/time'
 import type { ScoredStage } from '@/lib/learning/types'
 import { withRetry } from '@/lib/retry'
 import { speak } from '@/lib/speech'
@@ -27,6 +26,7 @@ import type { AssemblyStep, ChoiceStep, RecallStep } from '@/lib/types'
 
 const SAVE_ERROR = "Couldn't check your answer. Check your connection and try again."
 const SAVE_WARNING = "Some answers couldn't be saved. Check your connection."
+const HINT_NOTE = 'Correct with a hint: no points this time.'
 const RETRY_NOTE = 'Practice only: this does not change your points.'
 
 type ChoiceQ = Extract<StageQuestion, { kind: 'choice' }>
@@ -61,6 +61,7 @@ export function toAssemblyStep(q: AssemblyQuestionData & { clientEventId: string
     pieceKind: q.pieceKind,
     joiner: q.joiner,
     template: q.template,
+    blind: q.blind,
     explanation: '',
   }
 }
@@ -82,7 +83,7 @@ export function toRecallStep(q: TypingQuestionData & { clientEventId: string }, 
 
 function pointsNote(stage: ScoredStage, result: SubmitExerciseResponse['result']) {
   if (result?.completed) return `Stage ${stage} complete!`
-  if (result?.kanjiIntroReady) return 'New Kanji to meet! Open Stage 3 to continue this word.'
+  if (result?.kanjiIntroReady) return 'New Kanji to meet! It will open in your next session.'
   if (result?.unlockedStage) return `Next stage unlocked! Stage ${stage} continues.`
   const delta = result?.delta
   if (delta === undefined) return undefined
@@ -99,21 +100,16 @@ export function ListeningPrompt({ kana }: { kana: string }) {
   return <SpeakerButton kana={kana} large />
 }
 
-const EMPTY_HINT: Record<ScoredStage, { title: string; subtitle: string; href: string; label: string }> = {
-  2: { title: 'No words in Stage 2 yet', subtitle: 'Meet some new words first, then come back to practice them.', href: '/learn/intro', label: 'Meet new words' },
-  4: { title: 'No words in Stage 4 yet', subtitle: 'A word reaches this step after you reveal its Kanji in Stage 3.', href: '/learn/stage3', label: 'Open Stage 3' },
-  5: { title: 'No words in Stage 5 yet', subtitle: 'A word reaches this step after you score enough points in the stage before it.', href: '/learn', label: 'Back to Learn' },
-}
-
-interface StageSessionProps {
-  stage: ScoredStage
+interface LearnPracticeProps {
   questions: StageQuestion[]
-  nextDueAt: string | null
-  kanjiIntroWaiting: number
+  /** Số thứ tự của phiên này trong ngày. */
+  sessionNumber: number
+  /** Số phiên còn lại, kể cả phiên này. */
+  sessionsLeft: number
 }
 
-export function StageSession({ stage, questions, nextDueAt, kanjiIntroWaiting }: StageSessionProps) {
-  const router = useRouter()
+export function LearnPractice({ questions: initialQuestions, sessionNumber, sessionsLeft }: LearnPracticeProps) {
+  const [questions, setQuestions] = useState(initialQuestions)
   const voice = useJapaneseVoice()
   const [index, setIndex] = useState(0)
   // Đúng hoặc sai của từng câu đã trả lời, để tính tỷ lệ cuối lượt
@@ -136,37 +132,6 @@ export function StageSession({ stage, questions, nextDueAt, kanjiIntroWaiting }:
     shownAt.current = Date.now()
   }, [index])
 
-  const stageLabel = `Stage ${stage}`
-
-  if (questions.length === 0 && kanjiIntroWaiting > 0) {
-    return (
-      <div className="flex min-h-dvh flex-col">
-        <SessionComplete
-          title="New Kanji to meet"
-          subtitle={`${kanjiIntroWaiting} ${kanjiIntroWaiting === 1 ? 'word is' : 'words are'} waiting for you in Stage 3 before continuing here.`}
-          stats={[]}
-          primary={{ href: '/learn/stage3', label: 'Open Stage 3' }}
-          secondary={{ href: '/learn', label: 'Back to Learn' }}
-        />
-      </div>
-    )
-  }
-
-  if (questions.length === 0) {
-    const empty = EMPTY_HINT[stage]
-    return (
-      <div className="flex min-h-dvh flex-col">
-        <SessionComplete
-          title={nextDueAt ? 'All caught up!' : empty.title}
-          subtitle={nextDueAt ? `Your next ${stageLabel} question is due at ${formatVnDateTime(new Date(nextDueAt))}.` : empty.subtitle}
-          stats={[]}
-          primary={nextDueAt ? { href: '/learn', label: 'Back to Learn' } : { href: empty.href, label: empty.label }}
-          secondary={{ href: '/', label: 'Back to Home' }}
-        />
-      </div>
-    )
-  }
-
   if (relearn && index >= questions.length + retries.length) {
     return (
       <div className="flex min-h-dvh flex-col">
@@ -182,19 +147,19 @@ export function StageSession({ stage, questions, nextDueAt, kanjiIntroWaiting }:
     const correct = results.filter(Boolean).length
     const wrong = results.length - correct
     const accuracy = results.length > 0 ? Math.round((correct / results.length) * 100) : 0
+    const hasNext = sessionsLeft > 1
     return (
       <div className="flex min-h-dvh flex-col">
         <SessionComplete
-          title={pending > 0 ? 'Saving…' : 'Round complete!'}
-          subtitle={warning ?? (kanjiIntroWaiting > 0 ? 'Some words are waiting for you in Stage 3. ' : '') + `You practiced ${results.length} ${results.length === 1 ? 'word' : 'words'} in ${stageLabel}.`}
+          title={pending > 0 ? 'Saving…' : `Session ${sessionNumber} complete!`}
+          subtitle={warning ?? (hasNext ? `${sessionsLeft - 1} more ${sessionsLeft === 2 ? 'session' : 'sessions'} today. Your progress is saved if you stop here.` : 'You’re done for now.')}
           stats={[
             { label: 'Correct', value: String(correct), tone: 'text-success' },
             { label: 'Wrong', value: String(wrong), tone: 'text-error' },
             { label: 'Accuracy', value: `${accuracy}%`, tone: 'text-cyan' },
           ]}
-          primary={{ href: '/learn', label: 'Back to Learn' }}
-          secondary={{ href: '/', label: 'Back to Home' }}
-          onRestart={() => router.refresh()}
+          primary={hasNext ? { href: `/learn/session?n=${sessionNumber + 1}`, label: 'Next session' } : { href: '/review', label: 'Go to Review' }}
+          secondary={hasNext ? { href: '/learn', label: 'Take a break' } : { href: '/learn', label: 'Back to Learn' }}
         />
       </div>
     )
@@ -218,7 +183,7 @@ export function StageSession({ stage, questions, nextDueAt, kanjiIntroWaiting }:
     setResults((list) => [...list, chosen === current.answer])
     const payload = {
       learnerVocabularyId: current.learnerVocabularyId,
-      stage,
+      stage: current.stage,
       exercise,
       answer: chosen,
       clientEventId: current.clientEventId,
@@ -230,7 +195,7 @@ export function StageSession({ stage, questions, nextDueAt, kanjiIntroWaiting }:
       .then(() => withRetry(() => submitStageAnswerAction(payload), (res) => res.status === 'conflict'))
       .then((res) => {
         if (res.status === 'graded') {
-          const note = pointsNote(stage, res.result)
+          const note = pointsNote(current.stage, res.result)
           if (note) setNotes((all) => ({ ...all, [current.clientEventId]: note }))
         } else if (res.status !== 'stage_changed' && res.status !== 'not_found') {
           // Hai trường hợp kia là từ đã học xong trên máy khác, không phải lỗi của người học
@@ -242,14 +207,14 @@ export function StageSession({ stage, questions, nextDueAt, kanjiIntroWaiting }:
   }
 
   /** Câu ghép và câu gõ: chờ các câu trước lưu xong để day_seq đúng thứ tự, rồi chờ server chấm. */
-  const gradeOnServer = (current: AssemblyQ | TypingQ) => async (given: string | string[]): Promise<AssemblyGrade> => {
+  const gradeOnServer = (current: AssemblyQ | TypingQ) => async (given: string | string[], usedHint = false): Promise<AssemblyGrade> => {
     const elapsed = responseMs()
     try {
       await saveQueue.current
       if (isRetry) {
         const checked = await checkStageAnswerAction({
           learnerVocabularyId: current.learnerVocabularyId,
-          stage,
+          stage: current.stage,
           exercise: current.exercise,
           answer: given,
           clientEventId: current.clientEventId,
@@ -261,18 +226,20 @@ export function StageSession({ stage, questions, nextDueAt, kanjiIntroWaiting }:
       }
       const res = await submitStageAnswerAction({
         learnerVocabularyId: current.learnerVocabularyId,
-        stage,
+        stage: current.stage,
         exercise: current.exercise,
         answer: given,
         clientEventId: current.clientEventId,
         responseMs: elapsed,
+        usedHint,
       })
       if (res.status === 'graded') {
-        const correct = res.outcome === 'correct'
+        // Đúng nhờ gợi ý vẫn là đúng, chỉ không được điểm
+        const correct = res.outcome !== 'wrong'
         speak(res.reading)
         setResults((list) => [...list, correct])
         lastReveal.current = res.reveal
-        return { correct, answer: [res.answer], explanation: pointsNote(stage, res.result), reveal: res.reveal }
+        return { correct, answer: [res.answer], explanation: res.outcome === 'hint' ? HINT_NOTE : pointsNote(current.stage, res.result), reveal: res.reveal }
       }
       // Từ đã hoàn tất stage này (ví dụ học trên máy khác): câu này không còn hiệu lực.
       if (res.status === 'stage_changed' || res.status === 'not_found') {
@@ -300,6 +267,14 @@ export function StageSession({ stage, questions, nextDueAt, kanjiIntroWaiting }:
     next()
   }
 
+  /** Bỏ mọi câu còn lại của từ này. Câu đang hiện cũng bị bỏ nên câu kế tiếp tự hiện ra. */
+  const removeWord = (vocabularyId: string) => {
+    setQuestions((list) => list.filter((item, i) => i < index || item.kind === 'match' || item.vocabularyId !== vocabularyId))
+    setRetries((list) => list.filter((item) => item.vocabularyId !== vocabularyId))
+    setRelearn(null)
+  }
+
+  const stageLabel = q.kind === 'match' ? 'Stage 5' : `Stage ${q.stage}`
   // Cùng một câu hỏi lại nên cần key khác, để màn hình bắt đầu mới
   const bodyKey = `${q.clientEventId}${isRetry ? '-retry' : ''}`
   let body: React.ReactNode
@@ -354,11 +329,12 @@ export function StageSession({ stage, questions, nextDueAt, kanjiIntroWaiting }:
     <div className="flex min-h-dvh flex-col">
       <SessionHeader
         backHref="/learn"
-        label={stageLabel}
+        label={`Session ${sessionNumber} of ${sessionNumber - 1 + sessionsLeft}`}
         sublabel={q.kind === 'match' ? 'Matching round' : isRetry ? `Try again · ${index - questions.length + 1} of ${retries.length}` : `Step ${index + 1} of ${queue.length}`}
         current={index}
         total={queue.length}
       />
+      <KnownWordBar vocabularyId={q.kind === 'match' ? null : q.vocabularyId} onKnown={removeWord} />
       {warning && <p role="alert" className="mx-auto mt-3 w-full max-w-2xl px-4 text-sm text-error">{warning}</p>}
       {relearn ? <RelearnExercise key={relearn.kana} reveal={relearn} onContinue={() => setRelearn(null)} /> : body}
     </div>

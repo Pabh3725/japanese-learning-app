@@ -1,7 +1,7 @@
 'use client'
 
 import { Fragment, useEffect, useEffectEvent, useState } from 'react'
-import { RotateCcw } from 'lucide-react'
+import { Lightbulb, RotateCcw } from 'lucide-react'
 import { actionButton } from '@/components/action-button'
 import { ExerciseFooter, type CheckStatus } from '@/components/learning/exercise-footer'
 import { ExercisePanel } from '@/components/learning/exercise-panel'
@@ -18,7 +18,7 @@ interface AssemblyExerciseProps {
   step: AssemblyStep
   onComplete: (correct: boolean) => void
   /** Có thì server chấm; không có thì chấm ngay bằng step.answer. */
-  onGrade?: (pieces: string[]) => Promise<AssemblyGrade>
+  onGrade?: (pieces: string[], usedHint: boolean) => Promise<AssemblyGrade>
   /** Câu nhắc khi trả lời sai. */
   wrongNote?: string
 }
@@ -34,7 +34,17 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
   const isWord = step.pieceKind === 'word'
   const slots = step.slots ?? step.answer.length
   const answer = graded?.answer ?? step.answer
-  const full = placed.length === slots
+  // Câu không cho biết số ô: tới khi bấm gợi ý thì đặt được bao nhiêu mảnh cũng được
+  const [hintShown, setHintShown] = useState(false)
+  const hidden = step.blind === true && !hintShown
+  const full = !hidden && placed.length === slots
+  const canSubmit = hidden ? placed.length > 0 : full
+
+  const showHint = () => {
+    if (locked || !hidden) return
+    setHintShown(true)
+    setPlaced((p) => p.slice(0, slots))
+  }
 
   const add = (poolIndex: number) => {
     if (locked || full || placed.includes(poolIndex)) return
@@ -53,7 +63,7 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
     if (checking) return
     setChecking(true)
     setError(null)
-    const result = await onGrade(built)
+    const result = await onGrade(built, hintShown)
     setChecking(false)
     if (!result) return
     if ('error' in result) {
@@ -73,9 +83,11 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
     } else if (e.key === 'Escape') {
       setPlaced([])
     } else if (e.key === 'Enter') {
-      if (!full) return
+      if (!canSubmit) return
       e.preventDefault()
       void check()
+    } else if (hidden && e.key.toLowerCase() === 'h') {
+      showHint()
     } else {
       const index = pieceIndexForKey(e.key)
       if (index >= 0 && index < step.pool.length) add(index)
@@ -100,7 +112,10 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
             className={cn('flex min-h-20 flex-wrap items-center justify-center gap-2', status === 'incorrect' && 'animate-shake')}
             aria-label="Your answer"
           >
-            {(step.template ?? Array.from({ length: slots }, () => null)).map((part, i) => {
+            {hidden && placed.length === 0 && (
+              <p className="text-sm text-muted-foreground">Pick the pieces in order. How many? That&apos;s for you to remember.</p>
+            )}
+            {(hidden ? placed.map(() => null) : (step.template ?? Array.from({ length: slots }, () => null))).map((part, i) => {
               if (part !== null) {
                 return <span key={`fixed-${i}`} lang="ja" className={cn('font-jp text-muted-foreground', pieceText)}>{part}</span>
               }
@@ -166,14 +181,14 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
             })}
           </div>
           <p className="hidden text-center text-xs text-muted-foreground md:block">
-            Press a number to place a piece · Backspace to undo · Esc to clear · Enter to check
+            Press a number to place a piece · Backspace to undo · Esc to clear · Enter to check{hidden ? ' · H for a hint' : ''}
           </p>
         </div>
       }
       footer={
         <ExerciseFooter
           status={status}
-          canCheck={full && !checking}
+          canCheck={canSubmit && !checking}
           checkLabel={checking ? 'Checking…' : 'Check'}
           onCheck={check}
           onContinue={() => onComplete(status === 'correct')}
@@ -184,6 +199,13 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
           secondary={
             <>
               {error && <p role="alert" className="mb-2 text-sm text-error">{error}</p>}
+              {hidden && (
+                <button type="button" onClick={showHint} disabled={checking} className={actionButton({ variant: 'ghost', size: 'sm' })}>
+                  <Lightbulb aria-hidden="true" />
+                  How many pieces?
+                </button>
+              )}
+              {hintShown && step.blind && <p className="mb-1 text-sm text-yellow">{slots} {slots === 1 ? 'piece' : 'pieces'} · no points if correct</p>}
               {placed.length > 0 && (
                 <button type="button" onClick={() => setPlaced([])} disabled={checking} className={actionButton({ variant: 'ghost', size: 'sm' })}>
                   <RotateCcw aria-hidden="true" />

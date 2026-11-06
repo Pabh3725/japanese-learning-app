@@ -1361,6 +1361,19 @@ Thay cách chọn dạng bài ngẫu nhiên, để mỗi stage đi từ dễ t�
 - **Thẻ trả lời sai** hiện cả romaji ở mọi stage, là ngoại lệ của FR-ST-04.
 - Ước tính bằng giả lập khi đúng 90%, chỉ tính câu Stage: mỗi từ mất khoảng 67 ngày; 5 từ mới mỗi ngày thì ngày cao nhất khoảng 235 câu, vượt trần 200 câu từ khoảng ngày 69.
 
+### 18.3c Khu Learn gộp — CONFIRMED (2026-11-06)
+
+Thay các trang từng stage bằng một luồng tại `/learn/session`; đường dẫn cũ tự chuyển sang đây.
+
+- **Mỗi phiên:** tối đa 20 câu và 5 thẻ giới thiệu, khoảng 5 phút. Hết phiên có nút Học phiên tiếp hoặc Nghỉ; màn hình hiện "Session 2 of 3". Số phiên = (câu đến hẹn + từ mới còn lại + thẻ chờ xem) ÷ 20, làm tròn lên, có thể đổi trong ngày.
+- **Thứ tự:** cụm thẻ giới thiệu (thẻ Hán tự, thẻ Hán Việt, từ mới), rồi câu hỏi của Stage 2, 4, 5 đã trộn, từ vừa giới thiệu đứng trước, cuối cùng là vòng ghép và hỏi lại câu sai.
+- **Câu ghép ở Stage 5 và Review không cho biết số ô:** thêm ngẫu nhiên 0–3 mảnh nhiễu, tối đa 18 mảnh. Nút gợi ý (phím H) hiện số ô; đúng sau khi xem gợi ý tính là `hint`: Learn được 0 điểm và mất chuỗi đúng, Review là Hard.
+- **Đã biết từ này:** nút trong phiên Learn và Review (phím K, có Undo), và tick nhiều từ trong Library. Từ rời khỏi toàn bộ lộ trình (bảng `learner_vocabulary_exclusions`), Card tạm ngưng, không tính vào chỉ tiêu từ mới trong ngày và tổng lộ trình; khôi phục trong Library, điểm và Card còn nguyên.
+- **Trộn câu:** cùng một từ cách ít nhất 4 câu, không có 2 câu cùng dạng liền nhau; không xếp được thì nới luật cùng dạng trước.
+- **Chặn từ mới:** khi Card đến hạn đạt ngưỡng hoặc câu Stage đến hẹn đạt trần. Số đầu ngày tính gần đúng bằng số đang đến hẹn cộng số đã làm hôm nay, chưa chụp lại lúc đầu ngày.
+
+Ngữ pháp và Thể động từ hiện chỉ là **bản xem trước giao diện** (`/grammar`, `/verbs`), dùng nội dung mẫu và không lưu kết quả. Phần thật làm sau v0.1.
+
 ### 18.3a Vòng ghép ô ở Stage 5 — CONFIRMED (2026-11-06)
 
 Thay các câu chọn 1/6 vì ở giai đoạn này người học đã nhớ mặt chữ.

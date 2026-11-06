@@ -6,7 +6,7 @@ import { EXERCISES, REQUIRED_EXERCISES, REQUIRED_SKILLS_STAGE5, RULES_V4 } from 
 import { allowedExercises, stageStep } from '../learning/stage'
 import type { ExerciseCode, Outcome, ScoredStage, Skill } from '../learning/types'
 import { isHanVietAnswerCorrect, isKanaAnswerCorrect } from './answer-normalize'
-import { mixKanaPieces, pickKanaDistractors, splitKana } from './kana-pieces'
+import { KANA_DISTRACTORS_MAX, mixKanaPieces, pickKanaDistractors, splitKana } from './kana-pieces'
 import { sameMeaning, type Rng } from './questions'
 import { kanaSimilarity, kanjiSimilarity, lookalikeKanji } from './similarity'
 import { expressionTemplate, hanVietPieces, kanjiPieces, meaningPieces, type ExpressionPart } from './word-parts'
@@ -98,6 +98,8 @@ export interface AssemblyQuestionData extends QuestionBase {
   joiner?: string
   /** Kana giữ cố định xen giữa các ô (okurigana). */
   template?: ExpressionPart[]
+  /** Không cho biết trước có bao nhiêu ô: người học tự nhớ, cần thì bấm gợi ý. */
+  blind?: boolean
 }
 
 export interface TypingQuestionData extends QuestionBase {
@@ -364,9 +366,18 @@ const HANVIET_TEXT = (w: StageWord) => w.han_viet
 const MEANING_TEXT = (w: StageWord) => w.meaning_vi
 const KANA_TEXT = (w: StageWord) => w.reading_kana
 
-function kanjiAssembly(word: StageWord, pools: QuestionPools, exercise: ExerciseCode, distractors: number, prompt: PromptData, rng: Rng): AssemblyQuestionData {
+/** Mỗi phím chọn một mảnh, nên một câu có tối đa 18 mảnh. */
+const MAX_POOL = 18
+const MAX_EXTRA_DISTRACTORS = 3
+
+/** Thêm ngẫu nhiên vài mảnh nhiễu, để tổng số mảnh không cho biết đáp án dài bao nhiêu. */
+function extraDistractors(rng: Rng): number {
+  return Math.floor(rng() * (MAX_EXTRA_DISTRACTORS + 1))
+}
+
+function kanjiAssembly(word: StageWord, pools: QuestionPools, exercise: ExerciseCode, distractors: number, prompt: PromptData, rng: Rng, extra: number): AssemblyQuestionData {
   const pieces = kanjiPieces(word.expression)
-  const others = kanjiPieceDistractors(pieces, pools, Math.max(distractors, pieces.length), rng)
+  const others = kanjiPieceDistractors(pieces, pools, Math.min(MAX_POOL - pieces.length, Math.max(distractors, pieces.length) + extra), rng)
   return {
     kind: 'assembly',
     exercise,
@@ -379,9 +390,9 @@ function kanjiAssembly(word: StageWord, pools: QuestionPools, exercise: Exercise
   }
 }
 
-function hanVietAssembly(word: StageWord, pools: QuestionPools, rng: Rng): AssemblyQuestionData {
+function hanVietAssembly(word: StageWord, pools: QuestionPools, rng: Rng, extra: number): AssemblyQuestionData {
   const pieces = hanVietPieces(word.han_viet ?? '')
-  const others = pickPieceDistractors(pieces, pools.kanji.map((k) => k.han_viet), Math.max(3, pieces.length), rng)
+  const others = pickPieceDistractors(pieces, pools.kanji.map((k) => k.han_viet), Math.min(MAX_POOL - pieces.length, Math.max(3, pieces.length) + extra), rng)
   return {
     kind: 'assembly',
     exercise: 'hanviet_assembly',
@@ -394,7 +405,19 @@ function hanVietAssembly(word: StageWord, pools: QuestionPools, rng: Rng): Assem
   }
 }
 
-export function buildStageQuestion(word: StageWord, exercise: ExerciseCode, pools: QuestionPools, rng: Rng = Math.random): QuestionData {
+export interface BuildOptions {
+  /** Stage 5 và Review: giấu số ô và thêm mảnh nhiễu ngẫu nhiên. */
+  blind?: boolean
+}
+
+export function buildStageQuestion(word: StageWord, exercise: ExerciseCode, pools: QuestionPools, rng: Rng = Math.random, options: BuildOptions = {}): QuestionData {
+  const blind = options.blind === true
+  const extra = blind ? extraDistractors(rng) : 0
+  const question = buildQuestion(word, exercise, pools, rng, extra)
+  return blind && question.kind === 'assembly' ? { ...question, blind: true } : question
+}
+
+function buildQuestion(word: StageWord, exercise: ExerciseCode, pools: QuestionPools, rng: Rng, extra: number): QuestionData {
   switch (exercise) {
     case 'kana_to_meaning':
       return choice(word, pools, exercise, 'What does this word mean?', PROMPT_KANA(word), 'meaning', MEANING_TEXT, 4, rng, meaningScore(word))
@@ -418,7 +441,7 @@ export function buildStageQuestion(word: StageWord, exercise: ExerciseCode, pool
         question: 'Build the reading from the pieces',
         prompt: PROMPT_MEANING(word),
         slots: pieces.length,
-        pool: mixKanaPieces(pieces, pickKanaDistractors(pieces, rng), rng),
+        pool: mixKanaPieces(pieces, pickKanaDistractors(pieces, rng, Math.min(extra, Math.max(0, MAX_POOL - pieces.length - KANA_DISTRACTORS_MAX))), rng),
         pieceKind: 'kana',
       }
     }
@@ -432,13 +455,13 @@ export function buildStageQuestion(word: StageWord, exercise: ExerciseCode, pool
     case 'kanji_recognition_6':
       return choice(word, pools, exercise, 'Which spelling means this?', PROMPT_MEANING(word), 'vocab', KANJI_WORD_TEXT, 6, rng, kanjiScore(word))
     case 'kanji_assembly':
-      return kanjiAssembly(word, pools, exercise, 3, { ...PROMPT_KANA(word), hint: word.meaning_vi }, rng)
+      return kanjiAssembly(word, pools, exercise, 3, { ...PROMPT_KANA(word), hint: word.meaning_vi }, rng, extra)
     case 'kanji_assembly_nohint':
-      return kanjiAssembly(word, pools, exercise, 5, PROMPT_MEANING(word), rng)
+      return kanjiAssembly(word, pools, exercise, 5, PROMPT_MEANING(word), rng, extra)
     case 'hanviet_recognition':
       return choice(word, pools, exercise, 'Which Sino-Vietnamese reading is correct?', PROMPT_WORD(word), 'meaning', HANVIET_TEXT, 4, rng, hanVietScore(word))
     case 'hanviet_assembly':
-      return hanVietAssembly(word, pools, rng)
+      return hanVietAssembly(word, pools, rng, extra)
     case 'hanviet_free_recall':
       return {
         kind: 'typing',
@@ -463,7 +486,7 @@ export function buildStageQuestion(word: StageWord, exercise: ExerciseCode, pool
       const pieces = meaningPieces(word.meaning_vi)
       if (!pieces) throw new Error(`Nghĩa của từ ${word.id} không ghép được`)
       const candidates = pools.words.flatMap((w) => meaningPieces(w.meaning_vi) ?? [])
-      const others = pickPieceDistractors(pieces, candidates, Math.max(3, pieces.length), rng)
+      const others = pickPieceDistractors(pieces, candidates, Math.max(3, pieces.length) + extra, rng)
       return {
         kind: 'assembly',
         exercise,
@@ -545,6 +568,13 @@ export interface StageAnswerRequest {
   answer: string | string[]
   clientEventId: string
   responseMs?: number
+  /** Đã bấm gợi ý xem có bao nhiêu ô. */
+  usedHint?: boolean
+}
+
+/** Đúng nhờ gợi ý không được tính là đúng hoàn toàn. */
+export function withHint(outcome: Outcome, usedHint: boolean | undefined): Outcome {
+  return outcome === 'correct' && usedHint ? 'hint' : outcome
 }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -566,7 +596,8 @@ export function parseStageAnswerRequest(input: unknown): StageAnswerRequest | nu
     (v.stage === 2 || v.stage === 4 || v.stage === 5) &&
     typeof v.exercise === 'string' && Object.hasOwn(EXERCISES, v.exercise) &&
     answerOk &&
-    (v.responseMs === undefined || (typeof v.responseMs === 'number' && Number.isFinite(v.responseMs) && v.responseMs >= 0))
+    (v.responseMs === undefined || (typeof v.responseMs === 'number' && Number.isFinite(v.responseMs) && v.responseMs >= 0)) &&
+    (v.usedHint === undefined || typeof v.usedHint === 'boolean')
   if (!ok) return null
   return {
     learnerVocabularyId: v.learnerVocabularyId as string,
@@ -575,5 +606,6 @@ export function parseStageAnswerRequest(input: unknown): StageAnswerRequest | nu
     answer: v.answer as string | string[],
     clientEventId: v.clientEventId as string,
     responseMs: v.responseMs === undefined ? undefined : Math.round(v.responseMs as number),
+    usedHint: v.usedHint as boolean | undefined,
   }
 }

@@ -21,6 +21,8 @@ export interface VocabListItem {
   isKanaOnly: boolean
   jlpt: string
   progress: VocabProgress
+  /** Người học đã đánh dấu là đã biết: không còn trong lộ trình. */
+  known?: boolean
 }
 
 export interface KanjiListItem {
