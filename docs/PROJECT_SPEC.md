@@ -1415,7 +1415,7 @@ Thay các câu chọn 1/6 vì ở giai đoạn này người học đã nhớ m�
 
 | Cài đặt | Mặc định | Giới hạn | Áp dụng cho |
 | --- | --- | --- | --- |
-| Từ mới/ngày | 5 (V4, 2026-11-06) | 1–100, Settings có sẵn 3, 5, 8, 12, 20 | Learn |
+| Từ mới/ngày | 5 (V4, 2026-11-06) | 1–50, nhập số trong Settings | Learn |
 | Câu Stage tối đa/ngày | 200 | 20–1000 | Learn |
 | Card ôn tối đa/ngày | 120 | 10–500 | Review |
 | Ngưỡng Card để mở từ mới | 80 | 0–500 | Learn |
