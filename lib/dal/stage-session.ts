@@ -14,6 +14,8 @@ import { deriveEarned } from '@/lib/exercise/mappers'
 import type { IntroWord } from '@/lib/intro/words'
 import { INTROS_PER_SESSION, mixQuestions, newWordsBlockedBy, QUESTIONS_PER_SESSION, sessionsFor, shouldAddBossRound, type NewWordsBlock } from '@/lib/learn/session'
 import { readDailyLimits, saveBorrowed } from '@/lib/dal/daily-limits'
+import { readSpeedModes } from '@/lib/dal/speed-matching'
+import { MIN_SPEED_WORDS, type SpeedWord } from '@/lib/speed-matching'
 import { allowedBorrow } from '@/lib/learning/daily-plan'
 import { kanjiPieces } from '@/lib/exercise/word-parts'
 import {
@@ -49,6 +51,13 @@ export type StageQuestion =
       vocabularyId: string
     })
   | MatchRoundData
+  | BossRoundData
+
+export interface BossRoundData {
+  kind: 'boss'
+  clientEventId: string
+  words: SpeedWord[]
+}
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 
@@ -214,24 +223,18 @@ export async function getLearnSession(practiceOnly: boolean): Promise<LearnSessi
   if (round) {
     questions.push(round)
   } else if (shouldAddBossRound(limits.answeredToday, entries.length, new Set(entries.map((e) => e.row.id)).size)) {
-    const boss = await buildBossRound(supabase, user.id, excludedIds, pools.words)
+    const boss = await buildBossRound(supabase, user.id)
     if (boss) questions.push(boss)
   }
   return { ...common, intros: [], questions, sessionsLeft: Math.max(1, sessionsFor(dueCount + newLeft)), nextDueAt: null }
 }
 
-/** Vòng boss: ghép nhanh trong 30 giây các từ đã học. Chỉ để ôn vui, không đổi điểm và lịch. */
-async function buildBossRound(supabase: Supabase, userId: string, excludedIds: ReadonlySet<string>, words: readonly StageWord[]): Promise<MatchRoundData | null> {
-  const { data, error } = await supabase.from('learner_vocabulary').select('id, vocabulary_id, kanji_intro_seen_at').eq('user_id', userId).range(0, PAGE - 1)
-  if (error) throw new Error(`Không đọc được learner_vocabulary: ${error.message}`)
-  const byId = new Map(words.map((w) => [w.id, w]))
-  const candidates = (data ?? []).flatMap((row) => {
-    const word = byId.get(row.vocabulary_id)
-    if (!word || excludedIds.has(row.vocabulary_id)) return []
-    return [{ ...word, learnerVocabularyId: row.id, kanjiIntroSeen: row.kanji_intro_seen_at !== null, stage5Active: false }]
-  })
-  const round = buildMatchRound(candidates, randomUUID)
-  return round && { ...round, boss: true }
+/** Vòng boss: Speed Matching 30 giây với các từ đã gặp. Chỉ đổi điểm Card, không tính vào giãn cách. */
+async function buildBossRound(supabase: Supabase, userId: string): Promise<BossRoundData | null> {
+  const modes = await readSpeedModes(supabase, userId)
+  const mixed = modes.find((m) => m.mode === 'mixed')
+  if (!mixed || mixed.total < MIN_SPEED_WORDS) return null
+  return { kind: 'boss', clientEventId: randomUUID(), words: mixed.words }
 }
 
 /** Vòng ghép ô dùng các từ đã học, ưu tiên từ đang ở Stage 5. */

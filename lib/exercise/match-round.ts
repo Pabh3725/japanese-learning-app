@@ -33,8 +33,6 @@ export interface MatchRoundData {
   clientEventId: string
   pairType: MatchPairType
   pairs: MatchPair[]
-  /** Vòng boss: có giờ đếm ngược, ghép sai không bị trừ điểm. */
-  boss?: boolean
   /** Thứ tự hiện cột phải, là chỉ số trong `pairs`. Cột trái theo thứ tự của `pairs`. */
   rightOrder: number[]
 }
