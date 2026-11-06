@@ -5,6 +5,7 @@ import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { readDailyLimits } from '@/lib/dal/daily-limits'
+import { ensureStarCard, isWordStarred } from '@/lib/dal/star-relearn'
 import { countMetToday, newPerDayOf, newWordsForToday, remainingNewToday } from '@/lib/learning/new-words'
 import { nextStudyDayStart } from '@/lib/learning/time'
 import { INTRO_WORDS_PER_SESSION, isVocabularyId, pickNewWords, stageAfterIntro, toIntroWord, type IntroVocabRow, type IntroWord } from '@/lib/intro/words'
@@ -109,6 +110,9 @@ export async function completeWordIntro(vocabularyId: unknown): Promise<Complete
     { onConflict: 'user_id,vocabulary_id', ignoreDuplicates: true },
   )
   if (upsertError) throw new Error(`Không ghi được learner_vocabulary: ${upsertError.message}`)
+
+  // Từ đã đánh sao từ trước khi gặp: bắt đầu có Card riêng từ đây
+  if (await isWordStarred(supabase, user.id, vocabularyId)) await ensureStarCard(supabase, user.id, vocabularyId)
 
   return { status: 'saved' }
 }

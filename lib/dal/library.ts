@@ -3,6 +3,7 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
+import { readStarredIds } from '@/lib/dal/star-relearn'
 import { toKanjiList, toVocabList } from '@/lib/library/mappers'
 import type { LibraryData } from '@/lib/library/types'
 
@@ -34,7 +35,7 @@ export async function getLibraryData(): Promise<LibraryData> {
   const user = await requireUser()
   const supabase = await createClient()
 
-  const [vocab, progress, kanji, known] = await Promise.all([
+  const [vocab, progress, kanji, known, starredIds] = await Promise.all([
     readAllVocabulary(supabase),
     // RLS đã chỉ trả dòng của chính user; lọc thêm user_id cho rõ ý và để query dùng index.
     supabase.from('learner_vocabulary').select(PROGRESS_COLUMNS).eq('user_id', user.id).range(0, MAX_ROWS - 1),
@@ -45,6 +46,7 @@ export async function getLibraryData(): Promise<LibraryData> {
       .order('character', { ascending: true })
       .range(0, MAX_ROWS - 1),
     supabase.from('learner_vocabulary_exclusions').select('vocabulary_id').eq('user_id', user.id).not('excluded_at', 'is', null).range(0, MAX_ROWS - 1),
+    readStarredIds(supabase, user.id),
   ])
 
   if (progress.error) throw new Error(`Không đọc được learner_vocabulary: ${progress.error.message}`)
@@ -62,5 +64,5 @@ export async function getLibraryData(): Promise<LibraryData> {
   }
 
   const knownIds = new Set(known.data?.map((r) => r.vocabulary_id))
-  return { vocabulary: vocabulary.items.map((item) => ({ ...item, known: knownIds.has(item.id) })), kanji: kanjiList.items }
+  return { starredIds, vocabulary: vocabulary.items.map((item) => ({ ...item, known: knownIds.has(item.id) })), kanji: kanjiList.items }
 }

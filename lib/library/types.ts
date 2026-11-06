@@ -43,4 +43,5 @@ export interface KanjiListItem {
 export interface LibraryData {
   vocabulary: VocabListItem[]
   kanji: KanjiListItem[]
+  starredIds: string[]
 }

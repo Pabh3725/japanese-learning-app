@@ -152,7 +152,8 @@ export async function submitExercise(input: unknown): Promise<SubmitExerciseResp
       counted: result.counted,
       unlockedStage: result.unlockedStage,
       completed: result.completed,
-      cardsCreated: result.cardsCreated,
+      // Học lại Stage hoàn tất lần hai thì Card đã có sẵn, không tạo thêm
+      cardsCreated: (saved as { cards_created?: number }).cards_created ? result.cardsCreated : [],
       points: result.state.points,
       kanjiIntroReady:
         req.stage === 4 &&

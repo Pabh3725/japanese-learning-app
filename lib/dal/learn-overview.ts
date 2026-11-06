@@ -3,6 +3,7 @@ import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { readDailyLimits } from '@/lib/dal/daily-limits'
+import { readStarRound } from '@/lib/dal/star-relearn'
 import { newWordsBlockedBy, sessionsFor, type NewWordsBlock } from '@/lib/learn/session'
 import { countMetToday, newPerDayOf, newWordsForToday, remainingNewToday } from '@/lib/learning/new-words'
 import { RULES_V4 } from '@/lib/learning/rules'
@@ -145,7 +146,10 @@ export async function getLearnOverview(): Promise<LearnOverview> {
   const newPerDay = newPerDayOf(limits.newPerDay)
   const newToday = block ? 0 : Math.min(left, remainingNewToday(newWordsForToday(newPerDay, limits.borrowedForToday, limits.borrowedForNext), metToday))
   const stage3Waiting = active.filter((r) => r.learning_status === 'learning' && r.current_stage === 3).length + kanjiWaiting
-  const questionsToday = Math.min(dueTotal, Math.max(0, limits.stageCap - limits.answeredToday))
+  // Câu vòng học thêm của từ có sao chạy song song, không tính vào trần câu Stage
+  const starItems = await readStarRound<{ is_kana_only: boolean; han_viet: string | null }>(supabase, user.id, 'is_kana_only, han_viet', excludedIds)
+  const starLeft = starItems.reduce((sum, item) => sum + item.exercises.length - item.answered, 0)
+  const questionsToday = Math.min(dueTotal, Math.max(0, limits.stageCap - limits.answeredToday)) + starLeft
 
   return {
     newToday,

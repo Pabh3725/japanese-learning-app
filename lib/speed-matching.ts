@@ -38,7 +38,7 @@ export const MIN_SPEED_WORDS = PAIRS_PER_BOARD
 const WORDS_PER_MODE = 100
 
 /** Hỗn hợp: Kana hoặc Kanji tùy từ đã học tới đâu. Còn lại là luyện đúng một loại Card. */
-export type SpeedMode = 'mixed' | CardType
+export type SpeedMode = 'mixed' | Exclude<CardType, 'vocab.star_recall'>
 
 export const SPEED_MODES: readonly SpeedMode[] = [
   'mixed',
@@ -64,6 +64,7 @@ const SKILL_OF: Record<CardType, 'kana' | 'kanji' | 'han_viet'> = {
   'vocab.meaning_kanji': 'kanji',
   'vocab.kana_hanviet': 'han_viet',
   'vocab.meaning_hanviet': 'han_viet',
+  'vocab.star_recall': 'kana',
   'vocab.kanji_meaning_hanviet': 'kanji',
 }
 

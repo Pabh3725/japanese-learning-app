@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { StarButton, useStarredWords } from '@/components/learning/star-button'
 import { Check, Search } from 'lucide-react'
 import { markWordsKnownAction, unmarkWordsKnownAction } from '@/app/learn/actions'
 import { actionButton } from '@/components/action-button'
@@ -32,12 +33,14 @@ const STATUS_FILTERS = [
   { id: 'not_started', label: 'Not started' },
   { id: 'learning', label: 'Learning' },
   { id: 'complete', label: 'Learned' },
+  { id: 'starred', label: 'Starred' },
   { id: 'known', label: 'Already known' },
 ] as const
 type StatusFilter = (typeof STATUS_FILTERS)[number]['id']
 
-function matchesStatus(v: VocabListItem, status: StatusFilter): boolean {
+function matchesStatus(v: VocabListItem, status: StatusFilter, starred: ReadonlySet<string>): boolean {
   if (status === 'all') return true
+  if (status === 'starred') return starred.has(v.id)
   if (status === 'known') return v.known === true
   return v.known !== true && v.progress.kind === status
 }
@@ -68,6 +71,7 @@ export function LibraryBrowser({ vocabulary, kanji }: { vocabulary: VocabListIte
   const [query, setQuery] = useState('')
   const [visible, setVisible] = useState(PAGE_SIZE)
   const [status, setStatus] = useState<StatusFilter>('all')
+  const starred = useStarredWords()
   const [lesson, setLesson] = useState<number | 'all'>('all')
   const lessons = useMemo(() => [...new Set(vocabulary.flatMap((v) => (v.lesson === null ? [] : [v.lesson])))].sort((a, b) => a - b), [vocabulary])
   const [selecting, setSelecting] = useState(false)
@@ -76,7 +80,7 @@ export function LibraryBrowser({ vocabulary, kanji }: { vocabulary: VocabListIte
   const [saving, startSaving] = useTransition()
   const router = useRouter()
 
-  const vocabResults = useMemo(() => vocabulary.filter((v) => matchesVocab(v, query) && matchesStatus(v, status) && (lesson === 'all' || v.lesson === lesson)), [vocabulary, query, status, lesson])
+  const vocabResults = useMemo(() => vocabulary.filter((v) => matchesVocab(v, query) && matchesStatus(v, status, starred) && (lesson === 'all' || v.lesson === lesson)), [vocabulary, query, status, lesson, starred])
   const shown = vocabResults.slice(0, visible)
   const allShownSelected = shown.length > 0 && shown.every((v) => selected.has(v.id))
 
@@ -251,8 +255,11 @@ export function LibraryBrowser({ vocabulary, kanji }: { vocabulary: VocabListIte
                   )}
                   <div className="flex items-start justify-between gap-2">
                     <Link href={`/library/${v.code}`} lang="ja" className="font-jp text-3xl font-medium hover:text-primary">{v.expression}</Link>
-                    <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground tabular-nums">
-                      {v.lesson === null ? `#${v.sortOrder}` : `Lesson ${v.lesson}`}
+                    <span className="flex items-center gap-1">
+                      <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground tabular-nums">
+                        {v.lesson === null ? `#${v.sortOrder}` : `Lesson ${v.lesson}`}
+                      </span>
+                      <StarButton vocabularyId={v.id} />
                     </span>
                   </div>
                   <div>

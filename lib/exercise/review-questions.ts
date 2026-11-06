@@ -3,7 +3,7 @@
 
 import type { CardType, ExerciseCode } from '../learning/types'
 import type { Rng } from './questions'
-import { buildStageQuestion, type PromptData, type QuestionData, type QuestionPools, type StageWord } from './stage-questions'
+import { buildStageQuestion, type PromptData, type QuestionData, type QuestionPools, type StageWord, type WordKnowledge } from './stage-questions'
 import { meaningPieces } from './word-parts'
 
 const CARD_EXERCISES: Record<CardType, readonly ExerciseCode[]> = {
@@ -12,16 +12,24 @@ const CARD_EXERCISES: Record<CardType, readonly ExerciseCode[]> = {
   'vocab.meaning_kanji': ['kanji_recognition_6', 'kanji_assembly_nohint'],
   'vocab.kanji_meaning_hanviet': ['meaning_recognition_6', 'meaning_assembly', 'hanviet_recognition', 'hanviet_free_recall'],
   'vocab.meaning_hanviet': ['hanviet_free_recall', 'hanviet_assembly', 'meaning_recognition_6'],
+  // Card riêng của từ có sao: chỉ gõ và ghép từ trí nhớ. Hán Việt, Kanji thêm khi đã giới thiệu.
+  'vocab.star_recall': ['kana_free_recall', 'kana_assembly', 'hanviet_free_recall', 'kanji_assembly_nohint'],
 }
 
 /** Dạng bài dùng được cho card của từ này. Nghĩa không ghép được thì bỏ dạng ghép nghĩa. */
-export function reviewExercises(type: CardType, word: StageWord): readonly ExerciseCode[] {
-  return CARD_EXERCISES[type].filter((code) => code !== 'meaning_assembly' || meaningPieces(word.meaning_vi) !== null)
+export function reviewExercises(type: CardType, word: StageWord, known: WordKnowledge): readonly ExerciseCode[] {
+  return CARD_EXERCISES[type].filter((code) => {
+    if (code === 'meaning_assembly') return meaningPieces(word.meaning_vi) !== null
+    if (type !== 'vocab.star_recall') return true
+    if (code === 'hanviet_free_recall') return !word.is_kana_only && word.han_viet !== null && known.currentStage >= 4
+    if (code === 'kanji_assembly_nohint') return !word.is_kana_only && known.kanjiIntroSeen
+    return true
+  })
 }
 
 /** Xoay vòng: không lặp dạng của lần ôn trước nếu còn dạng khác. */
-export function chooseReviewExercise(type: CardType, word: StageWord, last: string | null, rng: Rng = Math.random): ExerciseCode {
-  const all = reviewExercises(type, word)
+export function chooseReviewExercise(type: CardType, word: StageWord, known: WordKnowledge, last: string | null, rng: Rng = Math.random): ExerciseCode {
+  const all = reviewExercises(type, word, known)
   const others = all.filter((code) => code !== last)
   const pool = others.length > 0 ? others : all
   return pool[Math.floor(rng() * pool.length)]
@@ -35,6 +43,7 @@ function reviewPrompt(type: CardType, exercise: ExerciseCode, word: StageWord): 
   const hanViet: PromptData = { display: word.han_viet ?? '', kind: 'meaning' }
 
   if (type === 'vocab.kana_hanviet') return kanaMeaning
+  if (type === 'vocab.star_recall' && exercise === 'hanviet_free_recall') return kanaMeaning
   if (type === 'vocab.kanji_meaning_hanviet') return written
   if (type === 'vocab.meaning_hanviet') return exercise === 'meaning_recognition_6' ? hanViet : meaning
   return null

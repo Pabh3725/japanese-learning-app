@@ -11,6 +11,7 @@ const CARD_TYPES: readonly CardType[] = [
   'vocab.meaning_kanji',
   'vocab.kanji_meaning_hanviet',
   'vocab.meaning_hanviet',
+  'vocab.star_recall',
 ]
 
 /** Một dòng review_cards như Supabase trả về (timestamp là chuỗi ISO). */

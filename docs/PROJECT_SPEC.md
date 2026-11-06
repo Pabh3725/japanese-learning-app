@@ -123,7 +123,7 @@ Ký hiệu cột "Hiện trạng" tham chiếu §12.
 | --- | --- | --- | --- |
 | FR-DB-01 | Hiển thị số card FSRS đến hạn và lối vào Review. | CONFIRMED (module Review tồn tại) | UI demo, số mock |
 | FR-DB-02 | Nút chính "Bắt đầu học hôm nay"; hiển thị due hôm nay, từ đang học dở, từ mới còn mở, tiến độ lộ trình (x/N từ). | CONFIRMED (V7) | UI demo |
-| FR-DB-03 | Hiển thị tổng Vocabulary/Kanji đã học, từ yếu. | PROPOSED (PLAN-01) | UI demo, `strength` hard-code |
+| FR-DB-03 | Hiển thị tổng Vocabulary/Kanji đã học. | PROPOSED (PLAN-01) | UI demo, `strength` hard-code |
 | FR-DB-04 | Lối vào Practice nhanh. | IMPLEMENTED (UI demo) | `quick-training.tsx` |
 | FR-DB-05 | Streak. | Ngoài MVP (V7) | UI demo, số mock |
 | FR-DB-06 | Người dùng mới (chưa có dữ liệu) thấy empty state, không thấy số mock. | PROPOSED | Chưa có |
@@ -191,8 +191,8 @@ Chi tiết: §7.
 | FR-PR-02 | Mini-games: Vocabulary Matching, Kana Assembly, Kanji Assembly, Hán Việt Assembly, Speed Matching, Recall Challenge. MVP chỉ có **Speed Matching** (cả chế độ Luyện tập và vòng boss trong bài học); còn lại sau MVP. | CONFIRMED (V7 về phạm vi MVP) |
 | FR-PR-03 | Lưu kết quả luyện tập. | CONFIRMED |
 | FR-PR-04 | Không trực tiếp thay đổi lịch FSRS. | CONFIRMED |
-| FR-PR-05 | Chỉ luyện từ đã học/đã unlock; ưu tiên từ còn card giàn giáo và từ yếu. | CONFIRMED (V7) |
-| FR-PR-06 | Practice **cộng điểm card** (Again −1, Hard 0, Good +1) để bỏ card giàn giáo; không đổi `due`. Cách tính weak-skill: PENDING (OD-10). | CONFIRMED (V7) phần điểm |
+| FR-PR-05 | Chỉ luyện từ đã học/đã unlock; ưu tiên Card lâu chưa ôn. | CONFIRMED (V7) |
+| FR-PR-06 | Practice **cộng điểm card** (Again −1, Hard 0, Good +1) để bỏ card giàn giáo; không đổi `due`. | CONFIRMED (V7) phần điểm |
 
 Chi tiết: §8.
 
@@ -274,7 +274,6 @@ flowchart LR
     CP -- "qua stage → tạo card (V7)" --> RC
     Content --> G
     CP -. "chọn từ đã học (PROPOSED)" .-> G
-    PL -. "weak-skill signal (PENDING)" .-> LQ
     PL -. "cộng điểm card (V7)" .-> RC
     PL -- "KHÔNG cập nhật FSRS" --x FS
 ```
@@ -677,7 +676,7 @@ Source v0 còn có card "Rapid Fire" (placeholder) và "Word Builder" (link sang
 - Lưu kết quả luyện tập.
 - Không trực tiếp thay đổi lịch FSRS.
 
-- Chỉ dùng từ đã học; ưu tiên từ còn card giàn giáo và từ yếu — CONFIRMED (V7).
+- Chỉ dùng từ đã học; ưu tiên Card lâu chưa ôn — CONFIRMED (V7).
 - Kết quả cộng **điểm card** (§7.6) nhưng không đổi `due` — CONFIRMED (V7).
 - PROPOSED: game settings thật sự tác động game và được lưu.
 
@@ -690,7 +689,7 @@ Source v0 còn có card "Rapid Fire" (placeholder) và "Word Builder" (link sang
 | Streak | Ngoài MVP (V7) |
 | Hiệu ứng nhỏ: thẻ "lên stage" khi một từ qua Stage, lật thẻ がっこう → 学校 ở Stage 3, màn "Xong hôm nay" | CONFIRMED (V7) |
 | Achievement system | PROPOSED P1 |
-| Practice có ảnh hưởng weak-skill signal | PENDING |
+| Practice có ảnh hưởng weak-skill signal | Không, đã bỏ từ yếu (OD-10) |
 
 ---
 
@@ -1144,7 +1143,7 @@ N4–N1; Grammar, Listening hiểu, Speaking; nhận dạng nét viết tay; gõ
 | **OD-07** ✅ | Session persistence — **V7: B — session mới từ state (§6.4)** | Resume chính xác (lưu queue) vs session mới từ state | `learning_sessions`, UX | SPEC-02, DB-01 |
 | **OD-08** ✅ | Daily Session Planner — **V7: 20 từ / 120 review / ngưỡng 80, chế độ xen kẽ (§3.10)** | Số từ mới/phiên, tỷ lệ mới/cũ, giới hạn/ngày, tách Vocab/Kanji | Settings, Dashboard | SPEC-02 |
 | **OD-09** | Database schema chi tiết | ERD, kiểu dữ liệu, index, RLS, content dùng chung hay theo user | Toàn bộ backend | Trước migration |
-| **OD-10** | Skill strength | Công thức; Practice/Review có cập nhật không | Weak items, queue | SPEC-02 |
+| **OD-10** | Skill strength | **Đã chốt 2026-11-07: không làm từ yếu.** Người học tự quyết bằng dấu sao và học lại (§18.3c) | — | — |
 | **OD-11** ✅ | Từ Katakana và okurigana — **V7: Katakana giữ Katakana; okurigana ghép phần Kanji (§5.6)** | S2 với Katakana; Kanji Assembly/Hán Việt cho từ như 休む | Content model, exercises | SPEC-01, DATA-01 |
 | **OD-12** ✅ | Romaji — **V7: `gakkou`, chỉ Stage 1–2; gõ Romaji → Kana bằng `wanakana` (§5.1)** | Chuẩn `gakkō` vs `gakkou`; Free Recall Kana có chấp nhận Romaji; ẩn/hiện Romaji | Content, answer matching | SPEC-01 |
 | **OD-13** ✅ | Kanji Recall trong Stage 5 (không IME) — **V7: ghép không gợi ý + chọn 1/6 (§5.3)** | Assembly không gợi ý? Chọn từ nhiều distractor hơn? Tự đánh giá? | Exercise design | SPEC-01 |
@@ -1381,6 +1380,13 @@ Thay các trang từng stage bằng một luồng tại `/learn/session`; đư�
 - **Chọn chế độ khi vào game:** Hỗn hợp (Kana → `vocab.meaning_kana`, Kanji đã giới thiệu → `vocab.meaning_kanji`) hoặc đúng một loại Card; chế độ một loại Card chỉ gồm từ có Card đó còn hoạt động. Hỗn hợp vẫn gồm từ chưa có Card, chơi được nhưng không có điểm.
 - **Điểm game:** chỉ đổi điểm Card, không đổi lịch ôn, lịch Stage hay điểm Stage. Đúng +1 (tối đa +3 mỗi Card mỗi ngày); sai −1 cho Card của **cả 2 từ**, mỗi từ bị trừ tối đa 1 lần mỗi bàn. Điểm game có thể đưa Card tới mốc bị bỏ (chủ dự án duyệt 2026-11-07).
 - **Thứ tự từ ra bàn:** Card lâu chưa ôn nhất trước, chưa ôn lần nào coi là lâu nhất; Card đã chạm trần hôm nay xuống sau, từ chưa có Card xuống cuối.
+
+- **Dấu sao (thay từ yếu, 2026-11-07):** lộ trình phụ song song, lộ trình chính giữ nguyên. Đánh dấu ở Library, trang chi tiết từ và trong phiên học, kể cả từ chưa gặp; phần thêm bắt đầu khi từ đã được giới thiệu. Gồm:
+  - **Vòng học thêm:** tối đa 4 câu mỗi từ, dạng bài theo những gì đã giới thiệu; mỗi phiên Learn chèn tối đa 3 câu. Chỉ ghi `practice_attempts` (`star_round`), không đổi điểm và lịch nào, không tính vào giãn cách hay trần câu Stage. Xong vòng thì không lặp lại cho tới khi đánh sao lại.
+  - **Card riêng `vocab.star_recall`:** có lịch FSRS và điểm riêng, chỉ gõ và ghép từ trí nhớ, không bị bỏ theo điểm. Xếp sau Card thường trong Review, tính vào trần Review, không tính vào ngưỡng chặn từ mới.
+  - **Bỏ sao:** người học tự bỏ. Card riêng tạm dừng và giữ lịch; đánh sao lại thì chạy tiếp và có vòng học thêm mới.
+- **Học lại Card:** ở trang chi tiết từ; Card đến hạn ngay, Card đã bỏ cũng được đưa lại. Chỉ đổi `due_at` và `retired_at`, điểm và FSRS khác giữ nguyên. Đây là ngoại lệ có chủ đích của luật "chỉ Official Review đổi FSRS", vì không có lần chấm nào.
+- **Học lại Stage:** chỉ cho stage đã hoàn tất (2, 4, 5), có xác nhận. Mở lại stage, điểm còn thiếu 3 so với mốc hoàn tất, câu vào Learn ngay. `current_stage` và Card đã có giữ nguyên; từ đã xong lộ trình trở lại trạng thái đang học cho tới khi hoàn tất lại.
 
 Ngữ pháp và Thể động từ hiện chỉ là **bản xem trước giao diện** (`/grammar`, `/verbs`), dùng nội dung mẫu và không lưu kết quả. Phần thật làm sau v0.1.
 

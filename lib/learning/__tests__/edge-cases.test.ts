@@ -1,4 +1,5 @@
 // Trường hợp biên ngoài 10 ví dụ ENG-01.
+import { relearnStagePoints } from '../stage'
 import { describe, expect, it } from 'vitest'
 import {
   applyPracticeToCard,
@@ -233,5 +234,13 @@ describe('Điểm card', () => {
     expect(shouldRetire({ type: 'vocab.kana_hanviet', points: 39, wordIsKanaOnly: false })).toBe(false)
     expect(shouldRetire({ type: 'vocab.kana_hanviet', points: 40, wordIsKanaOnly: false })).toBe(true)
     expect(shouldRetire({ type: 'vocab.meaning_kanji', points: 999, wordIsKanaOnly: false })).toBe(false)
+  })
+})
+
+describe('Học lại', () => {
+  it('Học lại Stage: còn thiếu 3 điểm so với mốc hoàn tất', () => {
+    expect(relearnStagePoints(2, false)).toBe(7)
+    expect(relearnStagePoints(4, false)).toBe(12)
+    expect(relearnStagePoints(5, true)).toBe(7)
   })
 })

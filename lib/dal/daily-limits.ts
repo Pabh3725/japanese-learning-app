@@ -30,14 +30,10 @@ async function countDue(supabase: Supabase, table: 'review_cards' | 'learner_sta
   const filterColumn = table === 'review_cards' ? 'retired_at' : 'completed_at'
   let total = 0
   for (let from = 0; ; from += PAGE) {
-    const { data, error } = await supabase
-      .from(table)
-      .select('id, learner_vocabulary!inner(vocabulary_id)')
-      .eq('user_id', userId)
-      .is(filterColumn, null)
-      .lte('due_at', now)
-      .order('id')
-      .range(from, from + PAGE - 1)
+    let query = supabase.from(table).select('id, learner_vocabulary!inner(vocabulary_id)').eq('user_id', userId).is(filterColumn, null).lte('due_at', now)
+    // Card riêng của từ có sao không được làm dừng từ mới
+    if (table === 'review_cards') query = query.neq('card_type', 'vocab.star_recall')
+    const { data, error } = await query.order('id').range(from, from + PAGE - 1)
     if (error) throw new Error(`Không đọc được ${table}: ${error.message}`)
     const rows = (data ?? []) as unknown as { learner_vocabulary: { vocabulary_id: string } }[]
     total += rows.filter((r) => !excludedIds.has(r.learner_vocabulary.vocabulary_id)).length

@@ -15,6 +15,9 @@ import type { IntroWord } from '@/lib/intro/words'
 import { INTROS_PER_SESSION, mixQuestions, newWordsBlockedBy, QUESTIONS_PER_SESSION, sessionsFor, shouldAddBossRound, type NewWordsBlock } from '@/lib/learn/session'
 import { readDailyLimits, saveBorrowed } from '@/lib/dal/daily-limits'
 import { readSpeedModes } from '@/lib/dal/speed-matching'
+import { EXERCISES } from '@/lib/learning/rules'
+import { readStarRound, readStarredIds } from '@/lib/dal/star-relearn'
+import { planStarQuestions, practiceSkillCode } from '@/lib/learn/star-round'
 import { MIN_SPEED_WORDS, type SpeedWord } from '@/lib/speed-matching'
 import { allowedBorrow } from '@/lib/learning/daily-plan'
 import { kanjiPieces } from '@/lib/exercise/word-parts'
@@ -38,6 +41,7 @@ import { reachedKanjiIntro, trailingCount } from '@/lib/learning/stage'
 import type { Outcome, ScoredStage } from '@/lib/learning/types'
 
 const PAGE = 1000
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const WORD_COLUMNS = 'id, expression, reading_kana, meaning_vi, han_viet, is_kana_only, emoji, romaji'
 
 export type StageQuestion =
@@ -49,6 +53,8 @@ export type StageQuestion =
       wrongStreak: number
       stage: ScoredStage
       vocabularyId: string
+      /** Có nghĩa là câu của vòng học thêm: chỉ ghi nhật ký, không đổi điểm và lịch. */
+      starSessionId?: string
     })
   | MatchRoundData
   | BossRoundData
@@ -103,6 +109,7 @@ export interface LearnSessionData {
   stageLimitReached: boolean
   /** Lần hẹn gần nhất khi hiện không có câu nào đến hẹn. */
   nextDueAt: string | null
+  starredIds: string[]
 }
 
 /**
@@ -113,7 +120,7 @@ export async function getLearnSession(practiceOnly: boolean): Promise<LearnSessi
   const user = await requireUser()
   const supabase = await createClient()
 
-  const [words_, excluded, limits] = await Promise.all([
+  const [words_, excluded, limits, starredIds] = await Promise.all([
     supabase
       .from('learner_vocabulary')
       .select(`id, vocabulary_id, current_stage, kanji_intro_seen_at, vocabularies!inner(${WORD_COLUMNS}, sort_order), learner_stage_schedules(stage_number, due_at, stage_points, completed_at, reps)`)
@@ -127,6 +134,7 @@ export async function getLearnSession(practiceOnly: boolean): Promise<LearnSessi
       .not('excluded_at', 'is', null)
       .range(0, PAGE - 1),
     readDailyLimits(supabase, user.id),
+    readStarredIds(supabase, user.id),
   ])
   if (words_.error) throw new Error(`Không đọc được learner_vocabulary: ${words_.error.message}`)
   if (excluded.error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${excluded.error.message}`)
@@ -161,7 +169,7 @@ export async function getLearnSession(practiceOnly: boolean): Promise<LearnSessi
 
   const [intro, stage3Items] = await Promise.all([getIntroData(), getStage3Items()])
   const newLeft = block ? 0 : intro.remainingToday
-  const common = { block, stageLimitReached: stageRoom === 0 && dueAll.length > 0 }
+  const common = { starredIds, block, stageLimitReached: stageRoom === 0 && dueAll.length > 0 }
 
   if (!practiceOnly) {
     const newItems: LearnIntroItem[] = block ? [] : intro.words.map((word) => ({ kind: 'new' as const, word }))
@@ -178,7 +186,10 @@ export async function getLearnSession(practiceOnly: boolean): Promise<LearnSessi
   }
 
   const entries = dueAll.slice(0, Math.min(QUESTIONS_PER_SESSION, stageRoom))
-  if (entries.length === 0) {
+  const starItems = await readStarRound<StageWord>(supabase, user.id, WORD_COLUMNS, excludedIds)
+  const starPlan = planStarQuestions(starItems)
+  const starLeft = starItems.reduce((sum, item) => sum + item.exercises.length - item.answered, 0)
+  if (entries.length === 0 && starPlan.length === 0) {
     const nextDueAt = active.filter((e) => Date.parse(e.schedule.due_at) > now).map((e) => e.schedule.due_at).sort()[0] ?? null
     return { ...common, intros: [], questions: [], sessionsLeft: 0, nextDueAt }
   }
@@ -217,6 +228,22 @@ export async function getLearnSession(practiceOnly: boolean): Promise<LearnSessi
   })
   const questions: StageQuestion[] = mixQuestions(built)
 
+  const starSessionId = randomUUID()
+  for (const { word, exercise } of starPlan) {
+    const question = buildStageQuestion(word.word, exercise, poolsWithLearned)
+    const known = { currentStage: word.currentStage, kanjiIntroSeen: word.kanjiIntroSeen }
+    questions.push({
+      ...question,
+      ...(question.kind === 'choice' ? { reveal: wordReveal(word.word, known) } : {}),
+      stage: 2,
+      wrongStreak: 0,
+      learnerVocabularyId: word.learnerVocabularyId,
+      vocabularyId: word.vocabularyId,
+      clientEventId: randomUUID(),
+      starSessionId,
+    })
+  }
+
   const stage5Ids = entries.filter((e) => e.stage === 5).map((e) => e.row.id)
   // Cuối phiên: đặt sớm hơn thì các cặp ghép sẽ lộ cách đọc và nghĩa của những câu còn lại
   const round = stage5Ids.length > 0 ? await buildRoundForUser(supabase, user.id, excludedIds, stage5Ids, pools.words) : null
@@ -226,7 +253,7 @@ export async function getLearnSession(practiceOnly: boolean): Promise<LearnSessi
     const boss = await buildBossRound(supabase, user.id)
     if (boss) questions.push(boss)
   }
-  return { ...common, intros: [], questions, sessionsLeft: Math.max(1, sessionsFor(dueCount + newLeft)), nextDueAt: null }
+  return { ...common, intros: [], questions, sessionsLeft: Math.max(1, sessionsFor(dueCount + newLeft + starLeft)), nextDueAt: null }
 }
 
 /** Vòng boss: Speed Matching 30 giây với các từ đã gặp. Chỉ đổi điểm Card, không tính vào giãn cách. */
@@ -308,7 +335,7 @@ async function gradeOnServer(supabase: Supabase, userId: string, req: StageAnswe
     if (kanjiError) throw new Error(`Không đọc được kanji: ${kanjiError.message}`)
     kanji = kanjiRows ?? []
   }
-  return { word, reveal: wordReveal(word, known), ...gradeStageAnswer(word, req.exercise, req.answer, kanji) }
+  return { word, known, reveal: wordReveal(word, known), ...gradeStageAnswer(word, req.exercise, req.answer, kanji) }
 }
 
 export type CheckStageAnswerResponse =
@@ -354,6 +381,32 @@ export async function submitStageAnswer(input: unknown): Promise<SubmitStageAnsw
     return { status: 'graded', outcome, answer, reading: word.reading_kana, reveal, result: saved.result }
   }
   return { status: saved.status }
+}
+
+/** Câu vòng học thêm của từ có sao: chấm rồi chỉ ghi nhật ký, không đổi điểm Stage, điểm Card hay lịch nào. */
+export async function submitStarAnswer(input: unknown): Promise<SubmitStageAnswerResponse> {
+  const req = parseStageAnswerRequest(input)
+  const starSessionId = (input as { starSessionId?: unknown } | null)?.starSessionId
+  if (!req || typeof starSessionId !== 'string' || !UUID.test(starSessionId)) return { status: 'invalid' }
+
+  const user = await requireUser()
+  const supabase = await createClient()
+  const graded = await gradeOnServer(supabase, user.id, req)
+  if (!graded) return { status: 'not_found' }
+  const { data: row, error: rowError } = await supabase.from('learner_vocabulary').select('vocabulary_id').eq('id', req.learnerVocabularyId).eq('user_id', user.id).single()
+  if (rowError) throw new Error(`Không đọc được learner_vocabulary: ${rowError.message}`)
+  const outcome = withHint(graded.outcome, req.usedHint)
+  const { error } = await supabase.rpc('submit_star_answer', {
+    p_session_id: starSessionId,
+    p_client_event_id: req.clientEventId,
+    p_vocabulary_id: row.vocabulary_id,
+    p_skill_code: practiceSkillCode(EXERCISES[req.exercise].skill),
+    p_is_correct: outcome === 'correct',
+    p_response_time_ms: Math.max(0, Math.round(req.responseMs ?? 0)),
+    p_study_date: studyDate(new Date()),
+  })
+  if (error) throw new Error(`submit_star_answer lỗi: ${error.message}`)
+  return { status: 'graded', outcome, answer: graded.answer, reading: graded.word.reading_kana, reveal: graded.reveal }
 }
 
 /** Vòng ghép ô: trừ điểm các từ bị ghép sai. Từ không chạy Stage 5 thì bỏ qua. */

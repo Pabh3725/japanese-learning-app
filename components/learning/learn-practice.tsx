@@ -3,7 +3,7 @@
 // Phần câu hỏi của một phiên khu Learn: câu của Stage 2, 4, 5 đã trộn.
 // Câu chọn hiện kết quả ngay và lưu ở nền; câu ghép và câu gõ chờ server chấm vì đáp án không có ở trình duyệt.
 import { useEffect, useRef, useState } from 'react'
-import { checkStageAnswerAction, submitMatchPenaltiesAction, submitStageAnswerAction } from '@/app/learn/actions'
+import { checkStageAnswerAction, submitMatchPenaltiesAction, submitStageAnswerAction, submitStarAnswerAction } from '@/app/learn/actions'
 import { WRONG_ANSWER_NOTE } from '@/components/learning/exercise-footer'
 import { KnownWordBar } from '@/components/learning/known-word-button'
 import { SessionComplete } from '@/components/learning/session-complete'
@@ -212,11 +212,13 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
       answer: chosen,
       clientEventId: current.clientEventId,
       responseMs: responseMs(),
+      starSessionId: current.starSessionId,
     }
+    const submit = current.starSessionId ? submitStarAnswerAction : submitStageAnswerAction
     setPending((n) => n + 1)
     saveQueue.current = saveQueue.current
       // clientEventId giữ nguyên nên gửi lại không bị tính hai lần. conflict: lịch vừa đổi, tính lại là được.
-      .then(() => withRetry(() => submitStageAnswerAction(payload), (res) => res.status === 'conflict'))
+      .then(() => withRetry(() => submit(payload), (res) => res.status === 'conflict'))
       .then((res) => {
         if (res.status === 'graded') {
           const note = pointsNote(current.stage, res.result)
@@ -249,7 +251,9 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
         lastReveal.current = checked.reveal
         return { correct: checked.outcome === 'correct', answer: [checked.answer], explanation: RETRY_NOTE, reveal: checked.reveal }
       }
-      const res = await submitStageAnswerAction({
+      const submit = current.starSessionId ? submitStarAnswerAction : submitStageAnswerAction
+      const res = await submit({
+        starSessionId: current.starSessionId,
         learnerVocabularyId: current.learnerVocabularyId,
         stage: current.stage,
         exercise: current.exercise,
@@ -300,7 +304,7 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
     setRelearn(null)
   }
 
-  const stageLabel = q.kind === 'match' ? 'Stage 5' : q.kind === 'boss' ? 'Boss round' : `Stage ${q.stage}`
+  const stageLabel = q.kind === 'match' ? 'Stage 5' : q.kind === 'boss' ? 'Boss round' : q.starSessionId ? 'Starred word' : `Stage ${q.stage}`
   // Cùng một câu hỏi lại nên cần key khác, để màn hình bắt đầu mới
   const bodyKey = `${q.clientEventId}${isRetry ? '-retry' : ''}`
   let body: React.ReactNode
