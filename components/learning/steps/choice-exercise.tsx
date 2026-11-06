@@ -5,6 +5,8 @@ import { AnswerOption, type AnswerState } from '@/components/learning/answer-opt
 import { ExerciseFooter, type CheckStatus } from '@/components/learning/exercise-footer'
 import { ExercisePanel } from '@/components/learning/exercise-panel'
 import { PromptDisplay } from '@/components/learning/prompt-display'
+import type { WordReveal } from '@/lib/exercise/stage-questions'
+import { isShortcutEvent } from '@/lib/keyboard'
 import type { ChoiceStep } from '@/lib/types'
 
 export function ChoiceExercise({
@@ -13,6 +15,7 @@ export function ChoiceExercise({
   onAnswer,
   instant = false,
   wrongNote,
+  reveal,
   promptNode,
 }: {
   step: ChoiceStep
@@ -23,6 +26,8 @@ export function ChoiceExercise({
   instant?: boolean
   /** Câu nhắc khi trả lời sai. */
   wrongNote?: string
+  /** Thông tin đầy đủ của từ, hiện khi trả lời sai. */
+  reveal?: WordReveal
   /** Thay cho đề dạng chữ, ví dụ nút loa của câu nghe. */
   promptNode?: React.ReactNode
 }) {
@@ -48,7 +53,7 @@ export function ChoiceExercise({
   }
 
   const onKey = useEffectEvent((e: KeyboardEvent) => {
-    if (status !== 'idle' || e.target instanceof HTMLInputElement) return
+    if (status !== 'idle' || !isShortcutEvent(e)) return
     const n = Number(e.key)
     if (n >= 1 && n <= step.options.length) choose(step.options[n - 1])
     if (e.key === 'Enter' && selected) {
@@ -91,6 +96,7 @@ export function ChoiceExercise({
           correctAnswer={step.answer}
           explanation={step.explanation}
           wrongNote={wrongNote}
+          reveal={reveal}
         />
       }
     >

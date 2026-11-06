@@ -60,6 +60,17 @@ const pools: QuestionPools = {
   kanji: readCsv('kanji.csv').map((r) => ({ character: r.character, han_viet: r.han_viet })),
 }
 const find = (expr: string) => words.find((w) => w.expression === expr)!
+
+describe('dữ liệu nghĩa', () => {
+  it('mỗi nghĩa chỉ ứng với một cách đọc, để đề nghĩa chỉ có một đáp án khi gõ hoặc ghép', () => {
+    const readingsOf = new Map<string, Set<string>>()
+    for (const w of words) {
+      const key = w.meaning_vi.trim().toLowerCase()
+      readingsOf.set(key, (readingsOf.get(key) ?? new Set()).add(w.reading_kana))
+    }
+    expect([...readingsOf].filter(([, readings]) => readings.size > 1).map(([meaning]) => meaning)).toEqual([])
+  })
+})
 const GAKKOU = find('学校')
 const TEREBI = find('テレビ')
 const YASUMI = find('休みます')

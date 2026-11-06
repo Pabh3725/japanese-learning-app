@@ -19,6 +19,33 @@ export interface StageWord {
   han_viet: string | null
   is_kana_only: boolean
   emoji?: string | null
+  romaji?: string | null
+}
+
+/** Toàn bộ thông tin của từ, hiện khi trả lời sai. Câu ghép và câu gõ chỉ nhận sau khi đã nộp. */
+export interface WordReveal {
+  /** null khi từ chỉ có Kana. */
+  expression: string | null
+  kana: string
+  romaji: string | null
+  hanViet: string | null
+  meaning: string
+}
+
+/** Từ đã xem thẻ Stage 3 chưa. Chưa thì không lộ Kanji và Hán Việt. */
+export function kanjiRevealed(currentStage: number): boolean {
+  return currentStage >= 4
+}
+
+export function wordReveal(word: StageWord, currentStage: number): WordReveal {
+  const known = kanjiRevealed(currentStage)
+  return {
+    expression: known && !word.is_kana_only ? word.expression : null,
+    kana: word.reading_kana,
+    romaji: word.romaji ?? null,
+    hanViet: known ? word.han_viet : null,
+    meaning: word.meaning_vi,
+  }
 }
 
 export interface QuestionPools {
@@ -47,8 +74,10 @@ export interface ChoiceQuestionData extends QuestionBase {
   options: string[]
   answer: string
   optionKind: 'kana' | 'vocab' | 'meaning'
-  /** Đọc Kana này khi trả lời đúng. Câu chọn đã có đáp án ở trình duyệt nên không lộ thêm gì. */
+  /** Đọc Kana này sau khi trả lời. Câu chọn đã có đáp án ở trình duyệt nên không lộ thêm gì. */
   speak: string
+  /** DAL gắn vào, vì cần biết từ đã qua Stage 3 chưa. */
+  reveal?: WordReveal
   /** Câu nghe: đọc chuỗi này. Thiết bị không có giọng Nhật thì hiện prompt và đổi sang meaning_to_kana. */
   listenTo?: string
 }

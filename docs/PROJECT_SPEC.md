@@ -1342,7 +1342,7 @@ Mỗi stage có mốc riêng:
 Thay các câu chọn 1/6 vì ở giai đoạn này người học đã nhớ mặt chữ.
 
 - **Dạng câu Stage 5 còn lại:** nghĩa đơn giản thì ghép nghĩa; nghĩa không ghép được (348/912 từ) vẫn chọn 1/6 để đạt kỹ năng Nghĩa; kỹ năng Kanji đạt qua ghép không gợi ý. Bỏ chọn Kanji 1/6.
-- **Vòng ghép:** 6 cặp, xen giữa lượt Stage 5, mỗi vòng ngẫu nhiên một kiểu: Kana ↔ nghĩa, Kanji ↔ nghĩa, Kanji ↔ Kana, Kanji ↔ Hán Việt. Kanji chỉ dùng cho từ đã xem Stage 3.
+- **Vòng ghép:** 6 cặp, ở cuối lượt Stage 5 để không lộ đáp án của các câu còn lại, mỗi vòng ngẫu nhiên một kiểu: Kana ↔ nghĩa, Kanji ↔ nghĩa, Kanji ↔ Kana, Kanji ↔ Hán Việt. Kanji chỉ dùng cho từ đã xem Stage 3.
 - **Điểm:** đúng không cộng và không đạt kỹ năng. Ghép sai thì từ ở cột trái bị −1 điểm stage, tối đa một lần mỗi từ mỗi vòng. Chỉ từ đang chạy Stage 5 mới bị trừ.
 - Không đổi lịch; không tính vào giãn cách và số thứ tự câu trong ngày.
 

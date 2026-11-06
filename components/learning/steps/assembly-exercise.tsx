@@ -6,12 +6,13 @@ import { actionButton } from '@/components/action-button'
 import { ExerciseFooter, type CheckStatus } from '@/components/learning/exercise-footer'
 import { ExercisePanel } from '@/components/learning/exercise-panel'
 import { PromptDisplay } from '@/components/learning/prompt-display'
+import type { WordReveal } from '@/lib/exercise/stage-questions'
 import { isShortcutEvent, pieceIndexForKey, pieceKeyLabel } from '@/lib/keyboard'
 import type { AssemblyStep } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 /** Kết quả chấm từ server. `null` = phiên đã tự chuyển câu, không cần hiện gì. */
-export type AssemblyGrade = { correct: boolean; answer: string[]; explanation?: string } | { error: string } | null
+export type AssemblyGrade = { correct: boolean; answer: string[]; explanation?: string; reveal?: WordReveal } | { error: string } | null
 
 interface AssemblyExerciseProps {
   step: AssemblyStep
@@ -27,7 +28,7 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
   const [status, setStatus] = useState<CheckStatus>('idle')
   const [checking, setChecking] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [graded, setGraded] = useState<{ answer: string[]; explanation?: string } | null>(null)
+  const [graded, setGraded] = useState<{ answer: string[]; explanation?: string; reveal?: WordReveal } | null>(null)
   const locked = status !== 'idle' || checking
   const isKanji = step.pieceKind === 'kanji'
   const isWord = step.pieceKind === 'word'
@@ -59,7 +60,7 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
       setError(result.error)
       return
     }
-    setGraded({ answer: result.answer, explanation: result.explanation })
+    setGraded({ answer: result.answer, explanation: result.explanation, reveal: result.reveal })
     setStatus(result.correct ? 'correct' : 'incorrect')
   }
 
@@ -179,6 +180,7 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
           correctAnswer={answer.join(step.joiner ? ` ${step.joiner} ` : '')}
           explanation={graded ? graded.explanation : step.explanation}
           wrongNote={wrongNote}
+          reveal={graded?.reveal}
           secondary={
             <>
               {error && <p role="alert" className="mb-2 text-sm text-error">{error}</p>}

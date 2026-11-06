@@ -15,16 +15,18 @@ import {
   chooseStageExercise,
   gradeStageAnswer,
   parseStageAnswerRequest,
+  wordReveal,
   type QuestionData,
   type QuestionPools,
   type StageWord,
+  type WordReveal,
 } from '@/lib/exercise/stage-questions'
 import { RULES_V3 } from '@/lib/learning/rules'
 import { studyDate } from '@/lib/learning/time'
 import type { Outcome, ScoredStage } from '@/lib/learning/types'
 
 const PAGE = 1000
-const WORD_COLUMNS = 'id, expression, reading_kana, meaning_vi, han_viet, is_kana_only, emoji'
+const WORD_COLUMNS = 'id, expression, reading_kana, meaning_vi, han_viet, is_kana_only, emoji, romaji'
 
 export type StageQuestion =
   | (QuestionData & {
@@ -45,6 +47,7 @@ type Supabase = Awaited<ReturnType<typeof createClient>>
 type WordRow = {
   id: string
   vocabulary_id: string
+  current_stage: number
   vocabularies: StageWord & { sort_order: number }
   learner_stage_schedules: { due_at: string }[]
 }
@@ -74,7 +77,7 @@ export async function getStageSession(stage: ScoredStage): Promise<StageSessionD
   const [words_, excluded] = await Promise.all([
     supabase
       .from('learner_vocabulary')
-      .select(`id, vocabulary_id, vocabularies!inner(${WORD_COLUMNS}, sort_order), learner_stage_schedules!inner(due_at)`)
+      .select(`id, vocabulary_id, current_stage, vocabularies!inner(${WORD_COLUMNS}, sort_order), learner_stage_schedules!inner(due_at)`)
       .eq('user_id', user.id)
       .eq('learning_status', 'learning')
       // Một stage chạy tới khi hoàn tất, kể cả sau khi đã mở stage sau
@@ -117,8 +120,10 @@ export async function getStageSession(stage: ScoredStage): Promise<StageSessionD
   const questions: StageQuestion[] = due.map(({ row }): StageQuestion => {
     const earned = deriveEarned((logs.data ?? []).filter((l) => l.learner_vocabulary_id === row.id))
     const exercise = chooseStageExercise(row.vocabularies, stage, earned)
+    const question = buildStageQuestion(row.vocabularies, exercise, poolsWithLearned)
     return {
-      ...buildStageQuestion(row.vocabularies, exercise, poolsWithLearned),
+      ...question,
+      ...(question.kind === 'choice' ? { reveal: wordReveal(row.vocabularies, row.current_stage) } : {}),
       learnerVocabularyId: row.id,
       clientEventId: randomUUID(),
     }
@@ -126,8 +131,8 @@ export async function getStageSession(stage: ScoredStage): Promise<StageSessionD
 
   if (stage === 5) {
     const round = await buildRoundForUser(supabase, user.id, excludedIds, due.map((r) => r.row.id), pools.words)
-    // Xen giữa lượt, sau ít nhất một câu
-    if (round) questions.splice(Math.max(1, Math.floor(questions.length / 2)), 0, round)
+    // Cuối lượt: đặt sớm hơn thì các cặp ghép sẽ lộ cách đọc và nghĩa của những câu còn lại
+    if (round) questions.push(round)
   }
   return { questions, nextDueAt: null }
 }
@@ -171,8 +176,9 @@ export type SubmitStageAnswerResponse =
       outcome: Outcome
       /** Đáp án đúng, chỉ trả về sau khi đã nộp. */
       answer: string
-      /** Kana để đọc lại khi trả lời đúng. */
+      /** Kana để đọc lại sau khi trả lời. */
       reading: string
+      reveal: WordReveal
       /** Không có khi đây là lần gửi lại của một câu đã lưu. */
       result?: SubmitExerciseResponse['result']
     }
@@ -189,7 +195,7 @@ export async function submitStageAnswer(input: unknown): Promise<SubmitStageAnsw
   const [{ data, error }, daySeq] = await Promise.all([
     supabase
       .from('learner_vocabulary')
-      .select(`id, vocabularies!inner(${WORD_COLUMNS})`)
+      .select(`id, current_stage, vocabularies!inner(${WORD_COLUMNS})`)
       .eq('id', req.learnerVocabularyId)
       .eq('user_id', user.id)
       .maybeSingle(),
@@ -198,7 +204,7 @@ export async function submitStageAnswer(input: unknown): Promise<SubmitStageAnsw
   if (error) throw new Error(`Không đọc được learner_vocabulary: ${error.message}`)
   if (!data) return { status: 'not_found' }
 
-  const word = (data as unknown as { vocabularies: StageWord }).vocabularies
+  const { vocabularies: word, current_stage: currentStage } = data as unknown as { vocabularies: StageWord; current_stage: number }
   const { outcome, answer } = gradeStageAnswer(word, req.exercise, req.answer)
 
   const saved = await submitExercise({
@@ -211,7 +217,7 @@ export async function submitStageAnswer(input: unknown): Promise<SubmitStageAnsw
     responseMs: req.responseMs,
   })
   if (saved.status === 'saved' || saved.status === 'duplicate') {
-    return { status: 'graded', outcome, answer, reading: word.reading_kana, result: saved.result }
+    return { status: 'graded', outcome, answer, reading: word.reading_kana, reveal: wordReveal(word, currentStage), result: saved.result }
   }
   return { status: saved.status }
 }

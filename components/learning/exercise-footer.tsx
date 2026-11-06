@@ -1,8 +1,11 @@
 'use client'
 
-import { useEffect, useEffectEvent, useRef } from 'react'
+import { Fragment, useEffect, useEffectEvent, useRef } from 'react'
 import { CheckCircle2, XCircle } from 'lucide-react'
 import { actionButton } from '@/components/action-button'
+import { SpeakerButton } from '@/components/learning/speaker-button'
+import type { WordReveal } from '@/lib/exercise/stage-questions'
+import type { TypingTip } from '@/lib/exercise/typing-tips'
 import { cn } from '@/lib/utils'
 
 export type CheckStatus = 'idle' | 'correct' | 'incorrect'
@@ -58,6 +61,45 @@ export function ContinueFooter({
   )
 }
 
+/** Khi trả lời sai: hiện đủ thông tin của từ để đọc lại, kèm nút loa và phím P. */
+function WordRevealCard({ reveal }: { reveal: WordReveal }) {
+  const rows = [
+    reveal.expression ? { label: 'Reading', value: reveal.kana, japanese: true } : null,
+    reveal.romaji ? { label: 'Romaji', value: reveal.romaji, japanese: false } : null,
+    reveal.hanViet ? { label: 'Sino-Vietnamese', value: reveal.hanViet, japanese: false } : null,
+    { label: 'Meaning', value: reveal.meaning, japanese: false },
+  ].filter((row) => row !== null)
+
+  return (
+    <div className="mt-2 rounded-2xl border border-border bg-background/50 p-3">
+      <div className="flex items-center gap-3">
+        <p lang="ja" className="font-jp text-2xl font-medium text-foreground">{reveal.expression ?? reveal.kana}</p>
+        <SpeakerButton kana={reveal.kana} />
+        <span className="hidden text-xs text-muted-foreground md:inline">Press P to listen</span>
+      </div>
+      <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
+        {rows.map((row) => (
+          <Fragment key={row.label}>
+            <dt className="text-muted-foreground">{row.label}</dt>
+            <dd lang={row.japanese ? 'ja' : undefined} className={cn('text-foreground', row.japanese && 'font-jp text-base')}>{row.value}</dd>
+          </Fragment>
+        ))}
+      </dl>
+    </div>
+  )
+}
+
+function TypingTipNote({ tip }: { tip: TypingTip }) {
+  return (
+    <div className="mt-2 text-sm text-subtle">
+      <p>
+        Mẹo gõ: <code className="font-sans font-semibold text-cyan">{tip.typed}</code>
+      </p>
+      {tip.rules.map((rule) => <p key={rule} className="mt-0.5 text-muted-foreground">{rule}</p>)}
+    </div>
+  )
+}
+
 interface ExerciseFooterProps {
   status: CheckStatus
   canCheck: boolean
@@ -67,6 +109,10 @@ interface ExerciseFooterProps {
   explanation?: string
   /** Chỉ hiện khi trả lời sai. */
   wrongNote?: string
+  /** Có thì khi trả lời sai sẽ hiện đủ thông tin của từ, thay cho dòng đáp án. */
+  reveal?: WordReveal
+  /** Mẹo gõ của câu gõ Kana. */
+  typingTip?: TypingTip
   checkLabel?: string
   secondary?: React.ReactNode
 }
@@ -79,6 +125,8 @@ export function ExerciseFooter({
   correctAnswer,
   explanation,
   wrongNote,
+  reveal,
+  typingTip,
   checkLabel = 'Check',
   secondary,
 }: ExerciseFooterProps) {
@@ -107,12 +155,14 @@ export function ExerciseFooter({
                 <p className={cn('font-semibold', status === 'correct' ? 'text-success' : 'text-error')}>
                   {status === 'correct' ? 'Correct!' : 'Not quite'}
                 </p>
-                {status === 'incorrect' && correctAnswer && (
+                {status === 'incorrect' && reveal && <WordRevealCard reveal={reveal} />}
+                {status === 'incorrect' && !reveal && correctAnswer && (
                   <p className="mt-0.5 text-sm text-subtle">
                     Answer: <span lang="ja" className="font-jp text-base text-foreground">{correctAnswer}</span>
                   </p>
                 )}
-                {status === 'incorrect' && wrongNote && <p className="mt-1 text-sm font-medium text-yellow">{wrongNote}</p>}
+                {status === 'incorrect' && wrongNote && <p className="mt-2 text-sm font-medium text-yellow">{wrongNote}</p>}
+                {typingTip && <TypingTipNote tip={typingTip} />}
                 {explanation && <p className="mt-0.5 text-sm text-muted-foreground">{explanation}</p>}
               </div>
             </div>

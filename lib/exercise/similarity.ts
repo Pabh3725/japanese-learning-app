@@ -21,6 +21,63 @@ export function lookalikeKanji(char: string): readonly string[] {
   return [...(LOOKALIKE.get(char) ?? [])]
 }
 
+/** Cùng chữ gốc, khác dấu ゛゜. */
+const DIACRITIC_GROUPS = [
+  'かが', 'きぎ', 'くぐ', 'けげ', 'こご', 'さざ', 'しじ', 'すず', 'せぜ', 'そぞ', 'ただ', 'ちぢ', 'つづ', 'てで', 'とど',
+  'はばぱ', 'ひびぴ', 'ふぶぷ', 'へべぺ', 'ほぼぽ',
+] as const
+/** Cùng chữ, khác cỡ. */
+const SIZE_GROUPS = ['つっ', 'やゃ', 'ゆゅ', 'よょ'] as const
+/** Đọc gần nhau, nhất là với người Việt. */
+const SOUND_GROUPS = ['すつ', 'じぢ', 'ずづ', 'しち', 'おう', 'えい'] as const
+/** Nhìn giống nhau. Hai bảng chữ khác mặt chữ nên liệt kê riêng. */
+const HIRAGANA_LOOK_GROUPS = ['あお', 'ぬめ', 'ねれわ', 'るろ', 'はほ', 'さきち', 'たな', 'いり'] as const
+const KATAKANA_LOOK_GROUPS = ['シツ', 'ソン', 'クケタ', 'ワウ', 'フヌ', 'コユ', 'アマ', 'チテ', 'ノメ'] as const
+
+function toKatakana(hiragana: string): string {
+  return Array.from(hiragana, (c) => String.fromCharCode(c.charCodeAt(0) + 0x60)).join('')
+}
+
+function addGroups(map: Map<string, Set<string>>, groups: readonly string[]) {
+  for (const group of groups) {
+    for (const char of group) {
+      const set = map.get(char) ?? new Set<string>()
+      for (const other of group) if (other !== char) set.add(other)
+      map.set(char, set)
+    }
+  }
+}
+
+const DIACRITIC = new Map<string, Set<string>>()
+addGroups(DIACRITIC, DIACRITIC_GROUPS)
+addGroups(DIACRITIC, DIACRITIC_GROUPS.map(toKatakana))
+
+const CONFUSABLE_KANA = new Map<string, Set<string>>()
+addGroups(CONFUSABLE_KANA, [...DIACRITIC_GROUPS, ...SIZE_GROUPS, ...SOUND_GROUPS, ...HIRAGANA_LOOK_GROUPS])
+addGroups(CONFUSABLE_KANA, [...DIACRITIC_GROUPS, ...SIZE_GROUPS, ...SOUND_GROUPS].map(toKatakana))
+addGroups(CONFUSABLE_KANA, KATAKANA_LOOK_GROUPS)
+
+const YOON = 'ゃゅょャュョ'
+
+/**
+ * Các mảnh dễ nhầm với một mảnh Kana. Âm ghép きょ nhầm với ぎょ, きゃ, きゅ và với hai mảnh riêng き, よ.
+ * Âm ghép không đổi theo mặt chữ hay cách đọc, vì シャ đổi thành ツャ thì không còn là một âm có thật.
+ */
+export function confusableKana(piece: string): readonly string[] {
+  const chars = Array.from(piece)
+  if (chars.length === 1) return [...(CONFUSABLE_KANA.get(piece) ?? [])]
+  const [head, small] = chars
+  // Trong bảng Unicode, chữ lớn đứng ngay sau chữ nhỏ tương ứng: ょ → よ, ァ → ア
+  const separate = [head, String.fromCharCode(small.charCodeAt(0) + 1)]
+  if (!YOON.includes(small)) return separate
+  const otherSmalls = Array.from(YOON).filter((s) => s !== small && (s >= 'ァ') === (small >= 'ァ'))
+  return [
+    ...separate,
+    ...otherSmalls.map((s) => head + s),
+    ...[...(DIACRITIC.get(head) ?? [])].map((h) => h + small),
+  ]
+}
+
 const KANJI = /[一-鿿㐀-䶿]/
 
 /** Hai cách viết giống nhau bao nhiêu: chung chữ, có chữ dễ nhầm, cùng số chữ Kanji. */

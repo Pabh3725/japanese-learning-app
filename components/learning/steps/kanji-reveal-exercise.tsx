@@ -5,6 +5,7 @@ import { ContinueFooter } from '@/components/learning/exercise-footer'
 import { ExercisePanel } from '@/components/learning/exercise-panel'
 import { SpeakerButton } from '@/components/learning/speaker-button'
 import type { Stage3Word } from '@/lib/dal/stage3'
+import { speak } from '@/lib/speech'
 import { cn } from '@/lib/utils'
 
 function expressionSize(text: string) {
@@ -25,6 +26,13 @@ interface KanjiRevealExerciseProps {
 export function KanjiRevealExercise({ word, saving, error, onComplete }: KanjiRevealExerciseProps) {
   const [flipped, setFlipped] = useState(false)
 
+  // Đọc ngay trong lúc bấm, vì một số trình duyệt chặn âm thanh không do người dùng bấm
+  const reveal = () => {
+    if (flipped) return
+    setFlipped(true)
+    speak(word.reading)
+  }
+
   return (
     <ExercisePanel
       stage="Stage 3 · Kanji & Sino-Vietnamese"
@@ -32,7 +40,7 @@ export function KanjiRevealExercise({ word, saving, error, onComplete }: KanjiRe
       footer={
         <ContinueFooter
           label={!flipped ? 'Reveal' : saving ? 'Saving…' : error ? 'Try again' : 'Got it'}
-          onClick={flipped ? onComplete : () => setFlipped(true)}
+          onClick={flipped ? onComplete : reveal}
           disabled={saving}
           hint={error ?? (flipped ? 'Next: practice writing it from pieces.' : undefined)}
         />
@@ -47,7 +55,7 @@ export function KanjiRevealExercise({ word, saving, error, onComplete }: KanjiRe
         >
           <button
             type="button"
-            onClick={() => setFlipped(true)}
+            onClick={reveal}
             tabIndex={flipped ? -1 : 0}
             className="absolute inset-0 flex flex-col items-center justify-center gap-5 rounded-3xl border border-border bg-card px-6 text-center backface-hidden"
           >

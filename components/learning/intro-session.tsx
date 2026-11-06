@@ -47,8 +47,8 @@ export function IntroSession({ words }: { words: IntroWord[] }) {
           title="New words met!"
           subtitle={`You met ${words.length} new ${words.length === 1 ? 'word' : 'words'}. Practice comes next.`}
           stats={[]}
-          primary={{ href: '/learn/intro', label: 'Meet more words' }}
-          secondary={{ href: '/', label: 'Back to Home' }}
+          primary={{ href: '/learn/stage2', label: 'Practice Stage 2' }}
+          secondary={{ href: '/learn/intro', label: 'Meet more words' }}
         />
       </div>
     )

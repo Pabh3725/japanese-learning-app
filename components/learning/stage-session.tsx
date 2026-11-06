@@ -18,22 +18,18 @@ import type { MatchPenalty } from '@/lib/exercise/match-round'
 import type { StageQuestion } from '@/lib/dal/stage-session'
 import { formatVnDateTime } from '@/lib/learning/time'
 import type { ScoredStage } from '@/lib/learning/types'
+import { withRetry } from '@/lib/retry'
 import { speak } from '@/lib/speech'
 import type { AssemblyStep, ChoiceStep, RecallStep } from '@/lib/types'
 
 const SAVE_ERROR = "Couldn't check your answer. Check your connection and try again."
-
-interface Saved {
-  correct: boolean
-  delta: number
-  movedUp: boolean
-}
+const SAVE_WARNING = "Some answers couldn't be saved. Check your connection."
 
 type ChoiceQ = Extract<StageQuestion, { kind: 'choice' }>
 type AssemblyQ = Extract<StageQuestion, { kind: 'assembly' }>
 type TypingQ = Extract<StageQuestion, { kind: 'typing' }>
 
-function toChoiceStep(q: ChoiceQ, stageLabel: string): ChoiceStep {
+function toChoiceStep(q: ChoiceQ, stageLabel: string, note: string): ChoiceStep {
   return {
     id: q.clientEventId,
     type: 'choice',
@@ -43,7 +39,7 @@ function toChoiceStep(q: ChoiceQ, stageLabel: string): ChoiceStep {
     options: q.options,
     answer: q.answer,
     optionKind: q.optionKind,
-    explanation: '',
+    explanation: note,
   }
 }
 
@@ -89,11 +85,6 @@ function pointsNote(stage: ScoredStage, result: SubmitExerciseResponse['result']
   return 'No points this time: the word came up too soon, or today’s limit is reached.'
 }
 
-function toSaved(correct: boolean, result: SubmitExerciseResponse['result']): Saved | null {
-  if (!result) return null
-  return { correct, delta: result.delta, movedUp: result.unlockedStage !== null || result.completed }
-}
-
 /** Câu nghe: tự đọc một lần, có nút nghe lại. */
 function ListeningPrompt({ kana }: { kana: string }) {
   useEffect(() => {
@@ -118,7 +109,10 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
   const router = useRouter()
   const voice = useJapaneseVoice()
   const [index, setIndex] = useState(0)
-  const [saved, setSaved] = useState<Saved[]>([])
+  // Đúng hoặc sai của từng câu đã trả lời, để tính tỷ lệ cuối lượt
+  const [results, setResults] = useState<boolean[]>([])
+  // Điểm và mốc mới của câu chọn. Câu chọn lưu ở nền nên kết quả về sau khi đã hiện đúng/sai.
+  const [notes, setNotes] = useState<Record<string, string>>({})
   const [pending, setPending] = useState(0)
   const [warning, setWarning] = useState<string | null>(null)
   const shownAt = useRef(0)
@@ -148,19 +142,18 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
   }
 
   if (index >= questions.length) {
-    const correct = saved.filter((s) => s.correct).length
-    const points = saved.reduce((n, s) => n + s.delta, 0)
-    const moved = saved.filter((s) => s.movedUp).length
-    const answerable = questions.filter((question) => question.kind !== 'match').length
+    const correct = results.filter(Boolean).length
+    const wrong = results.length - correct
+    const accuracy = results.length > 0 ? Math.round((correct / results.length) * 100) : 0
     return (
       <div className="flex min-h-dvh flex-col">
         <SessionComplete
           title={pending > 0 ? 'Saving…' : 'Round complete!'}
-          subtitle={warning ?? `You practiced ${answerable} ${answerable === 1 ? 'word' : 'words'} in ${stageLabel}.`}
+          subtitle={warning ?? `You practiced ${results.length} ${results.length === 1 ? 'word' : 'words'} in ${stageLabel}.`}
           stats={[
-            { label: 'Correct', value: `${correct}/${answerable}`, tone: 'text-success' },
-            { label: 'Stage points', value: `${points >= 0 ? '+' : ''}${points}`, tone: 'text-cyan' },
-            { label: 'Moved up', value: String(moved), tone: 'text-yellow' },
+            { label: 'Correct', value: String(correct), tone: 'text-success' },
+            { label: 'Wrong', value: String(wrong), tone: 'text-error' },
+            { label: 'Accuracy', value: `${accuracy}%`, tone: 'text-cyan' },
           ]}
           primary={{ href: '/learn', label: 'Back to Learn' }}
           secondary={{ href: '/', label: 'Back to Home' }}
@@ -175,7 +168,9 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
   const responseMs = () => Date.now() - shownAt.current
 
   const answerChoice = (current: ChoiceQ, exercise: string) => (chosen: string) => {
-    if (chosen === current.answer) speak(current.speak)
+    // Sai cũng đọc, để người học nghe đúng từ cần đọc lại
+    speak(current.speak)
+    setResults((list) => [...list, chosen === current.answer])
     const payload = {
       learnerVocabularyId: current.learnerVocabularyId,
       stage,
@@ -186,16 +181,18 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
     }
     setPending((n) => n + 1)
     saveQueue.current = saveQueue.current
-      .then(() => submitStageAnswerAction(payload))
+      // clientEventId giữ nguyên nên gửi lại không bị tính hai lần. conflict: lịch vừa đổi, tính lại là được.
+      .then(() => withRetry(() => submitStageAnswerAction(payload), (res) => res.status === 'conflict'))
       .then((res) => {
         if (res.status === 'graded') {
-          const entry = toSaved(res.outcome === 'correct', res.result)
-          if (entry) setSaved((list) => [...list, entry])
-        } else {
-          setWarning(`Some answers were not saved (${res.status}).`)
+          const note = pointsNote(stage, res.result)
+          if (note) setNotes((all) => ({ ...all, [current.clientEventId]: note }))
+        } else if (res.status !== 'stage_changed' && res.status !== 'not_found') {
+          // Hai trường hợp kia là từ đã học xong trên máy khác, không phải lỗi của người học
+          setWarning(SAVE_WARNING)
         }
       })
-      .catch(() => setWarning('Some answers were not saved (network error).'))
+      .catch(() => setWarning(SAVE_WARNING))
       .finally(() => setPending((n) => n - 1))
   }
 
@@ -214,10 +211,9 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
       })
       if (res.status === 'graded') {
         const correct = res.outcome === 'correct'
-        if (correct) speak(res.reading)
-        const entry = toSaved(correct, res.result)
-        if (entry) setSaved((list) => [...list, entry])
-        return { correct, answer: [res.answer], explanation: pointsNote(stage, res.result) }
+        speak(res.reading)
+        setResults((list) => [...list, correct])
+        return { correct, answer: [res.answer], explanation: pointsNote(stage, res.result), reveal: res.reveal }
       }
       // Từ đã hoàn tất stage này (ví dụ học trên máy khác): câu này không còn hiệu lực.
       if (res.status === 'stage_changed' || res.status === 'not_found') {
@@ -235,11 +231,11 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
     if (penalties.length > 0) {
       setPending((n) => n + 1)
       saveQueue.current = saveQueue.current
-        .then(() => submitMatchPenaltiesAction(penalties))
+        .then(() => withRetry(() => submitMatchPenaltiesAction(penalties)))
         .then((res) => {
-          if (res.status !== 'saved') setWarning('Some answers were not saved.')
+          if (res.status !== 'saved') setWarning(SAVE_WARNING)
         })
-        .catch(() => setWarning('Some answers were not saved (network error).'))
+        .catch(() => setWarning(SAVE_WARNING))
         .finally(() => setPending((n) => n - 1))
     }
     next()
@@ -257,7 +253,7 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
       const useAudio = listening && voice === 'available'
       const fallback = listening && !useAudio
       const exercise = fallback ? 'meaning_to_kana' : q.exercise
-      const step = toChoiceStep(q, stageLabel)
+      const step = toChoiceStep(q, stageLabel, notes[q.clientEventId] ?? '')
       body = (
         <ChoiceExercise
           key={q.clientEventId}
@@ -266,6 +262,7 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
           onAnswer={answerChoice(q, exercise)}
           instant
           wrongNote={WRONG_ANSWER_NOTE}
+          reveal={q.reveal}
           onComplete={next}
         />
       )

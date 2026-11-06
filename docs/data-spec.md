@@ -89,9 +89,10 @@ Là các từ riêng biệt, mỗi từ một `code`. Hiện có: 人 (じん / 
 
 ## 5. Quy tắc khi dùng data trong app
 
-1. **Chọn đáp án nhiễu (distractor)**: loại mọi từ có `meaning_vi` trùng với đáp án đúng (so sánh sau khi `trim` và viết thường). Hiện có 17 nhóm từ trùng nghĩa, xem mục 8.
+1. **Chọn đáp án nhiễu (distractor)**: loại mọi từ có `meaning_vi` trùng với đáp án đúng (so sánh sau khi `trim` và viết thường). Hiện còn 3 nhóm trùng nghĩa và cùng cách đọc (`はし`, `かみ`, `かえます`); không được có hai từ khác cách đọc mà trùng nghĩa, vì đề nghĩa ở câu gõ và câu ghép phải chỉ có một đáp án (có test kiểm tra). Xem mục 8.
 2. **Từ cùng `expression`**: khi câu hỏi hiển thị `expression` mà không kèm cách đọc, không đưa các từ cùng `expression` làm đáp án nhiễu của nhau.
 3. **`NULL` là trạng thái hợp lệ**: UI phải xử lý được `romaji`, `han_viet` (từ chỉ-kana) và `stroke_count` bằng `NULL`.
+4. **Mảnh nhiễu của câu ghép Kana**: khoảng một nửa là mảnh dễ nhầm với đáp án (khác dấu `か/が`, nhìn giống `あ/お`, khác cỡ `つ/っ`, đọc gần `す/つ`), khoảng một phần ba là mảnh đặc biệt (`ー`, `っ`, hàng `ぱ`, âm ghép), còn lại là chữ thường. Không mảnh nhiễu nào trùng mảnh đáp án.
 
 ---
 
@@ -206,7 +207,7 @@ Nghĩa của 145 chữ N5 gốc được viết thường chữ đầu cho thố
 
 ### Còn mở (cần quyết định hoặc sửa tay)
 
-1. **17 nhóm từ trùng nghĩa** (app đã có quy tắc ở mục 5 để không sinh câu hỏi 2 đáp án đúng; sửa data giúp người học phân biệt tốt hơn):
+1. **Đã xử lý 14/17 nhóm từ trùng nghĩa (2026-11-06, làm rõ nghĩa của 24 từ để đề chỉ có một đáp án); còn 3 nhóm cùng cách đọc `はし`, `かみ`, `かえます`** (app đã có quy tắc ở mục 5 để không sinh câu hỏi 2 đáp án đúng; sửa data giúp người học phân biệt tốt hơn):
    - tối: 晩, 夜, 暗い
    - sáng: 朝, 明るい
    - đường: 砂糖, 道

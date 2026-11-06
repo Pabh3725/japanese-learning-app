@@ -149,10 +149,8 @@ export function MatchRoundExercise({ round, onDone }: MatchRoundExerciseProps) {
           disabled={!finished}
           hint={
             finished
-              ? missed.size > 0
-                ? `${missed.size} ${missed.size === 1 ? 'word' : 'words'} lost a point.`
-                : 'Perfect round!'
-              : 'No points for correct pairs. A wrong match costs that word one point.'
+              ? `${round.pairs.length - missed.size}/${round.pairs.length} correct on the first try.`
+              : 'Match all the pairs to continue.'
           }
         />
       }

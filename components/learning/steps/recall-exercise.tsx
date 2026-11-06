@@ -6,6 +6,8 @@ import { ExercisePanel } from '@/components/learning/exercise-panel'
 import { PromptDisplay } from '@/components/learning/prompt-display'
 import type { AssemblyGrade } from '@/components/learning/steps/assembly-exercise'
 import { convertAtCaret, normalizeHanViet } from '@/lib/exercise/answer-normalize'
+import type { WordReveal } from '@/lib/exercise/stage-questions'
+import { typingTip } from '@/lib/exercise/typing-tips'
 import type { RecallStep } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -23,9 +25,12 @@ export function RecallExercise({ step, onComplete, onGrade, wrongNote }: RecallE
   const [status, setStatus] = useState<CheckStatus>('idle')
   const [checking, setChecking] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [graded, setGraded] = useState<{ answer: string; explanation?: string } | null>(null)
+  const [graded, setGraded] = useState<{ answer: string; explanation?: string; reveal?: WordReveal } | null>(null)
   const locked = status !== 'idle' || checking
   const converts = step.input === 'hiragana' || step.input === 'katakana'
+  // Sai thì luôn nhắc cách gõ; đúng thì chỉ nhắc khi từ có chữ cần chú ý như ー, っ
+  const tip = converts && graded?.reveal ? typingTip(graded.reveal.kana) : undefined
+  const showTip = tip && (status === 'incorrect' || tip.rules.length > 0) ? tip : undefined
 
   const check = async () => {
     if (!value.trim() || checking) return
@@ -43,7 +48,7 @@ export function RecallExercise({ step, onComplete, onGrade, wrongNote }: RecallE
       setError(result.error)
       return
     }
-    setGraded({ answer: result.answer.join(''), explanation: result.explanation })
+    setGraded({ answer: result.answer.join(''), explanation: result.explanation, reveal: result.reveal })
     setStatus(result.correct ? 'correct' : 'incorrect')
   }
 
@@ -133,6 +138,8 @@ export function RecallExercise({ step, onComplete, onGrade, wrongNote }: RecallE
           correctAnswer={graded?.answer ?? step.displayAnswer}
           explanation={graded ? graded.explanation : step.explanation}
           wrongNote={wrongNote}
+          reveal={graded?.reveal}
+          typingTip={showTip}
           secondary={error ? <p role="alert" className="text-sm text-error">{error}</p> : null}
         />
       }
