@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState, useTransition } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Check, Search } from 'lucide-react'
 import { markWordsKnownAction, unmarkWordsKnownAction } from '@/app/learn/actions'
@@ -249,7 +250,7 @@ export function LibraryBrowser({ vocabulary, kanji }: { vocabulary: VocabListIte
                     </button>
                   )}
                   <div className="flex items-start justify-between gap-2">
-                    <p lang="ja" className="font-jp text-3xl font-medium">{v.expression}</p>
+                    <Link href={`/library/${v.code}`} lang="ja" className="font-jp text-3xl font-medium hover:text-primary">{v.expression}</Link>
                     <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground tabular-nums">
                       {v.lesson === null ? `#${v.sortOrder}` : `Lesson ${v.lesson}`}
                     </span>

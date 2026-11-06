@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { seededRng } from '../../exercise/questions'
-import { mixQuestions, newWordsBlockedBy, sessionsFor } from '../session'
+import { mixQuestions, newWordsBlockedBy, sessionsFor, shouldAddBossRound } from '../session'
 
 describe('sessionsFor', () => {
   it.each([[0, 0], [1, 1], [20, 1], [21, 2], [45, 3], [200, 10]])('%i câu cần %i phiên', (questions, sessions) => {
@@ -53,5 +53,14 @@ describe('mixQuestions', () => {
     const one = [{ wordId: 'w', exercise: 'a' }, { wordId: 'w', exercise: 'a' }]
     expect(mixQuestions(one, seededRng(1))).toHaveLength(2)
     expect(mixQuestions([], seededRng(1))).toEqual([])
+  })
+})
+
+describe('shouldAddBossRound', () => {
+  it('có vòng boss khi phiên đi qua mốc 25, cần đủ 6 từ', () => {
+    expect(shouldAddBossRound(10, 20, 10)).toBe(true) // 10 → 30
+    expect(shouldAddBossRound(30, 19, 10)).toBe(false) // 30 → 49
+    expect(shouldAddBossRound(30, 20, 10)).toBe(true) // 30 → 50
+    expect(shouldAddBossRound(10, 20, 5)).toBe(false)
   })
 })

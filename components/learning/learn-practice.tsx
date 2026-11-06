@@ -254,7 +254,8 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
 
   /** Vòng ghép ô: lưu ở nền theo cùng hàng đợi, người học đi tiếp ngay. */
   const finishMatch = (penalties: MatchPenalty[]) => {
-    if (penalties.length > 0) {
+    // Vòng boss chỉ để ôn vui, không trừ điểm
+    if (penalties.length > 0 && !(q.kind === 'match' && q.boss)) {
       setPending((n) => n + 1)
       saveQueue.current = saveQueue.current
         .then(() => withRetry(() => submitMatchPenaltiesAction(penalties)))
@@ -330,7 +331,7 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
       <SessionHeader
         backHref="/learn"
         label={`Session ${sessionNumber} of ${sessionNumber - 1 + sessionsLeft}`}
-        sublabel={q.kind === 'match' ? 'Matching round' : isRetry ? `Try again · ${index - questions.length + 1} of ${retries.length}` : `Step ${index + 1} of ${queue.length}`}
+        sublabel={q.kind === 'match' ? (q.boss ? 'Boss round' : 'Matching round') : isRetry ? `Try again · ${index - questions.length + 1} of ${retries.length}` : `Step ${index + 1} of ${queue.length}`}
         current={index}
         total={queue.length}
       />

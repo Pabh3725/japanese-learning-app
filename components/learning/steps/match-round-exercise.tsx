@@ -8,6 +8,8 @@ import { isShortcutEvent, matchRightIndexForKey, matchRightKeyLabel, pieceIndexF
 import { speak } from '@/lib/speech'
 import { cn } from '@/lib/utils'
 
+const BOSS_SECONDS = 30
+
 const TITLES: Record<MatchPairType, string> = {
   kana_meaning: 'Match each word with its meaning',
   kanji_meaning: 'Match each Kanji word with its meaning',
@@ -78,7 +80,16 @@ export function MatchRoundExercise({ round, onDone }: MatchRoundExerciseProps) {
 
   useEffect(() => () => clearTimeout(timer.current), [])
 
-  const finished = matched.size === round.pairs.length
+  const allMatched = matched.size === round.pairs.length
+  const [secondsLeft, setSecondsLeft] = useState(BOSS_SECONDS)
+  const timedOut = round.boss === true && secondsLeft === 0
+  const finished = allMatched || timedOut
+
+  useEffect(() => {
+    if (!round.boss || finished) return
+    const id = setInterval(() => setSecondsLeft((s) => Math.max(0, s - 1)), 1000)
+    return () => clearInterval(id)
+  }, [round.boss, finished])
 
   const attempt = (l: number, r: number) => {
     setLeft(null)
@@ -95,13 +106,13 @@ export function MatchRoundExercise({ round, onDone }: MatchRoundExerciseProps) {
   }
 
   const pickLeft = (i: number) => {
-    if (flash) return
+    if (flash || finished) return
     if (right !== null) attempt(i, right)
     else setLeft(left === i ? null : i)
   }
 
   const pickRight = (i: number) => {
-    if (flash) return
+    if (flash || finished) return
     if (left !== null) attempt(left, i)
     else setRight(right === i ? null : i)
   }
@@ -140,7 +151,7 @@ export function MatchRoundExercise({ round, onDone }: MatchRoundExerciseProps) {
 
   return (
     <ExercisePanel
-      stage="Stage 5 · Matching round"
+      stage={round.boss ? `Boss round · ${secondsLeft}s` : 'Stage 5 · Matching round'}
       question={TITLES[round.pairType]}
       footer={
         <ContinueFooter
@@ -148,9 +159,13 @@ export function MatchRoundExercise({ round, onDone }: MatchRoundExerciseProps) {
           onClick={finish}
           disabled={!finished}
           hint={
-            finished
-              ? `${round.pairs.length - missed.size}/${round.pairs.length} correct on the first try.`
-              : 'Match all the pairs to continue.'
+            timedOut && !allMatched
+              ? `Time's up! You matched ${matched.size} of ${round.pairs.length} pairs.`
+              : finished
+                ? `${round.pairs.length - missed.size}/${round.pairs.length} correct on the first try.`
+                : round.boss
+                  ? 'Match as many pairs as you can. This round does not change your points.'
+                  : 'Match all the pairs to continue.'
           }
         />
       }

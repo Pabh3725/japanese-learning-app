@@ -1369,8 +1369,10 @@ Thay các trang từng stage bằng một luồng tại `/learn/session`; đư�
 - **Thứ tự:** cụm thẻ giới thiệu (thẻ Hán tự, thẻ Hán Việt, từ mới), rồi câu hỏi của Stage 2, 4, 5 đã trộn, từ vừa giới thiệu đứng trước, cuối cùng là vòng ghép và hỏi lại câu sai.
 - **Câu ghép ở Stage 5 và Review không cho biết số ô:** thêm ngẫu nhiên 0–3 mảnh nhiễu, tối đa 18 mảnh. Nút gợi ý (phím H) hiện số ô; đúng sau khi xem gợi ý tính là `hint`: Learn được 0 điểm và mất chuỗi đúng, Review là Hard.
 - **Đã biết từ này:** nút trong phiên Learn và Review (phím K, có Undo), và tick nhiều từ trong Library. Từ rời khỏi toàn bộ lộ trình (bảng `learner_vocabulary_exclusions`), Card tạm ngưng, không tính vào chỉ tiêu từ mới trong ngày và tổng lộ trình; khôi phục trong Library, điểm và Card còn nguyên.
+- **Vòng boss:** khi phiên đi qua mốc 25, 50, 75… câu trong ngày và có ít nhất 6 từ, cuối phiên có vòng ghép 30 giây, không đổi điểm và lịch. Phiên đã có vòng ghép Stage 5 thì không thêm. Cộng điểm Card của vòng boss làm ở GAME-01.
+- **Học thêm:** trên trang Learn khi hết việc hôm nay; mượn từ mới của ngày kế tiếp, tối đa số từ của một ngày, không mượn khi từ mới đang bị chặn.
 - **Trộn câu:** cùng một từ cách ít nhất 4 câu, không có 2 câu cùng dạng liền nhau; không xếp được thì nới luật cùng dạng trước.
-- **Chặn từ mới:** khi Card đến hạn đạt ngưỡng hoặc câu Stage đến hẹn đạt trần. Số đầu ngày tính gần đúng bằng số đang đến hẹn cộng số đã làm hôm nay, chưa chụp lại lúc đầu ngày.
+- **Chặn từ mới:** khi Card đến hạn đạt ngưỡng hoặc câu Stage đến hẹn đạt trần. Hai số này (D, S) chụp lần đầu trong ngày học vào `learner_daily_plans`, cố định cả ngày.
 
 Ngữ pháp và Thể động từ hiện chỉ là **bản xem trước giao diện** (`/grammar`, `/verbs`), dùng nội dung mẫu và không lưu kết quả. Phần thật làm sau v0.1.
 

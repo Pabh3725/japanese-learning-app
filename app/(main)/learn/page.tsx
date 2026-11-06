@@ -3,6 +3,7 @@ import { Play } from 'lucide-react'
 import { actionButton } from '@/components/action-button'
 import { PageHeader } from '@/components/page-header'
 import { ProgressBar } from '@/components/progress-bar'
+import { LearnMoreButton } from '@/components/learning/learn-more-button'
 import { getLearnOverview } from '@/lib/dal/learn-overview'
 import { cn } from '@/lib/utils'
 
@@ -43,6 +44,7 @@ export default async function LearnPage() {
               </p>
             )}
           </div>
+          {!hasWork && overview.canBorrow > 0 && <LearnMoreButton count={overview.canBorrow} />}
           {hasWork && (
             <Link href="/learn/session" className={cn(actionButton({ size: 'lg' }), 'w-full md:w-auto md:px-10')}>
               <Play className="fill-current" aria-hidden="true" />

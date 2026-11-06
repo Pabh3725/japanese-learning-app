@@ -11,6 +11,17 @@ export function sessionsFor(questionCount: number): number {
   return Math.ceil(Math.max(0, questionCount) / QUESTIONS_PER_SESSION)
 }
 
+/** Cứ khoảng 25 câu thì có một vòng boss (R7). */
+const QUESTIONS_PER_BOSS = 25
+/** Vòng boss cần đủ từ khác nhau để ghép 6 cặp. */
+const MIN_WORDS_FOR_BOSS = 6
+
+/** Phiên này có đi qua mốc 25, 50, 75… câu trong ngày không. */
+export function shouldAddBossRound(answeredToday: number, questionsInSession: number, wordsInSession: number): boolean {
+  if (wordsInSession < MIN_WORDS_FOR_BOSS) return false
+  return Math.floor((answeredToday + questionsInSession) / QUESTIONS_PER_BOSS) > Math.floor(answeredToday / QUESTIONS_PER_BOSS)
+}
+
 export type NewWordsBlock = 'cards' | 'stage' | null
 
 /** Từ mới dừng khi Card đến hạn đạt ngưỡng, hoặc câu Stage đến hẹn đạt trần. */

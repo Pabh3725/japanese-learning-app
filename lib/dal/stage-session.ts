@@ -12,7 +12,9 @@ import { getIntroData } from '@/lib/dal/intro'
 import { getStage3Items, type Stage3Item } from '@/lib/dal/stage3'
 import { deriveEarned } from '@/lib/exercise/mappers'
 import type { IntroWord } from '@/lib/intro/words'
-import { INTROS_PER_SESSION, mixQuestions, newWordsBlockedBy, QUESTIONS_PER_SESSION, sessionsFor, type NewWordsBlock } from '@/lib/learn/session'
+import { INTROS_PER_SESSION, mixQuestions, newWordsBlockedBy, QUESTIONS_PER_SESSION, sessionsFor, shouldAddBossRound, type NewWordsBlock } from '@/lib/learn/session'
+import { readDailyLimits, saveBorrowed } from '@/lib/dal/daily-limits'
+import { allowedBorrow } from '@/lib/learning/daily-plan'
 import { kanjiPieces } from '@/lib/exercise/word-parts'
 import {
   buildStageQuestion,
@@ -79,39 +81,6 @@ export async function loadPools(supabase: Supabase): Promise<QuestionPools> {
 
 type DueEntry = { row: WordRow; stage: ScoredStage; schedule: WordRow['learner_stage_schedules'][number] }
 
-export interface DailyLimits {
-  newPerDay: number
-  stageCap: number
-  reviewCap: number
-  unlockThreshold: number
-  /** Card đến hạn đầu ngày, tính gần đúng bằng số đang đến hạn cộng số đã ôn hôm nay. */
-  cardsDueToday: number
-  answeredToday: number
-}
-
-export async function readDailyLimits(supabase: Supabase, userId: string): Promise<DailyLimits> {
-  const today = studyDate(new Date())
-  const [settings, cardsDue, reviewed, answered] = await Promise.all([
-    supabase.from('learner_settings').select('daily_new_limit, stage_cap, review_cap, unlock_threshold').eq('user_id', userId).maybeSingle(),
-    supabase.from('review_cards').select('id', { count: 'exact', head: true }).eq('user_id', userId).is('retired_at', null).lte('due_at', new Date().toISOString()),
-    supabase.from('review_logs').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('study_date', today),
-    supabase.from('exercise_logs').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('study_date', today).eq('source', 'lesson'),
-  ])
-  if (settings.error) throw new Error(`Không đọc được learner_settings: ${settings.error.message}`)
-  if (cardsDue.error) throw new Error(`Không đọc được review_cards: ${cardsDue.error.message}`)
-  if (reviewed.error) throw new Error(`Không đọc được review_logs: ${reviewed.error.message}`)
-  if (answered.error) throw new Error(`Không đọc được exercise_logs: ${answered.error.message}`)
-  const { defaults } = RULES_V4
-  return {
-    newPerDay: settings.data?.daily_new_limit ?? defaults.newPerDay,
-    stageCap: settings.data?.stage_cap ?? defaults.stageCap,
-    reviewCap: settings.data?.review_cap ?? defaults.reviewCap,
-    unlockThreshold: settings.data?.unlock_threshold ?? defaults.unlockThreshold,
-    cardsDueToday: (cardsDue.count ?? 0) + (reviewed.count ?? 0),
-    answeredToday: answered.count ?? 0,
-  }
-}
-
 export type LearnIntroItem = { kind: 'new'; word: IntroWord } | Stage3Item
 
 export interface LearnSessionData {
@@ -177,7 +146,7 @@ export async function getLearnSession(practiceOnly: boolean): Promise<LearnSessi
   const block = newWordsBlockedBy({
     cardsDue: limits.cardsDueToday,
     unlockThreshold: limits.unlockThreshold,
-    stageDue: dueAll.length + limits.answeredToday,
+    stageDue: limits.stageDueToday,
     stageCap: limits.stageCap,
   })
 
@@ -240,12 +209,29 @@ export async function getLearnSession(practiceOnly: boolean): Promise<LearnSessi
   const questions: StageQuestion[] = mixQuestions(built)
 
   const stage5Ids = entries.filter((e) => e.stage === 5).map((e) => e.row.id)
-  if (stage5Ids.length > 0) {
-    const round = await buildRoundForUser(supabase, user.id, excludedIds, stage5Ids, pools.words)
-    // Cuối phiên: đặt sớm hơn thì các cặp ghép sẽ lộ cách đọc và nghĩa của những câu còn lại
-    if (round) questions.push(round)
+  // Cuối phiên: đặt sớm hơn thì các cặp ghép sẽ lộ cách đọc và nghĩa của những câu còn lại
+  const round = stage5Ids.length > 0 ? await buildRoundForUser(supabase, user.id, excludedIds, stage5Ids, pools.words) : null
+  if (round) {
+    questions.push(round)
+  } else if (shouldAddBossRound(limits.answeredToday, entries.length, new Set(entries.map((e) => e.row.id)).size)) {
+    const boss = await buildBossRound(supabase, user.id, excludedIds, pools.words)
+    if (boss) questions.push(boss)
   }
   return { ...common, intros: [], questions, sessionsLeft: Math.max(1, sessionsFor(dueCount + newLeft)), nextDueAt: null }
+}
+
+/** Vòng boss: ghép nhanh trong 30 giây các từ đã học. Chỉ để ôn vui, không đổi điểm và lịch. */
+async function buildBossRound(supabase: Supabase, userId: string, excludedIds: ReadonlySet<string>, words: readonly StageWord[]): Promise<MatchRoundData | null> {
+  const { data, error } = await supabase.from('learner_vocabulary').select('id, vocabulary_id, kanji_intro_seen_at').eq('user_id', userId).range(0, PAGE - 1)
+  if (error) throw new Error(`Không đọc được learner_vocabulary: ${error.message}`)
+  const byId = new Map(words.map((w) => [w.id, w]))
+  const candidates = (data ?? []).flatMap((row) => {
+    const word = byId.get(row.vocabulary_id)
+    if (!word || excludedIds.has(row.vocabulary_id)) return []
+    return [{ ...word, learnerVocabularyId: row.id, kanjiIntroSeen: row.kanji_intro_seen_at !== null, stage5Active: false }]
+  })
+  const round = buildMatchRound(candidates, randomUUID)
+  return round && { ...round, boss: true }
 }
 
 /** Vòng ghép ô dùng các từ đã học, ưu tiên từ đang ở Stage 5. */
@@ -397,5 +383,30 @@ export async function submitMatchPenalties(input: unknown): Promise<{ status: 's
     p_answered_at: now.toISOString(),
   })
   if (rpcError) throw new Error(`apply_match_penalties lỗi: ${rpcError.message}`)
+  return { status: 'saved' }
+}
+
+/** "Học thêm": mượn từ mới của ngày mai, tối đa trọn số từ của một ngày, khi từ mới không bị chặn. */
+export async function borrowNewWords(requested: unknown): Promise<{ status: 'saved' | 'blocked' | 'invalid' }> {
+  if (!Number.isInteger(requested) || (requested as number) < 1) return { status: 'invalid' }
+  const user = await requireUser()
+  const supabase = await createClient()
+  const limits = await readDailyLimits(supabase, user.id)
+  const block = newWordsBlockedBy({
+    cardsDue: limits.cardsDueToday,
+    unlockThreshold: limits.unlockThreshold,
+    stageDue: limits.stageDueToday,
+    stageCap: limits.stageCap,
+  })
+  const allowed = block
+    ? 0
+    : allowedBorrow({
+        dueSnapshot: limits.cardsDueToday,
+        alreadyBorrowedForTomorrow: limits.borrowedForNext,
+        requested: requested as number,
+        settings: { newPerDay: limits.newPerDay, reviewCap: limits.reviewCap, unlockThreshold: limits.unlockThreshold },
+      })
+  if (allowed === 0) return { status: 'blocked' }
+  await saveBorrowed(supabase, user.id, limits.borrowedForNext + allowed)
   return { status: 'saved' }
 }

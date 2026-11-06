@@ -2,9 +2,9 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
-import { readDailyLimits } from '@/lib/dal/stage-session'
+import { readDailyLimits } from '@/lib/dal/daily-limits'
 import { newWordsBlockedBy, sessionsFor, type NewWordsBlock } from '@/lib/learn/session'
-import { countMetToday, newPerDayOf, remainingNewToday } from '@/lib/learning/new-words'
+import { countMetToday, newPerDayOf, newWordsForToday, remainingNewToday } from '@/lib/learning/new-words'
 import { RULES_V4 } from '@/lib/learning/rules'
 import { reachedKanjiIntro } from '@/lib/learning/stage'
 import { nextStudyDayStart } from '@/lib/learning/time'
@@ -24,6 +24,11 @@ export interface LearnOverview {
   sessions: number
   /** Lý do hôm nay không có thêm từ mới. */
   block: NewWordsBlock
+  /** Số từ có thể mượn thêm của ngày mai. */
+  canBorrow: number
+  newPerDay: number
+  /** Số từ chưa gặp trong lộ trình. */
+  wordsLeft: number
   completed: number
   inProgress: number
   total: number
@@ -132,10 +137,11 @@ export async function getLearnOverview(): Promise<LearnOverview> {
   const block = newWordsBlockedBy({
     cardsDue: limits.cardsDueToday,
     unlockThreshold: limits.unlockThreshold,
-    stageDue: dueTotal + limits.answeredToday,
+    stageDue: limits.stageDueToday,
     stageCap: limits.stageCap,
   })
-  const newToday = block ? 0 : Math.min(left, remainingNewToday(newPerDayOf(limits.newPerDay), metToday))
+  const newPerDay = newPerDayOf(limits.newPerDay)
+  const newToday = block ? 0 : Math.min(left, remainingNewToday(newWordsForToday(newPerDay, limits.borrowedForToday, limits.borrowedForNext), metToday))
   const stage3Waiting = active.filter((r) => r.learning_status === 'learning' && r.current_stage === 3).length + kanjiWaiting
   const questionsToday = Math.min(dueTotal, Math.max(0, limits.stageCap - limits.answeredToday))
 
@@ -146,6 +152,9 @@ export async function getLearnOverview(): Promise<LearnOverview> {
     questionsToday,
     sessions: sessionsFor(questionsToday + newToday + stage3Waiting),
     block,
+    canBorrow: block ? 0 : Math.min(left - newToday, Math.max(0, newPerDay - limits.borrowedForNext)),
+    newPerDay,
+    wordsLeft: left,
     currentLesson: currentLesson(lessons, new Set([...startedIds, ...excludedIds])),
     completed,
     inProgress: active.length - completed,
