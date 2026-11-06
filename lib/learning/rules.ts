@@ -53,6 +53,7 @@ export const RULES_V4 = {
     'vocab.meaning_kana': 30,
     'vocab.kana_hanviet': 40,
   } as Partial<Record<CardType, number>>,
+  bossRound: { seconds: 30 },
   defaults: { newPerDay: 5, stageCap: 200, reviewCap: 120, unlockThreshold: 80, kanjiNewPerDay: 5, kanjiCap: 50 },
   borrow: { maxDaysAhead: 1 },
 } as const

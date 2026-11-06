@@ -15,11 +15,13 @@ import { MatchRoundExercise } from '@/components/learning/steps/match-round-exer
 import { RecallExercise } from '@/components/learning/steps/recall-exercise'
 import { LevelUpCard } from '@/components/learning/steps/level-up-card'
 import { RelearnExercise } from '@/components/learning/steps/relearn-exercise'
+import { SpeedMatchingGame } from '@/components/practice/speed-matching-game'
 import type { SubmitExerciseResponse } from '@/lib/dal/exercise'
 import type { MatchPenalty } from '@/lib/exercise/match-round'
 import type { AssemblyQuestionData, ChoiceQuestionData, TypingQuestionData, WordReveal } from '@/lib/exercise/stage-questions'
 import type { StageQuestion } from '@/lib/dal/stage-session'
 import { levelUpOf, type LevelUp } from '@/lib/learn/level-up'
+import { RULES_V4 } from '@/lib/learning/rules'
 import { shouldRelearn } from '@/lib/learning/stage'
 import type { ScoredStage } from '@/lib/learning/types'
 import { withRetry } from '@/lib/retry'
@@ -192,7 +194,7 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
   /** Sai lần thứ 3 liên tiếp thì xem lại từ rồi mới sang câu sau. */
   const afterAnswer = (correct: boolean, reveal: WordReveal | undefined) => {
     next()
-    if (correct || q.kind === 'match' || isRetry) return
+    if (correct || q.kind === 'match' || q.kind === 'boss' || isRetry) return
     setRetries((list) => [...list, q])
     if (reveal && shouldRelearn(q.wrongStreak + 1)) setRelearn(reveal)
   }
@@ -278,8 +280,7 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
 
   /** Vòng ghép ô: lưu ở nền theo cùng hàng đợi, người học đi tiếp ngay. */
   const finishMatch = (penalties: MatchPenalty[]) => {
-    // Vòng boss chỉ để ôn vui, không trừ điểm
-    if (penalties.length > 0 && !(q.kind === 'match' && q.boss)) {
+    if (penalties.length > 0) {
       setPending((n) => n + 1)
       saveQueue.current = saveQueue.current
         .then(() => withRetry(() => submitMatchPenaltiesAction(penalties)))
@@ -294,16 +295,18 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
 
   /** Bỏ mọi câu còn lại của từ này. Câu đang hiện cũng bị bỏ nên câu kế tiếp tự hiện ra. */
   const removeWord = (vocabularyId: string) => {
-    setQuestions((list) => list.filter((item, i) => i < index || item.kind === 'match' || item.vocabularyId !== vocabularyId))
+    setQuestions((list) => list.filter((item, i) => i < index || item.kind === 'match' || item.kind === 'boss' || item.vocabularyId !== vocabularyId))
     setRetries((list) => list.filter((item) => item.vocabularyId !== vocabularyId))
     setRelearn(null)
   }
 
-  const stageLabel = q.kind === 'match' ? 'Stage 5' : `Stage ${q.stage}`
+  const stageLabel = q.kind === 'match' ? 'Stage 5' : q.kind === 'boss' ? 'Boss round' : `Stage ${q.stage}`
   // Cùng một câu hỏi lại nên cần key khác, để màn hình bắt đầu mới
   const bodyKey = `${q.clientEventId}${isRetry ? '-retry' : ''}`
   let body: React.ReactNode
-  if (q.kind === 'match') {
+  if (q.kind === 'boss') {
+    body = <SpeedMatchingGame key={q.clientEventId} words={q.words} mode="mixed" seconds={RULES_V4.bossRound.seconds} onBossDone={next} />
+  } else if (q.kind === 'match') {
     body = <MatchRoundExercise key={q.clientEventId} round={q} onDone={finishMatch} />
   } else if (q.kind === 'choice') {
     const listening = q.listenTo !== undefined
@@ -355,11 +358,11 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
       <SessionHeader
         backHref="/learn"
         label={`Session ${sessionNumber} of ${sessionNumber - 1 + sessionsLeft}`}
-        sublabel={q.kind === 'match' ? (q.boss ? 'Boss round' : 'Matching round') : isRetry ? `Try again · ${index - questions.length + 1} of ${retries.length}` : `Step ${index + 1} of ${queue.length}`}
+        sublabel={q.kind === 'boss' ? 'Boss round' : q.kind === 'match' ? 'Matching round' : isRetry ? `Try again · ${index - questions.length + 1} of ${retries.length}` : `Step ${index + 1} of ${queue.length}`}
         current={index}
         total={queue.length}
       />
-      <KnownWordBar vocabularyId={q.kind === 'match' || levelUp ? null : q.vocabularyId} onKnown={removeWord} />
+      <KnownWordBar vocabularyId={q.kind === 'match' || q.kind === 'boss' || levelUp ? null : q.vocabularyId} onKnown={removeWord} />
       {warning && <p role="alert" className="mx-auto mt-3 w-full max-w-2xl px-4 text-sm text-error">{warning}</p>}
       {levelUp ? (
         <LevelUpCard levelUp={levelUp} onContinue={() => setLevelUp(null)} />

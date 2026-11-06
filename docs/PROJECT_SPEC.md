@@ -1369,7 +1369,7 @@ Thay các trang từng stage bằng một luồng tại `/learn/session`; đư�
 - **Thứ tự:** cụm thẻ giới thiệu (thẻ Hán tự, thẻ Hán Việt, từ mới), rồi câu hỏi của Stage 2, 4, 5 đã trộn, từ vừa giới thiệu đứng trước, cuối cùng là vòng ghép và hỏi lại câu sai.
 - **Câu ghép ở Stage 5 và Review không cho biết số ô:** thêm ngẫu nhiên 0–3 mảnh nhiễu, tối đa 18 mảnh. Nút gợi ý (phím H) hiện số ô; đúng sau khi xem gợi ý tính là `hint`: Learn được 0 điểm và mất chuỗi đúng, Review là Hard.
 - **Đã biết từ này:** nút trong phiên Learn và Review (phím K, có Undo), và tick nhiều từ trong Library. Từ rời khỏi toàn bộ lộ trình (bảng `learner_vocabulary_exclusions`), Card tạm ngưng, không tính vào chỉ tiêu từ mới trong ngày và tổng lộ trình; khôi phục trong Library, điểm và Card còn nguyên.
-- **Vòng boss:** khi phiên đi qua mốc 25, 50, 75… câu trong ngày và có ít nhất 6 từ, cuối phiên có vòng ghép 30 giây, không đổi điểm và lịch. Phiên đã có vòng ghép Stage 5 thì không thêm. Cộng điểm Card của vòng boss làm ở GAME-01.
+- **Vòng boss:** khi phiên đi qua mốc 25, 50, 75… câu trong ngày và có ít nhất 6 từ, cuối phiên có Speed Matching 30 giây ở chế độ Hỗn hợp. Chỉ đổi điểm Card, không đổi lịch và điểm Stage, không tính vào giãn cách. Phiên đã có vòng ghép Stage 5 thì không thêm.
 - **Học thêm:** trên trang Learn khi hết việc hôm nay; mượn từ mới của ngày kế tiếp, tối đa số từ của một ngày, không mượn khi từ mới đang bị chặn.
 - **Trộn câu:** cùng một từ cách ít nhất 4 câu, không có 2 câu cùng dạng liền nhau; không xếp được thì nới luật cùng dạng trước.
 - **Chặn từ mới:** khi Card đến hạn đạt ngưỡng hoặc câu Stage đến hẹn đạt trần. Hai số này (D, S) chụp lần đầu trong ngày học vào `learner_daily_plans`, cố định cả ngày.
@@ -1377,7 +1377,10 @@ Thay các trang từng stage bằng một luồng tại `/learn/session`; đư�
 - **Thẻ lên stage:** hiện giữa hai câu khi một từ mở stage sau hoặc hoàn tất stage. Câu chọn lưu ở nền nên thẻ có thể hiện chậm một câu.
 - **Tổng kết ngày (`/learn/summary`):** số câu, tỷ lệ đúng, tổng điểm và số stage hoàn tất hôm nay, lấy từ log. Log không ghi lúc mở stage nên không đếm việc này.
 - **Progress và streak:** số liệu thật từ log. Ngày có ít nhất 1 câu Learn hoặc Review được tính vào streak; hôm nay chưa học chưa làm mất chuỗi. Tỷ lệ nhớ = Card không chọn Again trong 30 ngày. Achievements ẩn tới khi có thiết kế riêng.
-- **Practice:** Speed Matching là lưới 4×4 (8 cặp nằm lộn xộn), ghép đúng thì ô biến mất, xóa hết bàn thì hiện bàn mới, 60 giây cho cả lượt. Trò chơi chạy bằng từ đã gặp (cần ít nhất 8 từ khác nhau), chưa lưu kết quả; các trò khác ghi Coming soon. Lưu kết quả và cộng điểm Card làm ở GAME-01.
+- **Practice (GAME-01):** Speed Matching là lưới 4×4 (8 cặp nằm lộn xộn), ghép đúng thì ô biến mất, xóa hết bàn thì hiện bàn mới, 60 giây cho cả lượt, cần ít nhất 8 từ khác nhau. Các trò khác ghi Coming soon.
+- **Chọn chế độ khi vào game:** Hỗn hợp (Kana → `vocab.meaning_kana`, Kanji đã giới thiệu → `vocab.meaning_kanji`) hoặc đúng một loại Card; chế độ một loại Card chỉ gồm từ có Card đó còn hoạt động. Hỗn hợp vẫn gồm từ chưa có Card, chơi được nhưng không có điểm.
+- **Điểm game:** chỉ đổi điểm Card, không đổi lịch ôn, lịch Stage hay điểm Stage. Đúng +1 (tối đa +3 mỗi Card mỗi ngày); sai −1 cho Card của **cả 2 từ**, mỗi từ bị trừ tối đa 1 lần mỗi bàn. Điểm game có thể đưa Card tới mốc bị bỏ (chủ dự án duyệt 2026-11-07).
+- **Thứ tự từ ra bàn:** Card lâu chưa ôn nhất trước, chưa ôn lần nào coi là lâu nhất; Card đã chạm trần hôm nay xuống sau, từ chưa có Card xuống cuối.
 
 Ngữ pháp và Thể động từ hiện chỉ là **bản xem trước giao diện** (`/grammar`, `/verbs`), dùng nội dung mẫu và không lưu kết quả. Phần thật làm sau v0.1.
 

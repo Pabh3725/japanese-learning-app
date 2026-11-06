@@ -168,7 +168,7 @@ Xoay vòng, không lặp dạng của lần ôn trước. Card kana–Hán Việ
 | 3 card còn lại | không bỏ | — |
 
 - Card bị bỏ: `status = retired`, không còn được lên lịch hay chọn cho practice; lịch sử giữ nguyên. — CONFIRMED
-- Câu practice ánh xạ vào card — PROPOSED: cặp Kana ↔ nghĩa → `vocab.meaning_kana`; cặp Kana ↔ Hán Việt → `vocab.kana_hanviet`. Nếu card chưa tồn tại hoặc đã bỏ thì không cộng điểm.
+- Câu practice ánh xạ vào card — CONFIRMED (2026-11-07): người chơi chọn loại Card khi vào game. Chế độ Hỗn hợp: ô Kana → `vocab.meaning_kana`, ô Kanji → `vocab.meaning_kanji`. Nếu card chưa tồn tại hoặc đã bỏ thì không đổi điểm. Ghép sai trừ card của cả 2 từ, mỗi từ tối đa 1 lần mỗi bàn. Từ có card lâu chưa ôn nhất ra bàn trước.
 
 ## 9. R7 — Dựng Learn và Review mỗi ngày (V8)
 
