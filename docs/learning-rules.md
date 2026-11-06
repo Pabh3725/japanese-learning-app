@@ -142,7 +142,9 @@ Khi mở stage sau: điểm stage hiện tại **giữ nguyên**, stage kế ti�
 - Card mới: trạng thái FSRS `New`, điểm card 0, **đến hạn lần đầu lúc 00:00 ngày học hôm sau**. — CONFIRMED (6a)
 - Tạo card idempotent: hoàn tất Stage hai lần (ví dụ do submit trùng) không tạo card thứ hai. — PROPOSED
 
-### Dạng bài dùng để ôn từng card — PROPOSED
+### Dạng bài dùng để ôn từng card — CONFIRMED (REV-02, 2026-11-06)
+
+Xoay vòng, không lặp dạng của lần ôn trước. Card kana–Hán Việt có từ trước thẻ Giới thiệu Hán tự nên đề là Kana và nghĩa, không có Kanji.
 
 | Card | Dạng bài khi review |
 | --- | --- |

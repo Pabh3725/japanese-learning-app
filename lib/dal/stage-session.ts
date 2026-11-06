@@ -62,7 +62,7 @@ type WordRow = {
 }
 
 /** Kho đáp án nhiễu. Tự chia trang vì Data API trả tối đa 1000 dòng mỗi lần. */
-async function loadPools(supabase: Supabase): Promise<QuestionPools> {
+export async function loadPools(supabase: Supabase): Promise<QuestionPools> {
   const words: StageWord[] = []
   for (let from = 0; ; from += PAGE) {
     const { data, error } = await supabase

@@ -1,95 +1,166 @@
 'use client'
 
-import { useEffect, useEffectEvent, useState } from 'react'
-import { actionButton } from '@/components/action-button'
+// Phiên ôn Card: mỗi card một câu, máy chấm rồi quy ra rating. Câu chọn hiện kết quả ngay và lưu ở nền;
+// câu ghép và câu gõ chờ server chấm vì đáp án không có ở trình duyệt.
+import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { submitReviewAnswerAction } from '@/app/review/actions'
+import { WRONG_ANSWER_NOTE } from '@/components/learning/exercise-footer'
 import { SessionComplete } from '@/components/learning/session-complete'
 import { SessionHeader } from '@/components/learning/session-header'
-import { ReviewCardView } from '@/components/review/review-card-view'
-import { ReviewRatingButtons } from '@/components/review/review-rating-buttons'
-import type { ReviewCard, ReviewRating } from '@/lib/types'
-import { cn } from '@/lib/utils'
+import { ListeningPrompt, toAssemblyStep, toChoiceStep, toRecallStep } from '@/components/learning/stage-session'
+import { useJapaneseVoice } from '@/components/learning/speaker-button'
+import { AssemblyExercise, type AssemblyGrade } from '@/components/learning/steps/assembly-exercise'
+import { ChoiceExercise } from '@/components/learning/steps/choice-exercise'
+import { RecallExercise } from '@/components/learning/steps/recall-exercise'
+import type { ReviewQuestion } from '@/lib/dal/review'
+import { withRetry } from '@/lib/retry'
+import { speak } from '@/lib/speech'
 
-const ratingKeys: Record<string, ReviewRating> = { '1': 'again', '2': 'hard', '3': 'good', '4': 'easy' }
+const SAVE_ERROR = "Couldn't check your answer. Check your connection and try again."
+const SAVE_WARNING = "Some answers couldn't be saved. They'll come up again."
 
-export function ReviewSession({ cards }: { cards: ReviewCard[] }) {
+type ChoiceQ = Extract<ReviewQuestion, { kind: 'choice' }>
+type AssemblyQ = Extract<ReviewQuestion, { kind: 'assembly' }>
+type TypingQ = Extract<ReviewQuestion, { kind: 'typing' }>
+
+export function ReviewSession({ questions, capReached }: { questions: ReviewQuestion[]; capReached: boolean }) {
+  const router = useRouter()
+  const voice = useJapaneseVoice()
   const [index, setIndex] = useState(0)
-  const [revealed, setRevealed] = useState(false)
-  const [ratings, setRatings] = useState<ReviewRating[]>([])
-
-  const done = index >= cards.length
-
-  const rate = (rating: ReviewRating) => {
-    setRatings((r) => [...r, rating])
-    setRevealed(false)
-    setIndex((i) => i + 1)
-  }
-
-  const onKey = useEffectEvent((e: KeyboardEvent) => {
-    if (done) return
-    if (!revealed && (e.key === ' ' || e.key === 'Enter')) {
-      e.preventDefault()
-      setRevealed(true)
-    } else if (revealed && ratingKeys[e.key]) {
-      rate(ratingKeys[e.key])
-    }
-  })
+  const [results, setResults] = useState<boolean[]>([])
+  const [pending, setPending] = useState(0)
+  const [warning, setWarning] = useState<string | null>(null)
+  const shownAt = useRef(0)
+  // Lưu tuần tự để hai câu của cùng một từ không ghi đè nhau
+  const saveQueue = useRef<Promise<void>>(Promise.resolve())
 
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => onKey(e)
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [])
+    shownAt.current = Date.now()
+  }, [index])
 
-  if (done) {
-    const remembered = ratings.filter((r) => r !== 'again').length
+  if (questions.length === 0) {
     return (
       <div className="flex min-h-dvh flex-col">
         <SessionComplete
-          title="Review done!"
-          subtitle="Your memory is getting stronger every day."
-          stats={[
-            { label: 'Cards', value: String(cards.length), tone: 'text-cyan' },
-            { label: 'Recalled', value: `${Math.round((remembered / cards.length) * 100)}%`, tone: 'text-success' },
-            { label: 'Again', value: String(cards.length - remembered), tone: 'text-pink' },
-          ]}
-          primary={{ href: '/practice', label: 'Play a quick game' }}
-          secondary={{ href: '/', label: 'Back to Home' }}
-          onRestart={() => {
-            setIndex(0)
-            setRatings([])
-          }}
+          title={capReached ? "You've reached today's limit" : 'All caught up!'}
+          subtitle={capReached ? 'The remaining cards will come up tomorrow.' : 'No cards are due right now. New cards appear the day after a word finishes a stage.'}
+          stats={[]}
+          primary={{ href: '/learn', label: 'Go to Learn' }}
+          secondary={{ href: '/review', label: 'Back to Review' }}
         />
       </div>
     )
   }
 
-  const card = cards[index]
+  if (index >= questions.length) {
+    const correct = results.filter(Boolean).length
+    const wrong = results.length - correct
+    const accuracy = results.length > 0 ? Math.round((correct / results.length) * 100) : 0
+    return (
+      <div className="flex min-h-dvh flex-col">
+        <SessionComplete
+          title={pending > 0 ? 'Saving…' : 'Review done!'}
+          subtitle={warning ?? `You reviewed ${results.length} ${results.length === 1 ? 'card' : 'cards'}.`}
+          stats={[
+            { label: 'Correct', value: String(correct), tone: 'text-success' },
+            { label: 'Wrong', value: String(wrong), tone: 'text-error' },
+            { label: 'Accuracy', value: `${accuracy}%`, tone: 'text-cyan' },
+          ]}
+          primary={{ href: '/review', label: 'Back to Review' }}
+          secondary={{ href: '/', label: 'Back to Home' }}
+          onRestart={() => router.refresh()}
+        />
+      </div>
+    )
+  }
+
+  const q = questions[index]
+  const next = () => setIndex((i) => i + 1)
+  const responseMs = () => Date.now() - shownAt.current
+
+  const answerChoice = (current: ChoiceQ, exercise: string) => (chosen: string) => {
+    speak(current.speak)
+    setResults((list) => [...list, chosen === current.answer])
+    const payload = { cardId: current.cardId, clientEventId: current.clientEventId, exercise, answer: chosen, responseMs: responseMs() }
+    setPending((n) => n + 1)
+    saveQueue.current = saveQueue.current
+      // clientEventId giữ nguyên nên gửi lại không bị tính hai lần
+      .then(() => withRetry(() => submitReviewAnswerAction(payload), (res) => res.status === 'conflict'))
+      .then((res) => {
+        if (res.status === 'invalid' || res.status === 'conflict') setWarning(SAVE_WARNING)
+      })
+      .catch(() => setWarning(SAVE_WARNING))
+      .finally(() => setPending((n) => n - 1))
+  }
+
+  const gradeOnServer = (current: AssemblyQ | TypingQ) => async (given: string | string[]): Promise<AssemblyGrade> => {
+    const elapsed = responseMs()
+    try {
+      await saveQueue.current
+      const res = await submitReviewAnswerAction({
+        cardId: current.cardId,
+        clientEventId: current.clientEventId,
+        exercise: current.exercise,
+        answer: given,
+        responseMs: elapsed,
+      })
+      if (res.status === 'graded') {
+        const correct = res.outcome === 'correct'
+        speak(res.reading)
+        setResults((list) => [...list, correct])
+        return { correct, answer: [res.answer], reveal: res.reveal }
+      }
+      // Card đã bị bỏ hoặc tạm ngưng trên máy khác: câu này không còn hiệu lực
+      if (res.status === 'not_active' || res.status === 'not_found') {
+        next()
+        return null
+      }
+      return { error: SAVE_ERROR }
+    } catch {
+      return { error: SAVE_ERROR }
+    }
+  }
+
+  const label = 'Review'
+  let body: React.ReactNode
+  if (q.kind === 'choice') {
+    const listening = q.listenTo !== undefined
+    if (listening && voice === 'checking') {
+      body = <p className="m-auto text-sm text-muted-foreground">Loading…</p>
+    } else {
+      const useAudio = listening && voice === 'available'
+      const fallback = listening && !useAudio
+      const exercise = fallback && q.noVoice ? q.noVoice.exercise : q.exercise
+      const step = toChoiceStep(q, label, '')
+      body = (
+        <ChoiceExercise
+          key={q.clientEventId}
+          step={fallback && q.noVoice ? { ...step, question: q.noVoice.question } : step}
+          promptNode={useAudio ? <ListeningPrompt kana={q.listenTo!} /> : undefined}
+          onAnswer={answerChoice(q, exercise)}
+          instant
+          wrongNote={WRONG_ANSWER_NOTE}
+          reveal={q.reveal}
+          onComplete={next}
+        />
+      )
+    }
+  } else if (q.kind === 'assembly') {
+    body = (
+      <AssemblyExercise key={q.clientEventId} step={toAssemblyStep(q, label)} onComplete={next} onGrade={gradeOnServer(q)} wrongNote={WRONG_ANSWER_NOTE} />
+    )
+  } else {
+    body = (
+      <RecallExercise key={q.clientEventId} step={toRecallStep(q, label)} onComplete={next} onGrade={gradeOnServer(q)} wrongNote={WRONG_ANSWER_NOTE} />
+    )
+  }
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <SessionHeader backHref="/review" label="Daily Review" sublabel={`${index + 1} / ${cards.length}`} current={index} total={cards.length} />
-
-      <div key={card.id} className="mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-center px-4 py-10 animate-in fade-in duration-200">
-        <span className="mb-8 rounded-full bg-secondary px-3 py-1 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-          {card.kind === 'kanji' ? 'Kanji' : 'Vocabulary'}
-        </span>
-        <ReviewCardView card={card} revealed={revealed} />
-      </div>
-
-      <div className="border-t border-border">
-        <div className="mx-auto w-full max-w-2xl px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:py-6">
-          {revealed ? (
-            <div className="animate-in fade-in duration-200">
-              <ReviewRatingButtons onRate={rate} />
-            </div>
-          ) : (
-            <button type="button" onClick={() => setRevealed(true)} className={cn(actionButton({ size: 'lg' }), 'w-full')}>
-              Show Answer
-              <kbd className="hidden rounded-md bg-black/15 px-1.5 py-0.5 font-sans text-xs md:inline">Space</kbd>
-            </button>
-          )}
-        </div>
-      </div>
+      <SessionHeader backHref="/review" label="Daily Review" sublabel={`${index + 1} / ${questions.length}`} current={index} total={questions.length} />
+      {warning && <p role="alert" className="mx-auto mt-3 w-full max-w-2xl px-4 text-sm text-error">{warning}</p>}
+      {body}
     </div>
   )
 }

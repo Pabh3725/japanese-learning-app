@@ -16,7 +16,7 @@ import { RecallExercise } from '@/components/learning/steps/recall-exercise'
 import { RelearnExercise } from '@/components/learning/steps/relearn-exercise'
 import type { SubmitExerciseResponse } from '@/lib/dal/exercise'
 import type { MatchPenalty } from '@/lib/exercise/match-round'
-import type { WordReveal } from '@/lib/exercise/stage-questions'
+import type { AssemblyQuestionData, ChoiceQuestionData, TypingQuestionData, WordReveal } from '@/lib/exercise/stage-questions'
 import type { StageQuestion } from '@/lib/dal/stage-session'
 import { shouldRelearn } from '@/lib/learning/stage'
 import { formatVnDateTime } from '@/lib/learning/time'
@@ -34,7 +34,7 @@ type AssemblyQ = Extract<StageQuestion, { kind: 'assembly' }>
 type TypingQ = Extract<StageQuestion, { kind: 'typing' }>
 type AnswerQ = ChoiceQ | AssemblyQ | TypingQ
 
-function toChoiceStep(q: ChoiceQ, stageLabel: string, note: string): ChoiceStep {
+export function toChoiceStep(q: ChoiceQuestionData & { clientEventId: string }, stageLabel: string, note: string): ChoiceStep {
   return {
     id: q.clientEventId,
     type: 'choice',
@@ -48,7 +48,7 @@ function toChoiceStep(q: ChoiceQ, stageLabel: string, note: string): ChoiceStep 
   }
 }
 
-function toAssemblyStep(q: AssemblyQ, stageLabel: string): AssemblyStep {
+export function toAssemblyStep(q: AssemblyQuestionData & { clientEventId: string }, stageLabel: string): AssemblyStep {
   return {
     id: q.clientEventId,
     type: 'assembly',
@@ -65,7 +65,7 @@ function toAssemblyStep(q: AssemblyQ, stageLabel: string): AssemblyStep {
   }
 }
 
-function toRecallStep(q: TypingQ, stageLabel: string): RecallStep {
+export function toRecallStep(q: TypingQuestionData & { clientEventId: string }, stageLabel: string): RecallStep {
   return {
     id: q.clientEventId,
     type: 'recall',
@@ -92,7 +92,7 @@ function pointsNote(stage: ScoredStage, result: SubmitExerciseResponse['result']
 }
 
 /** Câu nghe: tự đọc một lần, có nút nghe lại. */
-function ListeningPrompt({ kana }: { kana: string }) {
+export function ListeningPrompt({ kana }: { kana: string }) {
   useEffect(() => {
     speak(kana)
   }, [kana])
