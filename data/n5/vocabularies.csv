@@ -1,913 +1,1873 @@
-code,sort_order,expression,reading_kana,meaning_vi,romaji,han_viet,is_kana_only,jlpt_level,emoji
-n5-0001,1,私,わたし,tôi,watashi,TƯ,false,5,
-n5-0002,2,私たち,わたしたち,chúng tôi,watashitachi,TƯ,false,5,
-n5-0003,3,あなた,あなた,anh; chị; ông; bà; bạn (ngôi thứ 2 số ít),anata,,true,5,
-n5-0004,4,あの人,あのひと,người kia,anohito,NHÂN,false,5,
-n5-0005,5,あの方,あのかた,vị kia (cách nói lịch sự của あのひと),anokata,PHƯƠNG,false,5,
-n5-0006,6,みなさん,みなさん,các bạn; các anh; các chị; mọi người,minasan,,true,5,
-n5-0007,7,さん,さん,anh ~; chị ~; ông ~; bà ~ (cách gọi người khác 1 cách lịch sự),san,,true,5,
-n5-0008,8,ちゃん,ちゃん,bé (dùng cho nữ) hoặc gọi thân mật cho trẻ con (cả nam lẫn nữ),chan,,true,5,
-n5-0009,9,くん,くん,bé (dùng cho nam) hoặc gọi thân mật,kun,,true,5,
-n5-0010,10,人,じん,người nước ~,jin,NHÂN,false,5,
-n5-0011,11,先生,せんせい,giáo viên; bác sĩ,sensei,TIÊN SINH,false,5,
-n5-0012,12,教師,きょうし,giáo viên (dùng để nói đến nghề nghiệp),kyoushi,GIÁO SƯ,false,5,
-n5-0013,13,学生,がくせい,học sinh; sinh viên,gakusei,HỌC SINH,false,5,🧑‍🎓
-n5-0014,14,会社員,かいしゃいん,nhân viên công ty,kaishain,HỘI XÃ VIÊN,false,5,
-n5-0015,15,社員,しゃいん,nhân viên công ty ~,shain,XÃ VIÊN,false,5,
-n5-0016,16,銀行員,ぎんこういん,nhân viên ngân hàng,ginkouin,NGÂN HÀNH VIÊN,false,5,
-n5-0017,17,医者,いしゃ,bác sĩ,isha,Y GIẢ,false,5,🧑‍⚕️
-n5-0018,18,研究者,けんきゅうしゃ,nhà nghiên cứu,kenkyuusha,NGHIÊN CỨU GIẢ,false,5,
-n5-0019,19,エンジニア,エンジニア,kỹ sư,enjinia,,true,5,
-n5-0020,20,大学,だいがく,trường đại học,daigaku,ĐẠI HỌC,false,5,🎓
-n5-0021,21,病院,びょういん,bệnh viện,byouin,BỆNH VIỆN,false,5,🏥
-n5-0022,22,電気,でんき,điện; đèn điện,denki,ĐIỆN KHÍ,false,5,
-n5-0023,23,誰,だれ,ai (ngài nào; vị nào),dare,THUỲ,false,5,
-n5-0024,24,歳,さい,tuổi,sai,TUẾ,false,5,
-n5-0025,25,何歳,なんさい,mấy tuổi,nansai,HÀ TUẾ,false,5,
-n5-0026,26,はい,はい,vâng,hai,,true,5,
-n5-0027,27,いいえ,いいえ,không,iie,,true,5,
-n5-0028,28,失礼ですが,しつれいですが,xin lỗi (khi muốn nhờ ai việc gì đó),shitsureidesuga,THẤT LỄ,false,5,
-n5-0029,29,お名前は,おなまえは,bạn tên gì?,onamaeha,DANH TIỀN,false,5,
-n5-0030,30,はじめまして,はじめまして,chào lần đầu gặp nhau,hajimemashite,,true,5,
-n5-0031,31,どうぞよろしく,どうぞよろしく,rất hân hạnh được làm quen,douzoyoroshiku,,true,5,
-n5-0032,32,から来ました,からきました,đến từ ~,karakimashita,LAI,false,5,
-n5-0033,33,アメリカ,アメリカ,Mỹ,amerika,,true,5,🇺🇸
-n5-0034,34,イギリス,イギリス,Anh,igirisu,,true,5,🇬🇧
-n5-0035,35,インド,インド,Ấn Độ,indo,,true,5,🇮🇳
-n5-0036,36,インドネシア,インドネシア,Indonesia,indoneshia,,true,5,🇮🇩
-n5-0037,37,韓国,かんこく,Hàn Quốc,kankoku,HÀN QUỐC,false,5,🇰🇷
-n5-0038,38,タイ,タイ,Thái Lan,tai,,true,5,🇹🇭
-n5-0039,39,中国,ちゅうごく,Trung Quốc,chuugoku,TRUNG QUỐC,false,5,🇨🇳
-n5-0040,40,ドイツ,ドイツ,Đức,doitsu,,true,5,🇩🇪
-n5-0041,41,日本,にほん,Nhật,nihon,NHẬT BẢN,false,5,🇯🇵
-n5-0042,42,フランス,フランス,Pháp,furansu,,true,5,🇫🇷
-n5-0043,43,ブラジル,ブラジル,Brazil,burajiru,,true,5,🇧🇷
-n5-0044,44,さくら大学,さくらだいがく,trường ĐH Sakura (Hoa Anh Đào),sakuradaigaku,ĐẠI HỌC,false,5,
-n5-0045,45,これ,これ,cái này; đây (vật ở gần người nói),kore,,true,5,
-n5-0046,46,それ,それ,cái đó; đó (vật ở gần người nghe),sore,,true,5,
-n5-0047,47,あれ,あれ,cái kia; kia (vật ở xa cả người nói và người nghe); ô! (câu cảm thán khi phát hiện hoặc thấy cái gì đó lạ; hoặc bất ngờ),are,,true,5,
-n5-0048,48,この,この,~ này,kono,,true,5,
-n5-0049,49,その,その,~ đó,sono,,true,5,
-n5-0050,50,あの,あの,~ kia,ano,,true,5,
-n5-0051,51,本,ほん,sách,hon,BẢN,false,5,📖
-n5-0052,52,辞書,じしょ,từ điển,jisho,TỪ THƯ,false,5,📕
-n5-0053,53,雑誌,ざっし,tạp chí,zasshi,TẠP CHÍ,false,5,
-n5-0054,54,新聞,しんぶん,báo,shinbun,TÂN VĂN,false,5,📰
-n5-0055,55,ノート,ノート,vở,nooto,,true,5,📓
-n5-0056,56,手帳,てちょう,sổ tay,techou,THỦ TRƯỚNG,false,5,
-n5-0057,57,名刺,めいし,danh thiếp,meishi,DANH THÍCH,false,5,
-n5-0058,58,カード,カード,thẻ; cạc,kaado,,true,5,
-n5-0059,59,テレホンカード,テレホンカード,thẻ điện thoại,terehonkaado,,true,5,
-n5-0060,60,鉛筆,えんぴつ,bút chì,enpitsu,DUYÊN BÚT,false,5,✏️
-n5-0061,61,ボールペン,ボールペン,bút bi,boorupen,,true,5,🖊️
-n5-0062,62,シャープペンシル,シャープペンシル,bút chì kim; bút chì bấm,shaapupenshiru,,true,5,
-n5-0063,63,かぎ,かぎ,chìa khóa,kagi,,true,5,🔑
-n5-0064,64,時計,とけい,đồng hồ,tokei,THỜI KẾ,false,5,🕒
-n5-0065,65,傘,かさ,ô; dù,kasa,TẢN,false,5,☂️
-n5-0066,66,かばん,かばん,cặp sách; túi sách,kaban,,true,5,👜
-n5-0067,67,テープ,テープ,băng [cát-xét],teepu,,true,5,
-n5-0068,68,テープレコーダー,テープレコーダー,máy ghi âm,teepurekoodaa,,true,5,
-n5-0069,69,テレビ,テレビ,tivi,terebi,,true,5,📺
-n5-0070,70,ラジオ,ラジオ,radio,rajio,,true,5,📻
-n5-0071,71,カメラ,カメラ,máy ảnh,kamera,,true,5,📷
-n5-0072,72,コンピュータ,コンピュータ,máy vi tính,konpyuuta,,true,5,💻
-n5-0073,73,自動車,じどうしゃ,ô tô; xe hơi,jidousha,TỰ ĐỘNG XA,false,5,🚗
-n5-0074,74,机,つくえ,cái bàn,tsukue,KỶ,false,5,
-n5-0075,75,いす,いす,ghế,isu,,true,5,🪑
-n5-0076,76,チョコレート,チョコレート,chocolate,chokoreeto,,true,5,🍫
-n5-0077,77,コーヒー,コーヒー,cà phê,koohii,,true,5,☕
-n5-0078,78,英語,えいご,tiếng Anh,eigo,ANH NGỮ,false,5,
-n5-0079,79,日本語,にほんご,tiếng Nhật,nihongo,NHẬT BẢN NGỮ,false,5,
-n5-0080,80,語,ご,tiếng~,go,NGỮ,false,5,
-n5-0081,81,何,なん,cái gì,nan,HÀ,false,5,
-n5-0082,82,そう,そう,đúng vậy,sou,,true,5,
-n5-0083,83,違います,ちがいます,nhầm rồi,chigaimasu,VI,false,5,
-n5-0084,84,そうですか,そうですか,thế à?,soudesuka,,true,5,
-n5-0085,85,あのう,あのう,à... (được sử dụng để thể hiện sự do dự),anou,,true,5,
-n5-0086,86,ほんの気持ちです,ほんのきもちです,đây là chút quà nhỏ của tôi,honnokimochidesu,KHÍ TRÌ,false,5,
-n5-0087,87,どうぞ,どうぞ,xin mời,douzo,,true,5,
-n5-0088,88,どうも,どうも,cảm ơn,doumo,,true,5,
-n5-0089,89,ありがとう,ありがとう,cảm ơn nhiều,arigatou,,true,5,
-n5-0090,90,これからお世話になります,これからおせわになります,từ nay mong được anh; chị giúp đỡ,korekaraosewaninarimasu,THẾ THOẠI,false,5,
-n5-0091,91,こちらこそよろしく,こちらこそよろしく,chính tôi mới mong được anh; chị giúp đỡ,kochirakosoyoroshiku,,true,5,
-n5-0092,92,ここ,ここ,chỗ này; đây,koko,,true,5,
-n5-0093,93,そこ,そこ,chỗ đó; đó,soko,,true,5,
-n5-0094,94,あそこ,あそこ,chỗ kia; kia,asoko,,true,5,
-n5-0095,95,どこ,どこ,chỗ nào; đâu,doko,,true,5,
-n5-0096,96,こちら,こちら,phía này; đằng này; chỗ này; đây (là cách nói lịch sự của ここ); cái này (cách nói lịch sự của “これ”),kochira,,true,5,
-n5-0097,97,そちら,そちら,phía đó; đằng đó; chỗ đó; đó (là cách nói lịch sự của そこ),sochira,,true,5,
-n5-0098,98,あちら,あちら,phía kia; đằng kia; chỗ kia; kia (cách nói lịch sự của あそこ),achira,,true,5,
-n5-0099,99,どちら,どちら,phía nào; đằng nào; chỗ nào; đâu (cách nói lịch sự của どこ); cái nào,dochira,,true,5,
-n5-0100,100,教室,きょうしつ,lớp học; phòng học,kyoushitsu,GIÁO THẤT,false,5,
-n5-0101,101,食堂,しょくどう,nhà ăn,shokudou,THỰC ĐƯỜNG,false,5,
-n5-0102,102,事務所,じむしょ,văn phòng,jimusho,SỰ VỤ SỞ,false,5,
-n5-0103,103,会議室,かいぎしつ,phòng họp,kaigishitsu,HỘI NGHỊ THẤT,false,5,
-n5-0104,104,受付,うけつけ,bộ phận tiếp tân; phòng thường trực; lễ tân,uketsuke,THỤ PHÓ,false,5,
-n5-0105,105,ロビー,ロビー,hành lang; đại sảnh,robii,,true,5,
-n5-0106,106,部屋,へや,căn phòng,heya,BỘ ỐC,false,5,
-n5-0107,107,トイレ,トイレ,nhà vệ sinh; phòng vệ sinh; toa-lét,toire,,true,5,
-n5-0108,108,階段,かいだん,cầu thang,kaidan,GIAI ĐOẠN,false,5,
-n5-0109,109,エレベーター,エレベーター,thang máy,erebeetaa,,true,5,🛗
-n5-0110,110,エスカレーター,エスカレーター,thang cuốn,esukareetaa,,true,5,
-n5-0111,111,お国,おくに,đất nước,okuni,QUỐC,false,5,
-n5-0112,112,会社,かいしゃ,công ty,kaisha,HỘI XÃ,false,5,
-n5-0113,113,うち,うち,nhà,uchi,,true,5,
-n5-0114,114,電話,でんわ,máy điện thoại; điện thoại,denwa,ĐIỆN THOẠI,false,5,☎️
-n5-0115,115,靴,くつ,giày,kutsu,NGOA,false,5,👞
-n5-0116,116,ネクタイ,ネクタイ,cà vạt,nekutai,,true,5,👔
-n5-0117,117,ワイン,ワイン,rượu vang,wain,,true,5,🍷
-n5-0118,118,たばこ,たばこ,thuốc lá,tabako,,true,5,🚬
-n5-0119,119,売り場,うりば,quầy bán (trong một cửa hàng bách hóa),uriba,MẠI TRƯỜNG,false,5,
-n5-0120,120,地下,ちか,tầng hầm; dưới mặt đất,chika,ĐỊA HẠ,false,5,
-n5-0121,121,階,かい,tầng thứ –,kai,GIAI,false,5,
-n5-0122,122,何階,なんがい,tầng mấy,nangai,HÀ GIAI,false,5,
-n5-0123,123,円,えん,yên,en,VIÊN,false,5,
-n5-0124,124,いくら,いくら,bao nhiêu tiền; cho dù; thế nào,ikura,,true,5,
-n5-0125,125,百,ひゃく,trăm,hyaku,BÁCH,false,5,
-n5-0126,126,千,せん,nghìn,sen,THIÊN,false,5,
-n5-0127,127,万,まん,mười nghìn; vạn,man,VẠN,false,5,
-n5-0128,128,すみません,すみません,xin lỗi (lịch sự),sumimasen,,true,5,
-n5-0129,129,でございます,でございます,(cách nói lịch sự của 「です」),degozaimasu,,true,5,
-n5-0130,130,見せてください,みせてください,cho tôi xem [~],misetekudasai,KIẾN,false,5,
-n5-0131,131,じゃ,じゃ,thế thì; vậy thì; hẹn gặp lại [ngày mai].,ja,,true,5,
-n5-0132,132,ください,ください,cho tôi [~],kudasai,,true,5,
-n5-0133,133,新大阪,しんおおさか,tên một nhà ga ở Osaka,shin'oosaka,TÂN ĐẠI BẢN,false,5,
-n5-0134,134,イタリア,イタリア,Ý,itaria,,true,5,🇮🇹
-n5-0135,135,スイス,スイス,Thụy Sĩ,suisu,,true,5,🇨🇭
-n5-0136,136,おきます,おきます,thức dậy,okimasu,,true,5,
-n5-0137,137,寝ます,ねます,ngủ,nemasu,TẨM,false,5,
-n5-0138,138,働きます,はたらきます,làm việc,hatarakimasu,ĐỘNG,false,5,
-n5-0139,139,休みます,やすみます,nghỉ ngơi,yasumimasu,HƯU,false,5,
-n5-0140,140,勉強します,べんきょうします,học tập,benkyoushimasu,MIỄN CƯỜNG,false,5,
-n5-0141,141,終わります,おわります,kết thúc,owarimasu,CHUNG,false,5,
-n5-0142,142,デパート,デパート,cửa hàng bách hóa,depaato,,true,5,🏬
-n5-0143,143,銀行,ぎんこう,ngân hàng,ginkou,NGÂN HÀNH,false,5,🏦
-n5-0144,144,郵便局,ゆうびんきょく,bưu điện,yuubinkyoku,BƯU TIỆN CỤC,false,5,🏤
-n5-0145,145,図書館,としょかん,thư viện,toshokan,ĐỒ THƯ QUÁN,false,5,📚
-n5-0146,146,美術館,びじゅつかん,viện bảo tàng,bijutsukan,MỸ THUẬT QUÁN,false,5,🖼️
-n5-0147,147,電話番号,でんわばんごう,số điện thoại,denwabangou,ĐIỆN THOẠI PHIÊN HIỆU,false,5,
-n5-0148,148,何番,なんばん,số mấy,nanban,HÀ PHIÊN,false,5,
-n5-0149,149,今,いま,bây giờ,ima,KIM,false,5,
-n5-0150,150,時,じ,~giờ,ji,THỜI,false,5,
-n5-0151,151,分,ふん,~phút,fun,PHÂN,false,5,
-n5-0152,152,半,はん,phân nửa,han,BÁN,false,5,
-n5-0153,153,何時,なんじ,mấy giờ,nanji,HÀ THỜI,false,5,
-n5-0154,154,何分,なんぷん,mấy phút,nanpun,HÀ PHÂN,false,5,
-n5-0155,155,午前,ごぜん,sáng (AM: trước 12 giờ),gozen,NGỌ TIỀN,false,5,
-n5-0156,156,午後,ごご,chiều (PM: sau 12 giờ),gogo,NGỌ HẬU,false,5,
-n5-0157,157,朝,あさ,buổi sáng,asa,TRIÊU,false,5,
-n5-0158,158,昼,ひる,trưa,hiru,TRÚ,false,5,
-n5-0159,159,晩,ばん,buổi tối,ban,VÃN,false,5,
-n5-0160,160,夜,よる,ban đêm,yoru,DẠ,false,5,
-n5-0161,161,おととい,おととい,ngày hôm kia,ototoi,,true,5,
-n5-0162,162,きのう,きのう,ngày hôm qua,kinou,,true,5,
-n5-0163,163,今日,きょう,hôm nay,kyou,KIM NHẬT,false,5,
-n5-0164,164,明日,あした,ngày mai,ashita,MINH NHẬT,false,5,
-n5-0165,165,あさって,あさって,ngày mốt,asatte,,true,5,
-n5-0166,166,今朝,けさ,sáng nay,kesa,KIM TRIÊU,false,5,
-n5-0167,167,こんばん,こんばん,tối nay,konban,,true,5,
-n5-0168,168,ゆうべ,ゆうべ,tối hôm qua,yuube,,true,5,
-n5-0169,169,休み,やすみ,nghỉ ngơi (danh từ),yasumi,HƯU,false,5,
-n5-0170,170,昼休み,ひるやすみ,nghỉ trưa,hiruyasumi,TRÚ HƯU,false,5,
-n5-0171,171,毎朝,まいあさ,mỗi sáng,maiasa,MỖI TRIÊU,false,5,
-n5-0172,172,毎晩,まいばん,mỗi tối,maiban,MỖI VÃN,false,5,
-n5-0173,173,毎日,まいにち,mỗi ngày,mainichi,MỖI NHẬT,false,5,
-n5-0174,174,ペキン,ペキン,Bắc Kinh,pekin,,true,5,
-n5-0175,175,バンコク,バンコク,Bangkok,bankoku,,true,5,
-n5-0176,176,ロンドン,ロンドン,Luân Đôn,rondon,,true,5,
-n5-0177,177,ロサンゼルス,ロサンゼルス,Los Angeles,rosanzerusu,,true,5,
-n5-0178,178,大変ですね,たいへんですね,vất vả nhỉ,taihendesune,ĐẠI BIẾN,false,5,
-n5-0179,179,ばんごうあんない,ばんごうあんない,dịch vụ 116 (hỏi số điện thoại),bangouannai,,true,5,
-n5-0180,180,おといあわせ,おといあわせ,(số điện thoại) bạn muốn biết; hỏi là,otoiawase,,true,5,
-n5-0181,181,番線,ばんせん,sân ga số –,bansen,PHIÊN TUYẾN,false,5,
-n5-0182,182,行きます,いきます,đi,ikimasu,HÀNH,false,5,
-n5-0183,183,来ます,きます,đến,kimasu,LAI,false,5,
-n5-0184,184,帰ります,かえります,về,kaerimasu,QUY,false,5,
-n5-0185,185,学校,がっこう,trường học,gakkou,HỌC HIỆU,false,5,🏫
-n5-0186,186,スーパー,スーパー,siêu thị,suupaa,,true,5,🛒
-n5-0187,187,駅,えき,ga; nhà ga,eki,DỊCH,false,5,🚉
-n5-0188,188,飛行機,ひこうき,máy bay,hikouki,PHI HÀNH CƠ,false,5,✈️
-n5-0189,189,船,ふね,thuyền; tàu thủy,fune,THUYỀN,false,5,🚢
-n5-0190,190,電車,でんしゃ,tàu điện,densha,ĐIỆN XA,false,5,🚆
-n5-0191,191,地下鉄,ちかてつ,tàu điện ngầm,chikatetsu,ĐỊA HẠ THIẾT,false,5,🚇
-n5-0192,192,新幹線,しんかんせん,tàu Shinkansen (tàu điện siêu tốc của Nhật),shinkansen,TÂN CÁN TUYẾN,false,5,
-n5-0193,193,バス,バス,xe buýt,basu,,true,5,🚌
-n5-0194,194,タクシー,タクシー,tắc-xi,takushii,,true,5,🚕
-n5-0195,195,自転車,じてんしゃ,xe đạp,jitensha,TỰ CHUYỂN XA,false,5,🚲
-n5-0196,196,歩いて,あるいて,đi bộ,aruite,BỘ,false,5,
-n5-0197,197,人,ひと,người,hito,NHÂN,false,5,
-n5-0198,198,友達,ともだち,bạn; bạn bè,tomodachi,HỮU ĐẠT,false,5,
-n5-0199,199,彼,かれ,anh ấy; bạn trai,kare,BỈ,false,5,
-n5-0200,200,彼女,かのじょ,chị ấy; bạn gái,kanojo,BỈ NỮ,false,5,
-n5-0201,201,家族,かぞく,gia đình,kazoku,GIA TỘC,false,5,
-n5-0202,202,先週,せんしゅう,tuần trước,senshuu,TIÊN CHU,false,5,
-n5-0203,203,今週,こんしゅう,tuần này,konshuu,KIM CHU,false,5,
-n5-0204,204,来週,らいしゅう,tuần sau,raishuu,LAI CHU,false,5,
-n5-0205,205,先月,せんげつ,tháng trước,sengetsu,TIÊN NGUYỆT,false,5,
-n5-0206,206,今月,こんげつ,tháng này,kongetsu,KIM NGUYỆT,false,5,
-n5-0207,207,来月,らいげつ,tháng sau,raigetsu,LAI NGUYỆT,false,5,
-n5-0208,208,去年,きょねん,năm ngoái,kyonen,KHỨ NIÊN,false,5,
-n5-0209,209,ことし,ことし,năm nay,kotoshi,,true,5,
-n5-0210,210,来年,らいねん,năm sau,rainen,LAI NIÊN,false,5,
-n5-0211,211,月,がつ,tháng –,gatsu,NGUYỆT,false,5,
-n5-0212,212,何月,なんがつ,tháng mấy,nangatsu,HÀ NGUYỆT,false,5,
-n5-0213,213,一日,ついたち,ngày mồng 1,tsuitachi,NHẤT NHẬT,false,5,
-n5-0214,214,二日,ふつか,ngày mồng 2; 2 ngày,futsuka,NHỊ NHẬT,false,5,
-n5-0215,215,三日,みっか,ngày mồng 3; 3 ngày,mikka,TAM NHẬT,false,5,
-n5-0216,216,四日,よっか,ngày mồng 4; 4 ngày,yokka,TỨ NHẬT,false,5,
-n5-0217,217,五日,いつか,ngày mồng 5; 5 ngày,itsuka,NGŨ NHẬT,false,5,
-n5-0218,218,六日,むいか,ngày mồng 6; 6 ngày,muika,LỤC NHẬT,false,5,
-n5-0219,219,七日,なのか,ngày mồng 7; 7 ngày,nanoka,THẤT NHẬT,false,5,
-n5-0220,220,八日,ようか,ngày mồng 8; 8 ngày,youka,BÁT NHẬT,false,5,
-n5-0221,221,九日,ここのか,ngày mồng 9; 9 ngày,kokonoka,CỬU NHẬT,false,5,
-n5-0222,222,十日,とおか,ngày mồng 10; 10 ngày,tooka,THẬP NHẬT,false,5,
-n5-0223,223,十四日,じゅうよっか,ngày 14; 14 ngày,juuyokka,THẬP TỨ NHẬT,false,5,
-n5-0224,224,二十日,はつか,ngày 20; 20 ngày,hatsuka,NHỊ THẬP NHẬT,false,5,
-n5-0225,225,二十四日,にじゅうよっか,ngày 24; 24 ngày,nijuuyokka,NHỊ THẬP TỨ NHẬT,false,5,
-n5-0226,226,日,にち,ngày -; – ngày,nichi,NHẬT,false,5,
-n5-0227,227,何日,なんにち,ngày mấy; ngày bao nhiêu; mấy ngày; bao nhiêu ngày,nannichi,HÀ NHẬT,false,5,
-n5-0228,228,いつ,いつ,bao giờ; khi nào,itsu,,true,5,
-n5-0229,229,誕生日,たんじょうび,sinh nhật,tanjoubi,ĐẢN SINH NHẬT,false,5,🎂
-n5-0230,230,普通,ふつう,tàu thường (dừng cả ở các ga lẻ),futsuu,PHỔ THÔNG,false,5,
-n5-0231,231,急行,きゅうこう,tàu tốc hành,kyuukou,CẤP HÀNH,false,5,
-n5-0232,232,特急,とっきゅう,tàu tốc hành đặc biệt,tokkyuu,ĐẶC CẤP,false,5,
-n5-0233,233,次の,つぎの,tiếp theo (đứng trước danh từ),tsugino,THỨ,false,5,
-n5-0234,234,どういたしまして,どういたしまして,không có chi,douitashimashite,,true,5,
-n5-0235,235,食べます,たべます,ăn,tabemasu,THỰC,false,5,🍽️
-n5-0236,236,飲みます,のみます,uống; uống thuốc,nomimasu,ẨM,false,5,🥤
-n5-0237,237,吸います,すいます,hút [thuốc lá],suimasu,HẤP,false,5,
-n5-0238,238,見ます,みます,xem; nhìn; trông,mimasu,KIẾN,false,5,👀
-n5-0239,239,聞きます,ききます,nghe; hỏi (giáo viên),kikimasu,VĂN,false,5,👂
-n5-0240,240,読みます,よみます,đọc,yomimasu,ĐỘC,false,5,
-n5-0241,241,書きます,かきます,viết; vẽ,kakimasu,THƯ,false,5,✍️
-n5-0242,242,買います,かいます,mua,kaimasu,MÃI,false,5,🛍️
-n5-0243,243,撮ります,とります,chụp [ảnh],torimasu,TOÁT,false,5,📸
-n5-0244,244,します,します,làm,shimasu,,true,5,
-n5-0245,245,会います,あいます,gặp [bạn],aimasu,HỘI,false,5,
-n5-0246,246,ごはん,ごはん,cơm; bữa ăn,gohan,,true,5,🍚
-n5-0247,247,朝ごはん,あさごはん,cơm sáng,asagohan,TRIÊU,false,5,
-n5-0248,248,昼ごはん,ひるごはん,cơm trưa,hirugohan,TRÚ,false,5,
-n5-0249,249,晩ごはん,ばんごはん,cơm tối,bangohan,VÃN,false,5,
-n5-0250,250,パン,パン,bánh mì,pan,,true,5,🥖
-n5-0251,251,卵,たまご,trứng,tamago,NOÃN,false,5,🥚
-n5-0252,252,肉,にく,thịt,niku,NHỤC,false,5,🥩
-n5-0253,253,魚,さかな,cá,sakana,NGƯ,false,5,🐟
-n5-0254,254,野菜,やさい,rau,yasai,DÃ THÁI,false,5,🥦
-n5-0255,255,果物,くだもの,hoa quả; trái cây,kudamono,QUẢ VẬT,false,5,🍎
-n5-0256,256,水,みず,nước,mizu,THỦY,false,5,💧
-n5-0257,257,お茶,おちゃ,trà (nói chung); trà đạo,ocha,TRÀ,false,5,🍵
-n5-0258,258,紅茶,こうちゃ,trà đen,koucha,HỒNG TRÀ,false,5,
-n5-0259,259,牛乳,ぎゅうにゅう,sữa bò,gyuunyuu,NGƯU NHŨ,false,5,🥛
-n5-0260,260,ジュース,ジュース,nước hoa quả,juusu,,true,5,🧃
-n5-0261,261,ビール,ビール,bia,biiru,,true,5,🍺
-n5-0262,262,お酒,おさけ,rượu; rượu sake,osake,TỬU,false,5,🍶
-n5-0263,263,ビデオ,ビデオ,video; băng video; đầu video,bideo,,true,5,
-n5-0264,264,映画,えいが,phim; điện ảnh,eiga,ÁNH HOẠ,false,5,🎬
-n5-0265,265,手紙,てがみ,thư,tegami,THỦ CHỈ,false,5,✉️
-n5-0266,266,レポート,レポート,báo cáo,repooto,,true,5,
-n5-0267,267,写真,しゃしん,ảnh,shashin,TẢ CHÂN,false,5,🖼️
-n5-0268,268,店,みせ,cửa hàng; tiệm,mise,ĐIẾM,false,5,🏪
-n5-0269,269,レストラン,レストラン,nhà hàng,resutoran,,true,5,🍴
-n5-0270,270,庭,にわ,vườn,niwa,ĐÌNH,false,5,🏡
-n5-0271,271,宿題,しゅくだい,bài tập về nhà (~をします: làm bài tập),shukudai,TÚC ĐỀ,false,5,
-n5-0272,272,テニス,テニス,quần vợt (~をします: đánh quần vợt),tenisu,,true,5,
-n5-0273,273,サッカー,サッカー,bóng đá (~をします: chơi bóng đá),sakkaa,,true,5,
-n5-0274,274,お花見,おはなみ,việc ngắm hoa anh đào (~をします: ngắm hoa anh đào),ohanami,HOA KIẾN,false,5,
-n5-0275,275,何,なに,cái gì; gì,nani,HÀ,false,5,
-n5-0276,276,いっしょに,いっしょに,cùng; cùng nhau,isshoni,,true,5,
-n5-0277,277,ちょっと,ちょっと,một chút; [~ thì] có lẽ không được rồi. (cách từ chối khéo khi nhận được một lời mời nào đó),chotto,,true,5,
-n5-0278,278,いつも,いつも,luôn luôn; lúc nào cũng,itsumo,,true,5,
-n5-0279,279,時々,ときどき,thỉnh thoảng,tokidoki,THỜI THỜI,false,5,
-n5-0280,280,それから,それから,sau đó; tiếp theo,sorekara,,true,5,
-n5-0281,281,ええ,ええ,vâng; được (cách nói thân mật của 「はい」),ee,,true,5,
-n5-0282,282,いいですね,いいですね,được đấy nhỉ.; hay quá.,iidesune,,true,5,
-n5-0283,283,わかりました,わかりました,tôi hiểu rồi; vâng ạ.,wakarimashita,,true,5,
-n5-0284,284,何ですか,なんですか,có gì đấy ạ?; cái gì vậy?; vâng có tôi. (câu trả lời khi ai đó gọi tên mình),nandesuka,HÀ,false,5,
-n5-0285,285,メキシコ,メキシコ,Mexico,mekishiko,,true,5,
-n5-0286,286,切る,きる,cắt,kiru,THIẾT,false,5,
-n5-0287,287,送る,おくる,gửi,okuru,TỐNG,false,5,
-n5-0288,288,あげる,あげる,tặng,ageru,,true,5,
-n5-0289,289,もらう,もらう,nhận,morau,,true,5,
-n5-0290,290,貸す,かす,cho mượn,kasu,THẢI,false,5,
-n5-0291,291,借りる,かりる,mượn,kariru,TÁ,false,5,
-n5-0292,292,かける,かける,mang,kakeru,,true,5,
-n5-0293,293,手,て,tay,te,THỦ,false,5,✋
-n5-0294,294,はし,はし,cầu,hashi,,true,5,
-n5-0295,295,スプーン,スプーン,muỗng,supuun,,true,5,🥄
-n5-0296,296,ナイフ,ナイフ,con dao,naifu,,true,5,🔪
-n5-0297,297,フォーク,フォーク,nĩa,fooku,,true,5,🍴
-n5-0298,298,はさみ,はさみ,cái kéo,hasami,,true,5,✂️
-n5-0299,299,ファクス,ファクス,máy fax,fakusu,,true,5,📠
-n5-0300,300,ワープロ,ワープロ,máy đánh chữ,waapuro,,true,5,
-n5-0301,301,パソコン,パソコン,máy tính,pasokon,,true,5,💻
-n5-0302,302,パンチ,パンチ,cái đục lỗ,panchi,,true,5,
-n5-0303,303,ホッチキス,ホッチキス,cái dập ghim,hotchikisu,,true,5,
-n5-0304,304,セロテープ,セロテープ,băng dính,seroteepu,,true,5,
-n5-0305,305,けしゴム,けしゴム,cục tẩy,keshigomu,,true,5,
-n5-0306,306,かみ,かみ,tóc,kami,,true,5,
-n5-0307,307,花,はな,hoa,hana,HOA,false,5,🌷
-n5-0308,308,シャツ,シャツ,áo sơ mi,shatsu,,true,5,👕
-n5-0309,309,プレゼント,プレゼント,quà tặng,purezento,,true,5,🎁
-n5-0310,310,荷物,にもつ,hàng hóa,nimotsu,HÀ VẬT,false,5,
-n5-0311,311,お金,おかね,tiền,okane,KIM,false,5,💰
-n5-0312,312,きっぷ,きっぷ,vé (tàu; xe),kippu,,true,5,
-n5-0313,313,クリスマス,クリスマス,lễ Giáng sinh,kurisumasu,,true,5,🎄
-n5-0314,314,父,ちち,cha mình,chichi,PHỤ,false,5,👨
-n5-0315,315,母,はは,mẹ mình,haha,MẪU,false,5,👩
-n5-0316,316,これから,これから,từ bây giờ-,korekara,,true,5,
-n5-0317,317,お父さん,おとうさん,cha (người khác),otousan,PHỤ,false,5,
-n5-0318,318,お母さん,おかあさん,mẹ (người khác),okaasan,MẪU,false,5,
-n5-0319,319,もう,もう,đã rồi; thêm~,mou,,true,5,
-n5-0320,320,まだ,まだ,vẫn còn; vẫn chưa,mada,,true,5,
-n5-0321,321,ごめんなさい,ごめんなさい,xin lỗi (thân mật),gomennasai,,true,5,
-n5-0322,322,いらっしゃい,いらっしゃい,mời vào; chào mừng,irasshai,,true,5,
-n5-0323,323,いってきます,いってきます,tôi đi đây,ittekimasu,,true,5,
-n5-0324,324,しつれします,しつれします,xin thất lễ,shitsureshimasu,,true,5,
-n5-0325,325,旅行,りょこう,du lịch,ryokou,LỮ HÀNH,false,5,🧳
-n5-0326,326,お土産,おみやげ,quà lưu niệm,omiyage,THỔ SẢN,false,5,🎁
-n5-0327,327,ヨーロッパ,ヨーロッパ,Châu Âu,yooroppa,,true,5,
-n5-0328,328,みにくい,みにくい,xấu xí,minikui,,true,5,
-n5-0329,329,ハンサム,ハンサム,đẹp trai,hansamu,,true,5,
-n5-0330,330,きれい,きれい,(cảnh) đẹp; đẹp (gái); sạch,kirei,,true,5,
-n5-0331,331,静か,しずか,yên tĩnh,shizuka,TĨNH,false,5,
-n5-0332,332,賑やか,にぎやか,nhộn nhịp,nigiyaka,CHẨN,false,5,
-n5-0333,333,有名,ゆうめい,nổi tiếng,yuumei,HỮU DANH,false,5,
-n5-0334,334,親切,しんせつ,tử tế,shinsetsu,THÂN THIẾT,false,5,
-n5-0335,335,元気,げんき,khỏe,genki,NGUYÊN KHÍ,false,5,
-n5-0336,336,暇,ひま,rảnh rỗi,hima,HẠ,false,5,
-n5-0337,337,忙しい,いそがしい,bận rộn,isogashii,MANG,false,5,
-n5-0338,338,便利,べんり,tiện lợi,benri,TIỆN LỢI,false,5,
-n5-0339,339,すてき,すてき,tuyệt vời,suteki,,true,5,
-n5-0340,340,大きい,おおきい,to; lớn,ookii,ĐẠI,false,5,
-n5-0341,341,小さい,ちいさい,nhỏ; bé,chiisai,TIỂU,false,5,
-n5-0342,342,新しい,あたらしい,mới,atarashii,TÂN,false,5,
-n5-0343,343,古い,ふるい,cũ,furui,CỔ,false,5,
-n5-0344,344,いい,いい,tốt; thích; chọn; dùng [cafe],ii,,true,5,
-n5-0345,345,悪い,わるい,không tốt; tệ,warui,ÁC,false,5,
-n5-0346,346,熱い,あつい,nóng,atsui,NHIỆT,false,5,
-n5-0347,347,冷たい,つめたい,lạnh,tsumetai,LÃNH,false,5,🧊
-n5-0348,348,暑い,あつい,(trời) nóng (dùng cho thời tiết),atsui,THỬ,false,5,
-n5-0349,349,寒い,さむい,(trời) lạnh (dùng cho thời tiết),samui,HÀN,false,5,
-n5-0350,350,難しい,むずかしい,khó,muzukashii,NAN,false,5,
-n5-0351,351,優しい,やさしい,dễ,yasashii,ƯU,false,5,
-n5-0352,352,きびしい,きびしい,nghiêm khắc,kibishii,,true,5,
-n5-0353,353,やさしい,やさしい,dịu dàng; hiền từ,yasashii,,true,5,
-n5-0354,354,高い,たかい,đắt; cao,takai,CAO,false,5,
-n5-0355,355,安い,やすい,rẻ,yasui,AN,false,5,
-n5-0356,356,低い,ひくい,thấp,hikui,ĐÊ,false,5,
-n5-0357,357,おもしろい,おもしろい,thú vị,omoshiroi,,true,5,
-n5-0358,358,おいしい,おいしい,ngon,oishii,,true,5,
-n5-0359,359,楽しい,たのしい,vui vẻ,tanoshii,LẠC,false,5,
-n5-0360,360,白い,しろい,trắng,shiroi,BẠCH,false,5,⚪
-n5-0361,361,黒い,くろい,đen,kuroi,HẮC,false,5,⚫
-n5-0362,362,赤い,あかい,đỏ,akai,XÍCH,false,5,🔴
-n5-0363,363,青い,あおい,xanh,aoi,THANH,false,5,🔵
-n5-0364,364,桜,さくら,hoa anh đào,sakura,ANH,false,5,🌸
-n5-0365,365,山,やま,núi,yama,SƠN,false,5,⛰️
-n5-0366,366,町,まち,thành phố,machi,ĐINH,false,5,🏙️
-n5-0367,367,食べ物,たべもの,thức ăn,tabemono,THỰC VẬT,false,5,🍱
-n5-0368,368,所,ところ,chỗ,tokoro,SỞ,false,5,
-n5-0369,369,りょう,りょう,ký túc xá,ryou,,true,5,
-n5-0370,370,勉強,べんきょう,học tập (danh từ),benkyou,MIỄN CƯỜNG,false,5,
-n5-0371,371,生活,せいかつ,cuộc sống,seikatsu,SINH HOẠT,false,5,
-n5-0372,372,お仕事,おしごと,công việc,oshigoto,SĨ SỰ,false,5,
-n5-0373,373,どう,どう,như thế nào,dou,,true,5,
-n5-0374,374,どんな,どんな,~nào,donna,,true,5,
-n5-0375,375,どれ,どれ,cái nào,dore,,true,5,
-n5-0376,376,分かります,わかります,hiểu; nắm được,wakarimasu,PHÂN,false,5,
-n5-0377,377,あります,あります,có (sở hữu); có (tồn tại; dùng cho đồ vật); được tổ chức,arimasu,,true,5,
-n5-0378,378,好き,すき,thích,suki,HẢO,false,5,
-n5-0379,379,嫌い,きらい,ghét; không thích,kirai,HIỀM,false,5,
-n5-0380,380,上手,じょうず,giỏi; khéo; giỏi; khéo,jouzu,THƯỢNG THỦ,false,5,
-n5-0381,381,下手,へた,kém,heta,HẠ THỦ,false,5,
-n5-0382,382,料理,りょうり,món ăn; việc nấu ăn,ryouri,LIỆU LÝ,false,5,
-n5-0383,383,飲み物,のみもの,đồ uống,nomimono,ẨM VẬT,false,5,🥤
-n5-0384,384,スポーツ,スポーツ,thể thao (~をします:chơi thể thao),supootsu,,true,5,
-n5-0385,385,野球,やきゅう,bóng chày (~をします:chơi bóng chày),yakyuu,DÃ CẦU,false,5,
-n5-0386,386,ダンス,ダンス,nhảy; khiêu vũ (~をします:nhảy; khiêu vũ),dansu,,true,5,
-n5-0387,387,音楽,おんがく,âm nhạc,ongaku,ÂM LẠC,false,5,🎵
-n5-0388,388,歌,うた,bài hát,uta,CA,false,5,🎤
-n5-0389,389,クラシック,クラシック,nhạc cổ điển,kurashikku,,true,5,🎻
-n5-0390,390,ジャズ,ジャズ,nhạc jazz,jazu,,true,5,🎷
-n5-0391,391,コンサート,コンサート,buổi hòa nhạc,konsaato,,true,5,
-n5-0392,392,カラオケ,カラオケ,karaoke,karaoke,,true,5,🎤
-n5-0393,393,歌舞伎,かぶき,kabuki (một loại ca kịch truyền thống của Nhật),kabuki,CA VŨ KỸ,false,5,
-n5-0394,394,絵,え,tranh; hội họa,e,HỘI,false,5,🎨
-n5-0395,395,字,じ,chữ,ji,TỰ,false,5,
-n5-0396,396,漢字,かんじ,chữ hán,kanji,HÁN TỰ,false,5,
-n5-0397,397,ひらがな,ひらがな,chữ Hiragana,hiragana,,true,5,
-n5-0398,398,かたかな,かたかな,chữ Katakana,katakana,,true,5,
-n5-0399,399,ローマ字,ローマじ,chữ La Mã,roomaji,TỰ,false,5,
-n5-0400,400,細かいお金,こまかいおかね,tiền lẻ,komakaiokane,TẾ KIM,false,5,
-n5-0401,401,チケット,チケット,vé (xem hòa nhạc; xem phim),chiketto,,true,5,
-n5-0402,402,時間,じかん,thời gian,jikan,THỜI GIAN,false,5,⏰
-n5-0403,403,用事,ようじ,việc bận; công chuyện,youji,DỤNG SỰ,false,5,
-n5-0404,404,約束,やくそく,cuộc hẹn; lời hứa,yakusoku,ƯỚC THÚC,false,5,
-n5-0405,405,ご主人,ごしゅじん,chồng (dùng khi nói về chồng người khác),goshujin,CHỦ NHÂN,false,5,
-n5-0406,406,夫,おっと,chồng (dùng khi nói về chồng mình),otto,PHU,false,5,
-n5-0407,407,奥さん,おくさん,vợ (dùng khi nói về vợ người khác),okusan,ÁO,false,5,
-n5-0408,408,妻,つま,vợ (dùng khi nói về vợ mình),tsuma,THÊ,false,5,
-n5-0409,409,子ども,こども,con cái,kodomo,TỬ,false,5,
-n5-0410,410,よく,よく,tốt; rõ (chỉ mức độ); thường,yoku,,true,5,
-n5-0411,411,だいたい,だいたい,đại khái; đại thể,daitai,,true,5,
-n5-0412,412,たくさん,たくさん,nhiều,takusan,,true,5,
-n5-0413,413,少し,すこし,ít; một ít,sukoshi,THIỂU,false,5,
-n5-0414,414,全然,ぜんぜん,hoàn toàn ~ không,zenzen,TOÀN NHIÊN,false,5,
-n5-0415,415,早く,はやく,sớm; nhanh,hayaku,TẢO,false,5,
-n5-0416,416,から,から,vì ~,kara,,true,5,
-n5-0417,417,どうして,どうして,tại sao,doushite,,true,5,
-n5-0418,418,残念です,ざんねんです,thật đáng tiếc nhỉ; buồn nhỉ,zannendesu,TÀN NIỆM,false,5,
-n5-0419,419,もしもし,もしもし,a-lô,moshimoshi,,true,5,
-n5-0420,420,ああ,ああ,a (cách nói khi đã gặp được đúng người trên điện thoại),aa,,true,5,
-n5-0421,421,いっしょにいかがですか,いっしょにいかがですか,anh; chị cùng ~ (làm cái gì đó) với chúng tôi được không?,isshoniikagadesuka,,true,5,
-n5-0422,422,だめですか,だめですか,không được à?,damedesuka,,true,5,
-n5-0423,423,またこんどおねがいします,またこんどおねがいします,hẹn lần sau,matakondoonegaishimasu,,true,5,
-n5-0424,424,います,います,có; ở (tồn tại; dùng cho người và động vật); có (động vật),imasu,,true,5,
-n5-0425,425,いろいろ,いろいろ,nhiều; đa dạng,iroiro,,true,5,
-n5-0426,426,男の人,おとこのひと,người đàn ông,otokonohito,NAM NHÂN,false,5,
-n5-0427,427,女の人,おんなのひと,người đàn bà,onnanohito,NỮ NHÂN,false,5,
-n5-0428,428,男の子,おとこのこ,cậu con trai,otokonoko,NAM TỬ,false,5,
-n5-0429,429,女の子,おんなのこ,cô con gái,onnanoko,NỮ TỬ,false,5,
-n5-0430,430,犬,いぬ,chó,inu,KHUYỂN,false,5,🐕
-n5-0431,431,猫,ねこ,mèo,neko,MIÊU,false,5,🐈
-n5-0432,432,木,き,cây; gỗ,ki,MỘC,false,5,🌳
-n5-0433,433,物,もの,vật; đồ vật,mono,VẬT,false,5,
-n5-0434,434,フィルム,フィルム,phim,firumu,,true,5,
-n5-0435,435,電池,でんち,pin,denchi,ĐIỆN TRÌ,false,5,🔋
-n5-0436,436,箱,はこ,hộp,hako,TƯƠNG,false,5,📦
-n5-0437,437,スイッチ,スイッチ,công tắc,suitchi,,true,5,
-n5-0438,438,冷蔵庫,れいぞうこ,tủ lạnh,reizouko,LÃNH TÀNG KHỐ,false,5,
-n5-0439,439,テーブル,テーブル,bàn,teeburu,,true,5,
-n5-0440,440,ベッド,ベッド,giường,beddo,,true,5,🛏️
-n5-0441,441,棚,たな,giá sách,tana,BẰNG,false,5,
-n5-0442,442,ドア,ドア,cửa,doa,,true,5,🚪
-n5-0443,443,窓,まど,cửa sổ,mado,SONG,false,5,🪟
-n5-0444,444,ポスト,ポスト,hộp thư; hòm thư,posuto,,true,5,📮
-n5-0445,445,ビル,ビル,toà nhà,biru,,true,5,🏢
-n5-0446,446,公園,こうえん,công viên,kouen,CÔNG VIÊN,false,5,🏞️
-n5-0447,447,喫茶店,きっさてん,quán giải khát; quán cà-phê,kissaten,KHIẾT TRÀ ĐIẾM,false,5,☕
-n5-0448,448,本屋,ほんや,hiệu sách,hon'ya,BẢN ỐC,false,5,📚
-n5-0449,449,屋,や,hiệu ~; cửa hàng ~; cửa hàng–,ya,ỐC,false,5,
-n5-0450,450,乗り場,のりば,bến xe; điểm lên xuống xe,noriba,THỪA TRƯỜNG,false,5,
-n5-0451,451,県,けん,tỉnh,ken,HUYỆN,false,5,
-n5-0452,452,上,うえ,trên,ue,THƯỢNG,false,5,
-n5-0453,453,下,した,dưới,shita,HẠ,false,5,
-n5-0454,454,前,まえ,trước,mae,TIỀN,false,5,
-n5-0455,455,後ろ,うしろ,phía sau,ushiro,HẬU,false,5,
-n5-0456,456,右,みぎ,phải,migi,HỮU,false,5,
-n5-0457,457,左,ひだり,trái,hidari,TẢ,false,5,
-n5-0458,458,中,なか,trong; giữa,naka,TRUNG,false,5,
-n5-0459,459,外,そと,ngoài,soto,NGOẠI,false,5,
-n5-0460,460,隣,となり,bên cạnh,tonari,LÂN,false,5,
-n5-0461,461,近く,ちかく,gần đây; vùng gần,chikaku,CẬN,false,5,
-n5-0462,462,間,あいだ,giữa,aida,GIAN,false,5,
-n5-0463,463,や,や,~ và ~; [v.v.],ya,,true,5,
-n5-0464,464,いちばん,いちばん,~ nhất (vị trí cao nhất),ichiban,,true,5,
-n5-0465,465,段目,だんめ,giá thứ -; tầng thứ – (「だん」 được dùng cho giá sách v.v.),danme,ĐOẠN MỤC,false,5,
-n5-0466,466,チリソース,チリソース,tương ớt (chili sauce),chirisoosu,,true,5,
-n5-0467,467,かかります,かかります,mất; tốn,kakarimasu,,true,5,
-n5-0468,468,ひとつ,ひとつ,1 cái (đồ vật),hitotsu,,true,5,
-n5-0469,469,ふたつ,ふたつ,2 cái,futatsu,,true,5,
-n5-0470,470,みっつ,みっつ,3 cái,mittsu,,true,5,
-n5-0471,471,よっつ,よっつ,4 cái,yottsu,,true,5,
-n5-0472,472,いつつ,いつつ,5 cái,itsutsu,,true,5,
-n5-0473,473,むっつ,むっつ,6 cái,muttsu,,true,5,
-n5-0474,474,ななつ,ななつ,7 cái,nanatsu,,true,5,
-n5-0475,475,やっつ,やっつ,8 cái,yattsu,,true,5,
-n5-0476,476,ここのつ,ここのつ,9 cái,kokonotsu,,true,5,
-n5-0477,477,とお,とお,10 cái,too,,true,5,
-n5-0478,478,いくつ,いくつ,bao nhiêu cái,ikutsu,,true,5,
-n5-0479,479,一人,ひとり,1 người,hitori,NHẤT NHÂN,false,5,
-n5-0480,480,二人,ふたり,2 người,futari,NHỊ NHÂN,false,5,
-n5-0481,481,人,にん,~người,nin,NHÂN,false,5,
-n5-0482,482,だい,だい,~cái; chiếc (máy móc),dai,,true,5,
-n5-0483,483,まい,まい,~tờ; (những vật mỏng như áo; giấy...),mai,,true,5,
-n5-0484,484,かい,かい,~lần; tầng lầu,kai,,true,5,
-n5-0485,485,りんご,りんご,quả táo,ringo,,true,5,🍎
-n5-0486,486,みかん,みかん,quýt,mikan,,true,5,🍊
-n5-0487,487,サンドイッチ,サンドイッチ,sandwich,sandoitchi,,true,5,🥪
-n5-0488,488,カレー,カレー,(cơm) cà ri,karee,,true,5,🍛
-n5-0489,489,アイスクリーム,アイスクリーム,kem,aisukuriimu,,true,5,🍨
-n5-0490,490,切手,きって,tem,kitte,THIẾT THỦ,false,5,
-n5-0491,491,葉書,はがき,bưu thiếp,hagaki,DIỆP THƯ,false,5,
-n5-0492,492,封筒,ふうとう,phong bì,fuutou,PHONG ĐỒNG,false,5,✉️
-n5-0493,493,速達,そくたつ,chuyển phát nhanh,sokutatsu,TỐC ĐẠT,false,5,
-n5-0494,494,書留,かきとめ,gửi bảo đảm,kakitome,THƯ LƯU,false,5,
-n5-0495,495,簡単,かんたん,đơn giản; dễ,kantan,GIẢN ĐƠN,false,5,
-n5-0496,496,近い,ちかい,gần,chikai,CẬN,false,5,
-n5-0497,497,遠い,とおい,xa,tooi,VIỄN,false,5,
-n5-0498,498,速い,はやい,nhanh; sớm,hayai,TỐC,false,5,
-n5-0499,499,遅い,おそい,chậm; muộn,osoi,TRÌ,false,5,
-n5-0500,500,多い,おおい,nhiều [người],ooi,ĐA,false,5,
-n5-0501,501,少ない,すくない,ít [người],sukunai,THIỂU,false,5,
-n5-0502,502,温かい,あたたかい,ấm,atatakai,ÔN,false,5,
-n5-0503,503,涼しい,すずしい,mát,suzushii,LƯƠNG,false,5,
-n5-0504,504,甘い,あまい,ngọt,amai,CAM,false,5,🍬
-n5-0505,505,辛い,からい,cay,karai,TÂN,false,5,🌶️
-n5-0506,506,重い,おもい,nặng,omoi,TRÙNG,false,5,
-n5-0507,507,軽い,かるい,nhẹ,karui,KHINH,false,5,
-n5-0508,508,季節,きせつ,mùa,kisetsu,QUÝ TIẾT,false,5,
-n5-0509,509,春,はる,mùa xuân,haru,XUÂN,false,5,🌸
-n5-0510,510,夏,なつ,mùa hè,natsu,HẠ,false,5,☀️
-n5-0511,511,秋,あき,mùa thu,aki,THU,false,5,🍂
-n5-0512,512,冬,ふゆ,mùa đông,fuyu,ĐÔNG,false,5,❄️
-n5-0513,513,天気,てんき,thời tiết,tenki,THIÊN KHÍ,false,5,🌤️
-n5-0514,514,雨,あめ,mưa,ame,VŨ,false,5,🌧️
-n5-0515,515,雪,ゆき,tuyết,yuki,TUYẾT,false,5,☃️
-n5-0516,516,曇り,くもり,có mây,kumori,ĐÀM,false,5,☁️
-n5-0517,517,ホテル,ホテル,khách sạn,hoteru,,true,5,🏨
-n5-0518,518,空港,くうこう,sân bay,kuukou,KHÔNG CẢNG,false,5,🛫
-n5-0519,519,海,うみ,biển; đại dương,umi,HẢI,false,5,🌊
-n5-0520,520,世界,せかい,thế giới,sekai,THẾ GIỚI,false,5,🌍
-n5-0521,521,パーティー,パーティー,tiệc (~をします:tổ chức tiệc),paatii,,true,5,🎉
-n5-0522,522,お祭り,おまつり,lễ hội,omatsuri,TẾ,false,5,🏮
-n5-0523,523,試験,しけん,kỳ thi; bài thi,shiken,THÍ NGHIỆM,false,5,
-n5-0524,524,すき焼き,すきやき,sukiyaki (món thịt bò nấu rau),sukiyaki,THIÊU,false,5,
-n5-0525,525,刺身,さしみ,sashimi (món gỏi cá sống),sashimi,THÍCH THÂN,false,5,🍣
-n5-0526,526,おすし,おすし,sushi,osushi,,true,5,🍣
-n5-0527,527,てんぷら,てんぷら,tempura (món hải sản và rau chiên tẩm bột),tenpura,,true,5,
-n5-0528,528,生け花,いけばな,nghệ thuật cắm hoa (~をします:cắm hoa),ikebana,SINH HOA,false,5,
-n5-0529,529,紅葉,もみじ,lá đỏ,momiji,HỒNG DIỆP,false,5,🍁
-n5-0530,530,初めて,はじめて,lần đầu tiên,hajimete,SƠ,false,5,
-n5-0531,531,どちらも,どちらも,cả hai,dochiramo,,true,5,
-n5-0532,532,ずっと,ずっと,(hơn) hẳn (dùng để nhấn mạnh sự khác biệt giữa hai đối tượng),zutto,,true,5,
-n5-0533,533,ただいま,ただいま,tôi đã về đây. (dùng nói khi về đến nhà),tadaima,,true,5,
-n5-0534,534,お帰りなさい,おかえりなさい,anh; chị đã về đấy à. (dùng để nói với ai đó mới về đến nhà),okaerinasai,QUY,false,5,
-n5-0535,535,すごいですね,すごいですね,ghê quá nhỉ.; hay quá nhỉ.,sugoidesune,,true,5,
-n5-0536,536,でも,でも,nhưng,demo,,true,5,
-n5-0537,537,疲れました,つかれました,tôi mệt rồi,tsukaremashita,BÌ,false,5,
-n5-0538,538,ホンコン,ホンコン,Hồng Kông,honkon,,true,5,
-n5-0539,539,シンガポール,シンガポール,Singapore,shingapooru,,true,5,
-n5-0540,540,遊びます,あそびます,chơi,asobimasu,DU,false,5,
-n5-0541,541,泳ぎます,およぎます,bơi,oyogimasu,VỊNH,false,5,🏊
-n5-0542,542,迎えます,むかえます,đón,mukaemasu,NGHINH,false,5,
-n5-0543,543,疲れます,つかれます,mệt,tsukaremasu,BÌ,false,5,
-n5-0544,544,出します,だします,gửi[thư]; lấy ra; rút (tiền); nộp (báo cáo),dashimasu,XUẤT,false,5,
-n5-0545,545,入ります,はいります,vào [quán giải khát]; vào; nhập học [đại học]; tắm bồn,hairimasu,NHẬP,false,5,
-n5-0546,546,出ます,でます,ra; ra khỏi [quán giải khát]; ra; tốt nghiệp [đại học]; ra; đi ra,demasu,XUẤT,false,5,
-n5-0547,547,結婚します,けっこんします,kết hôn; lập gia đình; cưới,kekkonshimasu,KẾT HÔN,false,5,
-n5-0548,548,買い物します,かいものします,mua hàng,kaimonoshimasu,MÃI VẬT,false,5,
-n5-0549,549,食事します,しょくじします,ăn cơm,shokujishimasu,THỰC SỰ,false,5,
-n5-0550,550,散歩します,さんぽします,đi dạo [ở công viên],sanposhimasu,TÁN BỘ,false,5,
-n5-0551,551,大変,たいへん,vất vả; khó khăn; khổ,taihen,ĐẠI BIẾN,false,5,
-n5-0552,552,欲しい,ほしい,muốn có,hoshii,DỤC,false,5,
-n5-0553,553,寂しい,さびしい,buồn; cô đơn,sabishii,TỊCH,false,5,
-n5-0554,554,広い,ひろい,rộng,hiroi,QUẢNG,false,5,
-n5-0555,555,狭い,せまい,chật; hẹp,semai,HIỆP,false,5,
-n5-0556,556,市役所,しやくしょ,văn phòng hành chính quận; thành phố,shiyakusho,THỊ DỊCH SỞ,false,5,
-n5-0557,557,プール,プール,bể bơi,puuru,,true,5,🏊
-n5-0558,558,川,かわ,sông,kawa,XUYÊN,false,5,
-n5-0559,559,経済,けいざい,kinh tế,keizai,KINH TẾ,false,5,
-n5-0560,560,美術,びじゅつ,mỹ thuật,bijutsu,MỸ THUẬT,false,5,
-n5-0561,561,釣り,つり,việc câu cá (~をします:câu cá),tsuri,ĐIẾU,false,5,🎣
-n5-0562,562,スキー,スキー,việc trượt tuyết (~をします: trượt tuyết),sukii,,true,5,
-n5-0563,563,会議,かいぎ,họp; cuộc họp (~をします: họp; tổ chức cuộc họp),kaigi,HỘI NGHỊ,false,5,
-n5-0564,564,登録,とうろく,việc đăng ký (~をします:đăng ký),touroku,ĐĂNG LỤC,false,5,
-n5-0565,565,週末,しゅうまつ,cuối tuần,shuumatsu,CHU MẠT,false,5,
-n5-0566,566,ごろ,ごろ,khoảng ~ (dùng cho thời gian),goro,,true,5,
-n5-0567,567,何か,なにか,cái gì đó,nanika,HÀ,false,5,
-n5-0568,568,どこか,どこか,đâu đó; chỗ nào đó,dokoka,,true,5,
-n5-0569,569,おなかがすきました,おなかがすきました,(tôi) đói rồi.,onakagasukimashita,,true,5,
-n5-0570,570,おなかがいっぱいです,おなかがいっぱいです,(tôi) no rồi.,onakagaippaidesu,,true,5,
-n5-0571,571,のどがかわきました,のどがかわきました,(tôi) khát.,nodogakawakimashita,,true,5,
-n5-0572,572,そうですね,そうですね,đúng thế. (câu nói khi muốn tỏ thái độ tán thành với người cùng nói chuyện),soudesune,,true,5,
-n5-0573,573,ロシア,ロシア,Nga,roshia,,true,5,
-n5-0574,574,そうしましょう,そうしましょう,nhất trí.; chúng ta thống nhất như thế.,soushimashou,,true,5,
-n5-0575,575,ていしょく,ていしょく,cơm suất; cơm phần,teishoku,,true,5,
-n5-0576,576,ご注文は,ごちゅうもんは,mời anh; chị gọi món,gochuumonha,CHÚ VĂN,false,5,
-n5-0577,577,牛どん,ぎゅうどん,món cơm thịt bò,gyuudon,NGƯU,false,5,
-n5-0578,578,少々お待ちください,しょうしょうおまちください,xin vui lòng đợi một chút,shoushouomachikudasai,THIỂU THIỂU ĐÃI,false,5,
-n5-0579,579,別々に,べつべつに,để riêng ra,betsubetsuni,BIỆT BIỆT,false,5,
-n5-0580,580,つけます,つけます,bật (điện; máy điều hòa),tsukemasu,,true,5,
-n5-0581,581,消します,けします,tắt (điện; máy điều hòa),keshimasu,TIÊU,false,5,
-n5-0582,582,開けます,あけます,mở (cửa; cửa sổ),akemasu,KHAI,false,5,
-n5-0583,583,閉めます,しめます,đóng (cửa; cửa sổ),shimemasu,BẾ,false,5,
-n5-0584,584,急ぎます,いそぎます,vội; gấp,isogimasu,CẤP,false,5,
-n5-0585,585,待ちます,まちます,đợi; chờ,machimasu,ĐÃI,false,5,
-n5-0586,586,止めます,とめます,dừng (băng; ô tô); đỗ (ô tô),tomemasu,CHỈ,false,5,
-n5-0587,587,曲がります,まがります,rẽ; quẹo [phải],magarimasu,KHÚC,false,5,
-n5-0588,588,持ちます,もちます,mang; cầm,mochimasu,TRÌ,false,5,
-n5-0589,589,取ります,とります,lấy (muối); thêm (tuổi),torimasu,THỦ,false,5,
-n5-0590,590,手伝います,てつだいます,giúp (làm việc),tetsudaimasu,THỦ TRUYỆN,false,5,
-n5-0591,591,呼びます,よびます,gọi (taxi; tên),yobimasu,HÔ,false,5,
-n5-0592,592,話します,はなします,nói; nói chuyện,hanashimasu,THOẠI,false,5,
-n5-0593,593,見せます,みせます,cho xem; trình,misemasu,KIẾN,false,5,
-n5-0594,594,教えます,おしえます,nói; cho biết,oshiemasu,GIÁO,false,5,
-n5-0595,595,始めます,はじめます,bắt đầu,hajimemasu,THUỶ,false,5,
-n5-0596,596,降ります,ふります,rơi [mưa; tuyết~],furimasu,GIÁNG,false,5,
-n5-0597,597,コピーします,コピーします,copy,kopiishimasu,,true,5,
-n5-0598,598,エアコン,エアコン,máy điều hòa,eakon,,true,5,
-n5-0599,599,パスポート,パスポート,hộ chiếu,pasupooto,,true,5,🛂
-n5-0600,600,名前,なまえ,tên,namae,DANH TIỀN,false,5,
-n5-0601,601,住所,じゅうしょ,địa chỉ,juusho,TRÚ SỞ,false,5,
-n5-0602,602,地図,ちず,bản đồ,chizu,ĐỊA ĐỒ,false,5,🗺️
-n5-0603,603,塩,しお,muối,shio,DIÊM,false,5,🧂
-n5-0604,604,砂糖,さとう,đường ăn,satou,SA ĐƯỜNG,false,5,🍬
-n5-0605,605,読み方,よみかた,cách đọc,yomikata,ĐỘC PHƯƠNG,false,5,
-n5-0606,606,方,かた,cách ~,kata,PHƯƠNG,false,5,
-n5-0607,607,ゆっくり,ゆっくり,chậm; thong thả; thoải mái,yukkuri,,true,5,
-n5-0608,608,すぐ,すぐ,ngay; lập tức,sugu,,true,5,
-n5-0609,609,また,また,lại (~đến),mata,,true,5,
-n5-0610,610,あとで,あとで,lát nữa; sau đó,atode,,true,5,
-n5-0611,611,もう少し,もうすこし,thêm một chút nữa thôi,mousukoshi,THIỂU,false,5,
-n5-0612,612,いいですよ,いいですよ,được chứ.; được ạ.,iidesuyo,,true,5,
-n5-0613,613,さあ,さあ,thôi; nào (dùng để thúc giục hoặc khuyến khích ai làm gì),saa,,true,5,
-n5-0614,614,まっすぐ,まっすぐ,thẳng,massugu,,true,5,
-n5-0615,615,お釣り,おつり,tiền thối lại,otsuri,ĐIẾU,false,5,
-n5-0616,616,これでお願いします,これでおねがいします,gửi anh tiền này,koredeonegaishimasu,NGUYỆN,false,5,
-n5-0617,617,立ちます,たちます,đứng,tachimasu,LẬP,false,5,
-n5-0618,618,座ります,すわります,ngồi,suwarimasu,TOẠ,false,5,
-n5-0619,619,使います,つかいます,dùng; sử dụng,tsukaimasu,SỬ,false,5,
-n5-0620,620,置きます,おきます,đặt; để,okimasu,TRÍ,false,5,
-n5-0621,621,作ります,つくります,làm; chế tạo; sản xuất,tsukurimasu,TÁC,false,5,
-n5-0622,622,売ります,うります,bán,urimasu,MẠI,false,5,
-n5-0623,623,知ります,しります,biết được,shirimasu,TRI,false,5,
-n5-0624,624,住みます,すみます,sống; ở,sumimasu,TRÚ,false,5,
-n5-0625,625,研究します,けんきゅうします,nghiên cứu,kenkyuushimasu,NGHIÊN CỨU,false,5,
-n5-0626,626,知っています,しっています,đang biết,shitteimasu,TRI,false,5,
-n5-0627,627,住んでいます,すんでいます,sống [ở Osaka],sundeimasu,TRÚ,false,5,
-n5-0628,628,資料,しりょう,tài liệu; tư liệu,shiryou,TƯ LIỆU,false,5,
-n5-0629,629,カタログ,カタログ,ca-ta-lô,katarogu,,true,5,
-n5-0630,630,時刻表,じこくひょう,bảng giờ tàu chạy,jikokuhyou,THỜI KHẮC BIỂU,false,5,
-n5-0631,631,服,ふく,quần áo,fuku,PHỤC,false,5,👕
-n5-0632,632,製品,せいひん,sản phẩm,seihin,CHẾ PHẨM,false,5,
-n5-0633,633,ソフト,ソフト,phần mềm,sofuto,,true,5,
-n5-0634,634,専門,せんもん,chuyên môn,senmon,CHUYÊN MÔN,false,5,
-n5-0635,635,歯医者,はいしゃ,nha sĩ,haisha,XỈ Y GIẢ,false,5,🦷
-n5-0636,636,床屋,とこや,hiệu cắt tóc,tokoya,SÀNG ỐC,false,5,
-n5-0637,637,プレイガイド,プレイガイド,quầy bán vé (trong nhà hát),pureigaido,,true,5,
-n5-0638,638,独身,どくしん,độc thân,dokushin,ĐỘC THÂN,false,5,
-n5-0639,639,特に,とくに,đặc biệt,tokuni,ĐẶC,false,5,
-n5-0640,640,思い出します,おもいだします,nhớ lại; hồi tưởng,omoidashimasu,TƯ XUẤT,false,5,
-n5-0641,641,ご家族,ごかぞく,gia đình (dùng cho người khác),gokazoku,GIA TỘC,false,5,
-n5-0642,642,いらっしゃいます,いらっしゃいます,thể kính trọng của 「います」,irasshaimasu,,true,5,
-n5-0643,643,高校,こうこう,trường trung học phổ thông,koukou,CAO HIỆU,false,5,
-n5-0644,644,乗ります,のります,đi; lên [tàu],norimasu,THỪA,false,5,
-n5-0645,645,降ります,おります,xuống [tàu],orimasu,GIÁNG,false,5,
-n5-0646,646,乗り換えます,のりかえます,chuyển; đổi (tàu),norikaemasu,THỪA HOÁN,false,5,
-n5-0647,647,浴びます,あびます,tắm [vòi hoa sen],abimasu,DỤC,false,5,
-n5-0648,648,入れます,いれます,cho vào; bỏ vào,iremasu,NHẬP,false,5,
-n5-0649,649,やめます,やめます,bỏ; thôi [việc công ty],yamemasu,,true,5,
-n5-0650,650,押します,おします,bấm; ấn (nút),oshimasu,ÁP,false,5,
-n5-0651,651,若い,わかい,trẻ,wakai,NHƯỢC,false,5,
-n5-0652,652,長い,ながい,dài,nagai,TRƯỜNG,false,5,
-n5-0653,653,短い,みじかい,ngắn,mijikai,ĐOẢN,false,5,
-n5-0654,654,明るい,あかるい,sáng sủa,akarui,MINH,false,5,
-n5-0655,655,暗い,くらい,tối tăm,kurai,ÁM,false,5,
-n5-0656,656,背が高い,せがたかい,cao (dùng cho người),segatakai,BỐI CAO,false,5,
-n5-0657,657,頭がいい,あたまがいい,thông minh,atamagaii,ĐẦU,false,5,
-n5-0658,658,体,からだ,người; cơ thể,karada,THỂ,false,5,
-n5-0659,659,頭,あたま,đầu,atama,ĐẦU,false,5,
-n5-0660,660,髪,かみ,tóc,kami,PHÁT,false,5,
-n5-0661,661,顔,かお,mặt,kao,NHAN,false,5,🙂
-n5-0662,662,目,め,mắt; thứー; số ー (biểu thị thứ tự),me,MỤC,false,5,
-n5-0663,663,耳,みみ,tai,mimi,NHĨ,false,5,👂
-n5-0664,664,歯,は,răng,ha,XỈ,false,5,🦷
-n5-0665,665,おなか,おなか,bụng,onaka,,true,5,
-n5-0666,666,足,あし,chân,ashi,TÚC,false,5,🦶
-n5-0667,667,サービス,サービス,dịch vụ,saabisu,,true,5,
-n5-0668,668,ジョギング,ジョギング,việc chạy bộ (~をします: chạy bộ),jogingu,,true,5,
-n5-0669,669,シャワー,シャワー,vòi hoa sen,shawaa,,true,5,🚿
-n5-0670,670,緑,みどり,màu xanh lá cây,midori,LỤC,false,5,
-n5-0671,671,お寺,おてら,chùa,otera,TỰ,false,5,🛕
-n5-0672,672,神社,じんじゃ,đền thờ đạo thần,jinja,THẦN XÃ,false,5,⛩️
-n5-0673,673,りゅうがくせい,りゅうがくせい,lưu học sinh; du học sinh; lưu học sinh; du học sinh,ryuugakusei,,true,5,
-n5-0674,674,一番,いちばん,số―; số-,ichiban,NHẤT PHIÊN,false,5,
-n5-0675,675,どうやって,どうやって,làm thế nào~,douyatte,,true,5,
-n5-0676,676,どの,どの,cái nào~ (dùng với trường hợp từ ba thứ trở lên),dono,,true,5,
-n5-0677,677,まだまだです,まだまだです,"[không,] tôi còn kém lắm (cách nói khiêm nhường khi ai đó khen)",madamadadesu,,true,5,
-n5-0678,678,まず,まず,trước hết; đầu tiên,mazu,,true,5,
-n5-0679,679,キャッシュカード,キャッシュカード,thẻ ngân hàng; thẻ ATM,kyasshukaado,,true,5,
-n5-0680,680,暗証番号,あんしょうばんごう,mã số bí mật (mật khẩu),anshoubangou,ÁM CHỨNG PHIÊN HIỆU,false,5,
-n5-0681,681,次に,つぎに,kế đến; sau đó,tsugini,THỨ,false,5,
-n5-0682,682,確認,かくにん,sự xác nhận; sự kiểm tra (~します:xác nhận),kakunin,XÁC NHẬN,false,5,
-n5-0683,683,金額,きんがく,số tiền; khoản tiền,kingaku,KIM NGẠCH,false,5,
-n5-0684,684,ボタン,ボタン,nút,botan,,true,5,🔘
-n5-0685,685,アジア,アジア,châu Á,ajia,,true,5,
-n5-0686,686,ベトナム,ベトナム,Việt Nam,betonamu,,true,5,
-n5-0687,687,覚えます,おぼえます,nhớ,oboemasu,GIÁC,false,5,
-n5-0688,688,忘れます,わすれます,quên,wasuremasu,VONG,false,5,
-n5-0689,689,なくします,なくします,mất; đánh mất,nakushimasu,,true,5,
-n5-0690,690,払います,はらいます,trả tiền,haraimasu,PHẤT,false,5,
-n5-0691,691,返します,かえします,trả lại,kaeshimasu,PHẢN,false,5,
-n5-0692,692,出かけます,でかけます,ra ngoài,dekakemasu,XUẤT,false,5,
-n5-0693,693,脱ぎます,ぬぎます,cởi (quần áo; giầy),nugimasu,THOÁT,false,5,
-n5-0694,694,持って行きます,もっていきます,mang đi,motteikimasu,TRÌ HÀNH,false,5,
-n5-0695,695,持って来ます,もってきます,mang đến,mottekimasu,TRÌ LAI,false,5,
-n5-0696,696,心配します,しんぱいします,lo lắng,shinpaishimasu,TÂM PHỐI,false,5,
-n5-0697,697,残業します,ざんぎょうします,làm thêm giờ,zangyoushimasu,TÀN NGHIỆP,false,5,
-n5-0698,698,出張します,しゅっちょうします,đi công tác,shutchoushimasu,XUẤT TRƯƠNG,false,5,
-n5-0699,699,大切,たいせつ,quan trọng,taisetsu,ĐẠI THIẾT,false,5,
-n5-0700,700,大丈夫,だいじょうぶ,không sao; không có vấn đề gì,daijoubu,ĐẠI TRƯỢNG PHU,false,5,
-n5-0701,701,危ない,あぶない,nguy hiểm,abunai,NGUY,false,5,
-n5-0702,702,問題,もんだい,vấn đề,mondai,VẤN ĐỀ,false,5,
-n5-0703,703,答え,こたえ,câu trả lời,kotae,ĐÁP,false,5,
-n5-0704,704,禁煙,きんえん,cấm hút thuốc,kin'en,CẤM YÊN,false,5,
-n5-0705,705,健康保険証,けんこうほけんしょう,thẻ bảo hiềm (y tế),kenkouhokenshou,KIỆN KHANG BẢO HIỂM CHỨNG,false,5,
-n5-0706,706,風,かぜ,cảm; cúm,kaze,PHONG,false,5,
-n5-0707,707,熱,ねつ,sốt,netsu,NHIỆT,false,5,
-n5-0708,708,病気,びょうき,ốm; bệnh,byouki,BỆNH KHÍ,false,5,
-n5-0709,709,薬,くすり,thuốc,kusuri,DƯỢC,false,5,💊
-n5-0710,710,おふろ,おふろ,bồn tắm,ofuro,,true,5,🛁
-n5-0711,711,上着,うわぎ,áo khoác ngoài,uwagi,THƯỢNG TRƯỚC,false,5,🧥
-n5-0712,712,下着,したぎ,quần áo lót,shitagi,HẠ TRƯỚC,false,5,
-n5-0713,713,までに,までに,trước ~ (chỉ thời gian),madeni,,true,5,
-n5-0714,714,ですから,ですから,vì thế; vì vậy; do đó,desukara,,true,5,
-n5-0715,715,どうしましたか,どうしましたか,có vấn đề gì?; anh; chị bị làm sao?,doushimashitaka,,true,5,
-n5-0716,716,のど,のど,họng,nodo,,true,5,
-n5-0717,717,おだいじに,おだいじに,anh; chị nhớ giữ gìn sức khỏe. (nói với người bị ốm),odaijini,,true,5,
-n5-0718,718,できます,できます,có thể,dekimasu,,true,5,
-n5-0719,719,洗います,あらいます,rửa,araimasu,TẨY,false,5,
-n5-0720,720,弾きます,ひきます,chơi (chơi 1 loại nhạc cụ),hikimasu,ĐÀN,false,5,
-n5-0721,721,歌います,うたいます,hát,utaimasu,CA,false,5,
-n5-0722,722,集めます,あつめます,sưu tập,atsumemasu,TẬP,false,5,
-n5-0723,723,捨てます,すてます,vứt,sutemasu,XẢ,false,5,
-n5-0724,724,かえます,かえます,đổi,kaemasu,,true,5,
-n5-0725,725,運転します,うんてんします,lái xe,untenshimasu,VẬN CHUYỂN,false,5,
-n5-0726,726,予約します,よやくします,đặt chỗ trước,yoyakushimasu,DỰ ƯỚC,false,5,
-n5-0727,727,見学します,けんがくします,tham quan mục đích học tập,kengakushimasu,KIẾN HỌC,false,5,
-n5-0728,728,国際,こくさい,quốc tế,kokusai,QUỐC TẾ,false,5,
-n5-0729,729,現金,げんきん,tiền mặt,genkin,HIỆN KIM,false,5,
-n5-0730,730,趣味,しゅみ,sở thích,shumi,THÚ VỊ,false,5,
-n5-0731,731,日記,にっき,nhật kí,nikki,NHẬT KÝ,false,5,
-n5-0732,732,祈り,いのり,cầu nguyện,inori,KỲ,false,5,
-n5-0733,733,課長,かちょう,tổ trưởng,kachou,KHOÁ TRƯỜNG,false,5,
-n5-0734,734,部長,ぶちょう,trưởng phòng,buchou,BỘ TRƯỜNG,false,5,
-n5-0735,735,社長,しゃちょう,giám đốc,shachou,XÃ TRƯỜNG,false,5,
-n5-0736,736,動物,どうぶつ,động vật,doubutsu,ĐỘNG VẬT,false,5,
-n5-0737,737,馬,うま,ngựa,uma,MÃ,false,5,🐎
-n5-0738,738,へえ,へえ,thế à,hee,,true,5,
-n5-0739,739,ピアノ,ピアノ,đàn piano,piano,,true,5,🎹
-n5-0740,740,メートル,メートル,mét,meetoru,,true,5,
-n5-0741,741,それはおもしろいですね,それはおもしろいですね,hay nhỉ,sorehaomoshiroidesune,,true,5,
-n5-0742,742,牧場,ぼくじょう,trang trại,bokujou,MỤC TRƯỜNG,false,5,
-n5-0743,743,本当ですか,ほんとうですか,thật không?,hontoudesuka,BẢN ĐƯƠNG,false,5,
-n5-0744,744,ぜひ,ぜひ,nhất định,zehi,,true,5,
-n5-0745,745,登ります,のぼります,leo (núi),noborimasu,ĐĂNG,false,5,
-n5-0746,746,練習します,れんしゅうします,luyện tập; thực hành,renshuushimasu,LUYỆN TẬP,false,5,
-n5-0747,747,掃除します,そうじします,dọn dẹp,soujishimasu,TẢO TRỪ,false,5,
-n5-0748,748,洗濯します,せんたくします,giặt giũ,sentakushimasu,TẨY TRẠC,false,5,
-n5-0749,749,なります,なります,trở nên; trở thành,narimasu,,true,5,
-n5-0750,750,泊まります,とまります,trọ,tomarimasu,BẠC,false,5,
-n5-0751,751,眠い,ねむい,buồn ngủ,nemui,MIÊN,false,5,
-n5-0752,752,強い,つよい,mạnh,tsuyoi,CƯỜNG,false,5,
-n5-0753,753,弱い,よわい,yếu,yowai,NHƯỢC,false,5,
-n5-0754,754,調子,ちょうし,tình trạng; trạng thái,choushi,ĐIỆU TỬ,false,5,
-n5-0755,755,調子が悪い,ちょうしがわるい,tình trạng xấu,choushigawarui,ĐIỆU TỬ ÁC,false,5,
-n5-0756,756,調子がいい,ちょうしがいい,tình trạng tốt,choushigaii,ĐIỆU TỬ,false,5,
-n5-0757,757,相撲,すもう,vật sumo,sumou,TƯƠNG PHÁC,false,5,🤼
-n5-0758,758,パチンコ,パチンコ,trò chơi pachinko,pachinko,,true,5,
-n5-0759,759,ゴルフ,ゴルフ,gôn,gorufu,,true,5,⛳
-n5-0760,760,日,ひ,ngày,hi,NHẬT,false,5,
-n5-0761,761,もうすぐ,もうすぐ,sắp sửa,mousugu,,true,5,
-n5-0762,762,だんだん,だんだん,dần dần,dandan,,true,5,
-n5-0763,763,一度,いちど,một lần,ichido,NHẤT ĐỘ,false,5,
-n5-0764,764,一度も,いちども,chưa lần nào,ichidomo,NHẤT ĐỘ,false,5,
-n5-0765,765,おかげさまで,おかげさまで,cám ơn (khi nhận được sự giúp đỡ của ai đó),okagesamade,,true,5,
-n5-0766,766,乾杯,かんぱい,nâng cốc,kanpai,CÀN BÔI,false,5,
-n5-0767,767,実は,じつは,sự tình là,jitsuha,THẬT,false,5,
-n5-0768,768,ダイエット,ダイエット,ăn kiêng,daietto,,true,5,
-n5-0769,769,何回も,なんかいも,nhiều lần,nankaimo,HÀ HỒI,false,5,
-n5-0770,770,しかし,しかし,tuy nhiên,shikashi,,true,5,
-n5-0771,771,無理,むり,quá sức,muri,VÔ LÝ,false,5,
-n5-0772,772,体にいい,からだにいい,tốt cho sức khỏe,karadaniii,THỂ,false,5,
-n5-0773,773,ケーキ,ケーキ,bánh ga-tô,keeki,,true,5,🍰
-n5-0774,774,要ります,いります,cần (visa),irimasu,YẾU,false,5,
-n5-0775,775,調べます,しらべます,tìm hiểu; điều tra,shirabemasu,ĐIỆU,false,5,
-n5-0776,776,直します,なおします,sửa; chữa,naoshimasu,TRỰC,false,5,
-n5-0777,777,修理します,しゅうりします,sửa chữa; tu sữa,shuurishimasu,TU LÝ,false,5,
-n5-0778,778,電話します,でんわします,gọi điện thoại,denwashimasu,ĐIỆN THOẠI,false,5,
-n5-0779,779,僕,ぼく,tớ,boku,BỘC,false,5,
-n5-0780,780,君,きみ,cậu; bạn,kimi,QUÂN,false,5,
-n5-0781,781,君,くん,(hậu tố theo sau tên của em trai),kun,QUÂN,false,5,
-n5-0782,782,うん,うん,có (cách nói thân mật của “はい”),un,,true,5,
-n5-0783,783,ううん,ううん,không (cách nói thân mật của “いいえ”),uun,,true,5,
-n5-0784,784,サラリーマン,サラリーマン,người làm việc cho các công ty,sarariiman,,true,5,
-n5-0785,785,言葉,ことば,từ; tiếng,kotoba,NGÔN DIỆP,false,5,
-n5-0786,786,物価,ぶっか,giá cả; mức giá; vật giá,bukka,VẬT GIÁ,false,5,
-n5-0787,787,着物,きもの,kimono (trang phục truyền thống của Nhật Bản),kimono,TRƯỚC VẬT,false,5,
-n5-0788,788,ビザ,ビザ,visa,biza,,true,5,
-n5-0789,789,始め,はじめ,lúc đầu,hajime,THUỶ,false,5,
-n5-0790,790,終わり,おわり,sự kết thúc,owari,CHUNG,false,5,
-n5-0791,791,こっち,こっち,phía này,kotchi,,true,5,
-n5-0792,792,そっち,そっち,phía đó,sotchi,,true,5,
-n5-0793,793,あっち,あっち,phía kia,atchi,,true,5,
-n5-0794,794,どっち,どっち,ở đâu,dotchi,,true,5,
-n5-0795,795,この間,このあいだ,hôm nọ,konoaida,GIAN,false,5,
-n5-0796,796,みんなで,みんなで,mọi người,minnade,,true,5,
-n5-0797,797,けど,けど,nhưng (cách nói thân mật của “が”),kedo,,true,5,
-n5-0798,798,国へ帰るの,くにへかえるの,anh; chị có về nước không?,kunihekaeruno,QUỐC QUY,false,5,
-n5-0799,799,どうするの,どうするの,anh; chị tính sao?,dousuruno,,true,5,
-n5-0800,800,どうしようかな,どうしようかな,tính sao đây; để tôi xem,doushiyoukana,,true,5,
-n5-0801,801,よかったら,よかったら,nếu anh; chị thích thì,yokattara,,true,5,
-n5-0802,802,色々,いろいろ,nhiều thứ; đa dạng,iroiro,SẮC SẮC,false,5,
-n5-0803,803,思います,おもいます,nghĩ,omoimasu,TƯ,false,5,
-n5-0804,804,言います,いいます,nói,iimasu,NGÔN,false,5,
-n5-0805,805,足ります,たります,đủ,tarimasu,TÚC,false,5,
-n5-0806,806,勝ちます,かちます,thắng,kachimasu,THẮNG,false,5,
-n5-0807,807,負けます,まけます,thua,makemasu,PHỤ,false,5,
-n5-0808,808,役に立ちます,やくにたちます,giúp ích,yakunitachimasu,DỊCH LẬP,false,5,
-n5-0809,809,むだ,むだ,vô ích,muda,,true,5,
-n5-0810,810,不便,ふべん,bất tiện,fuben,BẤT TIỆN,false,5,
-n5-0811,811,同じ,おなじ,giống,onaji,ĐỒNG,false,5,
-n5-0812,812,すごい,すごい,giỏi,sugoi,,true,5,
-n5-0813,813,首相,しゅしょう,thủ tướng,shushou,THỦ TƯƠNG,false,5,
-n5-0814,814,大統領,だいとうりょう,tổng thống,daitouryou,ĐẠI THỐNG LĨNH,false,5,
-n5-0815,815,政治,せいじ,chính trị,seiji,CHÍNH TRỊ,false,5,
-n5-0816,816,ニュース,ニュース,tin tức,nyuusu,,true,5,
-n5-0817,817,スピーチ,スピーチ,bài phát biểu,supiichi,,true,5,
-n5-0818,818,試合,しあい,trận đấu,shiai,THÍ HỢP,false,5,
-n5-0819,819,アルバイト,アルバイト,việc làm thêm,arubaito,,true,5,
-n5-0820,820,意見,いけん,ý kiến,iken,Ý KIẾN,false,5,
-n5-0821,821,話,はなし,câu chuyện,hanashi,THOẠI,false,5,
-n5-0822,822,ユーモア,ユーモア,hài hước,yuumoa,,true,5,
-n5-0823,823,デザイン,デザイン,thiết kế,dezain,,true,5,
-n5-0824,824,交通,こうつう,giao thông,koutsuu,GIAO THÔNG,false,5,
-n5-0825,825,ラッシュ,ラッシュ,giờ cao điểm,rasshu,,true,5,
-n5-0826,826,最近,さいきん,gần đây,saikin,TỐI CẬN,false,5,
-n5-0827,827,たぶん,たぶん,chắc; có thể,tabun,,true,5,
-n5-0828,828,きっと,きっと,chắc chắn; nhất định,kitto,,true,5,
-n5-0829,829,本当に,ほんとうに,thật sự,hontouni,BẢN ĐƯƠNG,false,5,
-n5-0830,830,そんなに,そんなに,(không) ~ lắm,sonnani,,true,5,
-n5-0831,831,について,について,theo ~ về,nitsuite,,true,5,
-n5-0832,832,しかたがありません,しかたがありません,không còn cách nào khác,shikatagaarimasen,,true,5,
-n5-0833,833,しばらくですね,しばらくですね,lâu rồi không gặp,shibarakudesune,,true,5,
-n5-0834,834,見ないと,みないと,phải xem...,minaito,KIẾN,false,5,
-n5-0835,835,もちろん,もちろん,tất nhiên,mochiron,,true,5,
-n5-0836,836,カンガルー,カンガルー,kanguru,kangaruu,,true,5,
-n5-0837,837,着ます,きます,mặc (áo sơ mi; ..),kimasu,TRƯỚC,false,5,
-n5-0838,838,はきます,はきます,mang (giày; ...),hakimasu,,true,5,
-n5-0839,839,かぶります,かぶります,đội (nón; ...),kaburimasu,,true,5,
-n5-0840,840,かけます,かけます,đeo (kính; ...),kakemasu,,true,5,
-n5-0841,841,生まれます,うまれます,sinh ra,umaremasu,SINH,false,5,
-n5-0842,842,コート,コート,áo khoác dài,kooto,,true,5,🧥
-n5-0843,843,スーツ,スーツ,com-lê,suutsu,,true,5,🤵
-n5-0844,844,セーター,セーター,áo len,seetaa,,true,5,
-n5-0845,845,帽子,ぼうし,nón; mũ,boushi,MẠO TỬ,false,5,🧢
-n5-0846,846,眼鏡,めがね,kính,megane,NHÃN KÍNH,false,5,👓
-n5-0847,847,おめでとうございます,おめでとうございます,chúc mừng,omedetougozaimasu,,true,5,
-n5-0848,848,家賃,やちん,tiền nhà,yachin,GIA NHẪM,false,5,
-n5-0849,849,うーん,うーん,để tôi xem; ừ; thế nào nhỉ,uun,,true,5,
-n5-0850,850,ダイニングキッチン,ダイニングキッチン,bếp kèm phòng ăn,dainingukitchin,,true,5,
-n5-0851,851,わしつ,わしつ,phòng kiểu Nhật,washitsu,,true,5,
-n5-0852,852,押し入れ,おしいれ,chỗ để chăn gối trong phòng kiểu Nhật,oshiire,ÁP NHẬP,false,5,
-n5-0853,853,布団,ふとん,chăn; đệm,futon,BỐ ĐOÀN,false,5,🛏️
-n5-0854,854,アパート,アパート,nhà chung cư,apaato,,true,5,🏢
-n5-0855,855,パリ,パリ,Pa-ri,pari,,true,5,
-n5-0856,856,万里の長城,ばんりのちょうじょう,Vạn lý trường thành,banrinochoujou,VẠN LÝ TRƯỜNG THÀNH,false,5,
-n5-0857,857,余暇開発センター,よかかいはつセンター,trung tâm phát triển hoạt động giải trí cho người dân,yokakaihatsusentaa,DƯ HẠ KHAI PHÁT,false,5,
-n5-0858,858,レジャー白書,レジャーはくしょ,sách trắng về sử dụng thời gian rảnh rỗi,rejaahakusho,BẠCH THƯ,false,5,
-n5-0859,859,道,みち,con đường,michi,ĐẠO,false,5,
-n5-0860,860,交差点,こうさてん,ngã tư,kousaten,GIAO SAI ĐIỂM,false,5,
-n5-0861,861,信号,しんごう,đèn tín hiệu,shingou,TÍN HIỆU,false,5,🚦
-n5-0862,862,引越しします,ひっこしします,chuyển nhà,hikkoshishimasu,DẪN VIỆT,false,5,
-n5-0863,863,回します,まわします,vặn (nút),mawashimasu,HỒI,false,5,
-n5-0864,864,引きます,ひきます,kéo,hikimasu,DẪN,false,5,
-n5-0865,865,変えます,かえます,đổi,kaemasu,BIẾN,false,5,
-n5-0866,866,触ります,さわります,sờ; chạm vào,sawarimasu,XÚC,false,5,
-n5-0867,867,動きます,うごきます,chuyển động; chạy,ugokimasu,ĐỘNG,false,5,
-n5-0868,868,歩きます,あるきます,đi bộ (trên đường),arukimasu,BỘ,false,5,
-n5-0869,869,渡ります,わたります,qua; đi qua (cầu),watarimasu,ĐỘ,false,5,
-n5-0870,870,気を付けます,きをつけます,chú ý; cẩn thận,kiotsukemasu,KHÍ PHÓ,false,5,
-n5-0871,871,電気屋,でんきや,cửa hàng đồ điện,denkiya,ĐIỆN KHÍ ỐC,false,5,
-n5-0872,872,故障,こしょう,hỏng,koshou,CỐ CHƯỚNG,false,5,
-n5-0873,873,サイズ,サイズ,cỡ; kích thước,saizu,,true,5,
-n5-0874,874,音,おと,âm thanh,oto,ÂM,false,5,
-n5-0875,875,機械,きかい,máy móc,kikai,CƠ GIỚI,false,5,
-n5-0876,876,つまみ,つまみ,núm vặn,tsumami,,true,5,
-n5-0877,877,角,かど,góc,kado,GIÁC,false,5,
-n5-0878,878,橋,はし,cầu,hashi,KIỀU,false,5,🌉
-n5-0879,879,駐車場,ちゅうしゃじょう,bãi đỗ xe,chuushajou,TRÚ XA TRƯỜNG,false,5,🅿️
-n5-0880,880,お正月,おしょうがつ,tết dương lịch,oshougatsu,CHÍNH NGUYỆT,false,5,
-n5-0881,881,ごちそうさまでした,ごちそうさまでした,xin cảm ơn anh chị đã đãi tôi bữa cơm,gochisousamadeshita,,true,5,
-n5-0882,882,建物,たてもの,tòa nhà,tatemono,KIẾN VẬT,false,5,
-n5-0883,883,外国人登録証,がいこくじんとうろくしょう,thẻ đăng kí người nước ngoài; thẻ đăng kí ngoại kiều,gaikokujintourokushou,NGOẠI QUỐC NHÂN ĐĂNG LỤC CHỨNG,false,5,
-n5-0884,884,くれます,くれます,cho; tặng (tôi),kuremasu,,true,5,
-n5-0885,885,連れて行きます,つれていきます,dẫn đi,tsureteikimasu,LIÊN HÀNH,false,5,
-n5-0886,886,連れて来ます,つれてきます,dẫn đến,tsuretekimasu,LIÊN LAI,false,5,
-n5-0887,887,送ります,おくります,đưa đi; đưa đến; tiễn,okurimasu,TỐNG,false,5,
-n5-0888,888,紹介します,しょうかいします,giới thiệu,shoukaishimasu,THIỆU GIỚI,false,5,
-n5-0889,889,案内します,あんないします,hướng dẫn; chỉ đường,annaishimasu,ÁN NỘI,false,5,
-n5-0890,890,説明します,せつめいします,giải thích; trình bày,setsumeishimasu,THUYẾT MINH,false,5,
-n5-0891,891,いれます,いれます,pha (cà phê),iremasu,,true,5,
-n5-0892,892,おじいさん,おじいさん,ông nội; ông ngoại; ông,ojiisan,,true,5,
-n5-0893,893,おばあさん,おばあさん,bà nội; bà ngoại; bà,obaasan,,true,5,
-n5-0894,894,準備,じゅんび,chuẩn bị,junbi,CHUẨN BỊ,false,5,
-n5-0895,895,意味,いみ,ý nghĩa,imi,Ý VỊ,false,5,
-n5-0896,896,お菓子,おかし,bánh kẹo,okashi,QUẢ TỬ,false,5,🍪
-n5-0897,897,全部,ぜんぶ,toàn bộ; tất cả,zenbu,TOÀN BỘ,false,5,
-n5-0898,898,考えます,かんがえます,nghĩ; suy nghĩ,kangaemasu,KHẢO,false,5,
-n5-0899,899,着きます,つきます,đến (ga),tsukimasu,TRƯỚC,false,5,
-n5-0900,900,留学します,りゅうがくします,du học,ryuugakushimasu,LƯU HỌC,false,5,
-n5-0901,901,田舎,いなか,quê; nông thôn,inaka,ĐIỀN XÁ,false,5,
-n5-0902,902,大使館,たいしかん,đại sứ quán,taishikan,ĐẠI SỬ QUÁN,false,5,🏛️
-n5-0903,903,グループ,グループ,nhóm; bạn bè,guruupu,,true,5,
-n5-0904,904,チャンス,チャンス,cơ hội,chansu,,true,5,
-n5-0905,905,億,おく,một trăm triệu,oku,ỨC,false,5,
-n5-0906,906,もし,もし,nếu,moshi,,true,5,
-n5-0907,907,転勤,てんきん,chuyển công tác,tenkin,CHUYỂN CẦN,false,5,
-n5-0908,908,こと,こと,việc,koto,,true,5,
-n5-0909,909,一杯飲みましょう,いっぱいのみましょう,chúng ta cùng uống nhé,ippainomimashou,NHẤT BÔI ẨM,false,5,
-n5-0910,910,どうぞお元気で,どうぞおげんきで,chúc anh chị mạnh khỏe (câu nói trước khi chia tay với ai đó mà có lẽ lâu nữa mới gặp lại),douzoogenkide,NGUYÊN KHÍ,false,5,
-n5-0911,911,お世話になりました,おせわになりました,anh; chị đã giúp tôi nhiều,osewaninarimashita,THẾ THOẠI,false,5,
-n5-0912,912,頑張ります,がんばります,cố gắng,ganbarimasu,NGOAN TRƯƠNG,false,5,💪
+code,sort_order,expression,reading_kana,meaning_vi,romaji,han_viet,is_kana_only,jlpt_level,emoji,lesson
+n5-0001,1,私,わたし,tôi,watashi,TƯ,false,5,,1
+n5-0002,2,私たち,わたしたち,chúng tôi,watashitachi,TƯ,false,5,,1
+n5-0003,3,あなた,あなた,anh; chị; ông; bà; bạn (ngôi thứ 2 số ít),anata,,true,5,,1
+n5-0004,4,あの人,あのひと,người kia,anohito,NHÂN,false,5,,1
+n5-0005,5,あの方,あのかた,vị kia (cách nói lịch sự của あのひと),anokata,PHƯƠNG,false,5,,1
+n5-0006,6,みなさん,みなさん,các bạn; các anh; các chị; mọi người,minasan,,true,5,,1
+n5-0007,7,さん,さん,anh ~; chị ~; ông ~; bà ~ (cách gọi người khác 1 cách lịch sự),san,,true,5,,1
+n5-0008,8,ちゃん,ちゃん,bé (dùng cho nữ) hoặc gọi thân mật cho trẻ con (cả nam lẫn nữ),chan,,true,5,,1
+n5-0009,9,くん,くん,bé (dùng cho nam) hoặc gọi thân mật,kun,,true,5,,1
+n5-0010,10,人,じん,người nước ~,jin,NHÂN,false,5,,1
+n5-0011,11,先生,せんせい,giáo viên; bác sĩ,sensei,TIÊN SINH,false,5,,1
+n5-0012,12,教師,きょうし,giáo viên (dùng để nói đến nghề nghiệp),kyoushi,GIÁO SƯ,false,5,,1
+n5-0013,13,学生,がくせい,học sinh; sinh viên,gakusei,HỌC SINH,false,5,🧑‍🎓,1
+n5-0014,14,会社員,かいしゃいん,nhân viên công ty,kaishain,HỘI XÃ VIÊN,false,5,,1
+n5-0015,15,社員,しゃいん,nhân viên công ty ~,shain,XÃ VIÊN,false,5,,1
+n5-0016,16,銀行員,ぎんこういん,nhân viên ngân hàng,ginkouin,NGÂN HÀNH VIÊN,false,5,,1
+n5-0017,17,医者,いしゃ,bác sĩ,isha,Y GIẢ,false,5,🧑‍⚕️,1
+n5-0018,18,研究者,けんきゅうしゃ,nhà nghiên cứu,kenkyuusha,NGHIÊN CỨU GIẢ,false,5,,1
+n5-0019,19,エンジニア,エンジニア,kỹ sư,enjinia,,true,5,,1
+n5-0020,20,大学,だいがく,trường đại học,daigaku,ĐẠI HỌC,false,5,🎓,1
+n5-0021,21,病院,びょういん,bệnh viện,byouin,BỆNH VIỆN,false,5,🏥,1
+n5-0022,22,電気,でんき,điện; đèn điện,denki,ĐIỆN KHÍ,false,5,,1
+n5-0023,23,誰,だれ,ai (ngài nào; vị nào),dare,THUỲ,false,5,,1
+n5-0913,24,どなた,どなた,vị nào (cách nói lịch sự của だれ),donata,,true,5,,1
+n5-0024,25,歳,さい,tuổi,sai,TUẾ,false,5,,1
+n5-0025,26,何歳,なんさい,mấy tuổi,nansai,HÀ TUẾ,false,5,,1
+n5-0914,27,おいくつ,おいくつ,mấy tuổi (cách nói lịch sự của なんさい),oikutsu,,true,5,,1
+n5-0026,28,はい,はい,vâng,hai,,true,5,,1
+n5-0027,29,いいえ,いいえ,không,iie,,true,5,,1
+n5-0028,30,失礼ですが,しつれいですが,xin lỗi (khi muốn nhờ ai việc gì đó),shitsureidesuga,THẤT LỄ,false,5,,1
+n5-0029,31,お名前は,おなまえは,bạn tên gì?,onamaeha,DANH TIỀN,false,5,,1
+n5-0030,32,はじめまして,はじめまして,chào lần đầu gặp nhau,hajimemashite,,true,5,,1
+n5-0031,33,どうぞよろしく,どうぞよろしく,rất hân hạnh được làm quen,douzoyoroshiku,,true,5,,1
+n5-0915,34,こちらはさんです,こちらはさんです,đây là ngài ~,kochirahasandesu,,true,5,,1
+n5-0032,35,から来ました,からきました,đến từ ~,karakimashita,LAI,false,5,,1
+n5-0033,36,アメリカ,アメリカ,Mỹ,amerika,,true,5,🇺🇸,1
+n5-0034,37,イギリス,イギリス,Anh,igirisu,,true,5,🇬🇧,1
+n5-0035,38,インド,インド,Ấn Độ,indo,,true,5,🇮🇳,1
+n5-0036,39,インドネシア,インドネシア,Indonesia,indoneshia,,true,5,🇮🇩,1
+n5-0037,40,韓国,かんこく,Hàn Quốc,kankoku,HÀN QUỐC,false,5,🇰🇷,1
+n5-0038,41,タイ,タイ,Thái Lan,tai,,true,5,🇹🇭,1
+n5-0039,42,中国,ちゅうごく,Trung Quốc,chuugoku,TRUNG QUỐC,false,5,🇨🇳,1
+n5-0040,43,ドイツ,ドイツ,Đức,doitsu,,true,5,🇩🇪,1
+n5-0041,44,日本,にほん,Nhật,nihon,NHẬT BẢN,false,5,🇯🇵,1
+n5-0042,45,フランス,フランス,Pháp,furansu,,true,5,🇫🇷,1
+n5-0043,46,ブラジル,ブラジル,Brazil,burajiru,,true,5,🇧🇷,1
+n5-0044,47,さくら大学,さくらだいがく,trường ĐH Sakura (Hoa Anh Đào),sakuradaigaku,ĐẠI HỌC,false,5,,1
+n5-0045,48,これ,これ,cái này; đây (vật ở gần người nói),kore,,true,5,,2
+n5-0046,49,それ,それ,cái đó; đó (vật ở gần người nghe),sore,,true,5,,2
+n5-0047,50,あれ,あれ,cái kia; kia (vật ở xa cả người nói và người nghe); ô! (câu cảm thán khi phát hiện hoặc thấy cái gì đó lạ; hoặc bất ngờ),are,,true,5,,2
+n5-0048,51,この,この,~ này,kono,,true,5,,2
+n5-0049,52,その,その,~ đó,sono,,true,5,,2
+n5-0050,53,あの,あの,~ kia,ano,,true,5,,2
+n5-0051,54,本,ほん,sách,hon,BẢN,false,5,📖,2
+n5-0052,55,辞書,じしょ,từ điển,jisho,TỪ THƯ,false,5,📕,2
+n5-0053,56,雑誌,ざっし,tạp chí,zasshi,TẠP CHÍ,false,5,,2
+n5-0054,57,新聞,しんぶん,báo,shinbun,TÂN VĂN,false,5,📰,2
+n5-0055,58,ノート,ノート,vở,nooto,,true,5,📓,2
+n5-0056,59,手帳,てちょう,sổ tay,techou,THỦ TRƯỚNG,false,5,,2
+n5-0057,60,名刺,めいし,danh thiếp,meishi,DANH THÍCH,false,5,,2
+n5-0058,61,カード,カード,thẻ; cạc,kaado,,true,5,,2
+n5-0059,62,テレホンカード,テレホンカード,thẻ điện thoại,terehonkaado,,true,5,,2
+n5-0060,63,鉛筆,えんぴつ,bút chì,enpitsu,DUYÊN BÚT,false,5,✏️,2
+n5-0061,64,ボールペン,ボールペン,bút bi,boorupen,,true,5,🖊️,2
+n5-0062,65,シャープペンシル,シャープペンシル,bút chì kim; bút chì bấm,shaapupenshiru,,true,5,,2
+n5-0063,66,かぎ,かぎ,chìa khóa,kagi,,true,5,🔑,2
+n5-0064,67,時計,とけい,đồng hồ,tokei,THỜI KẾ,false,5,🕒,2
+n5-0065,68,傘,かさ,ô; dù,kasa,TẢN,false,5,☂️,2
+n5-0066,69,かばん,かばん,cặp sách; túi sách,kaban,,true,5,👜,2
+n5-0067,70,テープ,テープ,băng [cát-xét],teepu,,true,5,,2
+n5-0068,71,テープレコーダー,テープレコーダー,máy ghi âm,teepurekoodaa,,true,5,,2
+n5-0069,72,テレビ,テレビ,tivi,terebi,,true,5,📺,2
+n5-0070,73,ラジオ,ラジオ,radio,rajio,,true,5,📻,2
+n5-0071,74,カメラ,カメラ,máy ảnh,kamera,,true,5,📷,2
+n5-0072,75,コンピュータ,コンピュータ,máy vi tính,konpyuuta,,true,5,💻,2
+n5-0073,76,自動車,じどうしゃ,ô tô; xe hơi,jidousha,TỰ ĐỘNG XA,false,5,🚗,2
+n5-0074,77,机,つくえ,cái bàn,tsukue,KỶ,false,5,,2
+n5-0075,78,いす,いす,ghế,isu,,true,5,🪑,2
+n5-0076,79,チョコレート,チョコレート,chocolate,chokoreeto,,true,5,🍫,2
+n5-0077,80,コーヒー,コーヒー,cà phê,koohii,,true,5,☕,2
+n5-0078,81,英語,えいご,tiếng Anh,eigo,ANH NGỮ,false,5,,2
+n5-0079,82,日本語,にほんご,tiếng Nhật,nihongo,NHẬT BẢN NGỮ,false,5,,2
+n5-0080,83,語,ご,tiếng~,go,NGỮ,false,5,,2
+n5-0081,84,何,なん,cái gì,nan,HÀ,false,5,,2
+n5-0082,85,そう,そう,đúng vậy,sou,,true,5,,2
+n5-0083,86,違います,ちがいます,nhầm rồi,chigaimasu,VI,false,5,,2
+n5-0084,87,そうですか,そうですか,thế à?,soudesuka,,true,5,,2
+n5-0085,88,あのう,あのう,à... (được sử dụng để thể hiện sự do dự),anou,,true,5,,2
+n5-0086,89,ほんの気持ちです,ほんのきもちです,đây là chút quà nhỏ của tôi,honnokimochidesu,KHÍ TRÌ,false,5,,2
+n5-0087,90,どうぞ,どうぞ,xin mời,douzo,,true,5,,2
+n5-0088,91,どうも,どうも,cảm ơn,doumo,,true,5,,2
+n5-0089,92,ありがとう,ありがとう,cảm ơn nhiều,arigatou,,true,5,,2
+n5-0090,93,これからお世話になります,これからおせわになります,từ nay mong được anh; chị giúp đỡ,korekaraosewaninarimasu,THẾ THOẠI,false,5,,2
+n5-0091,94,こちらこそよろしく,こちらこそよろしく,chính tôi mới mong được anh; chị giúp đỡ,kochirakosoyoroshiku,,true,5,,2
+n5-0092,95,ここ,ここ,chỗ này; đây,koko,,true,5,,3
+n5-0093,96,そこ,そこ,chỗ đó; đó,soko,,true,5,,3
+n5-0094,97,あそこ,あそこ,chỗ kia; kia,asoko,,true,5,,3
+n5-0095,98,どこ,どこ,chỗ nào; đâu,doko,,true,5,,3
+n5-0096,99,こちら,こちら,phía này; đằng này; chỗ này; đây (là cách nói lịch sự của ここ); cái này (cách nói lịch sự của “これ”),kochira,,true,5,,3
+n5-0097,100,そちら,そちら,phía đó; đằng đó; chỗ đó; đó (là cách nói lịch sự của そこ),sochira,,true,5,,3
+n5-0098,101,あちら,あちら,phía kia; đằng kia; chỗ kia; kia (cách nói lịch sự của あそこ),achira,,true,5,,3
+n5-0099,102,どちら,どちら,phía nào; đằng nào; chỗ nào; đâu (cách nói lịch sự của どこ); cái nào,dochira,,true,5,,3
+n5-0100,103,教室,きょうしつ,lớp học; phòng học,kyoushitsu,GIÁO THẤT,false,5,,3
+n5-0101,104,食堂,しょくどう,nhà ăn,shokudou,THỰC ĐƯỜNG,false,5,,3
+n5-0102,105,事務所,じむしょ,văn phòng,jimusho,SỰ VỤ SỞ,false,5,,3
+n5-0103,106,会議室,かいぎしつ,phòng họp,kaigishitsu,HỘI NGHỊ THẤT,false,5,,3
+n5-0104,107,受付,うけつけ,bộ phận tiếp tân; phòng thường trực; lễ tân,uketsuke,THỤ PHÓ,false,5,,3
+n5-0105,108,ロビー,ロビー,hành lang; đại sảnh,robii,,true,5,,3
+n5-0106,109,部屋,へや,căn phòng,heya,BỘ ỐC,false,5,,3
+n5-0107,110,トイレ,トイレ,nhà vệ sinh; phòng vệ sinh; toa-lét,toire,,true,5,,3
+n5-0108,111,階段,かいだん,cầu thang,kaidan,GIAI ĐOẠN,false,5,,3
+n5-0109,112,エレベーター,エレベーター,thang máy,erebeetaa,,true,5,🛗,3
+n5-0110,113,エスカレーター,エスカレーター,thang cuốn,esukareetaa,,true,5,,3
+n5-0111,114,お国,おくに,đất nước,okuni,QUỐC,false,5,,3
+n5-0112,115,会社,かいしゃ,công ty,kaisha,HỘI XÃ,false,5,,3
+n5-0113,116,うち,うち,nhà,uchi,,true,5,,3
+n5-0114,117,電話,でんわ,máy điện thoại; điện thoại,denwa,ĐIỆN THOẠI,false,5,☎️,3
+n5-0115,118,靴,くつ,giày,kutsu,NGOA,false,5,👞,3
+n5-0116,119,ネクタイ,ネクタイ,cà vạt,nekutai,,true,5,👔,3
+n5-0117,120,ワイン,ワイン,rượu vang,wain,,true,5,🍷,3
+n5-0118,121,たばこ,たばこ,thuốc lá,tabako,,true,5,🚬,3
+n5-0119,122,売り場,うりば,quầy bán (trong một cửa hàng bách hóa),uriba,MẠI TRƯỜNG,false,5,,3
+n5-0120,123,地下,ちか,tầng hầm; dưới mặt đất,chika,ĐỊA HẠ,false,5,,3
+n5-0121,124,階,かい,tầng thứ –,kai,GIAI,false,5,,3
+n5-0122,125,何階,なんがい,tầng mấy,nangai,HÀ GIAI,false,5,,3
+n5-0123,126,円,えん,yên,en,VIÊN,false,5,,3
+n5-0124,127,いくら,いくら,bao nhiêu tiền; cho dù; thế nào,ikura,,true,5,,3
+n5-0125,128,百,ひゃく,trăm,hyaku,BÁCH,false,5,,3
+n5-0126,129,千,せん,nghìn,sen,THIÊN,false,5,,3
+n5-0127,130,万,まん,mười nghìn; vạn,man,VẠN,false,5,,3
+n5-0128,131,すみません,すみません,xin lỗi (lịch sự),sumimasen,,true,5,,3
+n5-0129,132,でございます,でございます,(cách nói lịch sự của 「です」),degozaimasu,,true,5,,3
+n5-0130,133,見せてください,みせてください,cho tôi xem [~],misetekudasai,KIẾN,false,5,,3
+n5-0131,134,じゃ,じゃ,thế thì; vậy thì; hẹn gặp lại [ngày mai].,ja,,true,5,,3
+n5-0132,135,ください,ください,cho tôi [~],kudasai,,true,5,,3
+n5-0133,136,新大阪,しんおおさか,tên một nhà ga ở Osaka,shin'oosaka,TÂN ĐẠI BẢN,false,5,,3
+n5-0134,137,イタリア,イタリア,Ý,itaria,,true,5,🇮🇹,3
+n5-0135,138,スイス,スイス,Thụy Sĩ,suisu,,true,5,🇨🇭,3
+n5-0136,139,おきます,おきます,thức dậy,okimasu,,true,5,,4
+n5-0137,140,寝ます,ねます,ngủ,nemasu,TẨM,false,5,,4
+n5-0138,141,働きます,はたらきます,làm việc,hatarakimasu,ĐỘNG,false,5,,4
+n5-0139,142,休みます,やすみます,nghỉ ngơi,yasumimasu,HƯU,false,5,,4
+n5-0140,143,勉強します,べんきょうします,học tập,benkyoushimasu,MIỄN CƯỜNG,false,5,,4
+n5-0141,144,終わります,おわります,kết thúc,owarimasu,CHUNG,false,5,,4
+n5-0142,145,デパート,デパート,cửa hàng bách hóa,depaato,,true,5,🏬,4
+n5-0143,146,銀行,ぎんこう,ngân hàng,ginkou,NGÂN HÀNH,false,5,🏦,4
+n5-0144,147,郵便局,ゆうびんきょく,bưu điện,yuubinkyoku,BƯU TIỆN CỤC,false,5,🏤,4
+n5-0145,148,図書館,としょかん,thư viện,toshokan,ĐỒ THƯ QUÁN,false,5,📚,4
+n5-0146,149,美術館,びじゅつかん,viện bảo tàng,bijutsukan,MỸ THUẬT QUÁN,false,5,🖼️,4
+n5-0147,150,電話番号,でんわばんごう,số điện thoại,denwabangou,ĐIỆN THOẠI PHIÊN HIỆU,false,5,,4
+n5-0149,151,今,いま,bây giờ,ima,KIM,false,5,,4
+n5-0150,152,時,じ,~giờ,ji,THỜI,false,5,,4
+n5-0151,153,分,ふん,~phút,fun,PHÂN,false,5,,4
+n5-0152,154,半,はん,phân nửa,han,BÁN,false,5,,4
+n5-0153,155,何時,なんじ,mấy giờ,nanji,HÀ THỜI,false,5,,4
+n5-0154,156,何分,なんぷん,mấy phút,nanpun,HÀ PHÂN,false,5,,4
+n5-0155,157,午前,ごぜん,sáng (AM: trước 12 giờ),gozen,NGỌ TIỀN,false,5,,4
+n5-0156,158,午後,ごご,chiều (PM: sau 12 giờ),gogo,NGỌ HẬU,false,5,,4
+n5-0157,159,朝,あさ,buổi sáng,asa,TRIÊU,false,5,,4
+n5-0158,160,昼,ひる,trưa,hiru,TRÚ,false,5,,4
+n5-0159,161,晩,ばん,buổi tối,ban,VÃN,false,5,,4
+n5-0160,162,夜,よる,ban đêm,yoru,DẠ,false,5,,4
+n5-0161,163,おととい,おととい,ngày hôm kia,ototoi,,true,5,,4
+n5-0162,164,きのう,きのう,ngày hôm qua,kinou,,true,5,,4
+n5-0163,165,今日,きょう,hôm nay,kyou,KIM NHẬT,false,5,,4
+n5-0164,166,明日,あした,ngày mai,ashita,MINH NHẬT,false,5,,4
+n5-0165,167,あさって,あさって,ngày mốt,asatte,,true,5,,4
+n5-0166,168,今朝,けさ,sáng nay,kesa,KIM TRIÊU,false,5,,4
+n5-0167,169,こんばん,こんばん,tối nay,konban,,true,5,,4
+n5-0168,170,ゆうべ,ゆうべ,tối hôm qua,yuube,,true,5,,4
+n5-0169,171,休み,やすみ,nghỉ ngơi (danh từ),yasumi,HƯU,false,5,,4
+n5-0170,172,昼休み,ひるやすみ,nghỉ trưa,hiruyasumi,TRÚ HƯU,false,5,,4
+n5-0171,173,毎朝,まいあさ,mỗi sáng,maiasa,MỖI TRIÊU,false,5,,4
+n5-0172,174,毎晩,まいばん,mỗi tối,maiban,MỖI VÃN,false,5,,4
+n5-0173,175,毎日,まいにち,mỗi ngày,mainichi,MỖI NHẬT,false,5,,4
+n5-0916,176,月曜日,げつようび,thứ hai,getsuyoubi,NGUYỆT DIỆU NHẬT,false,5,,4
+n5-0917,177,火曜日,かようび,thứ ba,kayoubi,HỎA DIỆU NHẬT,false,5,,4
+n5-0918,178,水曜日,すいようび,thứ tư,suiyoubi,THỦY DIỆU NHẬT,false,5,,4
+n5-0919,179,木曜日,もくようび,thứ năm,mokuyoubi,MỘC DIỆU NHẬT,false,5,,4
+n5-0920,180,金曜日,きんようび,thứ sáu,kin'youbi,KIM DIỆU NHẬT,false,5,,4
+n5-0921,181,土曜日,どようび,thứ bảy,doyoubi,THỔ DIỆU NHẬT,false,5,,4
+n5-0922,182,日曜日,にちようび,chủ nhật,nichiyoubi,NHẬT DIỆU NHẬT,false,5,,4
+n5-0923,183,何曜日,なにようび,thứ mấy,naniyoubi,HÀ DIỆU NHẬT,false,5,,4
+n5-0924,184,番号,ばんごう,số,bangou,PHIÊN HIỆU,false,5,,4
+n5-0148,185,何番,なんばん,số mấy,nanban,HÀ PHIÊN,false,5,,4
+n5-0416,186,から,から,vì ~,kara,,true,5,,4
+n5-0925,187,まで,まで,~ đến,made,,true,5,,4
+n5-0926,188,と,と,~ và,to,,true,5,,4
+n5-0178,189,大変ですね,たいへんですね,vất vả nhỉ,taihendesune,ĐẠI BIẾN,false,5,,4
+n5-0179,190,ばんごうあんない,ばんごうあんない,dịch vụ 116 (hỏi số điện thoại),bangouannai,,true,5,,4
+n5-0180,191,おといあわせ,おといあわせ,(số điện thoại) bạn muốn biết; hỏi là,otoiawase,,true,5,,4
+n5-0927,192,えーと,えーと,ừ; à,e-to,,true,5,,4
+n5-0928,193,お願いします,おねがいします,xin vui lòng giúp đỡ,onegaishimasu,NGUYỆN,false,5,,4
+n5-0929,194,かしこまりました,かしこまりました,tôi hiểu rồi,kashikomarimashita,,true,5,,4
+n5-0930,195,ニューヨーク,ニューヨーク,New York,nyuuyooku,,true,5,,4
+n5-0174,196,ペキン,ペキン,Bắc Kinh,pekin,,true,5,,4
+n5-0176,197,ロンドン,ロンドン,Luân Đôn,rondon,,true,5,,4
+n5-0175,198,バンコク,バンコク,Bangkok,bankoku,,true,5,,4
+n5-0177,199,ロサンゼルス,ロサンゼルス,Los Angeles,rosanzerusu,,true,5,,4
+n5-0182,200,行きます,いきます,đi,ikimasu,HÀNH,false,5,,5
+n5-0183,201,来ます,きます,đến,kimasu,LAI,false,5,,5
+n5-0184,202,帰ります,かえります,về,kaerimasu,QUY,false,5,,5
+n5-0185,203,学校,がっこう,trường học,gakkou,HỌC HIỆU,false,5,🏫,5
+n5-0186,204,スーパー,スーパー,siêu thị,suupaa,,true,5,🛒,5
+n5-0187,205,駅,えき,ga; nhà ga,eki,DỊCH,false,5,🚉,5
+n5-0188,206,飛行機,ひこうき,máy bay,hikouki,PHI HÀNH CƠ,false,5,✈️,5
+n5-0189,207,船,ふね,thuyền; tàu thủy,fune,THUYỀN,false,5,🚢,5
+n5-0190,208,電車,でんしゃ,tàu điện,densha,ĐIỆN XA,false,5,🚆,5
+n5-0191,209,地下鉄,ちかてつ,tàu điện ngầm,chikatetsu,ĐỊA HẠ THIẾT,false,5,🚇,5
+n5-0192,210,新幹線,しんかんせん,tàu Shinkansen (tàu điện siêu tốc của Nhật),shinkansen,TÂN CÁN TUYẾN,false,5,,5
+n5-0193,211,バス,バス,xe buýt,basu,,true,5,🚌,5
+n5-0194,212,タクシー,タクシー,tắc-xi,takushii,,true,5,🚕,5
+n5-0195,213,自転車,じてんしゃ,xe đạp,jitensha,TỰ CHUYỂN XA,false,5,🚲,5
+n5-0196,214,歩いて,あるいて,đi bộ,aruite,BỘ,false,5,,5
+n5-0197,215,人,ひと,người,hito,NHÂN,false,5,,5
+n5-0198,216,友達,ともだち,bạn; bạn bè,tomodachi,HỮU ĐẠT,false,5,,5
+n5-0199,217,彼,かれ,anh ấy; bạn trai,kare,BỈ,false,5,,5
+n5-0200,218,彼女,かのじょ,chị ấy; bạn gái,kanojo,BỈ NỮ,false,5,,5
+n5-0201,219,家族,かぞく,gia đình,kazoku,GIA TỘC,false,5,,5
+n5-0202,220,先週,せんしゅう,tuần trước,senshuu,TIÊN CHU,false,5,,5
+n5-0203,221,今週,こんしゅう,tuần này,konshuu,KIM CHU,false,5,,5
+n5-0204,222,来週,らいしゅう,tuần sau,raishuu,LAI CHU,false,5,,5
+n5-0205,223,先月,せんげつ,tháng trước,sengetsu,TIÊN NGUYỆT,false,5,,5
+n5-0206,224,今月,こんげつ,tháng này,kongetsu,KIM NGUYỆT,false,5,,5
+n5-0207,225,来月,らいげつ,tháng sau,raigetsu,LAI NGUYỆT,false,5,,5
+n5-0208,226,去年,きょねん,năm ngoái,kyonen,KHỨ NIÊN,false,5,,5
+n5-0209,227,ことし,ことし,năm nay,kotoshi,,true,5,,5
+n5-0210,228,来年,らいねん,năm sau,rainen,LAI NIÊN,false,5,,5
+n5-0211,229,月,がつ,tháng –,gatsu,NGUYỆT,false,5,,5
+n5-0212,230,何月,なんがつ,tháng mấy,nangatsu,HÀ NGUYỆT,false,5,,5
+n5-0213,231,一日,ついたち,ngày mồng 1,tsuitachi,NHẤT NHẬT,false,5,,5
+n5-0214,232,二日,ふつか,ngày mồng 2; 2 ngày,futsuka,NHỊ NHẬT,false,5,,5
+n5-0215,233,三日,みっか,ngày mồng 3; 3 ngày,mikka,TAM NHẬT,false,5,,5
+n5-0216,234,四日,よっか,ngày mồng 4; 4 ngày,yokka,TỨ NHẬT,false,5,,5
+n5-0217,235,五日,いつか,ngày mồng 5; 5 ngày,itsuka,NGŨ NHẬT,false,5,,5
+n5-0218,236,六日,むいか,ngày mồng 6; 6 ngày,muika,LỤC NHẬT,false,5,,5
+n5-0219,237,七日,なのか,ngày mồng 7; 7 ngày,nanoka,THẤT NHẬT,false,5,,5
+n5-0220,238,八日,ようか,ngày mồng 8; 8 ngày,youka,BÁT NHẬT,false,5,,5
+n5-0221,239,九日,ここのか,ngày mồng 9; 9 ngày,kokonoka,CỬU NHẬT,false,5,,5
+n5-0222,240,十日,とおか,ngày mồng 10; 10 ngày,tooka,THẬP NHẬT,false,5,,5
+n5-0223,241,十四日,じゅうよっか,ngày 14; 14 ngày,juuyokka,THẬP TỨ NHẬT,false,5,,5
+n5-0224,242,二十日,はつか,ngày 20; 20 ngày,hatsuka,NHỊ THẬP NHẬT,false,5,,5
+n5-0225,243,二十四日,にじゅうよっか,ngày 24; 24 ngày,nijuuyokka,NHỊ THẬP TỨ NHẬT,false,5,,5
+n5-0226,244,日,にち,ngày -; – ngày,nichi,NHẬT,false,5,,5
+n5-0227,245,何日,なんにち,ngày mấy; ngày bao nhiêu; mấy ngày; bao nhiêu ngày,nannichi,HÀ NHẬT,false,5,,5
+n5-0228,246,いつ,いつ,bao giờ; khi nào,itsu,,true,5,,5
+n5-0229,247,誕生日,たんじょうび,sinh nhật,tanjoubi,ĐẢN SINH NHẬT,false,5,🎂,5
+n5-0230,248,普通,ふつう,tàu thường (dừng cả ở các ga lẻ),futsuu,PHỔ THÔNG,false,5,,5
+n5-0231,249,急行,きゅうこう,tàu tốc hành,kyuukou,CẤP HÀNH,false,5,,5
+n5-0232,250,特急,とっきゅう,tàu tốc hành đặc biệt,tokkyuu,ĐẶC CẤP,false,5,,5
+n5-0233,251,次の,つぎの,tiếp theo (đứng trước danh từ),tsugino,THỨ,false,5,,5
+n5-0234,252,どういたしまして,どういたしまして,không có chi,douitashimashite,,true,5,,5
+n5-0181,253,番線,ばんせん,sân ga số –,bansen,PHIÊN TUYẾN,false,5,,5
+n5-0235,254,食べます,たべます,ăn,tabemasu,THỰC,false,5,🍽️,6
+n5-0236,255,飲みます,のみます,uống; uống thuốc,nomimasu,ẨM,false,5,🥤,6
+n5-0237,256,吸います,すいます,hút [thuốc lá],suimasu,HẤP,false,5,,6
+n5-0238,257,見ます,みます,xem; nhìn; trông,mimasu,KIẾN,false,5,👀,6
+n5-0239,258,聞きます,ききます,nghe; hỏi (giáo viên),kikimasu,VĂN,false,5,👂,6
+n5-0240,259,読みます,よみます,đọc,yomimasu,ĐỘC,false,5,,6
+n5-0241,260,書きます,かきます,viết; vẽ,kakimasu,THƯ,false,5,✍️,6
+n5-0242,261,買います,かいます,mua,kaimasu,MÃI,false,5,🛍️,6
+n5-0243,262,撮ります,とります,chụp [ảnh],torimasu,TOÁT,false,5,📸,6
+n5-0244,263,します,します,làm,shimasu,,true,5,,6
+n5-0245,264,会います,あいます,gặp [bạn],aimasu,HỘI,false,5,,6
+n5-0246,265,ごはん,ごはん,cơm; bữa ăn,gohan,,true,5,🍚,6
+n5-0247,266,朝ごはん,あさごはん,cơm sáng,asagohan,TRIÊU,false,5,,6
+n5-0248,267,昼ごはん,ひるごはん,cơm trưa,hirugohan,TRÚ,false,5,,6
+n5-0249,268,晩ごはん,ばんごはん,cơm tối,bangohan,VÃN,false,5,,6
+n5-0250,269,パン,パン,bánh mì,pan,,true,5,🥖,6
+n5-0251,270,卵,たまご,trứng,tamago,NOÃN,false,5,🥚,6
+n5-0252,271,肉,にく,thịt,niku,NHỤC,false,5,🥩,6
+n5-0253,272,魚,さかな,cá,sakana,NGƯ,false,5,🐟,6
+n5-0254,273,野菜,やさい,rau,yasai,DÃ THÁI,false,5,🥦,6
+n5-0255,274,果物,くだもの,hoa quả; trái cây,kudamono,QUẢ VẬT,false,5,🍎,6
+n5-0256,275,水,みず,nước,mizu,THỦY,false,5,💧,6
+n5-0257,276,お茶,おちゃ,trà (nói chung); trà đạo,ocha,TRÀ,false,5,🍵,6
+n5-0258,277,紅茶,こうちゃ,trà đen,koucha,HỒNG TRÀ,false,5,,6
+n5-0259,278,牛乳,ぎゅうにゅう,sữa bò,gyuunyuu,NGƯU NHŨ,false,5,🥛,6
+n5-0260,279,ジュース,ジュース,nước hoa quả,juusu,,true,5,🧃,6
+n5-0261,280,ビール,ビール,bia,biiru,,true,5,🍺,6
+n5-0262,281,お酒,おさけ,rượu; rượu sake,osake,TỬU,false,5,🍶,6
+n5-0263,282,ビデオ,ビデオ,video; băng video; đầu video,bideo,,true,5,,6
+n5-0264,283,映画,えいが,phim; điện ảnh,eiga,ÁNH HOẠ,false,5,🎬,6
+n5-0265,284,手紙,てがみ,thư,tegami,THỦ CHỈ,false,5,✉️,6
+n5-0266,285,レポート,レポート,báo cáo,repooto,,true,5,,6
+n5-0267,286,写真,しゃしん,ảnh,shashin,TẢ CHÂN,false,5,🖼️,6
+n5-0268,287,店,みせ,cửa hàng; tiệm,mise,ĐIẾM,false,5,🏪,6
+n5-0269,288,レストラン,レストラン,nhà hàng,resutoran,,true,5,🍴,6
+n5-0270,289,庭,にわ,vườn,niwa,ĐÌNH,false,5,🏡,6
+n5-0271,290,宿題,しゅくだい,bài tập về nhà (~をします: làm bài tập),shukudai,TÚC ĐỀ,false,5,,6
+n5-0272,291,テニス,テニス,quần vợt (~をします: đánh quần vợt),tenisu,,true,5,,6
+n5-0273,292,サッカー,サッカー,bóng đá (~をします: chơi bóng đá),sakkaa,,true,5,,6
+n5-0274,293,お花見,おはなみ,việc ngắm hoa anh đào (~をします: ngắm hoa anh đào),ohanami,HOA KIẾN,false,5,,6
+n5-0275,294,何,なに,cái gì; gì,nani,HÀ,false,5,,6
+n5-0276,295,いっしょに,いっしょに,cùng; cùng nhau,isshoni,,true,5,,6
+n5-0277,296,ちょっと,ちょっと,một chút; [~ thì] có lẽ không được rồi. (cách từ chối khéo khi nhận được một lời mời nào đó),chotto,,true,5,,6
+n5-0278,297,いつも,いつも,luôn luôn; lúc nào cũng,itsumo,,true,5,,6
+n5-0279,298,時々,ときどき,thỉnh thoảng,tokidoki,THỜI THỜI,false,5,,6
+n5-0280,299,それから,それから,sau đó; tiếp theo,sorekara,,true,5,,6
+n5-0281,300,ええ,ええ,vâng; được (cách nói thân mật của 「はい」),ee,,true,5,,6
+n5-0282,301,いいですね,いいですね,được đấy nhỉ.; hay quá.,iidesune,,true,5,,6
+n5-0283,302,わかりました,わかりました,tôi hiểu rồi; vâng ạ.,wakarimashita,,true,5,,6
+n5-0284,303,何ですか,なんですか,có gì đấy ạ?; cái gì vậy?; vâng có tôi. (câu trả lời khi ai đó gọi tên mình),nandesuka,HÀ,false,5,,6
+n5-0931,304,じゃまたあした,じゃまたあした,hẹn gặp lại ngày mai,jamataashita,,true,5,,6
+n5-0285,305,メキシコ,メキシコ,Mexico,mekishiko,,true,5,,6
+n5-0932,306,シーディー,シーディー,đĩa CD,shiidhii,,true,5,,6
+n5-0286,307,切ります,きります,cắt,kirimasu,THIẾT,false,5,,7
+n5-0887,308,送ります,おくります,đưa đi; đưa đến; tiễn,okurimasu,TỐNG,false,5,,7
+n5-0288,309,あげます,あげます,tặng,agemasu,,true,5,,7
+n5-0289,310,もらいます,もらいます,nhận,moraimasu,,true,5,,7
+n5-0290,311,貸します,かします,cho mượn,kashimasu,THẢI,false,5,,7
+n5-0291,312,借ります,かります,mượn,karimasu,TÁ,false,5,,7
+n5-0594,313,教えます,おしえます,nói; cho biết,oshiemasu,GIÁO,false,5,,7
+n5-0933,314,習います,ならいます,học (từ ai đó),naraimasu,TẬP,false,5,,7
+n5-0840,315,かけます,かけます,đeo (kính; ...),kakemasu,,true,5,,7
+n5-0293,316,手,て,tay,te,THỦ,false,5,✋,7
+n5-0294,317,はし,はし,đũa,hashi,,true,5,,7
+n5-0295,318,スプーン,スプーン,muỗng,supuun,,true,5,🥄,7
+n5-0296,319,ナイフ,ナイフ,con dao,naifu,,true,5,🔪,7
+n5-0297,320,フォーク,フォーク,nĩa,fooku,,true,5,🍴,7
+n5-0298,321,はさみ,はさみ,cái kéo,hasami,,true,5,✂️,7
+n5-0299,322,ファクス,ファクス,máy fax,fakusu,,true,5,📠,7
+n5-0300,323,ワープロ,ワープロ,máy đánh chữ,waapuro,,true,5,,7
+n5-0301,324,パソコン,パソコン,máy tính,pasokon,,true,5,💻,7
+n5-0302,325,パンチ,パンチ,cái đục lỗ,panchi,,true,5,,7
+n5-0303,326,ホッチキス,ホッチキス,cái dập ghim,hotchikisu,,true,5,,7
+n5-0304,327,セロテープ,セロテープ,băng dính,seroteepu,,true,5,,7
+n5-0305,328,けしゴム,けしゴム,cục tẩy,keshigomu,,true,5,,7
+n5-0306,329,かみ,かみ,giấy,kami,,true,5,,7
+n5-0307,330,花,はな,hoa,hana,HOA,false,5,🌷,7
+n5-0308,331,シャツ,シャツ,áo sơ mi,shatsu,,true,5,👕,7
+n5-0309,332,プレゼント,プレゼント,quà tặng,purezento,,true,5,🎁,7
+n5-0310,333,荷物,にもつ,hàng hóa,nimotsu,HÀ VẬT,false,5,,7
+n5-0311,334,お金,おかね,tiền,okane,KIM,false,5,💰,7
+n5-0312,335,きっぷ,きっぷ,vé (tàu; xe),kippu,,true,5,,7
+n5-0313,336,クリスマス,クリスマス,lễ Giáng sinh,kurisumasu,,true,5,🎄,7
+n5-0314,337,父,ちち,cha mình,chichi,PHỤ,false,5,👨,7
+n5-0315,338,母,はは,mẹ mình,haha,MẪU,false,5,👩,7
+n5-0317,339,お父さん,おとうさん,cha (người khác),otousan,PHỤ,false,5,,7
+n5-0318,340,お母さん,おかあさん,mẹ (người khác),okaasan,MẪU,false,5,,7
+n5-0319,341,もう,もう,đã rồi; thêm~,mou,,true,5,,7
+n5-0320,342,まだ,まだ,vẫn còn; vẫn chưa,mada,,true,5,,7
+n5-0321,343,ごめんなさい,ごめんなさい,xin lỗi (thân mật),gomennasai,,true,5,,7
+n5-0316,344,これから,これから,từ bây giờ-,korekara,,true,5,,7
+n5-0934,345,すてきですね,すてきですね,đẹp quá nhỉ,sutekidesune,,true,5,,7
+n5-0935,346,ごめんください,ごめんください,xin lỗi; có ai ở nhà không,gomenkudasai,,true,5,,7
+n5-0322,347,いらっしゃい,いらっしゃい,mời vào; chào mừng,irasshai,,true,5,,7
+n5-0323,348,いってきます,いってきます,tôi đi đây,ittekimasu,,true,5,,7
+n5-0936,349,どうぞお上がりください,どうぞおあがりください,mời anh/chị vào nhà,douzooagarikudasai,THƯỢNG,false,5,,7
+n5-0324,350,しつれします,しつれします,xin thất lễ,shitsureshimasu,,true,5,,7
+n5-0937,351,いただきます,いただきます,mời anh/chị (trước khi ăn),itadakimasu,,true,5,,7
+n5-0325,352,旅行,りょこう,du lịch,ryokou,LỮ HÀNH,false,5,🧳,7
+n5-0326,353,お土産,おみやげ,quà lưu niệm,omiyage,THỔ SẢN,false,5,🎁,7
+n5-0327,354,ヨーロッパ,ヨーロッパ,Châu Âu,yooroppa,,true,5,,7
+n5-0328,355,みにくい,みにくい,xấu xí,minikui,,true,5,,7
+n5-0938,356,スペイン,スペイン,Tây Ban Nha,supein,,true,5,,7
+n5-0939,357,いかがですか,いかがですか,anh/chị dùng ~ được không,ikagadesuka,,true,5,,7
+n5-0329,358,ハンサム,ハンサム,đẹp trai,hansamu,,true,5,,8
+n5-0330,359,きれい,きれい,(cảnh) đẹp; đẹp (gái); sạch,kirei,,true,5,,8
+n5-0331,360,静か,しずか,yên tĩnh,shizuka,TĨNH,false,5,,8
+n5-0332,361,賑やか,にぎやか,nhộn nhịp,nigiyaka,CHẨN,false,5,,8
+n5-0333,362,有名,ゆうめい,nổi tiếng,yuumei,HỮU DANH,false,5,,8
+n5-0334,363,親切,しんせつ,tử tế,shinsetsu,THÂN THIẾT,false,5,,8
+n5-0335,364,元気,げんき,khỏe,genki,NGUYÊN KHÍ,false,5,,8
+n5-0336,365,暇,ひま,rảnh rỗi,hima,HẠ,false,5,,8
+n5-0338,366,便利,べんり,tiện lợi,benri,TIỆN LỢI,false,5,,8
+n5-0339,367,すてき,すてき,tuyệt vời,suteki,,true,5,,8
+n5-0340,368,大きい,おおきい,to; lớn,ookii,ĐẠI,false,5,,8
+n5-0341,369,小さい,ちいさい,nhỏ; bé,chiisai,TIỂU,false,5,,8
+n5-0342,370,新しい,あたらしい,mới,atarashii,TÂN,false,5,,8
+n5-0343,371,古い,ふるい,cũ,furui,CỔ,false,5,,8
+n5-0344,372,いい,いい,tốt; thích; chọn; dùng [cafe],ii,,true,5,,8
+n5-0345,373,悪い,わるい,không tốt; tệ,warui,ÁC,false,5,,8
+n5-0346,374,熱い,あつい,nóng,atsui,NHIỆT,false,5,,8
+n5-0347,375,冷たい,つめたい,lạnh,tsumetai,LÃNH,false,5,🧊,8
+n5-0348,376,暑い,あつい,(trời) nóng (dùng cho thời tiết),atsui,THỬ,false,5,,8
+n5-0349,377,寒い,さむい,(trời) lạnh (dùng cho thời tiết),samui,HÀN,false,5,,8
+n5-0350,378,難しい,むずかしい,khó,muzukashii,NAN,false,5,,8
+n5-0351,379,優しい,やさしい,dễ,yasashii,ƯU,false,5,,8
+n5-0352,380,きびしい,きびしい,nghiêm khắc,kibishii,,true,5,,8
+n5-0353,381,やさしい,やさしい,dịu dàng; hiền từ,yasashii,,true,5,,8
+n5-0354,382,高い,たかい,đắt; cao,takai,CAO,false,5,,8
+n5-0355,383,安い,やすい,rẻ,yasui,AN,false,5,,8
+n5-0356,384,低い,ひくい,thấp,hikui,ĐÊ,false,5,,8
+n5-0357,385,おもしろい,おもしろい,thú vị,omoshiroi,,true,5,,8
+n5-0358,386,おいしい,おいしい,ngon,oishii,,true,5,,8
+n5-0337,387,忙しい,いそがしい,bận rộn,isogashii,MANG,false,5,,8
+n5-0359,388,楽しい,たのしい,vui vẻ,tanoshii,LẠC,false,5,,8
+n5-0360,389,白い,しろい,trắng,shiroi,BẠCH,false,5,⚪,8
+n5-0361,390,黒い,くろい,đen,kuroi,HẮC,false,5,⚫,8
+n5-0362,391,赤い,あかい,đỏ,akai,XÍCH,false,5,🔴,8
+n5-0363,392,青い,あおい,xanh,aoi,THANH,false,5,🔵,8
+n5-0364,393,桜,さくら,hoa anh đào,sakura,ANH,false,5,🌸,8
+n5-0365,394,山,やま,núi,yama,SƠN,false,5,⛰️,8
+n5-0366,395,町,まち,thành phố,machi,ĐINH,false,5,🏙️,8
+n5-0367,396,食べ物,たべもの,thức ăn,tabemono,THỰC VẬT,false,5,🍱,8
+n5-0940,397,車,くるま,xe ô tô,kuruma,XA,false,5,,8
+n5-0368,398,所,ところ,chỗ,tokoro,SỞ,false,5,,8
+n5-0369,399,りょう,りょう,ký túc xá,ryou,,true,5,,8
+n5-0370,400,勉強,べんきょう,học tập (danh từ),benkyou,MIỄN CƯỜNG,false,5,,8
+n5-0371,401,生活,せいかつ,cuộc sống,seikatsu,SINH HOẠT,false,5,,8
+n5-0372,402,お仕事,おしごと,công việc,oshigoto,SĨ SỰ,false,5,,8
+n5-0373,403,どう,どう,như thế nào,dou,,true,5,,8
+n5-0374,404,どんな,どんな,~nào,donna,,true,5,,8
+n5-0375,405,どれ,どれ,cái nào,dore,,true,5,,8
+n5-0941,406,とても,とても,rất; lắm,totemo,,true,5,,8
+n5-0942,407,あまり,あまり,không ~ lắm,amari,,true,5,,8
+n5-0943,408,そして,そして,và; thêm nữa,soshite,,true,5,,8
+n5-0944,409,が,が,~ nhưng ~,ga,,true,5,,8
+n5-0945,410,お元気ですか,おげんきですか,anh/chị có khỏe không,ogenkidesuka,NGUYÊN KHÍ,false,5,,8
+n5-0572,411,そうですね,そうですね,đúng thế. (câu nói khi muốn tỏ thái độ tán thành với người cùng nói chuyện),soudesune,,true,5,,8
+n5-0946,412,シャンハイ,シャンハイ,Thượng Hải,shanhai,,true,5,,8
+n5-0376,413,分かります,わかります,hiểu; nắm được,wakarimasu,PHÂN,false,5,,9
+n5-0377,414,あります,あります,có (sở hữu); có (tồn tại; dùng cho đồ vật); được tổ chức,arimasu,,true,5,,9
+n5-0378,415,好き,すき,thích,suki,HẢO,false,5,,9
+n5-0379,416,嫌い,きらい,ghét; không thích,kirai,HIỀM,false,5,,9
+n5-0380,417,上手,じょうず,giỏi; khéo; giỏi; khéo,jouzu,THƯỢNG THỦ,false,5,,9
+n5-0381,418,下手,へた,kém,heta,HẠ THỦ,false,5,,9
+n5-0382,419,料理,りょうり,món ăn; việc nấu ăn,ryouri,LIỆU LÝ,false,5,,9
+n5-0383,420,飲み物,のみもの,đồ uống,nomimono,ẨM VẬT,false,5,🥤,9
+n5-0384,421,スポーツ,スポーツ,thể thao (~をします:chơi thể thao),supootsu,,true,5,,9
+n5-0385,422,野球,やきゅう,bóng chày (~をします:chơi bóng chày),yakyuu,DÃ CẦU,false,5,,9
+n5-0386,423,ダンス,ダンス,nhảy; khiêu vũ (~をします:nhảy; khiêu vũ),dansu,,true,5,,9
+n5-0387,424,音楽,おんがく,âm nhạc,ongaku,ÂM LẠC,false,5,🎵,9
+n5-0388,425,歌,うた,bài hát,uta,CA,false,5,🎤,9
+n5-0389,426,クラシック,クラシック,nhạc cổ điển,kurashikku,,true,5,🎻,9
+n5-0390,427,ジャズ,ジャズ,nhạc jazz,jazu,,true,5,🎷,9
+n5-0391,428,コンサート,コンサート,buổi hòa nhạc,konsaato,,true,5,,9
+n5-0392,429,カラオケ,カラオケ,karaoke,karaoke,,true,5,🎤,9
+n5-0393,430,歌舞伎,かぶき,kabuki (một loại ca kịch truyền thống của Nhật),kabuki,CA VŨ KỸ,false,5,,9
+n5-0394,431,絵,え,tranh; hội họa,e,HỘI,false,5,🎨,9
+n5-0395,432,字,じ,chữ,ji,TỰ,false,5,,9
+n5-0396,433,漢字,かんじ,chữ hán,kanji,HÁN TỰ,false,5,,9
+n5-0397,434,ひらがな,ひらがな,chữ Hiragana,hiragana,,true,5,,9
+n5-0398,435,かたかな,かたかな,chữ Katakana,katakana,,true,5,,9
+n5-0399,436,ローマ字,ローマじ,chữ La Mã,roomaji,TỰ,false,5,,9
+n5-0400,437,細かいお金,こまかいおかね,tiền lẻ,komakaiokane,TẾ KIM,false,5,,9
+n5-0401,438,チケット,チケット,vé (xem hòa nhạc; xem phim),chiketto,,true,5,,9
+n5-0402,439,時間,じかん,thời gian,jikan,THỜI GIAN,false,5,⏰,9
+n5-0403,440,用事,ようじ,việc bận; công chuyện,youji,DỤNG SỰ,false,5,,9
+n5-0404,441,約束,やくそく,cuộc hẹn; lời hứa,yakusoku,ƯỚC THÚC,false,5,,9
+n5-0405,442,ご主人,ごしゅじん,chồng (dùng khi nói về chồng người khác),goshujin,CHỦ NHÂN,false,5,,9
+n5-0406,443,夫,おっと,chồng (dùng khi nói về chồng mình),otto,PHU,false,5,,9
+n5-0947,444,主人,しゅじん,chồng (chồng mình),shujin,CHỦ NHÂN,false,5,,9
+n5-0407,445,奥さん,おくさん,vợ (dùng khi nói về vợ người khác),okusan,ÁO,false,5,,9
+n5-0408,446,妻,つま,vợ (dùng khi nói về vợ mình),tsuma,THÊ,false,5,,9
+n5-0948,447,家内,かない,vợ (vợ mình),kanai,GIA NỘI,false,5,,9
+n5-0409,448,子ども,こども,con cái,kodomo,TỬ,false,5,,9
+n5-0410,449,よく,よく,tốt; rõ (chỉ mức độ); thường,yoku,,true,5,,9
+n5-0411,450,だいたい,だいたい,đại khái; đại thể,daitai,,true,5,,9
+n5-0412,451,たくさん,たくさん,nhiều,takusan,,true,5,,9
+n5-0413,452,少し,すこし,ít; một ít,sukoshi,THIỂU,false,5,,9
+n5-0414,453,全然,ぜんぜん,hoàn toàn ~ không,zenzen,TOÀN NHIÊN,false,5,,9
+n5-0415,454,早く,はやく,sớm; nhanh,hayaku,TẢO,false,5,,9
+n5-0417,455,どうして,どうして,tại sao,doushite,,true,5,,9
+n5-0418,456,残念です,ざんねんです,thật đáng tiếc nhỉ; buồn nhỉ,zannendesu,TÀN NIỆM,false,5,,9
+n5-0419,457,もしもし,もしもし,a-lô,moshimoshi,,true,5,,9
+n5-0420,458,ああ,ああ,a (cách nói khi đã gặp được đúng người trên điện thoại),aa,,true,5,,9
+n5-0421,459,いっしょにいかがですか,いっしょにいかがですか,anh; chị cùng ~ (làm cái gì đó) với chúng tôi được không?,isshoniikagadesuka,,true,5,,9
+n5-0422,460,だめですか,だめですか,không được à?,damedesuka,,true,5,,9
+n5-0423,461,またこんどおねがいします,またこんどおねがいします,hẹn lần sau,matakondoonegaishimasu,,true,5,,9
+n5-0424,462,います,います,có; ở (tồn tại; dùng cho người và động vật); có (động vật),imasu,,true,5,,10
+n5-0425,463,いろいろ,いろいろ,nhiều; đa dạng,iroiro,,true,5,,10
+n5-0426,464,男の人,おとこのひと,người đàn ông,otokonohito,NAM NHÂN,false,5,,10
+n5-0427,465,女の人,おんなのひと,người đàn bà,onnanohito,NỮ NHÂN,false,5,,10
+n5-0428,466,男の子,おとこのこ,cậu con trai,otokonoko,NAM TỬ,false,5,,10
+n5-0429,467,女の子,おんなのこ,cô con gái,onnanoko,NỮ TỬ,false,5,,10
+n5-0430,468,犬,いぬ,chó,inu,KHUYỂN,false,5,🐕,10
+n5-0431,469,猫,ねこ,mèo,neko,MIÊU,false,5,🐈,10
+n5-0432,470,木,き,cây; gỗ,ki,MỘC,false,5,🌳,10
+n5-0433,471,物,もの,vật; đồ vật,mono,VẬT,false,5,,10
+n5-0434,472,フィルム,フィルム,phim,firumu,,true,5,,10
+n5-0435,473,電池,でんち,pin,denchi,ĐIỆN TRÌ,false,5,🔋,10
+n5-0436,474,箱,はこ,hộp,hako,TƯƠNG,false,5,📦,10
+n5-0437,475,スイッチ,スイッチ,công tắc,suitchi,,true,5,,10
+n5-0438,476,冷蔵庫,れいぞうこ,tủ lạnh,reizouko,LÃNH TÀNG KHỐ,false,5,,10
+n5-0439,477,テーブル,テーブル,bàn,teeburu,,true,5,,10
+n5-0440,478,ベッド,ベッド,giường,beddo,,true,5,🛏️,10
+n5-0441,479,棚,たな,giá sách,tana,BẰNG,false,5,,10
+n5-0442,480,ドア,ドア,cửa,doa,,true,5,🚪,10
+n5-0443,481,窓,まど,cửa sổ,mado,SONG,false,5,🪟,10
+n5-0444,482,ポスト,ポスト,hộp thư; hòm thư,posuto,,true,5,📮,10
+n5-0445,483,ビル,ビル,toà nhà,biru,,true,5,🏢,10
+n5-0446,484,公園,こうえん,công viên,kouen,CÔNG VIÊN,false,5,🏞️,10
+n5-0447,485,喫茶店,きっさてん,quán giải khát; quán cà-phê,kissaten,KHIẾT TRÀ ĐIẾM,false,5,☕,10
+n5-0448,486,本屋,ほんや,hiệu sách,hon'ya,BẢN ỐC,false,5,📚,10
+n5-0449,487,屋,や,hiệu ~; cửa hàng ~; cửa hàng–,ya,ỐC,false,5,,10
+n5-0450,488,乗り場,のりば,bến xe; điểm lên xuống xe,noriba,THỪA TRƯỜNG,false,5,,10
+n5-0451,489,県,けん,tỉnh,ken,HUYỆN,false,5,,10
+n5-0452,490,上,うえ,trên,ue,THƯỢNG,false,5,,10
+n5-0453,491,下,した,dưới,shita,HẠ,false,5,,10
+n5-0454,492,前,まえ,trước,mae,TIỀN,false,5,,10
+n5-0455,493,後ろ,うしろ,phía sau,ushiro,HẬU,false,5,,10
+n5-0456,494,右,みぎ,phải,migi,HỮU,false,5,,10
+n5-0457,495,左,ひだり,trái,hidari,TẢ,false,5,,10
+n5-0458,496,中,なか,trong; giữa,naka,TRUNG,false,5,,10
+n5-0459,497,外,そと,ngoài,soto,NGOẠI,false,5,,10
+n5-0460,498,隣,となり,bên cạnh,tonari,LÂN,false,5,,10
+n5-0461,499,近く,ちかく,gần đây; vùng gần,chikaku,CẬN,false,5,,10
+n5-0462,500,間,あいだ,giữa,aida,GIAN,false,5,,10
+n5-0464,501,いちばん,いちばん,~ nhất (vị trí cao nhất),ichiban,,true,5,,10
+n5-0465,502,段目,だんめ,giá thứ -; tầng thứ – (「だん」 được dùng cho giá sách v.v.),danme,ĐOẠN MỤC,false,5,,10
+n5-0949,503,どうもすみません,どうもすみません,cảm ơn (vì đã làm phiền),doumosumimasen,,true,5,,10
+n5-0466,504,チリソース,チリソース,tương ớt (chili sauce),chirisoosu,,true,5,,10
+n5-0905,505,億,おく,một trăm triệu,oku,ỨC,false,5,,10
+n5-0950,506,スパイス,スパイス,góc gia vị,supaisu,,true,5,,10
+n5-0951,507,など,など,~ và ~ v.v.,nado,,true,5,,10
+n5-0467,508,かかります,かかります,mất; tốn,kakarimasu,,true,5,,11
+n5-0468,509,ひとつ,ひとつ,1 cái (đồ vật),hitotsu,,true,5,,11
+n5-0469,510,ふたつ,ふたつ,2 cái,futatsu,,true,5,,11
+n5-0470,511,みっつ,みっつ,3 cái,mittsu,,true,5,,11
+n5-0471,512,よっつ,よっつ,4 cái,yottsu,,true,5,,11
+n5-0472,513,いつつ,いつつ,5 cái,itsutsu,,true,5,,11
+n5-0473,514,むっつ,むっつ,6 cái,muttsu,,true,5,,11
+n5-0474,515,ななつ,ななつ,7 cái,nanatsu,,true,5,,11
+n5-0475,516,やっつ,やっつ,8 cái,yattsu,,true,5,,11
+n5-0476,517,ここのつ,ここのつ,9 cái,kokonotsu,,true,5,,11
+n5-0477,518,とお,とお,10 cái,too,,true,5,,11
+n5-0478,519,いくつ,いくつ,bao nhiêu cái,ikutsu,,true,5,,11
+n5-0479,520,一人,ひとり,1 người,hitori,NHẤT NHÂN,false,5,,11
+n5-0480,521,二人,ふたり,2 người,futari,NHỊ NHÂN,false,5,,11
+n5-0481,522,人,にん,~người,nin,NHÂN,false,5,,11
+n5-0482,523,だい,だい,~cái; chiếc (máy móc),dai,,true,5,,11
+n5-0483,524,まい,まい,~tờ; (những vật mỏng như áo; giấy...),mai,,true,5,,11
+n5-0484,525,かい,かい,~lần; tầng lầu,kai,,true,5,,11
+n5-0485,526,りんご,りんご,quả táo,ringo,,true,5,🍎,11
+n5-0486,527,みかん,みかん,quýt,mikan,,true,5,🍊,11
+n5-0487,528,サンドイッチ,サンドイッチ,sandwich,sandoitchi,,true,5,🥪,11
+n5-0488,529,カレー,カレー,(cơm) cà ri,karee,,true,5,🍛,11
+n5-0489,530,アイスクリーム,アイスクリーム,kem,aisukuriimu,,true,5,🍨,11
+n5-0490,531,切手,きって,tem,kitte,THIẾT THỦ,false,5,,11
+n5-0491,532,葉書,はがき,bưu thiếp,hagaki,DIỆP THƯ,false,5,,11
+n5-0492,533,封筒,ふうとう,phong bì,fuutou,PHONG ĐỒNG,false,5,✉️,11
+n5-0493,534,速達,そくたつ,chuyển phát nhanh,sokutatsu,TỐC ĐẠT,false,5,,11
+n5-0494,535,書留,かきとめ,gửi bảo đảm,kakitome,THƯ LƯU,false,5,,11
+n5-0952,536,エアメール,エアメール,gửi đường hàng không,eameeru,,true,5,,11
+n5-0953,537,船便,ふなびん,gửi đường biển,funabin,THUYỀN TIỆN,false,5,,11
+n5-0954,538,両親,りょうしん,bố mẹ,ryoushin,LƯỠNG THÂN,false,5,,11
+n5-0955,539,兄弟,きょうだい,anh em,kyoudai,HUYNH ĐỆ,false,5,,11
+n5-0956,540,兄,あに,anh trai (của mình),ani,HUYNH,false,5,,11
+n5-0957,541,お兄さん,おにいさん,anh trai (người khác),oniisan,HUYNH,false,5,,11
+n5-0958,542,姉,あね,chị gái (của mình),ane,TỶ,false,5,,11
+n5-0959,543,お姉さん,おねえさん,chị gái (người khác),oneesan,TỶ,false,5,,11
+n5-0960,544,弟,おとうと,em trai (của mình),otouto,ĐỆ,false,5,,11
+n5-0961,545,弟さん,おとうとさん,em trai (người khác),otoutosan,ĐỆ,false,5,,11
+n5-0962,546,妹,いもうと,em gái (của mình),imouto,MUỘI,false,5,,11
+n5-0963,547,妹さん,いもうとさん,em gái (người khác),imoutosan,MUỘI,false,5,,11
+n5-0964,548,外国,がいこく,nước ngoài,gaikoku,NGOẠI QUỐC,false,5,,11
+n5-0965,549,週間,しゅうかん,~ tuần,shuukan,CHU GIAN,false,5,,11
+n5-0966,550,か月,かげつ,~ tháng,kagetsu,NGUYỆT,false,5,,11
+n5-0967,551,年,ねん,~ năm,nen,NIÊN,false,5,,11
+n5-0968,552,ぐらい,ぐらい,khoảng ~,gurai,,true,5,,11
+n5-0969,553,どのくらい,どのくらい,bao lâu,donokurai,,true,5,,11
+n5-0970,554,全部で,ぜんぶで,tất cả; toàn bộ,zenbude,TOÀN BỘ,false,5,,11
+n5-0971,555,みんな,みんな,mọi người,minna,,true,5,,11
+n5-0972,556,だけ,だけ,chỉ ~,dake,,true,5,,11
+n5-0973,557,いらっしゃいませ,いらっしゃいませ,xin mời quý khách,irasshaimase,,true,5,,11
+n5-0974,558,オーストラリア,オーストラリア,Úc,oosutoraria,,true,5,,11
+n5-0495,559,簡単,かんたん,đơn giản; dễ,kantan,GIẢN ĐƠN,false,5,,12
+n5-0496,560,近い,ちかい,gần,chikai,CẬN,false,5,,12
+n5-0497,561,遠い,とおい,xa,tooi,VIỄN,false,5,,12
+n5-0498,562,速い,はやい,nhanh; sớm,hayai,TỐC,false,5,,12
+n5-0499,563,遅い,おそい,chậm; muộn,osoi,TRÌ,false,5,,12
+n5-0500,564,多い,おおい,nhiều [người],ooi,ĐA,false,5,,12
+n5-0501,565,少ない,すくない,ít [người],sukunai,THIỂU,false,5,,12
+n5-0502,566,温かい,あたたかい,ấm,atatakai,ÔN,false,5,,12
+n5-0503,567,涼しい,すずしい,mát,suzushii,LƯƠNG,false,5,,12
+n5-0504,568,甘い,あまい,ngọt,amai,CAM,false,5,🍬,12
+n5-0505,569,辛い,からい,cay,karai,TÂN,false,5,🌶️,12
+n5-0506,570,重い,おもい,nặng,omoi,TRÙNG,false,5,,12
+n5-0507,571,軽い,かるい,nhẹ,karui,KHINH,false,5,,12
+n5-0508,572,季節,きせつ,mùa,kisetsu,QUÝ TIẾT,false,5,,12
+n5-0509,573,春,はる,mùa xuân,haru,XUÂN,false,5,🌸,12
+n5-0510,574,夏,なつ,mùa hè,natsu,HẠ,false,5,☀️,12
+n5-0511,575,秋,あき,mùa thu,aki,THU,false,5,🍂,12
+n5-0512,576,冬,ふゆ,mùa đông,fuyu,ĐÔNG,false,5,❄️,12
+n5-0513,577,天気,てんき,thời tiết,tenki,THIÊN KHÍ,false,5,🌤️,12
+n5-0514,578,雨,あめ,mưa,ame,VŨ,false,5,🌧️,12
+n5-0515,579,雪,ゆき,tuyết,yuki,TUYẾT,false,5,☃️,12
+n5-0516,580,曇り,くもり,có mây,kumori,ĐÀM,false,5,☁️,12
+n5-0517,581,ホテル,ホテル,khách sạn,hoteru,,true,5,🏨,12
+n5-0518,582,空港,くうこう,sân bay,kuukou,KHÔNG CẢNG,false,5,🛫,12
+n5-0519,583,海,うみ,biển; đại dương,umi,HẢI,false,5,🌊,12
+n5-0520,584,世界,せかい,thế giới,sekai,THẾ GIỚI,false,5,🌍,12
+n5-0521,585,パーティー,パーティー,tiệc (~をします:tổ chức tiệc),paatii,,true,5,🎉,12
+n5-0522,586,お祭り,おまつり,lễ hội,omatsuri,TẾ,false,5,🏮,12
+n5-0523,587,試験,しけん,kỳ thi; bài thi,shiken,THÍ NGHIỆM,false,5,,12
+n5-0524,588,すき焼き,すきやき,sukiyaki (món thịt bò nấu rau),sukiyaki,THIÊU,false,5,,12
+n5-0525,589,刺身,さしみ,sashimi (món gỏi cá sống),sashimi,THÍCH THÂN,false,5,🍣,12
+n5-0526,590,おすし,おすし,sushi,osushi,,true,5,🍣,12
+n5-0527,591,てんぷら,てんぷら,tempura (món hải sản và rau chiên tẩm bột),tenpura,,true,5,,12
+n5-0528,592,生け花,いけばな,nghệ thuật cắm hoa (~をします:cắm hoa),ikebana,SINH HOA,false,5,,12
+n5-0529,593,紅葉,もみじ,lá đỏ,momiji,HỒNG DIỆP,false,5,🍁,12
+n5-0530,594,初めて,はじめて,lần đầu tiên,hajimete,SƠ,false,5,,12
+n5-0531,595,どちらも,どちらも,cả hai,dochiramo,,true,5,,12
+n5-0532,596,ずっと,ずっと,(hơn) hẳn (dùng để nhấn mạnh sự khác biệt giữa hai đối tượng),zutto,,true,5,,12
+n5-0533,597,ただいま,ただいま,tôi đã về đây. (dùng nói khi về đến nhà),tadaima,,true,5,,12
+n5-0534,598,お帰りなさい,おかえりなさい,anh; chị đã về đấy à. (dùng để nói với ai đó mới về đến nhà),okaerinasai,QUY,false,5,,12
+n5-0535,599,すごいですね,すごいですね,ghê quá nhỉ.; hay quá nhỉ.,sugoidesune,,true,5,,12
+n5-0536,600,でも,でも,nhưng,demo,,true,5,,12
+n5-0537,601,疲れました,つかれました,tôi mệt rồi,tsukaremashita,BÌ,false,5,,12
+n5-0538,602,ホンコン,ホンコン,Hồng Kông,honkon,,true,5,,12
+n5-0539,603,シンガポール,シンガポール,Singapore,shingapooru,,true,5,,12
+n5-0540,604,遊びます,あそびます,chơi,asobimasu,DU,false,5,,13
+n5-0541,605,泳ぎます,およぎます,bơi,oyogimasu,VỊNH,false,5,🏊,13
+n5-0542,606,迎えます,むかえます,đón,mukaemasu,NGHINH,false,5,,13
+n5-0543,607,疲れます,つかれます,mệt,tsukaremasu,BÌ,false,5,,13
+n5-0544,608,出します,だします,gửi[thư]; lấy ra; rút (tiền); nộp (báo cáo),dashimasu,XUẤT,false,5,,13
+n5-0545,609,入ります,はいります,vào [quán giải khát]; vào; nhập học [đại học]; tắm bồn,hairimasu,NHẬP,false,5,,13
+n5-0546,610,出ます,でます,ra; ra khỏi [quán giải khát]; ra; tốt nghiệp [đại học]; ra; đi ra,demasu,XUẤT,false,5,,13
+n5-0547,611,結婚します,けっこんします,kết hôn; lập gia đình; cưới,kekkonshimasu,KẾT HÔN,false,5,,13
+n5-0548,612,買い物します,かいものします,mua hàng,kaimonoshimasu,MÃI VẬT,false,5,,13
+n5-0549,613,食事します,しょくじします,ăn cơm,shokujishimasu,THỰC SỰ,false,5,,13
+n5-0550,614,散歩します,さんぽします,đi dạo [ở công viên],sanposhimasu,TÁN BỘ,false,5,,13
+n5-0551,615,大変,たいへん,vất vả; khó khăn; khổ,taihen,ĐẠI BIẾN,false,5,,13
+n5-0552,616,欲しい,ほしい,muốn có,hoshii,DỤC,false,5,,13
+n5-0553,617,寂しい,さびしい,buồn; cô đơn,sabishii,TỊCH,false,5,,13
+n5-0554,618,広い,ひろい,rộng,hiroi,QUẢNG,false,5,,13
+n5-0555,619,狭い,せまい,chật; hẹp,semai,HIỆP,false,5,,13
+n5-0556,620,市役所,しやくしょ,văn phòng hành chính quận; thành phố,shiyakusho,THỊ DỊCH SỞ,false,5,,13
+n5-0557,621,プール,プール,bể bơi,puuru,,true,5,🏊,13
+n5-0558,622,川,かわ,sông,kawa,XUYÊN,false,5,,13
+n5-0559,623,経済,けいざい,kinh tế,keizai,KINH TẾ,false,5,,13
+n5-0560,624,美術,びじゅつ,mỹ thuật,bijutsu,MỸ THUẬT,false,5,,13
+n5-0561,625,釣り,つり,việc câu cá (~をします:câu cá),tsuri,ĐIẾU,false,5,🎣,13
+n5-0562,626,スキー,スキー,việc trượt tuyết (~をします: trượt tuyết),sukii,,true,5,,13
+n5-0563,627,会議,かいぎ,họp; cuộc họp (~をします: họp; tổ chức cuộc họp),kaigi,HỘI NGHỊ,false,5,,13
+n5-0564,628,登録,とうろく,việc đăng ký (~をします:đăng ký),touroku,ĐĂNG LỤC,false,5,,13
+n5-0565,629,週末,しゅうまつ,cuối tuần,shuumatsu,CHU MẠT,false,5,,13
+n5-0566,630,ごろ,ごろ,khoảng ~ (dùng cho thời gian),goro,,true,5,,13
+n5-0567,631,何か,なにか,cái gì đó,nanika,HÀ,false,5,,13
+n5-0568,632,どこか,どこか,đâu đó; chỗ nào đó,dokoka,,true,5,,13
+n5-0569,633,おなかがすきました,おなかがすきました,(tôi) đói rồi.,onakagasukimashita,,true,5,,13
+n5-0570,634,おなかがいっぱいです,おなかがいっぱいです,(tôi) no rồi.,onakagaippaidesu,,true,5,,13
+n5-0571,635,のどがかわきました,のどがかわきました,(tôi) khát.,nodogakawakimashita,,true,5,,13
+n5-0573,636,ロシア,ロシア,Nga,roshia,,true,5,,13
+n5-0574,637,そうしましょう,そうしましょう,nhất trí.; chúng ta thống nhất như thế.,soushimashou,,true,5,,13
+n5-0575,638,ていしょく,ていしょく,cơm suất; cơm phần,teishoku,,true,5,,13
+n5-0576,639,ご注文は,ごちゅうもんは,mời anh; chị gọi món,gochuumonha,CHÚ VĂN,false,5,,13
+n5-0577,640,牛どん,ぎゅうどん,món cơm thịt bò,gyuudon,NGƯU,false,5,,13
+n5-0578,641,少々お待ちください,しょうしょうおまちください,xin vui lòng đợi một chút,shoushouomachikudasai,THIỂU THIỂU ĐÃI,false,5,,13
+n5-0579,642,別々に,べつべつに,để riêng ra,betsubetsuni,BIỆT BIỆT,false,5,,13
+n5-0580,643,つけます,つけます,bật (điện; máy điều hòa),tsukemasu,,true,5,,14
+n5-0581,644,消します,けします,tắt (điện; máy điều hòa),keshimasu,TIÊU,false,5,,14
+n5-0582,645,開けます,あけます,mở (cửa; cửa sổ),akemasu,KHAI,false,5,,14
+n5-0583,646,閉めます,しめます,đóng (cửa; cửa sổ),shimemasu,BẾ,false,5,,14
+n5-0584,647,急ぎます,いそぎます,vội; gấp,isogimasu,CẤP,false,5,,14
+n5-0585,648,待ちます,まちます,đợi; chờ,machimasu,ĐÃI,false,5,,14
+n5-0586,649,止めます,とめます,dừng (băng; ô tô); đỗ (ô tô),tomemasu,CHỈ,false,5,,14
+n5-0587,650,曲がります,まがります,rẽ; quẹo [phải],magarimasu,KHÚC,false,5,,14
+n5-0588,651,持ちます,もちます,mang; cầm,mochimasu,TRÌ,false,5,,14
+n5-0589,652,取ります,とります,lấy (muối); thêm (tuổi),torimasu,THỦ,false,5,,14
+n5-0590,653,手伝います,てつだいます,giúp (làm việc),tetsudaimasu,THỦ TRUYỆN,false,5,,14
+n5-0591,654,呼びます,よびます,gọi (taxi; tên),yobimasu,HÔ,false,5,,14
+n5-0592,655,話します,はなします,nói; nói chuyện,hanashimasu,THOẠI,false,5,,14
+n5-0593,656,見せます,みせます,cho xem; trình,misemasu,KIẾN,false,5,,14
+n5-0595,657,始めます,はじめます,bắt đầu,hajimemasu,THUỶ,false,5,,14
+n5-0596,658,降ります,ふります,rơi [mưa; tuyết~],furimasu,GIÁNG,false,5,,14
+n5-0597,659,コピーします,コピーします,copy,kopiishimasu,,true,5,,14
+n5-0598,660,エアコン,エアコン,máy điều hòa,eakon,,true,5,,14
+n5-0599,661,パスポート,パスポート,hộ chiếu,pasupooto,,true,5,🛂,14
+n5-0600,662,名前,なまえ,tên,namae,DANH TIỀN,false,5,,14
+n5-0601,663,住所,じゅうしょ,địa chỉ,juusho,TRÚ SỞ,false,5,,14
+n5-0602,664,地図,ちず,bản đồ,chizu,ĐỊA ĐỒ,false,5,🗺️,14
+n5-0603,665,塩,しお,muối,shio,DIÊM,false,5,🧂,14
+n5-0604,666,砂糖,さとう,đường ăn,satou,SA ĐƯỜNG,false,5,🍬,14
+n5-0605,667,読み方,よみかた,cách đọc,yomikata,ĐỘC PHƯƠNG,false,5,,14
+n5-0606,668,方,かた,cách ~,kata,PHƯƠNG,false,5,,14
+n5-0607,669,ゆっくり,ゆっくり,chậm; thong thả; thoải mái,yukkuri,,true,5,,14
+n5-0608,670,すぐ,すぐ,ngay; lập tức,sugu,,true,5,,14
+n5-0609,671,また,また,lại (~đến),mata,,true,5,,14
+n5-0610,672,あとで,あとで,lát nữa; sau đó,atode,,true,5,,14
+n5-0611,673,もう少し,もうすこし,thêm một chút nữa thôi,mousukoshi,THIỂU,false,5,,14
+n5-0612,674,いいですよ,いいですよ,được chứ.; được ạ.,iidesuyo,,true,5,,14
+n5-0613,675,さあ,さあ,thôi; nào (dùng để thúc giục hoặc khuyến khích ai làm gì),saa,,true,5,,14
+n5-0614,676,まっすぐ,まっすぐ,thẳng,massugu,,true,5,,14
+n5-0616,677,これでお願いします,これでおねがいします,gửi anh tiền này,koredeonegaishimasu,NGUYỆN,false,5,,14
+n5-0615,678,お釣り,おつり,tiền thối lại,otsuri,ĐIẾU,false,5,,14
+n5-0617,679,立ちます,たちます,đứng,tachimasu,LẬP,false,5,,15
+n5-0618,680,座ります,すわります,ngồi,suwarimasu,TOẠ,false,5,,15
+n5-0619,681,使います,つかいます,dùng; sử dụng,tsukaimasu,SỬ,false,5,,15
+n5-0620,682,置きます,おきます,đặt; để,okimasu,TRÍ,false,5,,15
+n5-0621,683,作ります,つくります,làm; chế tạo; sản xuất,tsukurimasu,TÁC,false,5,,15
+n5-0622,684,売ります,うります,bán,urimasu,MẠI,false,5,,15
+n5-0623,685,知ります,しります,biết được,shirimasu,TRI,false,5,,15
+n5-0624,686,住みます,すみます,sống; ở,sumimasu,TRÚ,false,5,,15
+n5-0625,687,研究します,けんきゅうします,nghiên cứu,kenkyuushimasu,NGHIÊN CỨU,false,5,,15
+n5-0626,688,知っています,しっています,đang biết,shitteimasu,TRI,false,5,,15
+n5-0627,689,住んでいます,すんでいます,sống [ở Osaka],sundeimasu,TRÚ,false,5,,15
+n5-0628,690,資料,しりょう,tài liệu; tư liệu,shiryou,TƯ LIỆU,false,5,,15
+n5-0629,691,カタログ,カタログ,ca-ta-lô,katarogu,,true,5,,15
+n5-0630,692,時刻表,じこくひょう,bảng giờ tàu chạy,jikokuhyou,THỜI KHẮC BIỂU,false,5,,15
+n5-0631,693,服,ふく,quần áo,fuku,PHỤC,false,5,👕,15
+n5-0632,694,製品,せいひん,sản phẩm,seihin,CHẾ PHẨM,false,5,,15
+n5-0633,695,ソフト,ソフト,phần mềm,sofuto,,true,5,,15
+n5-0634,696,専門,せんもん,chuyên môn,senmon,CHUYÊN MÔN,false,5,,15
+n5-0635,697,歯医者,はいしゃ,nha sĩ,haisha,XỈ Y GIẢ,false,5,🦷,15
+n5-0636,698,床屋,とこや,hiệu cắt tóc,tokoya,SÀNG ỐC,false,5,,15
+n5-0637,699,プレイガイド,プレイガイド,quầy bán vé (trong nhà hát),pureigaido,,true,5,,15
+n5-0638,700,独身,どくしん,độc thân,dokushin,ĐỘC THÂN,false,5,,15
+n5-0639,701,特に,とくに,đặc biệt,tokuni,ĐẶC,false,5,,15
+n5-0640,702,思い出します,おもいだします,nhớ lại; hồi tưởng,omoidashimasu,TƯ XUẤT,false,5,,15
+n5-0641,703,ご家族,ごかぞく,gia đình (dùng cho người khác),gokazoku,GIA TỘC,false,5,,15
+n5-0642,704,いらっしゃいます,いらっしゃいます,thể kính trọng của 「います」,irasshaimasu,,true,5,,15
+n5-0643,705,高校,こうこう,trường trung học phổ thông,koukou,CAO HIỆU,false,5,,15
+n5-0644,706,乗ります,のります,đi; lên [tàu],norimasu,THỪA,false,5,,15
+n5-0645,707,降ります,おります,xuống [tàu],orimasu,GIÁNG,false,5,,15
+n5-0646,708,乗り換えます,のりかえます,chuyển; đổi (tàu),norikaemasu,THỪA HOÁN,false,5,,16
+n5-0647,709,浴びます,あびます,tắm [vòi hoa sen],abimasu,DỤC,false,5,,16
+n5-0648,710,入れます,いれます,cho vào; bỏ vào,iremasu,NHẬP,false,5,,16
+n5-0649,711,やめます,やめます,bỏ; thôi [việc công ty],yamemasu,,true,5,,16
+n5-0650,712,押します,おします,bấm; ấn (nút),oshimasu,ÁP,false,5,,16
+n5-0651,713,若い,わかい,trẻ,wakai,NHƯỢC,false,5,,16
+n5-0652,714,長い,ながい,dài,nagai,TRƯỜNG,false,5,,16
+n5-0653,715,短い,みじかい,ngắn,mijikai,ĐOẢN,false,5,,16
+n5-0654,716,明るい,あかるい,sáng sủa,akarui,MINH,false,5,,16
+n5-0655,717,暗い,くらい,tối tăm,kurai,ÁM,false,5,,16
+n5-0656,718,背が高い,せがたかい,cao (dùng cho người),segatakai,BỐI CAO,false,5,,16
+n5-0657,719,頭がいい,あたまがいい,thông minh,atamagaii,ĐẦU,false,5,,16
+n5-0658,720,体,からだ,người; cơ thể,karada,THỂ,false,5,,16
+n5-0659,721,頭,あたま,đầu,atama,ĐẦU,false,5,,16
+n5-0660,722,髪,かみ,tóc,kami,PHÁT,false,5,,16
+n5-0661,723,顔,かお,mặt,kao,NHAN,false,5,🙂,16
+n5-0662,724,目,め,mắt; thứー; số ー (biểu thị thứ tự),me,MỤC,false,5,,16
+n5-0663,725,耳,みみ,tai,mimi,NHĨ,false,5,👂,16
+n5-0664,726,歯,は,răng,ha,XỈ,false,5,🦷,16
+n5-0665,727,おなか,おなか,bụng,onaka,,true,5,,16
+n5-0666,728,足,あし,chân,ashi,TÚC,false,5,🦶,16
+n5-0667,729,サービス,サービス,dịch vụ,saabisu,,true,5,,16
+n5-0668,730,ジョギング,ジョギング,việc chạy bộ (~をします: chạy bộ),jogingu,,true,5,,16
+n5-0669,731,シャワー,シャワー,vòi hoa sen,shawaa,,true,5,🚿,16
+n5-0670,732,緑,みどり,màu xanh lá cây,midori,LỤC,false,5,,16
+n5-0671,733,お寺,おてら,chùa,otera,TỰ,false,5,🛕,16
+n5-0672,734,神社,じんじゃ,đền thờ đạo thần,jinja,THẦN XÃ,false,5,⛩️,16
+n5-0673,735,りゅうがくせい,りゅうがくせい,lưu học sinh; du học sinh; lưu học sinh; du học sinh,ryuugakusei,,true,5,,16
+n5-0674,736,一番,いちばん,số―; số-,ichiban,NHẤT PHIÊN,false,5,,16
+n5-0675,737,どうやって,どうやって,làm thế nào~,douyatte,,true,5,,16
+n5-0676,738,どの,どの,cái nào~ (dùng với trường hợp từ ba thứ trở lên),dono,,true,5,,16
+n5-0677,739,まだまだです,まだまだです,"[không,] tôi còn kém lắm (cách nói khiêm nhường khi ai đó khen)",madamadadesu,,true,5,,16
+n5-0678,740,まず,まず,trước hết; đầu tiên,mazu,,true,5,,16
+n5-0679,741,キャッシュカード,キャッシュカード,thẻ ngân hàng; thẻ ATM,kyasshukaado,,true,5,,16
+n5-0680,742,暗証番号,あんしょうばんごう,mã số bí mật (mật khẩu),anshoubangou,ÁM CHỨNG PHIÊN HIỆU,false,5,,16
+n5-0681,743,次に,つぎに,kế đến; sau đó,tsugini,THỨ,false,5,,16
+n5-0682,744,確認,かくにん,sự xác nhận; sự kiểm tra (~します:xác nhận),kakunin,XÁC NHẬN,false,5,,16
+n5-0683,745,金額,きんがく,số tiền; khoản tiền,kingaku,KIM NGẠCH,false,5,,16
+n5-0684,746,ボタン,ボタン,nút,botan,,true,5,🔘,16
+n5-0685,747,アジア,アジア,châu Á,ajia,,true,5,,16
+n5-0686,748,ベトナム,ベトナム,Việt Nam,betonamu,,true,5,,16
+n5-0687,749,覚えます,おぼえます,nhớ,oboemasu,GIÁC,false,5,,17
+n5-0688,750,忘れます,わすれます,quên,wasuremasu,VONG,false,5,,17
+n5-0689,751,なくします,なくします,mất; đánh mất,nakushimasu,,true,5,,17
+n5-0690,752,払います,はらいます,trả tiền,haraimasu,PHẤT,false,5,,17
+n5-0691,753,返します,かえします,trả lại,kaeshimasu,PHẢN,false,5,,17
+n5-0692,754,出かけます,でかけます,ra ngoài,dekakemasu,XUẤT,false,5,,17
+n5-0693,755,脱ぎます,ぬぎます,cởi (quần áo; giầy),nugimasu,THOÁT,false,5,,17
+n5-0694,756,持って行きます,もっていきます,mang đi,motteikimasu,TRÌ HÀNH,false,5,,17
+n5-0695,757,持って来ます,もってきます,mang đến,mottekimasu,TRÌ LAI,false,5,,17
+n5-0696,758,心配します,しんぱいします,lo lắng,shinpaishimasu,TÂM PHỐI,false,5,,17
+n5-0697,759,残業します,ざんぎょうします,làm thêm giờ,zangyoushimasu,TÀN NGHIỆP,false,5,,17
+n5-0698,760,出張します,しゅっちょうします,đi công tác,shutchoushimasu,XUẤT TRƯƠNG,false,5,,17
+n5-0699,761,大切,たいせつ,quan trọng,taisetsu,ĐẠI THIẾT,false,5,,17
+n5-0700,762,大丈夫,だいじょうぶ,không sao; không có vấn đề gì,daijoubu,ĐẠI TRƯỢNG PHU,false,5,,17
+n5-0701,763,危ない,あぶない,nguy hiểm,abunai,NGUY,false,5,,17
+n5-0702,764,問題,もんだい,vấn đề,mondai,VẤN ĐỀ,false,5,,17
+n5-0703,765,答え,こたえ,câu trả lời,kotae,ĐÁP,false,5,,17
+n5-0704,766,禁煙,きんえん,cấm hút thuốc,kin'en,CẤM YÊN,false,5,,17
+n5-0705,767,健康保険証,けんこうほけんしょう,thẻ bảo hiềm (y tế),kenkouhokenshou,KIỆN KHANG BẢO HIỂM CHỨNG,false,5,,17
+n5-0706,768,風,かぜ,cảm; cúm,kaze,PHONG,false,5,,17
+n5-0707,769,熱,ねつ,sốt,netsu,NHIỆT,false,5,,17
+n5-0708,770,病気,びょうき,ốm; bệnh,byouki,BỆNH KHÍ,false,5,,17
+n5-0709,771,薬,くすり,thuốc,kusuri,DƯỢC,false,5,💊,17
+n5-0710,772,おふろ,おふろ,bồn tắm,ofuro,,true,5,🛁,17
+n5-0711,773,上着,うわぎ,áo khoác ngoài,uwagi,THƯỢNG TRƯỚC,false,5,🧥,17
+n5-0712,774,下着,したぎ,quần áo lót,shitagi,HẠ TRƯỚC,false,5,,17
+n5-0975,775,二三日,にさんにち,vài ngày,nisannichi,NHỊ TAM NHẬT,false,5,,17
+n5-0976,776,二三,にさん,vài,nisan,NHỊ TAM,false,5,,17
+n5-0713,777,までに,までに,trước ~ (chỉ thời gian),madeni,,true,5,,17
+n5-0714,778,ですから,ですから,vì thế; vì vậy; do đó,desukara,,true,5,,17
+n5-0715,779,どうしましたか,どうしましたか,có vấn đề gì?; anh; chị bị làm sao?,doushimashitaka,,true,5,,17
+n5-0977,780,痛いです,いたいです,tôi bị đau ~,itaidesu,THỐNG,false,5,,17
+n5-0716,781,のど,のど,họng,nodo,,true,5,,17
+n5-0717,782,おだいじに,おだいじに,anh; chị nhớ giữ gìn sức khỏe. (nói với người bị ốm),odaijini,,true,5,,17
+n5-0718,783,できます,できます,có thể,dekimasu,,true,5,,18
+n5-0719,784,洗います,あらいます,rửa,araimasu,TẨY,false,5,,18
+n5-0720,785,弾きます,ひきます,chơi (chơi 1 loại nhạc cụ),hikimasu,ĐÀN,false,5,,18
+n5-0721,786,歌います,うたいます,hát,utaimasu,CA,false,5,,18
+n5-0722,787,集めます,あつめます,sưu tập,atsumemasu,TẬP,false,5,,18
+n5-0723,788,捨てます,すてます,vứt,sutemasu,XẢ,false,5,,18
+n5-0724,789,かえます,かえます,"đổi (tiền, tàu xe)",kaemasu,,true,5,,18
+n5-0725,790,運転します,うんてんします,lái xe,untenshimasu,VẬN CHUYỂN,false,5,,18
+n5-0726,791,予約します,よやくします,đặt chỗ trước,yoyakushimasu,DỰ ƯỚC,false,5,,18
+n5-0727,792,見学します,けんがくします,tham quan mục đích học tập,kengakushimasu,KIẾN HỌC,false,5,,18
+n5-0739,793,ピアノ,ピアノ,đàn piano,piano,,true,5,🎹,18
+n5-0740,794,メートル,メートル,mét,meetoru,,true,5,,18
+n5-0728,795,国際,こくさい,quốc tế,kokusai,QUỐC TẾ,false,5,,18
+n5-0729,796,現金,げんきん,tiền mặt,genkin,HIỆN KIM,false,5,,18
+n5-0730,797,趣味,しゅみ,sở thích,shumi,THÚ VỊ,false,5,,18
+n5-0731,798,日記,にっき,nhật kí,nikki,NHẬT KÝ,false,5,,18
+n5-0732,799,祈り,いのり,cầu nguyện,inori,KỲ,false,5,,18
+n5-0733,800,課長,かちょう,tổ trưởng,kachou,KHOÁ TRƯỜNG,false,5,,18
+n5-0734,801,部長,ぶちょう,trưởng phòng,buchou,BỘ TRƯỜNG,false,5,,18
+n5-0735,802,社長,しゃちょう,giám đốc,shachou,XÃ TRƯỜNG,false,5,,18
+n5-0736,803,動物,どうぶつ,động vật,doubutsu,ĐỘNG VẬT,false,5,,18
+n5-0737,804,馬,うま,ngựa,uma,MÃ,false,5,🐎,18
+n5-0738,805,へえ,へえ,thế à,hee,,true,5,,18
+n5-0741,806,それはおもしろいですね,それはおもしろいですね,hay nhỉ,sorehaomoshiroidesune,,true,5,,18
+n5-0742,807,牧場,ぼくじょう,trang trại,bokujou,MỤC TRƯỜNG,false,5,,18
+n5-0743,808,本当ですか,ほんとうですか,thật không?,hontoudesuka,BẢN ĐƯƠNG,false,5,,18
+n5-0744,809,ぜひ,ぜひ,nhất định,zehi,,true,5,,18
+n5-0745,810,登ります,のぼります,leo (núi),noborimasu,ĐĂNG,false,5,,19
+n5-0746,811,練習します,れんしゅうします,luyện tập; thực hành,renshuushimasu,LUYỆN TẬP,false,5,,19
+n5-0747,812,掃除します,そうじします,dọn dẹp,soujishimasu,TẢO TRỪ,false,5,,19
+n5-0748,813,洗濯します,せんたくします,giặt giũ,sentakushimasu,TẨY TRẠC,false,5,,19
+n5-0749,814,なります,なります,trở nên; trở thành,narimasu,,true,5,,19
+n5-0750,815,泊まります,とまります,trọ,tomarimasu,BẠC,false,5,,19
+n5-0751,816,眠い,ねむい,buồn ngủ,nemui,MIÊN,false,5,,19
+n5-0752,817,強い,つよい,mạnh,tsuyoi,CƯỜNG,false,5,,19
+n5-0753,818,弱い,よわい,yếu,yowai,NHƯỢC,false,5,,19
+n5-0754,819,調子,ちょうし,tình trạng; trạng thái,choushi,ĐIỆU TỬ,false,5,,19
+n5-0755,820,調子が悪い,ちょうしがわるい,tình trạng xấu,choushigawarui,ĐIỆU TỬ ÁC,false,5,,19
+n5-0756,821,調子がいい,ちょうしがいい,tình trạng tốt,choushigaii,ĐIỆU TỬ,false,5,,19
+n5-0757,822,相撲,すもう,vật sumo,sumou,TƯƠNG PHÁC,false,5,🤼,19
+n5-0758,823,パチンコ,パチンコ,trò chơi pachinko,pachinko,,true,5,,19
+n5-0759,824,ゴルフ,ゴルフ,gôn,gorufu,,true,5,⛳,19
+n5-0760,825,日,ひ,ngày,hi,NHẬT,false,5,,19
+n5-0761,826,もうすぐ,もうすぐ,sắp sửa,mousugu,,true,5,,19
+n5-0762,827,だんだん,だんだん,dần dần,dandan,,true,5,,19
+n5-0763,828,一度,いちど,một lần,ichido,NHẤT ĐỘ,false,5,,19
+n5-0764,829,一度も,いちども,chưa lần nào,ichidomo,NHẤT ĐỘ,false,5,,19
+n5-0765,830,おかげさまで,おかげさまで,cám ơn (khi nhận được sự giúp đỡ của ai đó),okagesamade,,true,5,,19
+n5-0766,831,乾杯,かんぱい,nâng cốc,kanpai,CÀN BÔI,false,5,,19
+n5-0767,832,実は,じつは,sự tình là,jitsuha,THẬT,false,5,,19
+n5-0768,833,ダイエット,ダイエット,ăn kiêng,daietto,,true,5,,19
+n5-0769,834,何回も,なんかいも,nhiều lần,nankaimo,HÀ HỒI,false,5,,19
+n5-0770,835,しかし,しかし,tuy nhiên,shikashi,,true,5,,19
+n5-0771,836,無理,むり,quá sức,muri,VÔ LÝ,false,5,,19
+n5-0772,837,体にいい,からだにいい,tốt cho sức khỏe,karadaniii,THỂ,false,5,,19
+n5-0773,838,ケーキ,ケーキ,bánh ga-tô,keeki,,true,5,🍰,19
+n5-0774,839,要ります,いります,cần (visa),irimasu,YẾU,false,5,,20
+n5-0775,840,調べます,しらべます,tìm hiểu; điều tra,shirabemasu,ĐIỆU,false,5,,20
+n5-0776,841,直します,なおします,sửa; chữa,naoshimasu,TRỰC,false,5,,20
+n5-0777,842,修理します,しゅうりします,sửa chữa; tu sữa,shuurishimasu,TU LÝ,false,5,,20
+n5-0778,843,電話します,でんわします,gọi điện thoại,denwashimasu,ĐIỆN THOẠI,false,5,,20
+n5-0779,844,僕,ぼく,tớ,boku,BỘC,false,5,,20
+n5-0780,845,君,きみ,cậu; bạn,kimi,QUÂN,false,5,,20
+n5-0781,846,君,くん,(hậu tố theo sau tên của em trai),kun,QUÂN,false,5,,20
+n5-0782,847,うん,うん,có (cách nói thân mật của “はい”),un,,true,5,,20
+n5-0783,848,ううん,ううん,không (cách nói thân mật của “いいえ”),uun,,true,5,,20
+n5-0784,849,サラリーマン,サラリーマン,người làm việc cho các công ty,sarariiman,,true,5,,20
+n5-0785,850,言葉,ことば,từ; tiếng,kotoba,NGÔN DIỆP,false,5,,20
+n5-0786,851,物価,ぶっか,giá cả; mức giá; vật giá,bukka,VẬT GIÁ,false,5,,20
+n5-0787,852,着物,きもの,kimono (trang phục truyền thống của Nhật Bản),kimono,TRƯỚC VẬT,false,5,,20
+n5-0788,853,ビザ,ビザ,visa,biza,,true,5,,20
+n5-0789,854,始め,はじめ,lúc đầu,hajime,THUỶ,false,5,,20
+n5-0790,855,終わり,おわり,sự kết thúc,owari,CHUNG,false,5,,20
+n5-0791,856,こっち,こっち,phía này,kotchi,,true,5,,20
+n5-0792,857,そっち,そっち,phía đó,sotchi,,true,5,,20
+n5-0793,858,あっち,あっち,phía kia,atchi,,true,5,,20
+n5-0794,859,どっち,どっち,ở đâu,dotchi,,true,5,,20
+n5-0795,860,この間,このあいだ,hôm nọ,konoaida,GIAN,false,5,,20
+n5-0796,861,みんなで,みんなで,cùng mọi người,minnade,,true,5,,20
+n5-0797,862,けど,けど,nhưng (cách nói thân mật của “が”),kedo,,true,5,,20
+n5-0798,863,国へ帰るの,くにへかえるの,anh; chị có về nước không?,kunihekaeruno,QUỐC QUY,false,5,,20
+n5-0799,864,どうするの,どうするの,anh; chị tính sao?,dousuruno,,true,5,,20
+n5-0800,865,どうしようかな,どうしようかな,tính sao đây; để tôi xem,doushiyoukana,,true,5,,20
+n5-0801,866,よかったら,よかったら,nếu anh; chị thích thì,yokattara,,true,5,,20
+n5-0802,867,色々,いろいろ,nhiều thứ; đa dạng,iroiro,SẮC SẮC,false,5,,20
+n5-0803,868,思います,おもいます,nghĩ,omoimasu,TƯ,false,5,,21
+n5-0804,869,言います,いいます,nói,iimasu,NGÔN,false,5,,21
+n5-0805,870,足ります,たります,đủ,tarimasu,TÚC,false,5,,21
+n5-0806,871,勝ちます,かちます,thắng,kachimasu,THẮNG,false,5,,21
+n5-0807,872,負けます,まけます,thua,makemasu,PHỤ,false,5,,21
+n5-0808,873,役に立ちます,やくにたちます,giúp ích,yakunitachimasu,DỊCH LẬP,false,5,,21
+n5-0809,874,むだ,むだ,vô ích,muda,,true,5,,21
+n5-0810,875,不便,ふべん,bất tiện,fuben,BẤT TIỆN,false,5,,21
+n5-0811,876,同じ,おなじ,giống,onaji,ĐỒNG,false,5,,21
+n5-0812,877,すごい,すごい,giỏi,sugoi,,true,5,,21
+n5-0813,878,首相,しゅしょう,thủ tướng,shushou,THỦ TƯƠNG,false,5,,21
+n5-0814,879,大統領,だいとうりょう,tổng thống,daitouryou,ĐẠI THỐNG LĨNH,false,5,,21
+n5-0815,880,政治,せいじ,chính trị,seiji,CHÍNH TRỊ,false,5,,21
+n5-0816,881,ニュース,ニュース,tin tức,nyuusu,,true,5,,21
+n5-0817,882,スピーチ,スピーチ,bài phát biểu,supiichi,,true,5,,21
+n5-0818,883,試合,しあい,trận đấu,shiai,THÍ HỢP,false,5,,21
+n5-0819,884,アルバイト,アルバイト,việc làm thêm,arubaito,,true,5,,21
+n5-0820,885,意見,いけん,ý kiến,iken,Ý KIẾN,false,5,,21
+n5-0821,886,話,はなし,câu chuyện,hanashi,THOẠI,false,5,,21
+n5-0822,887,ユーモア,ユーモア,hài hước,yuumoa,,true,5,,21
+n5-0823,888,デザイン,デザイン,thiết kế,dezain,,true,5,,21
+n5-0824,889,交通,こうつう,giao thông,koutsuu,GIAO THÔNG,false,5,,21
+n5-0825,890,ラッシュ,ラッシュ,giờ cao điểm,rasshu,,true,5,,21
+n5-0826,891,最近,さいきん,gần đây,saikin,TỐI CẬN,false,5,,21
+n5-0827,892,たぶん,たぶん,chắc; có thể,tabun,,true,5,,21
+n5-0828,893,きっと,きっと,chắc chắn; nhất định,kitto,,true,5,,21
+n5-0829,894,本当に,ほんとうに,thật sự,hontouni,BẢN ĐƯƠNG,false,5,,21
+n5-0830,895,そんなに,そんなに,(không) ~ lắm,sonnani,,true,5,,21
+n5-0831,896,について,について,theo ~ về,nitsuite,,true,5,,21
+n5-0832,897,しかたがありません,しかたがありません,không còn cách nào khác,shikatagaarimasen,,true,5,,21
+n5-0833,898,しばらくですね,しばらくですね,lâu rồi không gặp,shibarakudesune,,true,5,,21
+n5-0834,899,見ないと,みないと,phải xem...,minaito,KIẾN,false,5,,21
+n5-0835,900,もちろん,もちろん,tất nhiên,mochiron,,true,5,,21
+n5-0836,901,カンガルー,カンガルー,kanguru,kangaruu,,true,5,,21
+n5-0837,902,着ます,きます,mặc (áo sơ mi; ..),kimasu,TRƯỚC,false,5,,22
+n5-0838,903,はきます,はきます,mang (giày; ...),hakimasu,,true,5,,22
+n5-0839,904,かぶります,かぶります,đội (nón; ...),kaburimasu,,true,5,,22
+n5-0292,905,かける,かける,gọi (điện thoại),kakeru,,true,5,,22
+n5-0841,906,生まれます,うまれます,sinh ra,umaremasu,SINH,false,5,,22
+n5-0842,907,コート,コート,áo khoác dài,kooto,,true,5,🧥,22
+n5-0843,908,スーツ,スーツ,com-lê,suutsu,,true,5,🤵,22
+n5-0844,909,セーター,セーター,áo len,seetaa,,true,5,,22
+n5-0845,910,帽子,ぼうし,nón; mũ,boushi,MẠO TỬ,false,5,🧢,22
+n5-0846,911,眼鏡,めがね,kính,megane,NHÃN KÍNH,false,5,👓,22
+n5-0847,912,おめでとうございます,おめでとうございます,chúc mừng,omedetougozaimasu,,true,5,,22
+n5-0848,913,家賃,やちん,tiền nhà,yachin,GIA NHẪM,false,5,,22
+n5-0849,914,うーん,うーん,để tôi xem; ừ; thế nào nhỉ,uun,,true,5,,22
+n5-0850,915,ダイニングキッチン,ダイニングキッチン,bếp kèm phòng ăn,dainingukitchin,,true,5,,22
+n5-0851,916,わしつ,わしつ,phòng kiểu Nhật,washitsu,,true,5,,22
+n5-0852,917,押し入れ,おしいれ,chỗ để chăn gối trong phòng kiểu Nhật,oshiire,ÁP NHẬP,false,5,,22
+n5-0853,918,布団,ふとん,chăn; đệm,futon,BỐ ĐOÀN,false,5,🛏️,22
+n5-0854,919,アパート,アパート,nhà chung cư,apaato,,true,5,🏢,22
+n5-0855,920,パリ,パリ,Pa-ri,pari,,true,5,,22
+n5-0856,921,万里の長城,ばんりのちょうじょう,Vạn lý trường thành,banrinochoujou,VẠN LÝ TRƯỜNG THÀNH,false,5,,22
+n5-0857,922,余暇開発センター,よかかいはつセンター,trung tâm phát triển hoạt động giải trí cho người dân,yokakaihatsusentaa,DƯ HẠ KHAI PHÁT,false,5,,22
+n5-0858,923,レジャー白書,レジャーはくしょ,sách trắng về sử dụng thời gian rảnh rỗi,rejaahakusho,BẠCH THƯ,false,5,,22
+n5-0863,924,回します,まわします,vặn (nút),mawashimasu,HỒI,false,5,,23
+n5-0864,925,引きます,ひきます,kéo,hikimasu,DẪN,false,5,,23
+n5-0865,926,変えます,かえます,đổi,kaemasu,BIẾN,false,5,,23
+n5-0866,927,触ります,さわります,sờ; chạm vào,sawarimasu,XÚC,false,5,,23
+n5-0867,928,動きます,うごきます,chuyển động; chạy,ugokimasu,ĐỘNG,false,5,,23
+n5-0868,929,歩きます,あるきます,đi bộ (trên đường),arukimasu,BỘ,false,5,,23
+n5-0869,930,渡ります,わたります,qua; đi qua (cầu),watarimasu,ĐỘ,false,5,,23
+n5-0870,931,気を付けます,きをつけます,chú ý; cẩn thận,kiotsukemasu,KHÍ PHÓ,false,5,,23
+n5-0862,932,引越しします,ひっこしします,chuyển nhà,hikkoshishimasu,DẪN VIỆT,false,5,,23
+n5-0871,933,電気屋,でんきや,cửa hàng đồ điện,denkiya,ĐIỆN KHÍ ỐC,false,5,,23
+n5-0872,934,故障,こしょう,hỏng,koshou,CỐ CHƯỚNG,false,5,,23
+n5-0463,935,や,や,~ và ~; [v.v.],ya,,true,5,,23
+n5-0873,936,サイズ,サイズ,cỡ; kích thước,saizu,,true,5,,23
+n5-0874,937,音,おと,âm thanh,oto,ÂM,false,5,,23
+n5-0875,938,機械,きかい,máy móc,kikai,CƠ GIỚI,false,5,,23
+n5-0859,939,道,みち,con đường,michi,ĐẠO,false,5,,23
+n5-0860,940,交差点,こうさてん,ngã tư,kousaten,GIAO SAI ĐIỂM,false,5,,23
+n5-0861,941,信号,しんごう,đèn tín hiệu,shingou,TÍN HIỆU,false,5,🚦,23
+n5-0876,942,つまみ,つまみ,núm vặn,tsumami,,true,5,,23
+n5-0877,943,角,かど,góc,kado,GIÁC,false,5,,23
+n5-0878,944,橋,はし,cầu,hashi,KIỀU,false,5,🌉,23
+n5-0879,945,駐車場,ちゅうしゃじょう,bãi đỗ xe,chuushajou,TRÚ XA TRƯỜNG,false,5,🅿️,23
+n5-0880,946,お正月,おしょうがつ,tết dương lịch,oshougatsu,CHÍNH NGUYỆT,false,5,,23
+n5-0881,947,ごちそうさまでした,ごちそうさまでした,xin cảm ơn anh chị đã đãi tôi bữa cơm,gochisousamadeshita,,true,5,,23
+n5-0882,948,建物,たてもの,tòa nhà,tatemono,KIẾN VẬT,false,5,,23
+n5-0883,949,外国人登録証,がいこくじんとうろくしょう,thẻ đăng kí người nước ngoài; thẻ đăng kí ngoại kiều,gaikokujintourokushou,NGOẠI QUỐC NHÂN ĐĂNG LỤC CHỨNG,false,5,,23
+n5-0884,950,くれます,くれます,cho; tặng (tôi),kuremasu,,true,5,,24
+n5-0885,951,連れて行きます,つれていきます,dẫn đi,tsureteikimasu,LIÊN HÀNH,false,5,,24
+n5-0886,952,連れて来ます,つれてきます,dẫn đến,tsuretekimasu,LIÊN LAI,false,5,,24
+n5-0287,953,送る,おくる,gửi,okuru,TỐNG,false,5,,24
+n5-0888,954,紹介します,しょうかいします,giới thiệu,shoukaishimasu,THIỆU GIỚI,false,5,,24
+n5-0889,955,案内します,あんないします,hướng dẫn; chỉ đường,annaishimasu,ÁN NỘI,false,5,,24
+n5-0890,956,説明します,せつめいします,giải thích; trình bày,setsumeishimasu,THUYẾT MINH,false,5,,24
+n5-0891,957,いれます,いれます,pha (cà phê),iremasu,,true,5,,24
+n5-0892,958,おじいさん,おじいさん,ông nội; ông ngoại; ông,ojiisan,,true,5,,24
+n5-0893,959,おばあさん,おばあさん,bà nội; bà ngoại; bà,obaasan,,true,5,,24
+n5-0978,960,おばあちゃん,おばあちゃん,bà (cách gọi thân mật),obaachan,,true,5,,24
+n5-0894,961,準備,じゅんび,chuẩn bị,junbi,CHUẨN BỊ,false,5,,24
+n5-0895,962,意味,いみ,ý nghĩa,imi,Ý VỊ,false,5,,24
+n5-0896,963,お菓子,おかし,bánh kẹo,okashi,QUẢ TỬ,false,5,🍪,24
+n5-0897,964,全部,ぜんぶ,toàn bộ; tất cả,zenbu,TOÀN BỘ,false,5,,24
+n5-0979,965,自分で,じぶんで,tự mình,jibunde,TỰ PHÂN,false,5,,24
+n5-0980,966,他に,ほかに,ngoài ra,hokani,THA,false,5,,24
+n5-0981,967,お弁当,おべんとう,cơm hộp,obentou,BIỆN ĐƯƠNG,false,5,,24
+n5-0982,968,母の日,ははのひ,ngày của mẹ,hahanohi,MẪU NHẬT,false,5,,24
+n5-0898,969,考えます,かんがえます,nghĩ; suy nghĩ,kangaemasu,KHẢO,false,5,,25
+n5-0899,970,着きます,つきます,đến (ga),tsukimasu,TRƯỚC,false,5,,25
+n5-0900,971,留学します,りゅうがくします,du học,ryuugakushimasu,LƯU HỌC,false,5,,25
+n5-0901,972,田舎,いなか,quê; nông thôn,inaka,ĐIỀN XÁ,false,5,,25
+n5-0902,973,大使館,たいしかん,đại sứ quán,taishikan,ĐẠI SỬ QUÁN,false,5,🏛️,25
+n5-0903,974,グループ,グループ,nhóm; bạn bè,guruupu,,true,5,,25
+n5-0904,975,チャンス,チャンス,cơ hội,chansu,,true,5,,25
+n5-0906,976,もし,もし,nếu,moshi,,true,5,,25
+n5-0907,977,転勤,てんきん,chuyển công tác,tenkin,CHUYỂN CẦN,false,5,,25
+n5-0908,978,こと,こと,việc,koto,,true,5,,25
+n5-0909,979,一杯飲みましょう,いっぱいのみましょう,chúng ta cùng uống nhé,ippainomimashou,NHẤT BÔI ẨM,false,5,,25
+n5-0910,980,どうぞお元気で,どうぞおげんきで,chúc anh chị mạnh khỏe (câu nói trước khi chia tay với ai đó mà có lẽ lâu nữa mới gặp lại),douzoogenkide,NGUYÊN KHÍ,false,5,,25
+n5-0911,981,お世話になりました,おせわになりました,anh; chị đã giúp tôi nhiều,osewaninarimashita,THẾ THOẠI,false,5,,25
+n5-0912,982,頑張ります,がんばります,cố gắng,ganbarimasu,NGOAN TRƯƠNG,false,5,💪,25
+n4-0001,983,診ます,みます,khám (bệnh),mimasu,CHẨN,false,4,,26
+n4-0002,984,探します,さがします,tìm; tìm kiếm,sagashimasu,THÁM,false,4,,26
+n4-0003,985,遅れます,おくれます,chậm; muộn; trễ giờ,okuremasu,TRÌ,false,4,,26
+n4-0004,986,間に合います,まにあいます,kịp giờ,maniaimasu,GIAN HỢP,false,4,,26
+n4-0005,987,やります,やります,làm (bài tập),yarimasu,,true,4,,26
+n4-0006,988,参加します,さんかします,tham gia,sankashimasu,THAM GIA,false,4,,26
+n4-0007,989,申し込みます,もうしこみます,đăng ký,moushikomimasu,THÂN NHẬP,false,4,,26
+n4-0008,990,都合がいい,つごうがいい,có thời gian; thuận tiện,tsugougaii,ĐÔ HỢP,false,4,,26
+n4-0009,991,都合が悪い,つごうがわるい,không có thời gian,tsugougawarui,ĐÔ HỢP ÁC,false,4,,26
+n4-0010,992,気分がいい,きぶんがいい,tâm trạng tốt,kibungaii,KHÍ PHÂN,false,4,,26
+n4-0011,993,気分が悪い,きぶんがわるい,tâm trạng xấu; thấy mệt,kibungawarui,KHÍ PHÂN ÁC,false,4,,26
+n4-0012,994,新聞社,しんぶんしゃ,tòa soạn báo,shinbunsha,TÂN VĂN XÃ,false,4,,26
+n4-0013,995,柔道,じゅうどう,judo,juudou,NHU ĐẠO,false,4,,26
+n4-0014,996,運動会,うんどうかい,hội thi thể thao,undoukai,VẬN ĐỘNG HỘI,false,4,,26
+n4-0015,997,場所,ばしょ,nơi chốn; địa điểm,basho,TRƯỜNG SỞ,false,4,,26
+n4-0016,998,ボランティア,ボランティア,tình nguyện viên,borantia,,true,4,,26
+n4-0017,999,弁,べん,tiếng ~ (giọng địa phương),ben,BIỆN,false,4,,26
+n4-0018,1000,今度,こんど,lần tới,kondo,KIM ĐỘ,false,4,,26
+n4-0019,1001,ずいぶん,ずいぶん,khá; tương đối,zuibun,,true,4,,26
+n4-0020,1002,直接,ちょくせつ,trực tiếp,chokusetsu,TRỰC TIẾP,false,4,,26
+n4-0021,1003,いつでも,いつでも,lúc nào cũng,itsudemo,,true,4,,26
+n4-0022,1004,どこでも,どこでも,ở đâu cũng,dokodemo,,true,4,,26
+n4-0023,1005,だれでも,だれでも,ai cũng,daredemo,,true,4,,26
+n4-0024,1006,何でも,なんでも,cái gì cũng,nandemo,HÀ,false,4,,26
+n4-0025,1007,こんな,こんな,~ như thế này,konna,,true,4,,26
+n4-0026,1008,そんな,そんな,~ như thế đó,sonna,,true,4,,26
+n4-0027,1009,あんな,あんな,~ như thế kia,anna,,true,4,,26
+n4-0028,1010,片付きます,かたづきます,được dọn dẹp,katazukimasu,PHIẾN PHÓ,false,4,,26
+n4-0029,1011,ごみ,ごみ,rác,gomi,,true,4,,26
+n4-0030,1012,燃えます,もえます,cháy được,moemasu,NHIÊN,false,4,,26
+n4-0031,1013,置き場,おきば,chỗ để; chỗ đặt,okiba,TRÍ TRƯỜNG,false,4,,26
+n4-0032,1014,横,よこ,bên cạnh,yoko,HOÀNH,false,4,,26
+n4-0033,1015,瓶,びん,cái chai,bin,BÌNH,false,4,,26
+n4-0034,1016,缶,かん,cái lon; hộp kim loại,kan,PHỮU,false,4,,26
+n4-0035,1017,お湯,おゆ,nước nóng,oyu,THANG,false,4,,26
+n4-0036,1018,ガス,ガス,ga,gasu,,true,4,,26
+n4-0037,1019,連絡します,れんらくします,liên lạc,renrakushimasu,LIÊN LẠC,false,4,,26
+n4-0038,1020,困ったなあ,こまったなあ,gay quá; căng quá,komattanaa,KHỐN,false,4,,26
+n4-0039,1021,電子メール,でんしメール,email; thư điện tử,denshimeeru,ĐIỆN TỬ,false,4,,26
+n4-0040,1022,宇宙,うちゅう,vũ trụ,uchuu,VŨ TRỤ,false,4,,26
+n4-0041,1023,宇宙船,うちゅうせん,tàu vũ trụ,uchuusen,VŨ TRỤ THUYỀN,false,4,,26
+n4-0042,1024,怖い,こわい,sợ; đáng sợ,kowai,BỐ,false,4,,26
+n4-0043,1025,別の,べつの,khác,betsuno,BIỆT,false,4,,26
+n4-0044,1026,うちゅうひこうし,うちゅうひこうし,nhà du hành vũ trụ,uchuuhikoushi,,true,4,,26
+n4-0045,1027,飼います,かいます,nuôi; chăn nuôi,kaimasu,TỰ,false,4,,27
+n4-0046,1028,建てます,たてます,xây dựng,tatemasu,KIẾN,false,4,,27
+n4-0047,1029,走ります,はしります,chạy,hashirimasu,TẨU,false,4,,27
+n4-0048,1030,見えます,みえます,có thể nhìn thấy,miemasu,KIẾN,false,4,,27
+n4-0049,1031,聞こえます,きこえます,có thể nghe thấy,kikoemasu,VĂN,false,4,,27
+n4-0050,1032,開きます,ひらきます,mở (lớp học),hirakimasu,KHAI,false,4,,27
+n4-0051,1033,ペット,ペット,thú cưng; động vật nuôi,petto,,true,4,,27
+n4-0052,1034,鳥,とり,chim,tori,ĐIỂU,false,4,,27
+n4-0053,1035,声,こえ,tiếng; giọng nói,koe,THANH,false,4,,27
+n4-0054,1036,波,なみ,sóng,nami,BA,false,4,,27
+n4-0055,1037,花火,はなび,pháo hoa,hanabi,HOA HỎA,false,4,,27
+n4-0056,1038,景色,けしき,phong cảnh,keshiki,CẢNH SẮC,false,4,,27
+n4-0057,1039,昼間,ひるま,ban ngày,hiruma,TRÚ GIAN,false,4,,27
+n4-0058,1040,昔,むかし,ngày xưa,mukashi,TÍCH,false,4,,27
+n4-0059,1041,道具,どうぐ,dụng cụ,dougu,ĐẠO CỤ,false,4,,27
+n4-0060,1042,自動販売機,じどうはんばいき,máy bán hàng tự động,jidouhanbaiki,TỰ ĐỘNG PHIẾN MẠI CƠ,false,4,,27
+n4-0061,1043,通信販売,つうしんはんばい,thương mại viễn thông,tsuushinhanbai,THÔNG TÍN PHIẾN MẠI,false,4,,27
+n4-0062,1044,クリーニング,クリーニング,giặt ủi,kuriiningu,,true,4,,27
+n4-0063,1045,マンション,マンション,chung cư,manshon,,true,4,,27
+n4-0064,1046,台所,だいどころ,nhà bếp,daidokoro,ĐÀI SỞ,false,4,,27
+n4-0065,1047,しか,しか,chỉ,shika,,true,4,,27
+n4-0066,1048,ほかの,ほかの,khác,hokano,,true,4,,27
+n4-0067,1049,はっきり,はっきり,rõ; rõ ràng,hakkiri,,true,4,,27
+n4-0068,1050,ほとんど,ほとんど,hầu như,hotondo,,true,4,,27
+n4-0069,1051,本棚,ほんだな,kệ sách; giá sách,hondana,BẢN BẰNG,false,4,,27
+n4-0070,1052,いつか,いつか,một ngày nào đó,itsuka,,true,4,,27
+n4-0071,1053,夢,ゆめ,mơ,yume,MỘNG,false,4,,27
+n4-0072,1054,家,いえ,nhà,ie,GIA,false,4,,27
+n4-0073,1055,素晴らしい,すばらしい,tuyệt vời,subarashii,TỐ TÌNH,false,4,,27
+n4-0074,1056,子どもたち,こどもたち,bọn trẻ,kodomotachi,TỬ,false,4,,27
+n4-0075,1057,大好き,だいすき,rất thích,daisuki,ĐẠI HẢO,false,4,,27
+n4-0076,1058,漫画,まんが,truyện tranh,manga,MẠN HOẠ,false,4,,27
+n4-0077,1059,主人公,しゅじんこう,nhân vật chính,shujinkou,CHỦ NHÂN CÔNG,false,4,,27
+n4-0078,1060,形,かたち,hình dạng,katachi,HÌNH,false,4,,27
+n4-0079,1061,ロボット,ロボット,người máy,robotto,,true,4,,27
+n4-0080,1062,不思議な,ふしぎな,kì lạ; bí ẩn,fushigina,BẤT TƯ NGHỊ,false,4,,27
+n4-0081,1063,ポケット,ポケット,túi,poketto,,true,4,,27
+n4-0082,1064,例えば,たとえば,ví dụ,tatoeba,LỆ,false,4,,27
+n4-0083,1065,付けます,つけます,lắp ghép,tsukemasu,PHÓ,false,4,,27
+n4-0084,1066,自由に,じゆうに,tự do,jiyuuni,TỰ DO,false,4,,27
+n4-0085,1067,空,そら,bầu trời,sora,KHÔNG,false,4,,27
+n4-0086,1068,飛びます,とびます,bay,tobimasu,PHI,false,4,,27
+n4-0087,1069,自分,じぶん,tự mình; bản thân,jibun,TỰ PHÂN,false,4,,27
+n4-0088,1070,将来,しょうらい,tương lai,shourai,TƯƠNG LAI,false,4,,27
+n4-0089,1071,売れます,うれます,bán chạy,uremasu,MẠI,false,4,,28
+n4-0090,1072,踊ります,おどります,nhảy,odorimasu,DŨNG,false,4,,28
+n4-0091,1073,かみます,かみます,nhai; cắn,kamimasu,,true,4,,28
+n4-0092,1074,選びます,えらびます,lựa; lựa chọn,erabimasu,TUYỂN,false,4,,28
+n4-0093,1075,通います,かよいます,đi học (đại học),kayoimasu,THÔNG,false,4,,28
+n4-0094,1076,メモします,メモします,ghi chép,memoshimasu,,true,4,,28
+n4-0095,1077,まじめ,まじめ,nghiêm túc,majime,,true,4,,28
+n4-0096,1078,熱心,ねっしん,nhiệt tình,nesshin,NHIỆT TÂM,false,4,,28
+n4-0097,1079,偉い,えらい,vĩ đại; kính trọng,erai,VĨ,false,4,,28
+n4-0098,1080,ちょうどいい,ちょうどいい,vừa đúng; vừa vặn,choudoii,,true,4,,28
+n4-0099,1081,習慣,しゅうかん,tập quán,shuukan,TẬP QUÁN,false,4,,28
+n4-0100,1082,経験,けいけん,kinh nghiệm,keiken,KINH NGHIỆM,false,4,,28
+n4-0101,1083,力,ちから,sức mạnh,chikara,LỰC,false,4,,28
+n4-0102,1084,人気,にんき,hâm mộ; được yêu thích,ninki,NHÂN KHÍ,false,4,,28
+n4-0103,1085,色,いろ,màu,iro,SẮC,false,4,,28
+n4-0104,1086,味,あじ,vị,aji,VỊ,false,4,,28
+n4-0105,1087,ガム,ガム,kẹo cao su,gamu,,true,4,,28
+n4-0106,1088,品物,しなもの,hàng hóa,shinamono,PHẨM VẬT,false,4,,28
+n4-0107,1089,値段,ねだん,giá cả,nedan,TRỊ ĐOẠN,false,4,,28
+n4-0108,1090,給料,きゅうりょう,lương,kyuuryou,CẤP LIỆU,false,4,,28
+n4-0109,1091,ボーナス,ボーナス,thưởng,boonasu,,true,4,,28
+n4-0110,1092,番組,ばんぐみ,chương trình,bangumi,PHIÊN TỔ,false,4,,28
+n4-0111,1093,ドラマ,ドラマ,kịch; phim truyền hình,dorama,,true,4,,28
+n4-0112,1094,小説,しょうせつ,tiểu thuyết,shousetsu,TIỂU THUYẾT,false,4,,28
+n4-0113,1095,小説家,しょうせつか,tiểu thuyết gia,shousetsuka,TIỂU THUYẾT GIA,false,4,,28
+n4-0114,1096,歌手,かしゅ,ca sĩ,kashu,CA THỦ,false,4,,28
+n4-0115,1097,管理人,かんりにん,người quản lí,kanrinin,QUẢN LÝ NHÂN,false,4,,28
+n4-0116,1098,息子,むすこ,con trai (dùng cho mình),musuko,TỨC TỬ,false,4,,28
+n4-0117,1099,息子さん,むすこさん,con trai (dùng cho người khác),musukosan,TỨC TỬ,false,4,,28
+n4-0118,1100,娘,むすめ,con gái (dùng cho mình),musume,NƯƠNG,false,4,,28
+n4-0119,1101,娘さん,むすめさん,con gái (dùng cho người khác),musumesan,NƯƠNG,false,4,,28
+n4-0120,1102,しばらく,しばらく,một khoảng thời gian ngắn; một lát,shibaraku,,true,4,,28
+n4-0121,1103,たいてい,たいてい,thường; thông thường,taitei,,true,4,,28
+n4-0122,1104,それに,それに,ngoài ra,soreni,,true,4,,28
+n4-0123,1105,それで,それで,do đó; thế nên,sorede,,true,4,,28
+n4-0124,1106,ホームステイ,ホームステイ,homestay,hoomusutei,,true,4,,28
+n4-0125,1107,会話,かいわ,hội thoại,kaiwa,HỘI THOẠI,false,4,,28
+n4-0126,1108,おしゃべりします,おしゃべりします,trò chuyện,oshaberishimasu,,true,4,,28
+n4-0127,1109,お知らせ,おしらせ,thông báo,oshirase,TRI,false,4,,28
+n4-0128,1110,無料,むりょう,miễn phí,muryou,VÔ LIỆU,false,4,,28
+n4-0129,1111,開きます,あきます,mở (cửa),akimasu,KHAI,false,4,,29
+n4-0130,1112,閉まります,しまります,đóng (cửa),shimarimasu,BẾ,false,4,,29
+n4-0131,1113,つきます,つきます,bật; thắp sáng (đèn),tsukimasu,,true,4,,29
+n4-0132,1114,消えます,きえます,tắt (đèn),kiemasu,TIÊU,false,4,,29
+n4-0133,1115,込みます,こみます,đông (đường),komimasu,NHẬP,false,4,,29
+n4-0134,1116,すきます,すきます,vắng (đường),sukimasu,,true,4,,29
+n4-0135,1117,壊れます,こわれます,hỏng (ghế),kowaremasu,HOẠI,false,4,,29
+n4-0136,1118,割れます,われます,vỡ,waremasu,CÁT,false,4,,29
+n4-0137,1119,折れます,おれます,gãy (cây),oremasu,CHIẾT,false,4,,29
+n4-0138,1120,破れます,やぶれます,rách (giấy),yaburemasu,PHÁ,false,4,,29
+n4-0139,1121,汚れます,よごれます,dơ; bẩn (tay),yogoremasu,Ô,false,4,,29
+n4-0140,1122,付きます,つきます,dính; đính (có túi),tsukimasu,PHÓ,false,4,,29
+n4-0141,1123,外れます,はずれます,tuột; bung; rời ra (sút nút),hazuremasu,NGOẠI,false,4,,29
+n4-0142,1124,止まります,とまります,dừng,tomarimasu,CHỈ,false,4,,29
+n4-0143,1125,まちがえます,まちがえます,nhầm lẫn; sai,machigaemasu,,true,4,,29
+n4-0144,1126,落とします,おとします,làm rơi; rớt,otoshimasu,LẠC,false,4,,29
+n4-0145,1127,掛かります,かかります,khóa,kakarimasu,QUẢI,false,4,,29
+n4-0146,1128,皿,さら,đĩa,sara,MÃNH,false,4,,29
+n4-0147,1129,ちゃわん,ちゃわん,bát; chén,chawan,,true,4,,29
+n4-0148,1130,コップ,コップ,cốc,koppu,,true,4,,29
+n4-0149,1131,ガラス,ガラス,thủy tinh,garasu,,true,4,,29
+n4-0150,1132,袋,ふくろ,túi,fukuro,ĐẠI,false,4,,29
+n4-0151,1133,財布,さいふ,ví tiền,saifu,TÀI BỐ,false,4,,29
+n4-0152,1134,枝,えだ,cành cây,eda,CHI,false,4,,29
+n4-0153,1135,駅員,えきいん,nhân viên nhà ga,ekiin,DỊCH VIÊN,false,4,,29
+n4-0154,1136,この辺,このへん,xung quanh đây; gần đây,konohen,BIÊN,false,4,,29
+n4-0155,1137,このくらい,このくらい,cỡ khoảng như này,konokurai,,true,4,,29
+n4-0156,1138,お先にどうぞ,おさきにどうぞ,mời anh/chị cứ về trước,osakinidouzo,TIÊN,false,4,,29
+n4-0157,1139,忘れ物,わすれもの,đồ bỏ quên,wasuremono,VONG VẬT,false,4,,29
+n4-0158,1140,側,がわ,phía; bên,gawa,TRẮC,false,4,,29
+n4-0159,1141,辺,へん,chỗ; vùng,hen,BIÊN,false,4,,29
+n4-0160,1142,網棚,あみだな,giá để hành lý,amidana,VÕNG BẰNG,false,4,,29
+n4-0161,1143,確か,たしか,chắc là,tashika,XÁC,false,4,,29
+n4-0162,1144,地震,じしん,động đất,jishin,ĐỊA CHẤN,false,4,,29
+n4-0163,1145,壁,かべ,bức tường,kabe,BÍCH,false,4,,29
+n4-0164,1146,針,はり,kim đồng hồ,hari,CHÂM,false,4,,29
+n4-0165,1147,今の電車,いまのでんしゃ,đoàn tàu vừa rồi,imanodensha,KIM ĐIỆN XA,false,4,,29
+n4-0166,1148,駅前,えきまえ,trước ga,ekimae,DỊCH TIỀN,false,4,,29
+n4-0167,1149,指します,さします,chỉ,sashimasu,CHỈ,false,4,,29
+n4-0168,1150,倒れます,たおれます,đổ,taoremasu,ĐẢO,false,4,,29
+n4-0169,1151,西の方,にしのほう,phía tây,nishinohou,TÂY PHƯƠNG,false,4,,29
+n4-0170,1152,はります,はります,dán,harimasu,,true,4,,30
+n4-0171,1153,掛けます,かけます,treo,kakemasu,QUẢI,false,4,,30
+n4-0172,1154,飾ります,かざります,trang trí,kazarimasu,SỨC,false,4,,30
+n4-0173,1155,並べます,ならべます,xếp thành hàng,narabemasu,TỊNH,false,4,,30
+n4-0174,1156,植えます,うえます,trồng (cây),uemasu,THỰC,false,4,,30
+n4-0175,1157,戻します,もどします,đưa về; trả về,modoshimasu,LỆ,false,4,,30
+n4-0176,1158,まとめます,まとめます,nhóm lại; tóm tắt,matomemasu,,true,4,,30
+n4-0177,1159,片づけます,かたづけます,dọn dẹp; sắp xếp,katazukemasu,PHIẾN,false,4,,30
+n4-0178,1160,しまいます,しまいます,cất vào; để vào,shimaimasu,,true,4,,30
+n4-0179,1161,決めます,きめます,quyết định,kimemasu,QUYẾT,false,4,,30
+n4-0180,1162,知らせます,しらせます,thông báo,shirasemasu,TRI,false,4,,30
+n4-0181,1163,相談します,そうだんします,thảo luận; trao đổi; bàn bạc,soudanshimasu,TƯƠNG ĐÀM,false,4,,30
+n4-0182,1164,予習します,よしゅうします,chuẩn bị bài mới,yoshuushimasu,DỰ TẬP,false,4,,30
+n4-0183,1165,復習します,ふくしゅうします,ôn bài cũ,fukushuushimasu,PHỤC TẬP,false,4,,30
+n4-0184,1166,そのままにします,そのままにします,để nguyên như thế,sonomamanishimasu,,true,4,,30
+n4-0185,1167,お子さん,おこさん,con (dùng đối với người khác),okosan,TỬ,false,4,,30
+n4-0186,1168,授業,じゅぎょう,giờ học,jugyou,THỤ NGHIỆP,false,4,,30
+n4-0187,1169,講義,こうぎ,bài giảng,kougi,GIẢNG NGHĨA,false,4,,30
+n4-0188,1170,ミーティング,ミーティング,cuộc họp,miitingu,,true,4,,30
+n4-0189,1171,予定,よてい,kế hoạch; dự định,yotei,DỰ ĐỊNH,false,4,,30
+n4-0190,1172,案内書,あんないしょ,tài liệu hướng dẫn,annaisho,ÁN NỘI THƯ,false,4,,30
+n4-0191,1173,カレンダー,カレンダー,lịch; tờ lịch,karendaa,,true,4,,30
+n4-0192,1174,ポスター,ポスター,tờ quảng cáo; poster,posutaa,,true,4,,30
+n4-0193,1175,ごみ箱,ごみばこ,thùng rác,gomibako,TƯƠNG,false,4,,30
+n4-0194,1176,人形,にんぎょう,con búp bê; con rối,ningyou,NHÂN HÌNH,false,4,,30
+n4-0195,1177,花瓶,かびん,lọ hoa,kabin,HOA BÌNH,false,4,,30
+n4-0196,1178,鏡,かがみ,cái gương,kagami,KÍNH,false,4,,30
+n4-0197,1179,引き出し,ひきだし,ngăn kéo,hikidashi,DẪN XUẤT,false,4,,30
+n4-0198,1180,玄関,げんかん,cửa vào,genkan,HUYỀN QUAN,false,4,,30
+n4-0199,1181,廊下,ろうか,hành lang,rouka,LANG HẠ,false,4,,30
+n4-0200,1182,池,いけ,cái ao,ike,TRÌ,false,4,,30
+n4-0201,1183,交番,こうばん,trạm cảnh sát,kouban,GIAO PHIÊN,false,4,,30
+n4-0202,1184,元の所,もとのところ,địa điểm ban đầu,motonotokoro,NGUYÊN SỞ,false,4,,30
+n4-0203,1185,周り,まわり,xung quanh,mawari,CHU,false,4,,30
+n4-0204,1186,真ん中,まんなか,giữa; trung tâm,mannaka,CHÂN TRUNG,false,4,,30
+n4-0205,1187,すみ,すみ,góc,sumi,,true,4,,30
+n4-0206,1188,ほど,ほど,chừng ~; khoảng ~,hodo,,true,4,,30
+n4-0207,1189,予定表,よていひょう,thời khóa biểu,yoteihyou,DỰ ĐỊNH BIỂU,false,4,,30
+n4-0208,1190,ごくろうさま,ごくろうさま,anh/chị đã làm việc vất vả,gokurousama,,true,4,,30
+n4-0209,1191,希望,きぼう,hi vọng; nguyện vọng,kibou,HI VỌNG,false,4,,30
+n4-0210,1192,何かご希望がありますか,なにかごきぼうがありますか,anh/chị có nguyện vọng gì không,nanikagokibougaarimasuka,HÀ HI VỌNG,false,4,,30
+n4-0211,1193,丸い,まるい,tròn,marui,HOÀN,false,4,,30
+n4-0212,1194,月,つき,mặt trăng,tsuki,NGUYỆT,false,4,,30
+n4-0213,1195,地球,ちきゅう,trái đất,chikyuu,ĐỊA CẦU,false,4,,30
+n4-0214,1196,うれしい,うれしい,vui,ureshii,,true,4,,30
+n4-0215,1197,嫌,いや,chán; ghét; không chấp nhận được,iya,HIỀM,false,4,,30
+n4-0216,1198,すると,すると,sau đó; tiếp đó,suruto,,true,4,,30
+n4-0217,1199,目が覚めます,めがさめます,tỉnh giấc; mở mắt,megasamemasu,MỤC GIÁC,false,4,,30
+n4-0218,1200,始まります,はじまります,bắt đầu (buổi lễ),hajimarimasu,THUỶ,false,4,,31
+n4-0219,1201,続けます,つづけます,tiếp tục,tsuzukemasu,TỤC,false,4,,31
+n4-0220,1202,見つけます,みつけます,tìm thấy,mitsukemasu,KIẾN,false,4,,31
+n4-0221,1203,受けます,うけます,thi (kì thi),ukemasu,THỤ,false,4,,31
+n4-0222,1204,入学します,にゅうがくします,nhập học,nyuugakushimasu,NHẬP HỌC,false,4,,31
+n4-0223,1205,卒業します,そつぎょうします,tốt nghiệp,sotsugyoushimasu,TỐT NGHIỆP,false,4,,31
+n4-0224,1206,休憩します,きゅうけいします,giải lao,kyuukeishimasu,HƯU KHẾ,false,4,,31
+n4-0225,1207,連休,れんきゅう,ngày nghỉ liền nhau,renkyuu,LIÊN HƯU,false,4,,31
+n4-0226,1208,作文,さくぶん,bài văn,sakubun,TÁC VĂN,false,4,,31
+n4-0227,1209,展覧会,てんらんかい,triển lãm,tenrankai,TRIỂN LÃM HỘI,false,4,,31
+n4-0228,1210,結婚式,けっこんしき,lễ cưới; đám cưới,kekkonshiki,KẾT HÔN THỨC,false,4,,31
+n4-0229,1211,葬式,そうしき,lễ tang; đám tang,soushiki,TÁNG THỨC,false,4,,31
+n4-0230,1212,式,しき,buổi lễ,shiki,THỨC,false,4,,31
+n4-0231,1213,本社,ほんしゃ,trụ sở,honsha,BẢN XÃ,false,4,,31
+n4-0232,1214,支店,してん,chi nhánh,shiten,CHI ĐIẾM,false,4,,31
+n4-0233,1215,教会,きょうかい,nhà thờ,kyoukai,GIÁO HỘI,false,4,,31
+n4-0234,1216,大学院,だいがくいん,cao học,daigakuin,ĐẠI HỌC VIỆN,false,4,,31
+n4-0235,1217,動物園,どうぶつえん,sở thú,doubutsuen,ĐỘNG VẬT VIÊN,false,4,,31
+n4-0236,1218,温泉,おんせん,suối nước nóng,onsen,ÔN TUYỀN,false,4,,31
+n4-0237,1219,お客さん,おきゃくさん,khách hàng,okyakusan,KHÁCH,false,4,,31
+n4-0238,1220,だれか,だれか,ai đó,dareka,,true,4,,31
+n4-0239,1221,の方,のほう,hướng ~,nohou,PHƯƠNG,false,4,,31
+n4-0240,1222,残ります,のこります,ở lại,nokorimasu,TÀN,false,4,,31
+n4-0241,1223,月に,つきに,một tháng,tsukini,NGUYỆT,false,4,,31
+n4-0242,1224,普通の,ふつうの,thường,futsuuno,PHỔ THÔNG,false,4,,31
+n4-0243,1225,インターネット,インターネット,internet,intaanetto,,true,4,,31
+n4-0244,1226,村,むら,làng,mura,THÔN,false,4,,31
+n4-0245,1227,映画館,えいがかん,rạp chiếu phim,eigakan,ÁNH HOẠ QUÁN,false,4,,31
+n4-0246,1228,閉じます,とじます,nhắm,tojimasu,BẾ,false,4,,31
+n4-0247,1229,都会,とかい,thành phố,tokai,ĐÔ HỘI,false,4,,31
+n4-0248,1230,世界中,せかいじゅう,khắp thế giới,sekaijuu,THẾ GIỚI TRUNG,false,4,,31
+n4-0249,1231,集まります,あつまります,tập hợp,atsumarimasu,TẬP,false,4,,31
+n4-0250,1232,美しい,うつくしい,đẹp,utsukushii,MỸ,false,4,,31
+n4-0251,1233,自然,しぜん,thiên nhiên,shizen,TỰ NHIÊN,false,4,,31
+n4-0252,1234,すばらしさ,すばらしさ,sự tuyệt vời,subarashisa,,true,4,,31
+n4-0253,1235,気が付きます,きがつきます,để ý; nhận ra,kigatsukimasu,KHÍ PHÓ,false,4,,31
+n4-0254,1236,運動します,うんどうします,vận động; tập thể thao,undoushimasu,VẬN ĐỘNG,false,4,,32
+n4-0255,1237,成功します,せいこうします,thành công,seikoushimasu,THÀNH CÔNG,false,4,,32
+n4-0256,1238,失敗します,しっぱいします,thất bại,shippaishimasu,THẤT BẠI,false,4,,32
+n4-0257,1239,合格します,ごうかくします,đỗ,goukakushimasu,HỢP CÁCH,false,4,,32
+n4-0258,1240,戻ります,もどります,quay lại; trở lại,modorimasu,LỆ,false,4,,32
+n4-0259,1241,やみます,やみます,tạnh; ngừng,yamimasu,,true,4,,32
+n4-0260,1242,晴れます,はれます,nắng; quang đãng,haremasu,TÌNH,false,4,,32
+n4-0261,1243,曇ります,くもります,có mây; mây mù,kumorimasu,ĐÀM,false,4,,32
+n4-0262,1244,吹きます,ふきます,thổi,fukimasu,XUY,false,4,,32
+n4-0263,1245,治ります,なおります,khỏi,naorimasu,TRỊ,false,4,,32
+n4-0264,1246,つづきます,つづきます,tiếp tục; tiếp diễn,tsuzukimasu,,true,4,,32
+n4-0265,1247,冷やします,ひやします,làm lạnh,hiyashimasu,LÃNH,false,4,,32
+n4-0266,1248,心配,しんぱい,lo lắng,shinpai,TÂM PHỐI,false,4,,32
+n4-0267,1249,十分,じゅうぶん,đủ,juubun,THẬP PHÂN,false,4,,32
+n4-0268,1250,おかしい,おかしい,có vấn đề; không bình thường,okashii,,true,4,,32
+n4-0269,1251,うるさい,うるさい,ồn ào,urusai,,true,4,,32
+n4-0270,1252,やけど,やけど,bỏng,yakedo,,true,4,,32
+n4-0271,1253,けが,けが,bị thương,kega,,true,4,,32
+n4-0272,1254,せき,せき,ho,seki,,true,4,,32
+n4-0273,1255,インフルエンザ,インフルエンザ,cúm dịch,infuruenza,,true,4,,32
+n4-0274,1256,太陽,たいよう,mặt trời,taiyou,THÁI DƯƠNG,false,4,,32
+n4-0275,1257,星,ほし,ngôi sao,hoshi,TINH,false,4,,32
+n4-0276,1258,北,きた,phía bắc,kita,BẮC,false,4,,32
+n4-0277,1259,南,みなみ,phía nam,minami,NAM,false,4,,32
+n4-0278,1260,西,にし,phía tây,nishi,TÂY,false,4,,32
+n4-0279,1261,東,ひがし,phía đông,higashi,ĐÔNG,false,4,,32
+n4-0280,1262,水道,すいどう,nước máy,suidou,THỦY ĐẠO,false,4,,32
+n4-0281,1263,エンジン,エンジン,động cơ,enjin,,true,4,,32
+n4-0282,1264,チーム,チーム,đội,chiimu,,true,4,,32
+n4-0283,1265,今夜,こんや,tối nay; đêm nay,kon'ya,KIM DẠ,false,4,,32
+n4-0284,1266,夕方,ゆうがた,chiều tối,yuugata,TỊCH PHƯƠNG,false,4,,32
+n4-0285,1267,遅く,おそく,muộn; khuya,osoku,TRÌ,false,4,,32
+n4-0286,1268,こんなに,こんなに,như thế này,konnani,,true,4,,32
+n4-0287,1269,あんなに,あんなに,như thế kia,annani,,true,4,,32
+n4-0288,1270,もしかしたら,もしかしたら,có thể; biết đâu là; có khả năng,moshikashitara,,true,4,,32
+n4-0289,1271,それはいけませんね,それはいけませんね,thế thì thật không tốt,sorehaikemasenne,,true,4,,32
+n4-0290,1272,オリンピック,オリンピック,olympic,orinpikku,,true,4,,32
+n4-0291,1273,胃,い,dạ dày,i,VỊ,false,4,,32
+n4-0292,1274,働きすぎ,はたらきすぎ,làm việc quá sức,hatarakisugi,ĐỘNG,false,4,,32
+n4-0293,1275,ストレス,ストレス,stress; căng thẳng tâm lý,sutoresu,,true,4,,32
+n4-0294,1276,無理をします,むりをします,làm quá sức,muriwoshimasu,VÔ LÝ,false,4,,32
+n4-0295,1277,ゆっくりします,ゆっくりします,nghỉ ngơi; thư thái,yukkurishimasu,,true,4,,32
+n4-0296,1278,困ります,こまります,rắc rối; khó xử,komarimasu,KHỐN,false,4,,32
+n4-0297,1279,宝くじ,たからくじ,xổ số,takarakuji,BẢO,false,4,,32
+n4-0298,1280,健康,けんこう,sức khỏe,kenkou,KIỆN KHANG,false,4,,32
+n4-0299,1281,恋愛,れんあい,tình yêu,ren'ai,LUYẾN ÁI,false,4,,32
+n4-0300,1282,恋人,こいびと,người yêu,koibito,LUYẾN NHÂN,false,4,,32
+n4-0301,1283,逃げます,にげます,chạy trốn; bỏ chạy,nigemasu,ĐÀO,false,4,,33
+n4-0302,1284,騒ぎます,さわぎます,làm ồn; làm rùm beng,sawagimasu,TAO,false,4,,33
+n4-0303,1285,あきらめます,あきらめます,từ bỏ; đầu hàng,akiramemasu,,true,4,,33
+n4-0304,1286,投げます,なげます,ném,nagemasu,ĐẦU,false,4,,33
+n4-0305,1287,守ります,まもります,bảo vệ; tuân thủ,mamorimasu,THỦ,false,4,,33
+n4-0306,1288,上げます,あげます,nâng lên; tăng lên,agemasu,THƯỢNG,false,4,,33
+n4-0307,1289,下げます,さげます,hạ xuống; giảm xuống,sagemasu,HẠ,false,4,,33
+n4-0308,1290,伝えます,つたえます,truyền đạt,tsutaemasu,TRUYỆN,false,4,,33
+n4-0309,1291,注意します,ちゅういします,chú ý,chuuishimasu,CHÚ Ý,false,4,,33
+n4-0310,1292,外します,はずします,rời; không có ở (chỗ ngồi),hazushimasu,NGOẠI,false,4,,33
+n4-0311,1293,だめ,だめ,không được; không thể,dame,,true,4,,33
+n4-0312,1294,席,せき,chỗ ngồi; ghế,seki,TỊCH,false,4,,33
+n4-0313,1295,ファイト,ファイト,quyết chiến; cố lên,faito,,true,4,,33
+n4-0314,1296,マーク,マーク,kí hiệu,maaku,,true,4,,33
+n4-0315,1297,ボール,ボール,quả bóng,booru,,true,4,,33
+n4-0316,1298,洗濯機,せんたくき,máy giặt,sentakuki,TẨY TRẠC CƠ,false,4,,33
+n4-0317,1299,機,き,máy ~,ki,CƠ,false,4,,33
+n4-0318,1300,規則,きそく,quy tắc; kỷ luật,kisoku,QUY TẮC,false,4,,33
+n4-0319,1301,使用禁止,しようきんし,cấm sử dụng,shiyoukinshi,SỬ DỤNG CẤM CHỈ,false,4,,33
+n4-0320,1302,立入禁止,たちいりきんし,cấm vào,tachiirikinshi,LẬP NHẬP CẤM CHỈ,false,4,,33
+n4-0321,1303,入口,いりぐち,cửa vào,iriguchi,NHẬP KHẨU,false,4,,33
+n4-0322,1304,出口,でぐち,cửa ra,deguchi,XUẤT KHẨU,false,4,,33
+n4-0323,1305,非常口,ひじょうぐち,cửa thoát hiểm,hijouguchi,PHI THƯỜNG KHẨU,false,4,,33
+n4-0324,1306,本日休業,ほんじつきゅうぎょう,hôm nay đóng cửa; hôm nay nghỉ,honjitsukyuugyou,BẢN NHẬT HƯU NGHIỆP,false,4,,33
+n4-0325,1307,営業中,えいぎょうちゅう,đang mở cửa,eigyouchuu,DOANH NGHIỆP TRUNG,false,4,,33
+n4-0326,1308,使用中,しようちゅう,đang sử dụng,shiyouchuu,SỬ DỤNG TRUNG,false,4,,33
+n4-0327,1309,中,ちゅう,đang ~,chuu,TRUNG,false,4,,33
+n4-0328,1310,どういう,どういう,~ gì; ~ thế nào,douiu,,true,4,,33
+n4-0329,1311,あと,あと,còn ~,ato,,true,4,,33
+n4-0330,1312,駐車違反,ちゅうしゃいはん,đỗ xe trái phép,chuushaihan,TRÚ XA VI PHẢN,false,4,,33
+n4-0331,1313,そりゃあ,そりゃあ,thế thì; ồ,soryaa,,true,4,,33
+n4-0332,1314,以内,いない,~ trong khoảng; trong vòng,inai,DĨ NỘI,false,4,,33
+n4-0333,1315,警察,けいさつ,cảnh sát,keisatsu,CẢNH SÁT,false,4,,33
+n4-0334,1316,罰金,ばっきん,tiền phạt,bakkin,PHẠT KIM,false,4,,33
+n4-0335,1317,電報,でんぽう,điện báo,denpou,ĐIỆN BÁO,false,4,,33
+n4-0336,1318,人々,ひとびと,nhiều người,hitobito,NHÂN NHÂN,false,4,,33
+n4-0337,1319,急用,きゅうよう,việc gấp,kyuuyou,CẤP DỤNG,false,4,,33
+n4-0338,1320,打ちます,うちます,gửi (điện báo),uchimasu,ĐẢ,false,4,,33
+n4-0339,1321,電報代,でんぽうだい,phí điện báo,denpoudai,ĐIỆN BÁO ĐẠI,false,4,,33
+n4-0340,1322,できるだけ,できるだけ,cố gắng; trong khả năng có thể,dekirudake,,true,4,,33
+n4-0341,1323,短く,みじかく,ngắn gọn,mijikaku,ĐOẢN,false,4,,33
+n4-0342,1324,キトク,キトク,tình trạng hiểm nghèo,kitoku,,true,4,,33
+n4-0343,1325,重い病気,おもいびょうき,bệnh nặng,omoibyouki,TRÙNG BỆNH KHÍ,false,4,,33
+n4-0344,1326,明日,あす,ngày mai,asu,MINH NHẬT,false,4,,33
+n4-0345,1327,留守,るす,vắng nhà,rusu,LƯU THỦ,false,4,,33
+n4-0346,1328,留守番,るすばん,trông nhà; giữ nhà,rusuban,LƯU THỦ PHIÊN,false,4,,33
+n4-0347,1329,祝い,いわい,việc mừng,iwai,CHÚC,false,4,,33
+n4-0348,1330,なくなります,なくなります,mất; chết,nakunarimasu,,true,4,,33
+n4-0349,1331,悲しい,かなしい,buồn,kanashii,BI,false,4,,33
+n4-0350,1332,利用します,りようします,sử dụng; lợi dụng; tận dụng,riyoushimasu,LỢI DỤNG,false,4,,33
+n4-0351,1333,磨きます,みがきます,mài; đánh (răng),migakimasu,MA,false,4,,34
+n4-0352,1334,組み立てます,くみたてます,lắp ráp; lắp đặt,kumitatemasu,TỔ LẬP,false,4,,34
+n4-0353,1335,折ります,おります,gấp; gập; bẻ gãy,orimasu,CHIẾT,false,4,,34
+n4-0354,1336,見つかります,みつかります,được tìm thấy,mitsukarimasu,KIẾN,false,4,,34
+n4-0355,1337,質問します,しつもんします,hỏi,shitsumonshimasu,CHẤT VẤN,false,4,,34
+n4-0356,1338,細い,ほそい,gầy; hẹp; thon,hosoi,TẾ,false,4,,34
+n4-0357,1339,太い,ふとい,béo; to,futoi,THÁI,false,4,,34
+n4-0358,1340,盆踊り,ぼんおどり,múa trong hội bon,bon'odori,BỒN DŨNG,false,4,,34
+n4-0359,1341,スポーツクラブ,スポーツクラブ,câu lạc bộ thể thao,supootsukurabu,,true,4,,34
+n4-0360,1342,家具,かぐ,gia cụ; đồ dùng nội thất,kagu,GIA CỤ,false,4,,34
+n4-0361,1343,キー,キー,chìa khóa,kii,,true,4,,34
+n4-0362,1344,シートベルト,シートベルト,dây an toàn,shiitoberuto,,true,4,,34
+n4-0363,1345,説明書,せつめいしょ,quyển hướng dẫn,setsumeisho,THUYẾT MINH THƯ,false,4,,34
+n4-0364,1346,図,ず,sơ đồ; hình vẽ,zu,ĐỒ,false,4,,34
+n4-0365,1347,線,せん,đường,sen,TUYẾN,false,4,,34
+n4-0366,1348,矢印,やじるし,dấu mũi tên,yajirushi,THỈ ẤN,false,4,,34
+n4-0367,1349,黒,くろ,màu đen,kuro,HẮC,false,4,,34
+n4-0368,1350,白,しろ,màu trắng,shiro,BẠCH,false,4,,34
+n4-0369,1351,赤,あか,màu đỏ,aka,XÍCH,false,4,,34
+n4-0370,1352,青,あお,màu xanh da trời,ao,THANH,false,4,,34
+n4-0371,1353,紺,こん,màu xanh lam,kon,CÁM,false,4,,34
+n4-0372,1354,黄色,きいろ,màu vàng,kiiro,HOÀNG SẮC,false,4,,34
+n4-0373,1355,茶色,ちゃいろ,màu nâu,chairo,TRÀ SẮC,false,4,,34
+n4-0374,1356,しょうゆ,しょうゆ,xì dầu,shouyu,,true,4,,34
+n4-0375,1357,ソース,ソース,nước chấm; nước xốt,soosu,,true,4,,34
+n4-0376,1358,さっき,さっき,vừa rồi; vừa lúc nãy,sakki,,true,4,,34
+n4-0377,1359,茶道,さどう,trà đạo,sadou,TRÀ ĐẠO,false,4,,34
+n4-0378,1360,お茶をたてます,おちゃをたてます,pha trà,ochawotatemasu,TRÀ,false,4,,34
+n4-0379,1361,先に,さきに,trước,sakini,TIÊN,false,4,,34
+n4-0380,1362,載せます,のせます,đặt lên,nosemasu,TẢI,false,4,,34
+n4-0381,1363,これでいいですか,これでいいですか,thế này được không,koredeiidesuka,,true,4,,34
+n4-0382,1364,苦い,にがい,đắng,nigai,KHỔ,false,4,,34
+n4-0383,1365,親子どんぶり,おやこどんぶり,món oyako-don,oyakodonburi,THÂN TỬ,false,4,,34
+n4-0384,1366,材料,ざいりょう,nguyên liệu,zairyou,TÀI LIỆU,false,4,,34
+n4-0385,1367,分,ぶん,~ suất; ~ người,bun,PHÂN,false,4,,34
+n4-0386,1368,鶏肉,とりにく,thịt gà,toriniku,KÊ NHỤC,false,4,,34
+n4-0387,1369,グラム,グラム,gam,guramu,,true,4,,34
+n4-0388,1370,たまねぎ,たまねぎ,hành củ,tamanegi,,true,4,,34
+n4-0389,1371,四分の一,よんぶんのいち,một phần tư,yonbunnoichi,TỨ PHÂN NHẤT,false,4,,34
+n4-0390,1372,調味料,ちょうみりょう,gia vị,choumiryou,ĐIỆU VỊ LIỆU,false,4,,34
+n4-0391,1373,なべ,なべ,nồi,nabe,,true,4,,34
+n4-0392,1374,火,ひ,lửa,hi,HỎA,false,4,,34
+n4-0393,1375,火にかけます,ひにかけます,đun,hinikakemasu,HỎA,false,4,,34
+n4-0394,1376,煮ます,にます,nấu,nimasu,CHỬ,false,4,,34
+n4-0395,1377,煮えます,にえます,chín; được nấu,niemasu,CHỬ,false,4,,34
+n4-0396,1378,どんぶり,どんぶり,cái bát; tô to,donburi,,true,4,,34
+n4-0397,1379,咲きます,さきます,nở (hoa),sakimasu,TIẾU,false,4,,35
+n4-0398,1380,変わります,かわります,thay đổi; đổi,kawarimasu,BIẾN,false,4,,35
+n4-0399,1381,拾います,ひろいます,nhặt lên,hiroimasu,THẬP,false,4,,35
+n4-0400,1382,楽,らく,thoải mái; nhàn hạ; dễ dàng,raku,LẠC,false,4,,35
+n4-0401,1383,正しい,ただしい,đúng; chính xác,tadashii,CHÍNH,false,4,,35
+n4-0402,1384,珍しい,めずらしい,hiếm có,mezurashii,TRÂN,false,4,,35
+n4-0403,1385,向こう,むこう,bên kia; bên đấy,mukou,HƯỚNG,false,4,,35
+n4-0404,1386,島,しま,đảo; hòn đảo,shima,ĐẢO,false,4,,35
+n4-0405,1387,港,みなと,cảng; bến cảng,minato,CẢNG,false,4,,35
+n4-0406,1388,近所,きんじょ,hàng xóm; khu vực lân cận,kinjo,CẬN SỞ,false,4,,35
+n4-0407,1389,屋上,おくじょう,mái nhà; nóc nhà,okujou,ỐC THƯỢNG,false,4,,35
+n4-0408,1390,海外,かいがい,nước ngoài; hải ngoại,kaigai,HẢI NGOẠI,false,4,,35
+n4-0409,1391,山登り,やまのぼり,leo núi,yamanobori,SƠN ĐĂNG,false,4,,35
+n4-0410,1392,ハイキング,ハイキング,đi bộ trên núi,haikingu,,true,4,,35
+n4-0411,1393,機会,きかい,cơ hội,kikai,CƠ HỘI,false,4,,35
+n4-0412,1394,許可,きょか,phép; giấy phép,kyoka,HỨA KHẢ,false,4,,35
+n4-0413,1395,丸,まる,tròn; vòng tròn,maru,HOÀN,false,4,,35
+n4-0414,1396,操作,そうさ,thao tác,sousa,THAO TÁC,false,4,,35
+n4-0415,1397,方法,ほうほう,phương pháp,houhou,PHƯƠNG PHÁP,false,4,,35
+n4-0416,1398,設備,せつび,thiết bị,setsubi,THIẾT BỊ,false,4,,35
+n4-0417,1399,カーテン,カーテン,cái rèm,kaaten,,true,4,,35
+n4-0418,1400,ひも,ひも,sợi dây,himo,,true,4,,35
+n4-0419,1401,ふた,ふた,cái nắp,futa,,true,4,,35
+n4-0420,1402,葉,は,cái lá,ha,DIỆP,false,4,,35
+n4-0421,1403,曲,きょく,bài hát; bản nhạc,kyoku,KHÚC,false,4,,35
+n4-0422,1404,楽しみ,たのしみ,niềm vui; điều vui,tanoshimi,LẠC,false,4,,35
+n4-0423,1405,もっと,もっと,hơn; nữa,motto,,true,4,,35
+n4-0424,1406,初めに,はじめに,đầu tiên; trước hết,hajimeni,SƠ,false,4,,35
+n4-0425,1407,これで終わります,これでおわります,đến đây là hết; chúng ta dừng ở đây,koredeowarimasu,CHUNG,false,4,,35
+n4-0426,1408,それなら,それなら,nếu thế thì; vậy thì,sorenara,,true,4,,35
+n4-0427,1409,夜行バス,やこうバス,xe buýt chạy đêm,yakoubasu,DẠ HÀNH,false,4,,35
+n4-0428,1410,旅行社,りょこうしゃ,công ty du lịch,ryokousha,LỮ HÀNH XÃ,false,4,,35
+n4-0429,1411,詳しい,くわしい,cụ thể; chi tiết,kuwashii,TƯỜNG,false,4,,35
+n4-0430,1412,スキー場,スキーじょう,bãi trượt tuyết,sukiijou,TRƯỜNG,false,4,,35
+n4-0431,1413,朱,しゅ,đỏ; màu đỏ,shu,CHU,false,4,,35
+n4-0432,1414,交わります,まじわります,giao lưu; quan hệ với,majiwarimasu,GIAO,false,4,,35
+n4-0433,1415,ことわざ,ことわざ,tục ngữ,kotowaza,,true,4,,35
+n4-0434,1416,仲良くします,なかよくします,quan hệ tốt với; chơi thân với,nakayokushimasu,TRỌNG LƯƠNG,false,4,,35
+n4-0435,1417,必要,ひつよう,cần thiết,hitsuyou,TẤT YẾU,false,4,,35
+n4-0436,1418,届きます,とどきます,được gửi đến; được chuyển đến,todokimasu,GIỚI,false,4,,36
+n4-0437,1419,貯金します,ちょきんします,tiết kiệm tiền; để dành tiền,chokinshimasu,TRỮ KIM,false,4,,36
+n4-0438,1420,太ります,ふとります,béo lên; tăng cân,futorimasu,THÁI,false,4,,36
+n4-0439,1421,やせます,やせます,gầy đi; giảm cân,yasemasu,,true,4,,36
+n4-0440,1422,過ぎます,すぎます,quá,sugimasu,QUÁ,false,4,,36
+n4-0441,1423,なれます,なれます,làm quen; quen,naremasu,,true,4,,36
+n4-0442,1424,固い,かたい,cứng,katai,CỐ,false,4,,36
+n4-0443,1425,柔らかい,やわらかい,mềm,yawarakai,NHU,false,4,,36
+n4-0444,1426,電子,でんし,~ điện tử,denshi,ĐIỆN TỬ,false,4,,36
+n4-0445,1427,携帯,けいたい,~ cầm tay,keitai,HUỀ ĐỚI,false,4,,36
+n4-0446,1428,工場,こうじょう,nhà máy; phân xưởng,koujou,CÔNG TRƯỜNG,false,4,,36
+n4-0447,1429,剣道,けんどう,kiếm đạo,kendou,KIẾM ĐẠO,false,4,,36
+n4-0448,1430,毎週,まいしゅう,hàng tuần,maishuu,MỖI CHU,false,4,,36
+n4-0449,1431,毎月,まいつき,hàng tháng,maitsuki,MỖI NGUYỆT,false,4,,36
+n4-0450,1432,毎年,まいとし,hàng năm,maitoshi,MỖI NIÊN,false,4,,36
+n4-0451,1433,やっと,やっと,cuối cùng thì,yatto,,true,4,,36
+n4-0452,1434,かなり,かなり,khá; tương đối,kanari,,true,4,,36
+n4-0453,1435,必ず,かならず,nhất định,kanarazu,TẤT,false,4,,36
+n4-0454,1436,絶対に,ぜったいに,tuyệt đối,zettaini,TUYỆT ĐỐI,false,4,,36
+n4-0455,1437,上手に,じょうずに,giỏi; khéo,jouzuni,THƯỢNG THỦ,false,4,,36
+n4-0456,1438,このごろ,このごろ,gần đây; dạo này,konogoro,,true,4,,36
+n4-0457,1439,そのほうが,そのほうが,cái đó ~ hơn,sonohouga,,true,4,,36
+n4-0458,1440,お客様,おきゃくさま,khách hàng,okyakusama,KHÁCH DẠNG,false,4,,36
+n4-0459,1441,特別,とくべつ,đặc biệt,tokubetsu,ĐẶC BIỆT,false,4,,36
+n4-0460,1442,していらっしゃいます,していらっしゃいます,đang làm (tôn kính ngữ),shiteirasshaimasu,,true,4,,36
+n4-0461,1443,水泳,すいえい,môn bơi lội,suiei,THỦY VỊNH,false,4,,36
+n4-0462,1444,とか,とか,v.v.,toka,,true,4,,36
+n4-0463,1445,タンゴ,タンゴ,tango,tango,,true,4,,36
+n4-0464,1446,チャレンジします,チャレンジします,thách thức; thử thách,charenjishimasu,,true,4,,36
+n4-0465,1447,気持ち,きもち,cảm giác; tâm trạng; tinh thần,kimochi,KHÍ TRÌ,false,4,,36
+n4-0466,1448,乗り物,のりもの,phương tiện đi lại,norimono,THỪA VẬT,false,4,,36
+n4-0467,1449,歴史,れきし,lịch sử,rekishi,LỊCH SỬ,false,4,,36
+n4-0468,1450,世紀,せいき,thế kỉ,seiki,THẾ KỶ,false,4,,36
+n4-0469,1451,遠く,とおく,xa; ở xa,tooku,VIỄN,false,4,,36
+n4-0470,1452,汽車,きしゃ,tàu hỏa chạy bằng hơi nước,kisha,KHÍ XA,false,4,,36
+n4-0471,1453,汽船,きせん,thuyền chạy bằng hơi nước,kisen,KHÍ THUYỀN,false,4,,36
+n4-0472,1454,大勢の,おおぜいの,nhiều (người),oozeino,ĐẠI THẾ,false,4,,36
+n4-0473,1455,運びます,はこびます,vận chuyển,hakobimasu,VẬN,false,4,,36
+n4-0474,1456,安全,あんぜん,an toàn,anzen,AN TOÀN,false,4,,36
+n4-0475,1457,褒めます,ほめます,khen,homemasu,BAO,false,4,,37
+n4-0476,1458,しかります,しかります,mắng,shikarimasu,,true,4,,37
+n4-0477,1459,誘います,さそいます,mời; rủ rê,sasoimasu,DỤ,false,4,,37
+n4-0478,1460,起こします,おこします,đánh thức,okoshimasu,KHỞI,false,4,,37
+n4-0479,1461,招待します,しょうたいします,mời,shoutaishimasu,CHIÊU ĐÃI,false,4,,37
+n4-0480,1462,頼みます,たのみます,nhờ,tanomimasu,LẠI,false,4,,37
+n4-0481,1463,とります,とります,ăn trộm; lấy cắp,torimasu,,true,4,,37
+n4-0482,1464,踏みます,ふみます,giẫm; giẫm lên,fumimasu,ĐẠP,false,4,,37
+n4-0483,1465,壊します,こわします,phá; làm hỏng,kowashimasu,HOẠI,false,4,,37
+n4-0484,1466,汚します,よごします,làm bẩn,yogoshimasu,Ô,false,4,,37
+n4-0485,1467,行います,おこないます,thực hiện; tiến hành,okonaimasu,HÀNH,false,4,,37
+n4-0486,1468,輸出します,ゆしゅつします,xuất khẩu,yushutsushimasu,THÂU XUẤT,false,4,,37
+n4-0487,1469,輸入します,ゆにゅうします,nhập khẩu,yunyuushimasu,THÂU NHẬP,false,4,,37
+n4-0488,1470,翻訳します,ほんやくします,dịch (sách; tài liệu),hon'yakushimasu,PHIÊN DỊCH,false,4,,37
+n4-0489,1471,発明します,はつめいします,phát minh,hatsumeishimasu,PHÁT MINH,false,4,,37
+n4-0490,1472,発見します,はっけんします,phát kiến; tìm ra,hakkenshimasu,PHÁT KIẾN,false,4,,37
+n4-0491,1473,設計します,せっけいします,thiết kế,sekkeishimasu,THIẾT KẾ,false,4,,37
+n4-0492,1474,米,こめ,gạo,kome,MỄ,false,4,,37
+n4-0493,1475,麦,むぎ,lúa mạch,mugi,MẠCH,false,4,,37
+n4-0494,1476,石油,せきゆ,dầu mỏ,sekiyu,THẠCH DU,false,4,,37
+n4-0495,1477,原料,げんりょう,nguyên liệu thô,genryou,NGUYÊN LIỆU,false,4,,37
+n4-0496,1478,デート,デート,cuộc hẹn hò,deeto,,true,4,,37
+n4-0497,1479,泥棒,どろぼう,kẻ trộm,dorobou,NÊ BỔNG,false,4,,37
+n4-0498,1480,警官,けいかん,cảnh sát,keikan,CẢNH QUAN,false,4,,37
+n4-0499,1481,建築家,けんちくか,kiến trúc sư,kenchikuka,KIẾN TRÚC GIA,false,4,,37
+n4-0500,1482,科学者,かがくしゃ,nhà khoa học,kagakusha,KHOA HỌC GIẢ,false,4,,37
+n4-0501,1483,中,じゅう,khắp ~,juu,TRUNG,false,4,,37
+n4-0502,1484,によって,によって,do ~,niyotte,,true,4,,37
+n4-0503,1485,よかったですね,よかったですね,may nhỉ,yokattadesune,,true,4,,37
+n4-0504,1486,埋め立てます,うめたてます,lấp,umetatemasu,MAI LẬP,false,4,,37
+n4-0505,1487,技術,ぎじゅつ,kỹ thuật,gijutsu,KỸ THUẬT,false,4,,37
+n4-0506,1488,土地,とち,đất; diện tích đất,tochi,THỔ ĐỊA,false,4,,37
+n4-0507,1489,騒音,そうおん,tiếng ồn,souon,TAO ÂM,false,4,,37
+n4-0508,1490,アクセス,アクセス,nối; giao thông đi đến,akusesu,,true,4,,37
+n4-0509,1491,豪華,ごうか,hào hoa; sang trọng,gouka,HÀO HOA,false,4,,37
+n4-0510,1492,彫刻,ちょうこく,điêu khắc,choukoku,ĐIÊU KHẮC,false,4,,37
+n4-0511,1493,眠ります,ねむります,ngủ,nemurimasu,MIÊN,false,4,,37
+n4-0512,1494,彫ります,ほります,khắc,horimasu,ĐIÊU,false,4,,37
+n4-0513,1495,仲間,なかま,bạn bè; đồng nghiệp,nakama,TRỌNG GIAN,false,4,,37
+n4-0514,1496,そのあと,そのあと,sau đó,sonoato,,true,4,,37
+n4-0515,1497,一生懸命,いっしょうけんめい,cố gắng hết sức,isshoukenmei,NHẤT SINH HUYỀN MỆNH,false,4,,37
+n4-0516,1498,ねずみ,ねずみ,chuột,nezumi,,true,4,,37
+n4-0517,1499,育てます,そだてます,nuôi; trồng,sodatemasu,DỤC,false,4,,38
+n4-0518,1500,入院します,にゅういんします,nhập viện,nyuuinshimasu,NHẬP VIỆN,false,4,,38
+n4-0519,1501,退院します,たいいんします,xuất viện,taiinshimasu,THOÁI VIỆN,false,4,,38
+n4-0520,1502,気持ちがいい,きもちがいい,dễ chịu; thư giãn,kimochigaii,KHÍ TRÌ,false,4,,38
+n4-0521,1503,気持ちが悪い,きもちがわるい,khó chịu,kimochigawarui,KHÍ TRÌ ÁC,false,4,,38
+n4-0522,1504,大きな,おおきな,~ to; ~ lớn,ookina,ĐẠI,false,4,,38
+n4-0523,1505,小さな,ちいさな,~ nhỏ; ~ bé,chiisana,TIỂU,false,4,,38
+n4-0524,1506,赤ちゃん,あかちゃん,em bé,akachan,XÍCH,false,4,,38
+n4-0525,1507,小学校,しょうがっこう,trường tiểu học,shougakkou,TIỂU HỌC HIỆU,false,4,,38
+n4-0526,1508,中学校,ちゅうがっこう,trường trung học cơ sở,chuugakkou,TRUNG HỌC HIỆU,false,4,,38
+n4-0527,1509,海岸,かいがん,bờ biển,kaigan,HẢI NGẠN,false,4,,38
+n4-0528,1510,うそ,うそ,nói dối; lời nói dối,uso,,true,4,,38
+n4-0529,1511,書類,しょるい,giấy tờ; tài liệu,shorui,THƯ LOẠI,false,4,,38
+n4-0530,1512,電源,でんげん,nguồn điện; công tắc điện,dengen,ĐIỆN NGUYÊN,false,4,,38
+n4-0531,1513,製,せい,sản xuất tại,sei,CHẾ,false,4,,38
+n4-0532,1514,あいけない,あいけない,ôi; hỏng mất rồi,aikenai,,true,4,,38
+n4-0533,1515,お先に,おさきに,tôi xin phép về trước,osakini,TIÊN,false,4,,38
+n4-0534,1516,回覧,かいらん,tập thông báo,kairan,HỒI LÃM,false,4,,38
+n4-0535,1517,研究室,けんきゅうしつ,phòng nghiên cứu,kenkyuushitsu,NGHIÊN CỨU THẤT,false,4,,38
+n4-0536,1518,きちんと,きちんと,nghiêm chỉnh; đứng đắn,kichinto,,true,4,,38
+n4-0537,1519,整理します,せいりします,sắp xếp,seirishimasu,CHỈNH LÝ,false,4,,38
+n4-0538,1520,はんこ,はんこ,con dấu; dấu,hanko,,true,4,,38
+n4-0539,1521,双子,ふたご,cặp sinh đôi,futago,SONG TỬ,false,4,,38
+n4-0540,1522,姉妹,しまい,chị em,shimai,TỶ MUỘI,false,4,,38
+n4-0541,1523,五年生,ごねんせい,học sinh năm thứ 5,gonensei,NGŨ NIÊN SINH,false,4,,38
+n4-0542,1524,似ています,にています,giống,niteimasu,TỰ,false,4,,38
+n4-0543,1525,性格,せいかく,tính cách,seikaku,TÍNH CÁCH,false,4,,38
+n4-0544,1526,おとなしい,おとなしい,hiền lành; trầm,otonashii,,true,4,,38
+n4-0545,1527,世話をします,せわをします,chăm sóc; giúp đỡ,sewawoshimasu,THẾ THOẠI,false,4,,38
+n4-0546,1528,時間がたちます,じかんがたちます,thời gian trôi đi,jikangatachimasu,THỜI GIAN,false,4,,38
+n4-0547,1529,クラス,クラス,lớp học; lớp,kurasu,,true,4,,38
+n4-0548,1530,けんかします,けんかします,cãi nhau,kenkashimasu,,true,4,,38
+n4-0549,1531,不思議,ふしぎ,bí ẩn; kỳ thú; khó hiểu,fushigi,BẤT TƯ NGHỊ,false,4,,38
+n4-0550,1532,答えます,こたえます,trả lời,kotaemasu,ĐÁP,false,4,,39
+n4-0551,1533,焼けます,やけます,cháy,yakemasu,THIÊU,false,4,,39
+n4-0552,1534,通ります,とおります,đi qua,toorimasu,THÔNG,false,4,,39
+n4-0553,1535,死にます,しにます,chết,shinimasu,TỬ,false,4,,39
+n4-0554,1536,びっくりします,びっくりします,ngạc nhiên; giật mình,bikkurishimasu,,true,4,,39
+n4-0555,1537,がっかりします,がっかりします,thất vọng,gakkarishimasu,,true,4,,39
+n4-0556,1538,安心します,あんしんします,yên tâm,anshinshimasu,AN TÂM,false,4,,39
+n4-0557,1539,遅刻します,ちこくします,đến chậm; đến muộn,chikokushimasu,TRÌ KHẮC,false,4,,39
+n4-0558,1540,早退します,そうたいします,về sớm; ra sớm,soutaishimasu,TẢO THOÁI,false,4,,39
+n4-0559,1541,離婚します,りこんします,ly dị; ly hôn,rikonshimasu,LY HÔN,false,4,,39
+n4-0560,1542,複雑,ふくざつ,phức tạp,fukuzatsu,PHỨC TẠP,false,4,,39
+n4-0561,1543,邪魔,じゃま,cản trở; chiếm diện tích,jama,TÀ MA,false,4,,39
+n4-0562,1544,汚い,きたない,bẩn,kitanai,Ô,false,4,,39
+n4-0563,1545,恥ずかしい,はずかしい,xấu hổ; thẹn,hazukashii,SỈ,false,4,,39
+n4-0564,1546,台風,たいふう,bão,taifuu,ĐÀI PHONG,false,4,,39
+n4-0565,1547,火事,かじ,hỏa hoạn,kaji,HỎA SỰ,false,4,,39
+n4-0566,1548,事故,じこ,tai nạn; sự cố,jiko,SỰ CỐ,false,4,,39
+n4-0567,1549,見合い,みあい,nam nữ làm quen qua giới thiệu,miai,KIẾN HỢP,false,4,,39
+n4-0568,1550,電話代,でんわだい,tiền điện thoại,denwadai,ĐIỆN THOẠI ĐẠI,false,4,,39
+n4-0569,1551,代,だい,tiền ~; phí ~,dai,ĐẠI,false,4,,39
+n4-0570,1552,フロント,フロント,bộ phận tiếp tân,furonto,,true,4,,39
+n4-0571,1553,号室,ごうしつ,phòng số ~,goushitsu,HIỆU THẤT,false,4,,39
+n4-0572,1554,汗,あせ,mồ hôi,ase,HÃN,false,4,,39
+n4-0573,1555,タオル,タオル,khăn lau; khăn tắm,taoru,,true,4,,39
+n4-0574,1556,せっけん,せっけん,xà phòng,sekken,,true,4,,39
+n4-0575,1557,大勢,おおぜい,nhiều người,oozei,ĐẠI THẾ,false,4,,39
+n4-0576,1558,お疲れさまでした,おつかれさまでした,chắc anh/chị đã mệt vì làm việc,otsukaresamadeshita,BÌ,false,4,,39
+n4-0577,1559,伺います,うかがいます,tôi đến thăm,ukagaimasu,TÝ,false,4,,39
+n4-0578,1560,途中で,とちゅうで,giữa đường; giữa chừng,tochuude,ĐỒ TRUNG,false,4,,39
+n4-0579,1561,トラック,トラック,xe tải,torakku,,true,4,,39
+n4-0580,1562,ぶつかります,ぶつかります,đâm; va chạm,butsukarimasu,,true,4,,39
+n4-0581,1563,並びます,ならびます,xếp hàng,narabimasu,TỊNH,false,4,,39
+n4-0582,1564,大人,おとな,người lớn,otona,ĐẠI NHÂN,false,4,,39
+n4-0583,1565,洋服,ようふく,quần áo kiểu tây âu,youfuku,DƯƠNG PHỤC,false,4,,39
+n4-0584,1566,西洋化します,せいようかします,tây âu hóa,seiyoukashimasu,TÂY DƯƠNG HÓA,false,4,,39
+n4-0585,1567,合います,あいます,vừa; hợp,aimasu,HỢP,false,4,,39
+n4-0586,1568,今では,いまでは,bây giờ (thì),imadeha,KIM,false,4,,39
+n4-0587,1569,成人式,せいじんしき,lễ trưởng thành,seijinshiki,THÀNH NHÂN THỨC,false,4,,39
+n4-0588,1570,数えます,かぞえます,đếm,kazoemasu,SỐ,false,4,,40
+n4-0589,1571,測ります,はかります,đo; cân,hakarimasu,TRẮC,false,4,,40
+n4-0590,1572,確かめます,たしかめます,xác nhận,tashikamemasu,XÁC,false,4,,40
+n4-0591,1573,出発します,しゅっぱつします,xuất phát; khởi hành,shuppatsushimasu,XUẤT PHÁT,false,4,,40
+n4-0592,1574,到着します,とうちゃくします,đến; đến nơi,touchakushimasu,ĐÁO TRƯỚC,false,4,,40
+n4-0593,1575,酔います,よいます,say,yoimasu,TÚY,false,4,,40
+n4-0594,1576,危険,きけん,nguy hiểm,kiken,NGUY HIỂM,false,4,,40
+n4-0595,1577,忘年会,ぼうねんかい,tiệc tất niên,bounenkai,VONG NIÊN HỘI,false,4,,40
+n4-0596,1578,新年会,しんねんかい,tiệc tân niên,shinnenkai,TÂN NIÊN HỘI,false,4,,40
+n4-0597,1579,二次会,にじかい,bữa tiệc thứ hai; tăng hai,nijikai,NHỊ THỨ HỘI,false,4,,40
+n4-0598,1580,大会,たいかい,đại hội; cuộc thi,taikai,ĐẠI HỘI,false,4,,40
+n4-0599,1581,マラソン,マラソン,ma-ra-tong,marason,,true,4,,40
+n4-0600,1582,コンテスト,コンテスト,cuộc thi,kontesuto,,true,4,,40
+n4-0601,1583,表,おもて,phía trước; mặt trước,omote,BIỂU,false,4,,40
+n4-0602,1584,裏,うら,phía sau; mặt sau,ura,LÝ,false,4,,40
+n4-0603,1585,返事,へんじ,hồi âm; trả lời,henji,PHẢN SỰ,false,4,,40
+n4-0604,1586,申し込み,もうしこみ,đăng ký,moushikomi,THÂN NHẬP,false,4,,40
+n4-0605,1587,本当,ほんとう,thật,hontou,BẢN ĐƯƠNG,false,4,,40
+n4-0606,1588,まちがい,まちがい,sai; lỗi,machigai,,true,4,,40
+n4-0607,1589,傷,きず,vết thương,kizu,THƯƠNG,false,4,,40
+n4-0608,1590,ズボン,ズボン,cái quần,zubon,,true,4,,40
+n4-0609,1591,長さ,ながさ,chiều dài,nagasa,TRƯỜNG,false,4,,40
+n4-0610,1592,重さ,おもさ,cân nặng; trọng lượng,omosa,TRÙNG,false,4,,40
+n4-0611,1593,高さ,たかさ,chiều cao,takasa,CAO,false,4,,40
+n4-0612,1594,大きさ,おおきさ,cỡ; kích thước,ookisa,ĐẠI,false,4,,40
+n4-0613,1595,便,びん,chuyến bay ~,bin,TIỆN,false,4,,40
+n4-0614,1596,号,ごう,số ~,gou,HIỆU,false,4,,40
+n4-0615,1597,こ,こ,cái; cục; viên,ko,,true,4,,40
+n4-0616,1598,キロ,キロ,ki-lô; cân,kiro,,true,4,,40
+n4-0617,1599,センチ,センチ,xăng-ti-mét,senchi,,true,4,,40
+n4-0618,1600,ミリ,ミリ,mi-li-mét,miri,,true,4,,40
+n4-0619,1601,以上,いじょう,trở lên; trên,ijou,DĨ THƯỢNG,false,4,,40
+n4-0620,1602,以下,いか,trở xuống; dưới,ika,DĨ HẠ,false,4,,40
+n4-0621,1603,どうでしょうか,どうでしょうか,thế nào (cách nói lịch sự của どうですか),doudeshouka,,true,4,,40
+n4-0622,1604,テスト,テスト,bài kiểm tra,tesuto,,true,4,,40
+n4-0623,1605,成績,せいせき,kết quả; thành tích,seiseki,THÀNH TÍCH,false,4,,40
+n4-0624,1606,ところで,ところで,nhân tiện,tokorode,,true,4,,40
+n4-0625,1607,様子,ようす,vẻ; tình hình,yousu,DẠNG TỬ,false,4,,40
+n4-0626,1608,事件,じけん,vụ án,jiken,SỰ KIỆN,false,4,,40
+n4-0627,1609,オートバイ,オートバイ,xe máy,ootobai,,true,4,,40
+n4-0628,1610,爆弾,ばくだん,bom,bakudan,BỘC ĐÀN,false,4,,40
+n4-0629,1611,積みます,つみます,chuyển lên; xếp hàng lên,tsumimasu,TÍCH,false,4,,40
+n4-0630,1612,運転手,うんてんしゅ,lái xe,untenshu,VẬN CHUYỂN THỦ,false,4,,40
+n4-0631,1613,離れた,はなれた,xa cách; xa,hanareta,LY,false,4,,40
+n4-0632,1614,急に,きゅうに,gấp; đột nhiên,kyuuni,CẤP,false,4,,40
+n4-0633,1615,動かします,うごかします,khởi động; chạy,ugokashimasu,ĐỘNG,false,4,,40
+n4-0634,1616,犯人,はんにん,thủ phạm,hannin,PHẠM NHÂN,false,4,,40
+n4-0635,1617,手に入れます,てにいれます,có được; lấy được; đoạt được,teniiremasu,THỦ NHẬP,false,4,,40
+n4-0636,1618,今でも,いまでも,ngay cả bây giờ,imademo,KIM,false,4,,40
+n4-0637,1619,うわさします,うわさします,đồn đại,uwasashimasu,,true,4,,40
+n4-0638,1620,くださいます,くださいます,cho; tặng (kính ngữ của くれます),kudasaimasu,,true,4,,41
+n4-0639,1621,取り替えます,とりかえます,đổi; thay,torikaemasu,THỦ THẾ,false,4,,41
+n4-0640,1622,親切にします,しんせつにします,giúp đỡ; đối xử thân thiện,shinsetsunishimasu,THÂN THIẾT,false,4,,41
+n4-0641,1623,かわいい,かわいい,xinh; đáng yêu,kawaii,,true,4,,41
+n4-0642,1624,お祝い,おいわい,quà; quà mừng,oiwai,CHÚC,false,4,,41
+n4-0643,1625,お年玉,おとしだま,tiền mừng tuổi,otoshidama,NIÊN NGỌC,false,4,,41
+n4-0644,1626,お見舞い,おみまい,thăm người ốm,omimai,KIẾN VŨ,false,4,,41
+n4-0645,1627,興味,きょうみ,quan tâm,kyoumi,HỨNG VỊ,false,4,,41
+n4-0646,1628,情報,じょうほう,thông tin,jouhou,TÌNH BÁO,false,4,,41
+n4-0647,1629,文法,ぶんぽう,ngữ pháp,bunpou,VĂN PHÁP,false,4,,41
+n4-0648,1630,発音,はつおん,phát âm,hatsuon,PHÁT ÂM,false,4,,41
+n4-0649,1631,猿,さる,con khỉ,saru,VIÊN,false,4,,41
+n4-0650,1632,えさ,えさ,mồi; thức ăn,esa,,true,4,,41
+n4-0651,1633,おもちゃ,おもちゃ,đồ chơi,omocha,,true,4,,41
+n4-0652,1634,絵本,えほん,truyện tranh,ehon,HỘI BẢN,false,4,,41
+n4-0653,1635,絵はがき,えはがき,bưu ảnh,ehagaki,HỘI,false,4,,41
+n4-0654,1636,ドライバー,ドライバー,đồ vặn ốc; tua-vít,doraibaa,,true,4,,41
+n4-0655,1637,ハンカチ,ハンカチ,khăn tay,hankachi,,true,4,,41
+n4-0656,1638,靴下,くつした,vớ,kutsushita,NGOA HẠ,false,4,,41
+n4-0657,1639,手袋,てぶくろ,găng tay,tebukuro,THỦ ĐẠI,false,4,,41
+n4-0658,1640,指輪,ゆびわ,nhẫn,yubiwa,CHỈ LUÂN,false,4,,41
+n4-0659,1641,バッグ,バッグ,túi xách,baggu,,true,4,,41
+n4-0660,1642,祖父,そふ,ông (của mình),sofu,TỔ PHỤ,false,4,,41
+n4-0661,1643,祖母,そぼ,bà (của mình),sobo,TỔ MẪU,false,4,,41
+n4-0662,1644,孫,まご,cháu,mago,TÔN,false,4,,41
+n4-0663,1645,おじ,おじ,chú; bác; cậu (của mình),oji,,true,4,,41
+n4-0664,1646,おじさん,おじさん,chú; bác; cậu (của người ta),ojisan,,true,4,,41
+n4-0665,1647,おば,おば,cô; dì (của mình),oba,,true,4,,41
+n4-0666,1648,おばさん,おばさん,cô; dì (của người ta),obasan,,true,4,,41
+n4-0667,1649,おととし,おととし,năm kia,ototoshi,,true,4,,41
+n4-0668,1650,はあ,はあ,vâng; tôi hiểu rồi,haa,,true,4,,41
+n4-0669,1651,申し訳ありません,もうしわけありません,xin lỗi (trang trọng),moushiwakearimasen,THÂN DỊCH,false,4,,41
+n4-0670,1652,預かります,あずかります,bảo quản; giữ giùm,azukarimasu,DỰ,false,4,,41
+n4-0671,1653,先日,せんじつ,ngày kia,senjitsu,TIÊN NHẬT,false,4,,41
+n4-0672,1654,助かります,たすかります,được giúp đỡ,tasukarimasu,TRỢ,false,4,,41
+n4-0673,1655,昔話,むかしばなし,truyền thuyết; cổ tích,mukashibanashi,TÍCH THOẠI,false,4,,41
+n4-0674,1656,ある,ある,có một ~,aru,,true,4,,41
+n4-0675,1657,男,おとこ,con trai; đàn ông,otoko,NAM,false,4,,41
+n4-0676,1658,いじめます,いじめます,chọc ghẹo; chọc phá,ijimemasu,,true,4,,41
+n4-0677,1659,亀,かめ,con rùa,kame,QUY,false,4,,41
+n4-0678,1660,助けます,たすけます,cứu; giúp,tasukemasu,TRỢ,false,4,,41
+n4-0679,1661,城,しろ,lâu đài; thành,shiro,THÀNH,false,4,,41
+n4-0680,1662,お姫様,おひめさま,công chúa,ohimesama,CƠ DẠNG,false,4,,41
+n4-0681,1663,楽しく,たのしく,vui sướng,tanoshiku,LẠC,false,4,,41
+n4-0682,1664,暮らします,くらします,sống,kurashimasu,MỘ,false,4,,41
+n4-0683,1665,陸,りく,lục địa,riku,LỤC,false,4,,41
+n4-0684,1666,煙,けむり,khói,kemuri,YÊN,false,4,,41
+n4-0685,1667,真っ白,まっしろ,trắng xóa,masshiro,CHÂN BẠCH,false,4,,41
+n4-0686,1668,中身,なかみ,nội dung; bên trong,nakami,TRUNG THÂN,false,4,,41
+n4-0687,1669,包みます,つつみます,bọc; gói,tsutsumimasu,BAO,false,4,,42
+n4-0688,1670,沸かします,わかします,đun sôi,wakashimasu,PHÍ,false,4,,42
+n4-0689,1671,混ぜます,まぜます,trộn; khuấy,mazemasu,HỖN,false,4,,42
+n4-0690,1672,計算します,けいさんします,tính toán,keisanshimasu,KẾ TOÁN,false,4,,42
+n4-0691,1673,厚い,あつい,dày,atsui,HẬU,false,4,,42
+n4-0692,1674,薄い,うすい,mỏng,usui,BẠC,false,4,,42
+n4-0693,1675,弁護士,べんごし,luật sư,bengoshi,BIỆN HỘ SĨ,false,4,,42
+n4-0694,1676,音楽家,おんがくか,nhạc sĩ,ongakuka,ÂM LẠC GIA,false,4,,42
+n4-0695,1677,教育,きょういく,giáo dục,kyouiku,GIÁO DỤC,false,4,,42
+n4-0696,1678,文化,ぶんか,văn hóa,bunka,VĂN HÓA,false,4,,42
+n4-0697,1679,社会,しゃかい,xã hội,shakai,XÃ HỘI,false,4,,42
+n4-0698,1680,法律,ほうりつ,pháp luật,houritsu,PHÁP LUẬT,false,4,,42
+n4-0699,1681,戦争,せんそう,chiến tranh,sensou,CHIẾN TRANH,false,4,,42
+n4-0700,1682,平和,へいわ,hòa bình,heiwa,BÌNH HÒA,false,4,,42
+n4-0701,1683,目的,もくてき,mục đích,mokuteki,MỤC ĐÍCH,false,4,,42
+n4-0702,1684,論文,ろんぶん,luận văn,ronbun,LUẬN VĂN,false,4,,42
+n4-0703,1685,関係,かんけい,quan hệ,kankei,QUAN HỆ,false,4,,42
+n4-0704,1686,ミキサー,ミキサー,máy trộn; máy xay,mikisaa,,true,4,,42
+n4-0705,1687,やかん,やかん,ấm đun nước,yakan,,true,4,,42
+n4-0706,1688,栓抜き,せんぬき,cái mở nút chai,sennuki,XUYÊN BẠT,false,4,,42
+n4-0707,1689,缶切り,かんきり,đồ mở đồ hộp,kankiri,PHỮU THIẾT,false,4,,42
+n4-0708,1690,缶詰,かんづめ,đồ hộp,kanzume,PHỮU CẬT,false,4,,42
+n4-0709,1691,ふろしき,ふろしき,khăn gói,furoshiki,,true,4,,42
+n4-0710,1692,そろばん,そろばん,bàn tính,soroban,,true,4,,42
+n4-0711,1693,体温計,たいおんけい,cặp nhiệt độ,taionkei,THỂ ÔN KẾ,false,4,,42
+n4-0712,1694,石,いし,đá; sỏi,ishi,THẠCH,false,4,,42
+n4-0713,1695,ピラミッド,ピラミッド,kim tự tháp,piramiddo,,true,4,,42
+n4-0714,1696,データ,データ,dữ liệu,deeta,,true,4,,42
+n4-0715,1697,ファイル,ファイル,tập tin,fairu,,true,4,,42
+n4-0716,1698,なぜ,なぜ,tại sao,naze,,true,4,,42
+n4-0717,1699,ローン,ローン,tiền vay; trả góp,roon,,true,4,,42
+n4-0718,1700,セット,セット,bộ,setto,,true,4,,42
+n4-0719,1701,あとは,あとは,còn lại,atoha,,true,4,,42
+n4-0720,1702,カップラーメン,カップラーメン,mì ăn liền,kappuraamen,,true,4,,42
+n4-0721,1703,食品,しょくひん,thực phẩm,shokuhin,THỰC PHẨM,false,4,,42
+n4-0722,1704,調査,ちょうさ,điều tra,chousa,ĐIỆU TRA,false,4,,42
+n4-0723,1705,カップ,カップ,tách; chén,kappu,,true,4,,42
+n4-0724,1706,の代わりに,のかわりに,thay cho,nokawarini,ĐẠI,false,4,,42
+n4-0725,1707,どこででも,どこででも,bất cứ nơi nào,dokodedemo,,true,4,,42
+n4-0726,1708,増えます,ふえます,tăng; tăng lên (xuất khẩu),fuemasu,TĂNG,false,4,,43
+n4-0727,1709,減ります,へります,giảm; giảm xuống (xuất khẩu),herimasu,GIẢM,false,4,,43
+n4-0728,1710,上がります,あがります,tăng; tăng lên (giá),agarimasu,THƯỢNG,false,4,,43
+n4-0729,1711,下がります,さがります,giảm; giảm xuống (giá),sagarimasu,HẠ,false,4,,43
+n4-0730,1712,切れます,きれます,đứt,kiremasu,THIẾT,false,4,,43
+n4-0731,1713,とれます,とれます,tuột,toremasu,,true,4,,43
+n4-0732,1714,落ちます,おちます,rơi,ochimasu,LẠC,false,4,,43
+n4-0733,1715,丈夫,じょうぶ,chắc; bền,joubu,TRƯỢNG PHU,false,4,,43
+n4-0734,1716,変,へん,lạ; kì quặc,hen,BIẾN,false,4,,43
+n4-0735,1717,幸せ,しあわせ,hạnh phúc,shiawase,HẠNH,false,4,,43
+n4-0736,1718,うまい,うまい,ngon,umai,,true,4,,43
+n4-0737,1719,まずい,まずい,dở,mazui,,true,4,,43
+n4-0738,1720,つまらない,つまらない,buồn tẻ; không hấp dẫn; không thú vị,tsumaranai,,true,4,,43
+n4-0739,1721,ガソリン,ガソリン,xăng,gasorin,,true,4,,43
+n4-0740,1722,暖房,だんぼう,thiết bị làm ấm; lò sưởi; máy điều hòa,danbou,NOÃN PHÒNG,false,4,,43
+n4-0741,1723,冷房,れいぼう,thiết bị làm mát; máy điều hòa,reibou,LÃNH PHÒNG,false,4,,43
+n4-0742,1724,センス,センス,có khiếu; gu,sensu,,true,4,,43
+n4-0743,1725,今にも,いまにも,(có vẻ; sắp) ~ đến nơi,imanimo,KIM,false,4,,43
+n4-0744,1726,わあ,わあ,ôi!,waa,,true,4,,43
+n4-0745,1727,会員,かいいん,thành viên,kaiin,HỘI VIÊN,false,4,,43
+n4-0746,1728,適当,てきとう,thích hợp; vừa phải,tekitou,THÍCH ĐƯƠNG,false,4,,43
+n4-0747,1729,年齢,ねんれい,tuổi,nenrei,NIÊN LINH,false,4,,43
+n4-0748,1730,収入,しゅうにゅう,thu nhập,shuunyuu,THU NHẬP,false,4,,43
+n4-0749,1731,ぴったり,ぴったり,vừa văn; đúng,pittari,,true,4,,43
+n4-0750,1732,そのうえ,そのうえ,thêm vào đó; hơn thế,sonoue,,true,4,,43
+n4-0751,1733,と言います,といいます,tên là ~; được gọi là ~,toiimasu,NGÔN,false,4,,43
+n4-0752,1734,ばら,ばら,hoa hồng,bara,,true,4,,43
+n4-0753,1735,ドライブ,ドライブ,lái xe (đi chơi),doraibu,,true,4,,43
+n4-0754,1736,泣きます,なきます,khóc,nakimasu,KHẤP,false,4,,44
+n4-0755,1737,笑います,わらいます,cười,waraimasu,TIẾU,false,4,,44
+n4-0756,1738,乾きます,かわきます,khô,kawakimasu,CÀN,false,4,,44
+n4-0757,1739,ぬれます,ぬれます,ướt,nuremasu,,true,4,,44
+n4-0758,1740,滑ります,すべります,trượt chân,suberimasu,HOẠT,false,4,,44
+n4-0759,1741,起きます,おきます,xảy ra,okimasu,KHỞI,false,4,,44
+n4-0760,1742,調節します,ちょうせつします,điều chỉnh,chousetsushimasu,ĐIỆU TIẾT,false,4,,44
+n4-0761,1743,丁寧,ていねい,lịch sự; cẩn thận,teinei,ĐINH NINH,false,4,,44
+n4-0762,1744,細かい,こまかい,nhỏ,komakai,TẾ,false,4,,44
+n4-0763,1745,濃い,こい,đậm; nồng,koi,NỒNG,false,4,,44
+n4-0764,1746,空気,くうき,không khí,kuuki,KHÔNG KHÍ,false,4,,44
+n4-0765,1747,涙,なみだ,nước mắt,namida,LỆ,false,4,,44
+n4-0766,1748,和食,わしょく,món ăn Nhật,washoku,HÒA THỰC,false,4,,44
+n4-0767,1749,洋食,ようしょく,đồ Tây,youshoku,DƯƠNG THỰC,false,4,,44
+n4-0768,1750,おかず,おかず,thức ăn,okazu,,true,4,,44
+n4-0769,1751,量,りょう,lượng,ryou,LƯỢNG,false,4,,44
+n4-0770,1752,倍,ばい,lần,bai,BỘI,false,4,,44
+n4-0771,1753,半分,はんぶん,một nửa,hanbun,BÁN PHÂN,false,4,,44
+n4-0772,1754,シングル,シングル,phòng đơn,shinguru,,true,4,,44
+n4-0773,1755,ツイン,ツイン,phòng đôi,tsuin,,true,4,,44
+n4-0774,1756,たんす,たんす,tủ quần áo,tansu,,true,4,,44
+n4-0775,1757,洗濯物,せんたくもの,đồ giặt,sentakumono,TẨY TRẠC VẬT,false,4,,44
+n4-0776,1758,理由,りゆう,lý do,riyuu,LÝ DO,false,4,,44
+n4-0777,1759,どうなさいますか,どうなさいますか,tôi có thể giúp gì cho ông,dounasaimasuka,,true,4,,44
+n4-0778,1760,カット,カット,cắt tóc,katto,,true,4,,44
+n4-0779,1761,シャンプー,シャンプー,xà-bông gội đầu,shanpuu,,true,4,,44
+n4-0780,1762,どういうふうになさいますか,どういうふうになさいますか,ông muốn làm ra sao,douiufuuninasaimasuka,,true,4,,44
+n4-0781,1763,ショート,ショート,ngắn,shooto,,true,4,,44
+n4-0782,1764,みたいにしてください,みたいにしてください,xin làm giống như,mitainishitekudasai,,true,4,,44
+n4-0783,1765,これでよろしいでしょうか,これでよろしいでしょうか,thế này được chưa ạ,koredeyoroshiideshouka,,true,4,,44
+n4-0784,1766,嫌がります,いやがります,ghét,iyagarimasu,HIỀM,false,4,,44
+n4-0785,1767,順序,じゅんじょ,thứ tự,junjo,THUẬN TỰ,false,4,,44
+n4-0786,1768,表現,ひょうげん,cách nói,hyougen,BIỂU HIỆN,false,4,,44
+n4-0787,1769,別れます,わかれます,chia cách; chia tay,wakaremasu,BIỆT,false,4,,44
+n4-0788,1770,これら,これら,những thứ này,korera,,true,4,,44
+n4-0789,1771,縁起が悪い,えんぎがわるい,điềm xấu; không may,engigawarui,DUYÊN KHỞI ÁC,false,4,,44
+n4-0790,1772,謝ります,あやまります,xin lỗi; tạ lỗi,ayamarimasu,TẠ,false,4,,45
+n4-0791,1773,あいます,あいます,gặp (tai nạn),aimasu,,true,4,,45
+n4-0792,1774,信じます,しんじます,tin; tin tưởng,shinjimasu,TÍN,false,4,,45
+n4-0793,1775,用意します,よういします,chuẩn bị,youishimasu,DỤNG Ý,false,4,,45
+n4-0794,1776,キャンセルします,キャンセルします,hủy; hủy bỏ,kyanserushimasu,,true,4,,45
+n4-0795,1777,うまくいきます,うまくいきます,tốt; thuận lợi,umakuikimasu,,true,4,,45
+n4-0796,1778,保証書,ほしょうしょ,giấy bảo hành,hoshousho,BẢO CHỨNG THƯ,false,4,,45
+n4-0797,1779,領収書,りょうしゅうしょ,hóa đơn,ryoushuusho,LĨNH THU THƯ,false,4,,45
+n4-0798,1780,贈り物,おくりもの,quà tặng,okurimono,TẶNG VẬT,false,4,,45
+n4-0799,1781,間違い電話,まちがいでんわ,điện thoại nhầm,machigaidenwa,GIAN VI ĐIỆN THOẠI,false,4,,45
+n4-0800,1782,キャンプ,キャンプ,trại,kyanpu,,true,4,,45
+n4-0801,1783,係,かかり,nhân viên; người phụ trách,kakari,HỆ,false,4,,45
+n4-0802,1784,中止,ちゅうし,cấm; đình chỉ,chuushi,TRUNG CHỈ,false,4,,45
+n4-0803,1785,点,てん,điểm,ten,ĐIỂM,false,4,,45
+n4-0804,1786,レバー,レバー,tay bẻ; tay số; cần gạt,rebaa,,true,4,,45
+n4-0805,1787,札,さつ,tờ tiền giấy,satsu,TRÁT,false,4,,45
+n4-0806,1788,ちゃんと,ちゃんと,đúng; hẳn hoi,chanto,,true,4,,45
+n4-0807,1789,以上です,いじょうです,xin hết,ijoudesu,DĨ THƯỢNG,false,4,,45
+n4-0808,1790,係員,かかりいん,nhân viên,kakariin,HỆ VIÊN,false,4,,45
+n4-0809,1791,コース,コース,đường chạy (marathon),koosu,,true,4,,45
+n4-0810,1792,スタート,スタート,xuất phát,sutaato,,true,4,,45
+n4-0811,1793,優勝します,ゆうしょうします,vô địch; giải nhất,yuushoushimasu,ƯU THẮNG,false,4,,45
+n4-0812,1794,悩み,なやみ,điều lo nghĩ; trăn trở; phiền muộn,nayami,NÃO,false,4,,45
+n4-0813,1795,目覚まし,めざまし,đồng hồ báo thức,mezamashi,MỤC GIÁC,false,4,,45
+n4-0814,1796,大学生,だいがくせい,sinh viên đại học,daigakusei,ĐẠI HỌC SINH,false,4,,45
+n4-0815,1797,回答,かいとう,câu trả lời; giải thích,kaitou,HỒI ĐÁP,false,4,,45
+n4-0816,1798,セットします,セットします,cài đặt,settoshimasu,,true,4,,45
+n4-0817,1799,それでも,それでも,tuy nhiên; mặc dù thế,soredemo,,true,4,,45
+n4-0818,1800,焼きます,やきます,nướng; rán,yakimasu,THIÊU,false,4,,46
+n4-0819,1801,渡します,わたします,trao; giao cho,watashimasu,ĐỘ,false,4,,46
+n4-0820,1802,帰ってきます,かえってきます,quay về; trở lại,kaettekimasu,QUY,false,4,,46
+n4-0821,1803,宅配便,たくはいびん,dịch vụ trao tận nhà,takuhaibin,TRẠCH PHỐI TIỆN,false,4,,46
+n4-0822,1804,原因,げんいん,nguyên nhân,gen'in,NGUYÊN NHÂN,false,4,,46
+n4-0823,1805,注射,ちゅうしゃ,tiêm,chuusha,CHÚ XẠ,false,4,,46
+n4-0824,1806,食欲,しょくよく,sự thèm ăn,shokuyoku,THỰC DỤC,false,4,,46
+n4-0825,1807,パンフレット,パンフレット,tờ quảng cáo,panfuretto,,true,4,,46
+n4-0826,1808,ステレオ,ステレオ,stereo,sutereo,,true,4,,46
+n4-0827,1809,の所,のところ,quanh vùng ~,notokoro,SỞ,false,4,,46
+n4-0828,1810,ちょうど,ちょうど,vừa đúng,choudo,,true,4,,46
+n4-0829,1811,たった今,たったいま,mới hồi nãy,tattaima,KIM,false,4,,46
+n4-0830,1812,今いいでしょうか,いまいいでしょうか,tôi phiền anh được không,imaiideshouka,KIM,false,4,,46
+n4-0831,1813,ガスコンロ,ガスコンロ,bếp ga,gasukonro,,true,4,,46
+n4-0832,1814,具合,ぐあい,trạng thái; tình trạng,guai,CỤ HỢP,false,4,,46
+n4-0833,1815,どちら様でしょうか,どちらさまでしょうか,vị nào đấy ạ,dochirasamadeshouka,DẠNG,false,4,,46
+n4-0834,1816,向かいます,むかいます,hướng về,mukaimasu,HƯỚNG,false,4,,46
+n4-0835,1817,お待たせしました,おまたせしました,xin lỗi đã để quý vị chờ lâu,omataseshimashita,ĐÃI,false,4,,46
+n4-0836,1818,知識,ちしき,tri thức; kiến thức,chishiki,TRI THỨC,false,4,,46
+n4-0837,1819,宝庫,ほうこ,kho báu,houko,BẢO KHỐ,false,4,,46
+n4-0838,1820,システム,システム,hệ thống,shisutemu,,true,4,,46
+n4-0839,1821,キーワード,キーワード,từ khóa; điểm then chốt,kiiwaado,,true,4,,46
+n4-0840,1822,一部分,いちぶぶん,một bộ phận,ichibubun,NHẤT BỘ PHÂN,false,4,,46
+n4-0841,1823,入力します,にゅうりょくします,nhập vào,nyuuryokushimasu,NHẬP LỰC,false,4,,46
+n4-0842,1824,秒,びょう,giây,byou,MIỂU,false,4,,46
+n4-0843,1825,さします,さします,che (ô),sashimasu,,true,4,,47
+n4-0844,1826,ひどい,ひどい,tồi tệ; xấu,hidoi,,true,4,,47
+n4-0845,1827,天気予報,てんきよほう,dự báo thời tiết,tenkiyohou,THIÊN KHÍ DỰ BÁO,false,4,,47
+n4-0846,1828,発表,はっぴょう,công bố; thuyết trình,happyou,PHÁT BIỂU,false,4,,47
+n4-0847,1829,実験,じっけん,thí nghiệm; thực nghiệm,jikken,THẬT NGHIỆM,false,4,,47
+n4-0848,1830,人口,じんこう,dân số,jinkou,NHÂN KHẨU,false,4,,47
+n4-0849,1831,におい,におい,mùi,nioi,,true,4,,47
+n4-0850,1832,科学,かがく,khoa học,kagaku,KHOA HỌC,false,4,,47
+n4-0851,1833,医学,いがく,y học; ngành y,igaku,Y HỌC,false,4,,47
+n4-0852,1834,文学,ぶんがく,văn học,bungaku,VĂN HỌC,false,4,,47
+n4-0853,1835,パトカー,パトカー,xe tuần tra,patokaa,,true,4,,47
+n4-0854,1836,救急車,きゅうきゅうしゃ,xe cứu thương,kyuukyuusha,CỨU CẤP XA,false,4,,47
+n4-0855,1837,賛成,さんせい,tán thành; đồng ý,sansei,TÁN THÀNH,false,4,,47
+n4-0856,1838,反対,はんたい,phản đối,hantai,PHẢN ĐỐI,false,4,,47
+n4-0857,1839,男性,だんせい,phái nam,dansei,NAM TÍNH,false,4,,47
+n4-0858,1840,女性,じょせい,phái nữ,josei,NỮ TÍNH,false,4,,47
+n4-0859,1841,によると,によると,căn cứ theo ~ (chỉ nguồn gốc thông tin),niyoruto,,true,4,,47
+n4-0860,1842,知り合います,しりあいます,quen biết,shiriaimasu,TRI HỢP,false,4,,47
+n4-0861,1843,平均寿命,へいきんじゅみょう,tuổi thọ bình quân,heikinjumyou,BÌNH QUÂN THỌ MỆNH,false,4,,47
+n4-0862,1844,比べます,くらべます,so sánh,kurabemasu,TỶ,false,4,,47
+n4-0863,1845,博士,はかせ,tiến sĩ,hakase,BÁC SĨ,false,4,,47
+n4-0864,1846,脳,のう,não,nou,NÃO,false,4,,47
+n4-0865,1847,ホルモン,ホルモン,hooc môn,horumon,,true,4,,47
+n4-0866,1848,化粧品,けしょうひん,mỹ phẩm,keshouhin,HÓA TRANG PHẨM,false,4,,47
+n4-0867,1849,調べ,しらべ,cuộc điều tra; nghiên cứu,shirabe,ĐIỆU,false,4,,47
+n4-0868,1850,化粧,けしょう,trang điểm,keshou,HÓA TRANG,false,4,,47
+n4-0869,1851,降ろします,おろします,cho xuống; hạ xuống,oroshimasu,GIÁNG,false,4,,48
+n4-0870,1852,届けます,とどけます,gửi đến; chuyển đến,todokemasu,GIỚI,false,4,,48
+n4-0871,1853,いや,いや,không thích; ngán,iya,,true,4,,48
+n4-0872,1854,スケジュール,スケジュール,thời khóa biểu; lịch trình,sukejuuru,,true,4,,48
+n4-0873,1855,生徒,せいと,học trò,seito,SINH ĐỒ,false,4,,48
+n4-0874,1856,者,もの,người (người thân hay cấp dưới),mono,GIẢ,false,4,,48
+n4-0875,1857,入館,にゅうかん,sở nhập cảnh,nyuukan,NHẬP QUÁN,false,4,,48
+n4-0876,1858,間,かん,trong ~ (nói về thời lượng),kan,GIAN,false,4,,48
+n4-0877,1859,いいことですね,いいことですね,hay nhỉ; được đấy nhỉ,iikotodesune,,true,4,,48
+n4-0878,1860,お忙しいですか,おいそがしいですか,anh/chị đang bận phải không,oisogashiidesuka,MANG,false,4,,48
+n4-0879,1861,久しぶり,ひさしぶり,sau khoảng thời gian dài,hisashiburi,CỬU,false,4,,48
+n4-0880,1862,営業,えいぎょう,kinh doanh,eigyou,DOANH NGHIỆP,false,4,,48
+n4-0881,1863,それまでに,それまでに,trước thời điểm đó,soremadeni,,true,4,,48
+n4-0882,1864,かまいません,かまいません,được rồi; không sao,kamaimasen,,true,4,,48
+n4-0883,1865,楽しみます,たのしみます,vui thích,tanoshimimasu,LẠC,false,4,,48
+n4-0884,1866,もともと,もともと,vốn dĩ,motomoto,,true,4,,48
+n4-0885,1867,代わりをします,かわりをします,thay thế,kawariwoshimasu,ĐẠI,false,4,,48
+n4-0886,1868,スピード,スピード,tốc độ,supiido,,true,4,,48
+n4-0887,1869,競走します,きょうそうします,chạy đua,kyousoushimasu,CẠNH TẨU,false,4,,48
+n4-0888,1870,サーカス,サーカス,xiếc,saakasu,,true,4,,48
+n4-0889,1871,芸,げい,trò diễn; tiết mục; tài năng,gei,NGHỆ,false,4,,48
+n4-0890,1872,姿,すがた,dáng hình; tư thế,sugata,TƯ,false,4,,48

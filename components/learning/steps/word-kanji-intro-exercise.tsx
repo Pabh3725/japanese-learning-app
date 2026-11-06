@@ -35,7 +35,7 @@ function CharacterScreen({ word, part }: { word: KanjiIntroWord; part: KanjiIntr
   )
 }
 
-interface KanjiIntroExerciseProps {
+interface WordKanjiIntroExerciseProps {
   word: KanjiIntroWord
   saving: boolean
   error: string | null
@@ -43,7 +43,7 @@ interface KanjiIntroExerciseProps {
 }
 
 /** Thẻ Giới thiệu Hán tự: cả từ trước, rồi mỗi chữ một màn. Không có On/Kun để khỏi quá tải. */
-export function KanjiIntroExercise({ word, saving, error, onComplete }: KanjiIntroExerciseProps) {
+export function WordKanjiIntroExercise({ word, saving, error, onComplete }: WordKanjiIntroExerciseProps) {
   const [screen, setScreen] = useState(0)
   const part = screen > 0 ? word.parts[screen - 1] : null
   const isLast = screen === word.parts.length

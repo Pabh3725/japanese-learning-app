@@ -33,6 +33,8 @@ export interface ValidationResult {
   links: VocabularyKanjiLink[]
   /** Có cột emoji trong vocabularies.csv không. Không có thì seed không đụng emoji trong DB. */
   hasEmojiColumn: boolean
+  /** Có cột lesson trong vocabularies.csv không. */
+  hasLessonColumn: boolean
   errors: Issue[]
   /** Báo cáo, không chặn seed. */
   warnings: Issue[]
@@ -213,6 +215,7 @@ export function validateAll(files: SeedFiles): ValidationResult {
     vocabularies: vocab.rows.map((r) => r.row),
     links,
     hasEmojiColumn: vocab.header.includes('emoji'),
+    hasLessonColumn: vocab.header.includes('lesson'),
     errors,
     warnings,
   }

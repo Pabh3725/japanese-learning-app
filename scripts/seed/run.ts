@@ -69,7 +69,7 @@ export async function runSeed({ files, db, dryRun, log }: SeedOptions): Promise<
   if (!db) return { ok: true, wrote: false }
 
   // ---------- 2. Đọc DB, lập kế hoạch ----------
-  const vocabCols: string[] = [...VOCAB_COLS, ...(v.hasEmojiColumn ? ['emoji'] : [])]
+  const vocabCols: string[] = [...VOCAB_COLS, ...(v.hasEmojiColumn ? ['emoji'] : []), ...(v.hasLessonColumn ? ['lesson'] : [])]
   const [dbKanji, dbVocab] = await Promise.all([
     db.fetchAll('kanji', ['id', ...KANJI_COLS]),
     db.fetchAll('vocabularies', ['id', ...vocabCols]),

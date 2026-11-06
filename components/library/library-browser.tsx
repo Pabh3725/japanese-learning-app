@@ -1,7 +1,10 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import { Search } from 'lucide-react'
+import { useMemo, useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
+import { Check, Search } from 'lucide-react'
+import { markWordsKnownAction, unmarkWordsKnownAction } from '@/app/learn/actions'
+import { actionButton } from '@/components/action-button'
 import { matchesKanji, matchesVocab } from '@/lib/library/search'
 import type { KanjiListItem, VocabListItem, VocabProgress } from '@/lib/library/types'
 import { cn } from '@/lib/utils'
@@ -21,6 +24,21 @@ function progressLabel(p: VocabProgress): string {
   if (p.kind === 'complete') return 'Learned'
   if (p.kind === 'learning') return `Stage ${p.stage}`
   return 'Not started'
+}
+
+const STATUS_FILTERS = [
+  { id: 'all', label: 'All' },
+  { id: 'not_started', label: 'Not started' },
+  { id: 'learning', label: 'Learning' },
+  { id: 'complete', label: 'Learned' },
+  { id: 'known', label: 'Already known' },
+] as const
+type StatusFilter = (typeof STATUS_FILTERS)[number]['id']
+
+function matchesStatus(v: VocabListItem, status: StatusFilter): boolean {
+  if (status === 'all') return true
+  if (status === 'known') return v.known === true
+  return v.known !== true && v.progress.kind === status
 }
 
 function StageDots({ progress }: { progress: VocabProgress }) {
@@ -48,8 +66,57 @@ export function LibraryBrowser({ vocabulary, kanji }: { vocabulary: VocabListIte
   const [tab, setTab] = useState<Tab>('vocab')
   const [query, setQuery] = useState('')
   const [visible, setVisible] = useState(PAGE_SIZE)
+  const [status, setStatus] = useState<StatusFilter>('all')
+  const [lesson, setLesson] = useState<number | 'all'>('all')
+  const lessons = useMemo(() => [...new Set(vocabulary.flatMap((v) => (v.lesson === null ? [] : [v.lesson])))].sort((a, b) => a - b), [vocabulary])
+  const [selecting, setSelecting] = useState(false)
+  const [selected, setSelected] = useState<ReadonlySet<string>>(() => new Set())
+  const [error, setError] = useState<string | null>(null)
+  const [saving, startSaving] = useTransition()
+  const router = useRouter()
 
-  const vocabResults = useMemo(() => vocabulary.filter((v) => matchesVocab(v, query)), [vocabulary, query])
+  const vocabResults = useMemo(() => vocabulary.filter((v) => matchesVocab(v, query) && matchesStatus(v, status) && (lesson === 'all' || v.lesson === lesson)), [vocabulary, query, status, lesson])
+  const shown = vocabResults.slice(0, visible)
+  const allShownSelected = shown.length > 0 && shown.every((v) => selected.has(v.id))
+
+  function toggleWord(id: string) {
+    setSelected((current) => {
+      const next = new Set(current)
+      if (!next.delete(id)) next.add(id)
+      return next
+    })
+  }
+
+  function toggleAllShown() {
+    setSelected((current) => {
+      const next = new Set(current)
+      for (const v of shown) {
+        if (allShownSelected) next.delete(v.id)
+        else next.add(v.id)
+      }
+      return next
+    })
+  }
+
+  function saveSelection(save: (ids: string[]) => Promise<{ status: string }>) {
+    setError(null)
+    startSaving(async () => {
+      try {
+        const res = await save([...selected])
+        if (res.status !== 'saved') throw new Error(res.status)
+        setSelected(new Set())
+        setSelecting(false)
+        router.refresh()
+      } catch {
+        setError("Couldn't save. Check your connection and try again.")
+      }
+    })
+  }
+
+  function changeStatus(value: StatusFilter) {
+    setStatus(value)
+    setVisible(PAGE_SIZE)
+  }
   const kanjiResults = useMemo(() => kanji.filter((k) => matchesKanji(k, query)), [kanji, query])
   const total = tab === 'vocab' ? vocabResults.length : kanjiResults.length
 
@@ -96,16 +163,95 @@ export function LibraryBrowser({ vocabulary, kanji }: { vocabulary: VocabListIte
         </label>
       </div>
 
+      {tab === 'vocab' && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <div role="group" aria-label="Filter by status" className="flex flex-wrap gap-2">
+            {STATUS_FILTERS.map((filter) => (
+              <button
+                key={filter.id}
+                type="button"
+                aria-pressed={status === filter.id}
+                onClick={() => changeStatus(filter.id)}
+                className={cn(
+                  'h-9 rounded-full border px-3.5 text-sm transition-colors',
+                  status === filter.id ? 'border-primary bg-primary/12 text-primary' : 'border-border text-subtle hover:border-[#3b4250]',
+                )}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
+          <label className="flex items-center gap-2 text-sm text-subtle">
+            Lesson
+            <select
+              value={lesson}
+              onChange={(e) => {
+                setLesson(e.target.value === 'all' ? 'all' : Number(e.target.value))
+                setVisible(PAGE_SIZE)
+              }}
+              className="h-9 rounded-xl border border-border bg-card px-2 text-sm text-foreground"
+            >
+              <option value="all">All</option>
+              {lessons.map((n) => <option key={n} value={n}>{n}</option>)}
+            </select>
+          </label>
+          <button type="button" onClick={() => { setSelecting((on) => !on); setSelected(new Set()) }} className="text-sm font-medium text-primary">
+            {selecting ? 'Cancel' : 'Select words'}
+          </button>
+        </div>
+      )}
+
+      {tab === 'vocab' && selecting && (
+        <div className="sticky top-2 z-20 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/40 bg-card p-3 shadow-lg">
+          <div className="flex items-center gap-3 text-sm">
+            <span className="font-medium tabular-nums">{selected.size} selected</span>
+            <button type="button" onClick={toggleAllShown} className="text-primary">{allShownSelected ? 'Clear shown' : `Select ${shown.length} shown`}</button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {status === 'known' ? (
+              <button type="button" disabled={selected.size === 0 || saving} onClick={() => saveSelection(unmarkWordsKnownAction)} className={actionButton({ size: 'sm' })}>
+                Put back on my path
+              </button>
+            ) : (
+              <button type="button" disabled={selected.size === 0 || saving} onClick={() => saveSelection(markWordsKnownAction)} className={actionButton({ size: 'sm' })}>
+                I already know these
+              </button>
+            )}
+          </div>
+          {error && <p role="alert" className="w-full text-sm text-error">{error}</p>}
+          <p className="w-full text-xs text-muted-foreground">
+            {status === 'known' ? 'These words return to your path with their progress.' : 'These words leave your path and do not count toward your daily new words. You can put them back here.'}
+          </p>
+        </div>
+      )}
+
       <div className="mt-6" role="tabpanel">
         {tab === 'vocab' ? (
           vocabResults.length ? (
             <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {vocabResults.slice(0, visible).map((v) => (
-                <li key={v.id} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5">
+              {shown.map((v) => (
+                <li
+                  key={v.id}
+                  className={cn('relative flex flex-col gap-3 rounded-2xl border bg-card p-5', selecting && selected.has(v.id) ? 'border-primary' : 'border-border')}
+                >
+                  {selecting && (
+                    <button
+                      type="button"
+                      role="checkbox"
+                      aria-checked={selected.has(v.id)}
+                      aria-label={`Select ${v.expression}`}
+                      onClick={() => toggleWord(v.id)}
+                      className="absolute inset-0 z-10 rounded-2xl"
+                    >
+                      <span className={cn('absolute right-3 bottom-3 flex size-6 items-center justify-center rounded-md border-2', selected.has(v.id) ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card')}>
+                        {selected.has(v.id) && <Check className="size-4" aria-hidden="true" />}
+                      </span>
+                    </button>
+                  )}
                   <div className="flex items-start justify-between gap-2">
                     <p lang="ja" className="font-jp text-3xl font-medium">{v.expression}</p>
                     <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground tabular-nums">
-                      #{v.sortOrder}
+                      {v.lesson === null ? `#${v.sortOrder}` : `Lesson ${v.lesson}`}
                     </span>
                   </div>
                   <div>
@@ -114,7 +260,7 @@ export function LibraryBrowser({ vocabulary, kanji }: { vocabulary: VocabListIte
                   </div>
                   <div className="mt-auto flex flex-wrap items-end justify-between gap-2">
                     <p className="font-medium">{v.meaning}</p>
-                    <StageDots progress={v.progress} />
+                    {v.known ? <span className="text-xs font-medium text-success">Already known</span> : <StageDots progress={v.progress} />}
                   </div>
                 </li>
               ))}
@@ -161,7 +307,7 @@ export function LibraryBrowser({ vocabulary, kanji }: { vocabulary: VocabListIte
 function EmptyState({ query }: { query: string }) {
   return (
     <div className="rounded-3xl border border-dashed border-border p-10 text-center">
-      <p className="font-medium">No results for &ldquo;{query}&rdquo;</p>
+      <p className="font-medium">{query ? <>No results for &ldquo;{query}&rdquo;</> : 'No words here yet'}</p>
       <p className="mt-1 text-sm text-muted-foreground">Try a reading, a meaning without accents, or a Sino-Vietnamese word.</p>
     </div>
   )

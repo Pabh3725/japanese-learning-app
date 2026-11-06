@@ -68,6 +68,8 @@ export interface AssemblyStep extends BaseStep {
   slots?: number
   /** 'word': mảnh là chữ Latin (Hán Việt, nghĩa), ô rộng theo nội dung. */
   pieceKind: 'kana' | 'kanji' | 'word'
+  /** Không cho biết trước có bao nhiêu ô, người học bấm gợi ý nếu cần. */
+  blind?: boolean
   /** Kana giữ cố định xen giữa các ô (null = một ô). 休みます → [null, 'みます']. */
   template?: (string | null)[]
   joiner?: string

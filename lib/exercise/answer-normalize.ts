@@ -54,8 +54,8 @@ export function kanaComparisonForm(value: string): string {
     if (char === 'ー') out += VOWEL_OF[out[out.length - 1]] ?? ''
     else out += char === 'を' ? 'お' : char
   }
-  // ティ thường được gõ là ti, wanakana đổi thành チ
-  return out.replace(/てぃ/g, 'ち')
+  // ティ thường được gõ là ti, wanakana đổi thành チ. づ, ぢ thường được gõ là zu, ji, wanakana đổi thành ず, じ.
+  return out.replace(/てぃ/g, 'ち').replace(/づ/g, 'ず').replace(/ぢ/g, 'じ')
 }
 
 export function isKanaAnswerCorrect(typed: string, reading: string): boolean {

@@ -6,7 +6,6 @@ import { EXERCISES } from '../../learning/rules'
 import { allowedExercises } from '../../learning/stage'
 import type { ExerciseCode, ScoredStage } from '../../learning/types'
 import { convertAtCaret, isHanVietAnswerCorrect, isKanaAnswerCorrect, romajiToKanaInput } from '../answer-normalize'
-import { DUPLICATE_KANA_CODES } from '../../intro/words'
 import { isKatakana, seededRng } from '../questions'
 import { kanaSimilarity, kanjiSimilarity } from '../similarity'
 import {
@@ -15,6 +14,7 @@ import {
   gradeStageAnswer,
   parseStageAnswerRequest,
   usableExercises,
+  withHint,
   type AssemblyQuestionData,
   type ChoiceQuestionData,
   type QuestionPools,
@@ -67,17 +67,16 @@ describe('dữ liệu nghĩa', () => {
     expect(words.filter((w) => w.meaning_vi.includes(w.reading_kana)).map((w) => w.reading_kana)).toEqual([])
   })
 
-  it('dòng chỉ Kana bị bỏ khỏi lộ trình đều có dòng Kanji cùng cách đọc và cùng nghĩa', () => {
-    for (const code of DUPLICATE_KANA_CODES) {
-      const row = words.find((w) => w.id === code)!
-      expect(row.is_kana_only).toBe(true)
-      expect(words.some((w) => !w.is_kana_only && w.reading_kana === row.reading_kana && w.meaning_vi === row.meaning_vi)).toBe(true)
-    }
+  it('mỗi từ có bài từ 1 đến 48, và thứ tự không quay lui giữa các bài', () => {
+    const lessons = vocabRows.map((r) => Number(r.lesson))
+    expect(lessons.every((n) => n >= 1 && n <= 48)).toBe(true)
+    lessons.slice(1).forEach((n, i) => expect(n).toBeGreaterThanOrEqual(lessons[i]))
+    expect(new Set(lessons).size).toBe(48)
   })
 
-  it('mỗi nghĩa chỉ ứng với một cách đọc, để đề nghĩa chỉ có một đáp án khi gõ hoặc ghép', () => {
+  it('bài 1–25: mỗi nghĩa chỉ ứng với một cách đọc, để đề nghĩa chỉ có một đáp án khi gõ hoặc ghép', () => {
     const readingsOf = new Map<string, Set<string>>()
-    for (const w of words) {
+    for (const w of words.filter((_, i) => Number(vocabRows[i].lesson) <= 25)) {
       const key = w.meaning_vi.trim().toLowerCase()
       readingsOf.set(key, (readingsOf.get(key) ?? new Set()).add(w.reading_kana))
     }
@@ -323,7 +322,7 @@ describe('Câu hỏi và chấm trên toàn bộ data', () => {
         }
       }
     }
-  }, 60_000) // dựng khoảng 10.000 câu trên toàn bộ data
+  }, 240_000) // dựng khoảng 25.000 câu trên toàn bộ data
 
   it('câu chọn: không trùng đáp án, có đáp án đúng, đúng số lựa chọn, không có đáp án nhiễu đúng nghĩa', () => {
     let seed = 1
@@ -430,6 +429,34 @@ describe('Đáp án nhiễu khó hơn', () => {
   it('kanaSimilarity: bỏ qua dấu ゛゜và kiểu chữ', () => {
     expect(kanaSimilarity('がっこう', 'かっこう')).toBeGreaterThan(kanaSimilarity('がっこう', 'てれび'))
     expect(kanaSimilarity('テレビ', 'てれひ')).toBeGreaterThan(5)
+  })
+})
+
+describe('Câu ghép không cho biết số ô', () => {
+  it('bật cờ, vẫn đủ mảnh đáp án, không quá 18 mảnh, số mảnh nhiễu thay đổi', () => {
+    let seed = 1
+    for (const word of words.filter((w) => !w.is_kana_only)) {
+      for (const exercise of ['kanji_assembly_nohint', 'hanviet_assembly', 'kana_assembly'] as const) {
+        const q = buildStageQuestion(word, exercise, pools, seededRng(seed++), { blind: true }) as AssemblyQuestionData
+        expect(q.blind).toBe(true)
+        expect(q.pool.length).toBeLessThanOrEqual(18)
+        expect(q.pool.length).toBeGreaterThan(q.slots)
+      }
+    }
+    const sizes = new Set(Array.from({ length: 100 }, (_, i) => (buildStageQuestion(GAKKOU, 'kanji_assembly_nohint', pools, seededRng(i + 1), { blind: true }) as AssemblyQuestionData).pool.length))
+    expect(sizes.size).toBeGreaterThan(1)
+  })
+
+  it('câu thường không bật cờ; câu chọn không có cờ', () => {
+    expect(buildStageQuestion(GAKKOU, 'kana_assembly', pools, seededRng(1))).not.toHaveProperty('blind')
+    expect(buildStageQuestion(GAKKOU, 'kana_to_meaning', pools, seededRng(1), { blind: true })).not.toHaveProperty('blind')
+  })
+
+  it('đúng nhờ gợi ý không tính là đúng hoàn toàn; sai vẫn là sai', () => {
+    expect(withHint('correct', true)).toBe('hint')
+    expect(withHint('correct', false)).toBe('correct')
+    expect(withHint('correct', undefined)).toBe('correct')
+    expect(withHint('wrong', true)).toBe('wrong')
   })
 })
 

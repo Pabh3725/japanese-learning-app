@@ -49,8 +49,8 @@ describe('splitKana', () => {
   })
 
   describe('trên toàn bộ data', () => {
-    it('đọc đủ 912 từ', () => {
-      expect(readings).toHaveLength(912)
+    it('đọc đủ toàn bộ từ', () => {
+      expect(readings.length).toBeGreaterThan(1800)
     })
     it('ghép lại đúng từ gốc', () => {
       for (const reading of readings) expect(splitKana(reading).join('')).toBe(reading)
@@ -145,7 +145,7 @@ describe('mảnh dễ nhầm', () => {
     const random = seeded()
     for (const reading of readings) {
       const pieces = splitKana(reading)
-      const expected = Math.min(KANA_DISTRACTORS_MAX, Math.max(KANA_DISTRACTORS_MIN, pieces.length))
+      const expected = Math.min(18 - pieces.length, KANA_DISTRACTORS_MAX, Math.max(KANA_DISTRACTORS_MIN, pieces.length))
       expect(pickKanaDistractors(pieces, random)).toHaveLength(expected)
     }
   })

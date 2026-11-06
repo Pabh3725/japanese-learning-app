@@ -13,6 +13,7 @@ const WORDS_PER_ROUND = 10
 export interface HanVietIntroWord {
   kind: 'hanviet'
   learnerVocabularyId: string
+  vocabularyId: string
   reading: string
   hanViet: string
   meaning: string
@@ -23,6 +24,7 @@ export interface HanVietIntroWord {
 export interface KanjiIntroWord {
   kind: 'kanji'
   learnerVocabularyId: string
+  vocabularyId: string
   reading: string
   expression: string
   hanViet: string
@@ -56,6 +58,7 @@ function toItem(r: Row): Stage3Item {
     return {
       kind: 'hanviet',
       learnerVocabularyId: r.id,
+      vocabularyId: r.vocabulary_id,
       reading: v.reading_kana,
       hanViet: v.han_viet ?? '',
       meaning: v.meaning_vi,
@@ -70,6 +73,7 @@ function toItem(r: Row): Stage3Item {
   return {
     kind: 'kanji',
     learnerVocabularyId: r.id,
+    vocabularyId: r.vocabulary_id,
     reading: v.reading_kana,
     expression: v.expression,
     hanViet: v.han_viet ?? '',
