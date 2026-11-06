@@ -172,6 +172,7 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
   const responseMs = () => Date.now() - shownAt.current
 
   const answerChoice = (current: ChoiceQ, exercise: string) => (chosen: string) => {
+    if (chosen === current.answer) speak(current.speak)
     const payload = {
       learnerVocabularyId: current.learnerVocabularyId,
       stage,
@@ -210,6 +211,7 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
       })
       if (res.status === 'graded') {
         const correct = res.outcome === 'correct'
+        if (correct) speak(res.reading)
         const entry = toSaved(correct, res.result)
         if (entry) setSaved((list) => [...list, entry])
         return { correct, answer: [res.answer], explanation: pointsNote(stage, res.result) }

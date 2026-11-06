@@ -21,6 +21,21 @@ export function useJapaneseVoice(): VoiceStatus {
   return status
 }
 
+/** Tự đọc một lần khi hiện từ mới, sau khi biết chắc thiết bị có giọng Nhật. */
+export function useAutoSpeak(kana: string) {
+  const status = useJapaneseVoice()
+  useEffect(() => {
+    if (status === 'available') speak(kana)
+  }, [status, kana])
+}
+
+/** Báo cho người học biết vì sao không có tiếng, thay vì chỉ ẩn nút. */
+export function NoVoiceNote() {
+  const status = useJapaneseVoice()
+  if (status !== 'unavailable') return null
+  return <p className="text-xs text-muted-foreground">This device has no Japanese voice, so audio is off.</p>
+}
+
 /** Nút loa. Thiết bị không có giọng Nhật thì không hiện gì. `kana` là chuỗi Kana, không đưa Kanji. */
 export function SpeakerButton({ kana, large = false }: { kana: string; large?: boolean }) {
   const status = useJapaneseVoice()

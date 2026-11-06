@@ -4,11 +4,22 @@ import { useState, useTransition } from 'react'
 import { completeIntroAction } from '@/app/learn/intro/actions'
 import { SessionComplete } from '@/components/learning/session-complete'
 import { SessionHeader } from '@/components/learning/session-header'
-import { SpeakerButton } from '@/components/learning/speaker-button'
+import { NoVoiceNote, SpeakerButton, useAutoSpeak } from '@/components/learning/speaker-button'
 import { KanaIntroExercise } from '@/components/learning/steps/kana-intro-exercise'
 import type { IntroWord } from '@/lib/intro/words'
 
 const SAVE_ERROR = "Couldn't save. Check your connection and try again."
+
+/** Stage 1: hiện từ là đọc ngay; nút to để dễ bấm nghe lại. */
+function IntroSpeaker({ kana }: { kana: string }) {
+  useAutoSpeak(kana)
+  return (
+    <>
+      <SpeakerButton kana={kana} large />
+      <NoVoiceNote />
+    </>
+  )
+}
 
 export function IntroSession({ words }: { words: IntroWord[] }) {
   const [index, setIndex] = useState(0)
@@ -75,7 +86,7 @@ export function IntroSession({ words }: { words: IntroWord[] }) {
         saving={saving}
         error={error}
         onComplete={complete}
-        speaker={<SpeakerButton kana={word.reading} />}
+        speaker={<IntroSpeaker kana={word.reading} />}
       />
     </div>
   )

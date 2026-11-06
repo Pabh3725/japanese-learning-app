@@ -8,6 +8,7 @@ import type { ExerciseCode, Outcome, ScoredStage, Skill } from '../learning/type
 import { isHanVietAnswerCorrect, isKanaAnswerCorrect } from './answer-normalize'
 import { mixKanaPieces, pickKanaDistractors, splitKana } from './kana-pieces'
 import { sameMeaning, type Rng } from './questions'
+import { kanaSimilarity, kanjiSimilarity, lookalikeKanji } from './similarity'
 import { expressionTemplate, hanVietPieces, kanjiPieces, meaningPieces, type ExpressionPart } from './word-parts'
 
 export interface StageWord {
@@ -25,6 +26,8 @@ export interface QuestionPools {
   words: readonly StageWord[]
   /** Kho chữ Kanji và âm Hán Việt cho mảnh nhiễu. */
   kanji: readonly { character: string; han_viet: string }[]
+  /** Các từ người học đã gặp: được ưu tiên làm đáp án nhiễu. */
+  learnedWordIds?: ReadonlySet<string>
 }
 
 export interface PromptData {
@@ -44,6 +47,8 @@ export interface ChoiceQuestionData extends QuestionBase {
   options: string[]
   answer: string
   optionKind: 'kana' | 'vocab' | 'meaning'
+  /** Đọc Kana này khi trả lời đúng. Câu chọn đã có đáp án ở trình duyệt nên không lộ thêm gì. */
+  speak: string
   /** Câu nghe: đọc chuỗi này. Thiết bị không có giọng Nhật thì hiện prompt và đổi sang meaning_to_kana. */
   listenTo?: string
 }
@@ -116,9 +121,18 @@ export function chooseStageExercise(
 // Đáp án nhiễu
 // ---------------------------------------------------------------------------
 
+/** Điểm của một ứng viên đáp án nhiễu: càng cao càng được ưu tiên. */
+type DistractorScore = (candidate: StageWord) => number
+
+/** Đủ lớn để luôn ưu tiên hơn mọi tiêu chí khác cộng lại. */
+const SAME_SCRIPT_BONUS = 100
+const LEARNED_BONUS = 3
+/** Độ ngẫu nhiên, để cùng một từ không lúc nào cũng ra đúng các đáp án nhiễu giống nhau. */
+const JITTER = 2
+
 /**
  * Chọn đáp án nhiễu từ các từ khác. Luôn loại: chính nó, cùng nghĩa, cùng cách đọc, cùng cách viết, cùng Hán Việt,
- * để câu hỏi không bao giờ có hai đáp án đúng (data-spec §5).
+ * để câu hỏi không bao giờ có hai đáp án đúng (data-spec §5). Trong số còn lại, ưu tiên ứng viên có điểm cao.
  */
 function pickWordDistractors(
   target: StageWord,
@@ -126,22 +140,24 @@ function pickWordDistractors(
   textOf: (word: StageWord) => string | null,
   count: number,
   rng: Rng,
-  prefer?: (word: StageWord) => boolean,
+  score: DistractorScore,
 ): string[] {
-  const valid = pools.words.filter(
-    (w) =>
-      w.id !== target.id &&
-      !sameMeaning(w.meaning_vi, target.meaning_vi) &&
-      w.reading_kana !== target.reading_kana &&
-      w.expression !== target.expression &&
-      (w.han_viet === null || w.han_viet !== target.han_viet),
-  )
-  let ordered = shuffle(valid, rng)
-  if (prefer) ordered = [...ordered.filter(prefer), ...ordered.filter((w) => !prefer(w))]
+  const learned = pools.learnedWordIds
+  const ordered = pools.words
+    .filter(
+      (w) =>
+        w.id !== target.id &&
+        !sameMeaning(w.meaning_vi, target.meaning_vi) &&
+        w.reading_kana !== target.reading_kana &&
+        w.expression !== target.expression &&
+        (w.han_viet === null || w.han_viet !== target.han_viet),
+    )
+    .map((word) => ({ word, value: score(word) + (learned?.has(word.id) ? LEARNED_BONUS : 0) + rng() * JITTER }))
+    .sort((a, b) => b.value - a.value)
 
   const answer = textOf(target)
   const picked: string[] = []
-  for (const word of ordered) {
+  for (const { word } of ordered) {
     const text = textOf(word)
     if (!text || text === answer || picked.includes(text)) continue
     picked.push(text)
@@ -156,6 +172,20 @@ function isKatakanaWord(word: StageWord): boolean {
 
 function pickPieceDistractors(answer: readonly string[], candidates: readonly string[], count: number, rng: Rng): string[] {
   return shuffle([...new Set(candidates)].filter((c) => !answer.includes(c)), rng).slice(0, count)
+}
+
+/** Mảnh Kanji nhiễu: chữ dễ nhầm trước, rồi chữ trong các từ đã học, cuối cùng là bảng Kanji. */
+function kanjiPieceDistractors(pieces: readonly string[], pools: QuestionPools, count: number, rng: Rng): string[] {
+  const lookalike = pieces.flatMap((p) => lookalikeKanji(p)).filter((c) => !pieces.includes(c))
+  const learned = pools.learnedWordIds
+  const fromLearned = learned ? pools.words.filter((w) => learned.has(w.id)).flatMap((w) => kanjiPieces(w.expression)) : []
+  const picked: string[] = []
+  for (const source of [lookalike, fromLearned, pools.kanji.map((k) => k.character)]) {
+    for (const char of pickPieceDistractors(pieces, source, count, rng)) {
+      if (picked.length < count && !picked.includes(char) && char !== '々') picked.push(char)
+    }
+  }
+  return picked
 }
 
 // ---------------------------------------------------------------------------
@@ -177,8 +207,8 @@ function choice(
   textOf: (w: StageWord) => string | null,
   count: number,
   rng: Rng,
+  score: DistractorScore,
   extra: Partial<ChoiceQuestionData> = {},
-  prefer?: (w: StageWord) => boolean,
 ): ChoiceQuestionData {
   const answer = textOf(word)
   if (!answer) throw new Error(`Từ ${word.id} không có dữ liệu cho dạng ${exercise}`)
@@ -189,15 +219,36 @@ function choice(
     prompt,
     optionKind,
     answer,
-    options: shuffle([answer, ...pickWordDistractors(word, pools, textOf, count - 1, rng, prefer)], rng),
+    speak: word.reading_kana,
+    options: shuffle([answer, ...pickWordDistractors(word, pools, textOf, count - 1, rng, score)], rng),
     ...extra,
   }
 }
 
-function kanaOptions(word: StageWord) {
+/** Chọn Kana: cùng kiểu chữ để không đoán được nhờ nhìn kiểu chữ; cách đọc gần nhau trước. */
+function kanaScore(word: StageWord): DistractorScore {
   const katakana = isKatakanaWord(word)
-  // Cùng kiểu chữ để không đoán được chỉ nhờ nhìn kiểu chữ
-  return (w: StageWord) => isKatakanaWord(w) === katakana
+  return (w) => (isKatakanaWord(w) === katakana ? SAME_SCRIPT_BONUS : 0) + kanaSimilarity(word.reading_kana, w.reading_kana)
+}
+
+/** Chọn cách viết: chung chữ hoặc có chữ dễ nhầm trước. */
+function kanjiScore(word: StageWord): DistractorScore {
+  return (w) => (w.is_kana_only ? 0 : kanjiSimilarity(word.expression, w.expression))
+}
+
+/** Chọn Hán Việt: chung âm và cùng số âm trước. */
+function hanVietScore(word: StageWord): DistractorScore {
+  const target = hanVietPieces(word.han_viet ?? '')
+  return (w) => {
+    const other = hanVietPieces(w.han_viet ?? '')
+    return (other.length === target.length ? 1 : 0) + other.filter((p) => target.includes(p)).length * 2
+  }
+}
+
+/** Chọn nghĩa: từ đã học được cộng điểm chung; ở đây chỉ ưu tiên nghĩa dài tương đương, để độ dài không lộ đáp án. */
+function meaningScore(word: StageWord): DistractorScore {
+  const length = word.meaning_vi.length
+  return (w) => (Math.abs(w.meaning_vi.length - length) <= 6 ? 1 : 0)
 }
 
 const KANJI_WORD_TEXT = (w: StageWord) => (w.is_kana_only ? null : w.expression)
@@ -207,7 +258,7 @@ const KANA_TEXT = (w: StageWord) => w.reading_kana
 
 function kanjiAssembly(word: StageWord, pools: QuestionPools, exercise: ExerciseCode, distractors: number, prompt: PromptData, rng: Rng): AssemblyQuestionData {
   const pieces = kanjiPieces(word.expression)
-  const others = pickPieceDistractors(pieces, pools.kanji.map((k) => k.character), Math.max(distractors, pieces.length), rng)
+  const others = kanjiPieceDistractors(pieces, pools, Math.max(distractors, pieces.length), rng)
   return {
     kind: 'assembly',
     exercise,
@@ -238,11 +289,11 @@ function hanVietAssembly(word: StageWord, pools: QuestionPools, rng: Rng): Assem
 export function buildStageQuestion(word: StageWord, exercise: ExerciseCode, pools: QuestionPools, rng: Rng = Math.random): QuestionData {
   switch (exercise) {
     case 'kana_to_meaning':
-      return choice(word, pools, exercise, 'What does this word mean?', PROMPT_KANA(word), 'meaning', MEANING_TEXT, 4, rng)
+      return choice(word, pools, exercise, 'What does this word mean?', PROMPT_KANA(word), 'meaning', MEANING_TEXT, 4, rng, meaningScore(word))
     case 'meaning_to_kana':
-      return choice(word, pools, exercise, 'Which word means this?', PROMPT_MEANING(word), 'kana', KANA_TEXT, 4, rng, {}, kanaOptions(word))
+      return choice(word, pools, exercise, 'Which word means this?', PROMPT_MEANING(word), 'kana', KANA_TEXT, 4, rng, kanaScore(word))
     case 'listening':
-      return choice(word, pools, exercise, 'Which word did you hear?', PROMPT_MEANING(word), 'kana', KANA_TEXT, 4, rng, { listenTo: word.reading_kana }, kanaOptions(word))
+      return choice(word, pools, exercise, 'Which word did you hear?', PROMPT_MEANING(word), 'kana', KANA_TEXT, 4, rng, kanaScore(word), { listenTo: word.reading_kana })
     case 'kana_assembly': {
       const pieces = splitKana(word.reading_kana)
       return {
@@ -256,15 +307,15 @@ export function buildStageQuestion(word: StageWord, exercise: ExerciseCode, pool
       }
     }
     case 'kanji_recognition':
-      return choice(word, pools, exercise, 'Which spelling is correct?', { ...PROMPT_KANA(word), hint: word.meaning_vi }, 'vocab', KANJI_WORD_TEXT, 4, rng)
+      return choice(word, pools, exercise, 'Which spelling is correct?', { ...PROMPT_KANA(word), hint: word.meaning_vi }, 'vocab', KANJI_WORD_TEXT, 4, rng, kanjiScore(word))
     case 'kanji_recognition_6':
-      return choice(word, pools, exercise, 'Which spelling means this?', PROMPT_MEANING(word), 'vocab', KANJI_WORD_TEXT, 6, rng)
+      return choice(word, pools, exercise, 'Which spelling means this?', PROMPT_MEANING(word), 'vocab', KANJI_WORD_TEXT, 6, rng, kanjiScore(word))
     case 'kanji_assembly':
       return kanjiAssembly(word, pools, exercise, 3, { ...PROMPT_KANA(word), hint: word.meaning_vi }, rng)
     case 'kanji_assembly_nohint':
       return kanjiAssembly(word, pools, exercise, 5, PROMPT_MEANING(word), rng)
     case 'hanviet_recognition':
-      return choice(word, pools, exercise, 'Which Sino-Vietnamese reading is correct?', PROMPT_WORD(word), 'meaning', HANVIET_TEXT, 4, rng)
+      return choice(word, pools, exercise, 'Which Sino-Vietnamese reading is correct?', PROMPT_WORD(word), 'meaning', HANVIET_TEXT, 4, rng, hanVietScore(word))
     case 'hanviet_assembly':
       return hanVietAssembly(word, pools, rng)
     case 'hanviet_free_recall':
@@ -286,7 +337,7 @@ export function buildStageQuestion(word: StageWord, exercise: ExerciseCode, pool
         input: isKatakanaWord(word) ? 'katakana' : 'hiragana',
       }
     case 'meaning_recognition_6':
-      return choice(word, pools, exercise, 'What does this word mean?', PROMPT_KANA(word), 'meaning', MEANING_TEXT, 6, rng)
+      return choice(word, pools, exercise, 'What does this word mean?', PROMPT_KANA(word), 'meaning', MEANING_TEXT, 6, rng, meaningScore(word))
     case 'meaning_assembly': {
       const pieces = meaningPieces(word.meaning_vi)
       if (!pieces) throw new Error(`Nghĩa của từ ${word.id} không ghép được`)

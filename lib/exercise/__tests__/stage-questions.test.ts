@@ -6,7 +6,8 @@ import { EXERCISES } from '../../learning/rules'
 import { allowedExercises } from '../../learning/stage'
 import type { ExerciseCode, ScoredStage } from '../../learning/types'
 import { isHanVietAnswerCorrect, isKanaAnswerCorrect, romajiToKanaInput } from '../answer-normalize'
-import { seededRng } from '../questions'
+import { isKatakana, seededRng } from '../questions'
+import { kanaSimilarity, kanjiSimilarity } from '../similarity'
 import {
   buildStageQuestion,
   chooseStageExercise,
@@ -226,7 +227,7 @@ describe('Câu hỏi và chấm trên toàn bộ data', () => {
         }
       }
     }
-  })
+  }, 60_000) // dựng khoảng 10.000 câu trên toàn bộ data
 
   it('câu chọn: không trùng đáp án, có đáp án đúng, đúng số lựa chọn, không có đáp án nhiễu đúng nghĩa', () => {
     let seed = 1
@@ -280,6 +281,71 @@ describe('Câu hỏi và chấm trên toàn bộ data', () => {
   it('không có câu gõ nghĩa tiếng Việt', () => {
     const typingKinds = Object.entries(EXERCISES).filter(([, v]) => v.kind === 'typing').map(([, v]) => v.skill)
     expect(typingKinds).not.toContain('S1')
+  })
+})
+
+describe('Đáp án nhiễu khó hơn', () => {
+  const firstHundred = new Set(words.slice(0, 100).map((w) => w.id))
+  const average = (values: number[]) => values.reduce((a, b) => a + b, 0) / values.length
+
+  const optionsOf = (word: StageWord, exercise: ExerciseCode, seed: number, learned?: ReadonlySet<string>) =>
+    (buildStageQuestion(word, exercise, { ...pools, learnedWordIds: learned }, seededRng(seed)) as ChoiceQuestionData).options.filter(
+      (o) => o !== (exercise === 'meaning_to_kana' ? word.reading_kana : exercise === 'kana_to_meaning' ? word.meaning_vi : word.expression),
+    )
+
+  it('chọn nghĩa: ưu tiên nghĩa của từ đã học', () => {
+    const learnedMeanings = new Set(words.filter((w) => firstHundred.has(w.id)).map((w) => w.meaning_vi))
+    const hits = Array.from({ length: 40 }, (_, i) =>
+      optionsOf(GAKKOU, 'kana_to_meaning', i + 1, firstHundred).filter((o) => learnedMeanings.has(o)).length,
+    )
+    expect(average(hits)).toBeGreaterThan(2) // 3 đáp án nhiễu, phần lớn là từ đã học
+  })
+
+  it('chọn Kana: đáp án nhiễu đọc gần với đáp án hơn nhiều so với chọn ngẫu nhiên', () => {
+    const near = average(Array.from({ length: 30 }, (_, i) => optionsOf(GAKKOU, 'meaning_to_kana', i + 1).map((o) => kanaSimilarity('がっこう', o))).flat())
+    const random = average(words.filter((w) => !isKatakana(w.reading_kana)).map((w) => kanaSimilarity('がっこう', w.reading_kana)))
+    expect(near).toBeGreaterThan(random + 1.5)
+  })
+
+  it('chọn Kana: từ Katakana chỉ có đáp án Katakana', () => {
+    for (const option of optionsOf(TEREBI, 'meaning_to_kana', 3)) expect(isKatakana(option)).toBe(true)
+  })
+
+  it('chọn cách viết: có chữ chung hoặc chữ dễ nhầm', () => {
+    const shared = Array.from({ length: 30 }, (_, i) => optionsOf(GAKKOU, 'kanji_recognition', i + 1).filter((o) => kanjiSimilarity('学校', o) >= 3).length)
+    expect(average(shared)).toBeGreaterThan(2)
+  })
+
+  it('mảnh Kanji nhiễu ưu tiên chữ dễ nhầm', () => {
+    const q = buildStageQuestion(find('休みます'), 'kanji_assembly', pools, seededRng(5)) as AssemblyQuestionData
+    expect(q.pool).toContain('体')
+  })
+
+  it('không học từ nào vẫn đủ đáp án; không bao giờ có hai đáp án đúng', () => {
+    let seed = 1
+    for (const word of words.slice(0, 200)) {
+      const q = buildStageQuestion(word, 'kana_to_meaning', { ...pools, learnedWordIds: new Set() }, seededRng(seed++)) as ChoiceQuestionData
+      expect(q.options).toHaveLength(4)
+      const sameAsAnswer = q.options.filter((o) => o.trim().toLowerCase() === word.meaning_vi.trim().toLowerCase())
+      expect(sameAsAnswer).toHaveLength(1)
+    }
+  })
+
+  it('kanaSimilarity: bỏ qua dấu ゛゜và kiểu chữ', () => {
+    expect(kanaSimilarity('がっこう', 'かっこう')).toBeGreaterThan(kanaSimilarity('がっこう', 'てれび'))
+    expect(kanaSimilarity('テレビ', 'てれひ')).toBeGreaterThan(5)
+  })
+})
+
+describe('Đọc lại khi trả lời đúng', () => {
+  it('câu chọn có sẵn Kana để đọc, kể cả đề không có Kana', () => {
+    const q = buildStageQuestion(GAKKOU, 'hanviet_recognition', pools, seededRng(1)) as ChoiceQuestionData
+    expect(q.speak).toBe('がっこう')
+  })
+
+  it('câu ghép và câu gõ không gửi Kana trước khi nộp', () => {
+    expect(buildStageQuestion(GAKKOU, 'kana_assembly', pools, seededRng(1))).not.toHaveProperty('speak')
+    expect(buildStageQuestion(GAKKOU, 'kana_free_recall', pools, seededRng(1))).not.toHaveProperty('speak')
   })
 })
 

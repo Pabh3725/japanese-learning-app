@@ -94,8 +94,8 @@ export async function getStageSession(stage: ScoredStage): Promise<StageSessionD
   const due = pickDueWords(active, new Date())
   if (due.length === 0) return { questions: [], nextDueAt: active.map((r) => r.dueAt).sort()[0] ?? null }
 
-  // Dạng bài đã có điểm của từng từ, để ưu tiên phần còn thiếu; và kho đáp án nhiễu
-  const [logs, pools] = await Promise.all([
+  // Dạng bài đã có điểm của từng từ, để ưu tiên phần còn thiếu; kho đáp án nhiễu; các từ đã học
+  const [logs, pools, started] = await Promise.all([
     supabase
       .from('exercise_logs')
       .select('learner_vocabulary_id, exercise_type, points')
@@ -104,14 +104,17 @@ export async function getStageSession(stage: ScoredStage): Promise<StageSessionD
       .gt('points', 0)
       .in('learner_vocabulary_id', due.map((r) => r.row.id)),
     loadPools(supabase),
+    supabase.from('learner_vocabulary').select('vocabulary_id').eq('user_id', user.id).range(0, PAGE - 1),
   ])
   if (logs.error) throw new Error(`Không đọc được exercise_logs: ${logs.error.message}`)
+  if (started.error) throw new Error(`Không đọc được learner_vocabulary: ${started.error.message}`)
+  const poolsWithLearned = { ...pools, learnedWordIds: new Set(started.data?.map((r) => r.vocabulary_id)) }
 
   const questions = due.map(({ row }): StageQuestion => {
     const earned = deriveEarned((logs.data ?? []).filter((l) => l.learner_vocabulary_id === row.id))
     const exercise = chooseStageExercise(row.vocabularies, stage, earned)
     return {
-      ...buildStageQuestion(row.vocabularies, exercise, pools),
+      ...buildStageQuestion(row.vocabularies, exercise, poolsWithLearned),
       learnerVocabularyId: row.id,
       clientEventId: randomUUID(),
     }
@@ -125,6 +128,8 @@ export type SubmitStageAnswerResponse =
       outcome: Outcome
       /** Đáp án đúng, chỉ trả về sau khi đã nộp. */
       answer: string
+      /** Kana để đọc lại khi trả lời đúng. */
+      reading: string
       /** Không có khi đây là lần gửi lại của một câu đã lưu. */
       result?: SubmitExerciseResponse['result']
     }
@@ -163,7 +168,7 @@ export async function submitStageAnswer(input: unknown): Promise<SubmitStageAnsw
     responseMs: req.responseMs,
   })
   if (saved.status === 'saved' || saved.status === 'duplicate') {
-    return { status: 'graded', outcome, answer, result: saved.result }
+    return { status: 'graded', outcome, answer, reading: word.reading_kana, result: saved.result }
   }
   return { status: saved.status }
 }
