@@ -2,6 +2,7 @@
 
 import { useEffect, useEffectEvent, useState } from 'react'
 import { markWordsKnownAction, unmarkWordsKnownAction } from '@/app/learn/actions'
+import { StarButton } from '@/components/learning/star-button'
 import { isShortcutEvent } from '@/lib/keyboard'
 import { withRetry } from '@/lib/retry'
 
@@ -47,6 +48,7 @@ export function KnownWordBar({ vocabularyId, onKnown }: { vocabularyId: string |
   return (
     <div className="mx-auto flex min-h-8 w-full max-w-2xl flex-wrap items-center justify-end gap-3 px-4 pt-2 text-sm">
       {error && <p role="alert" className="mr-auto text-error">{error}</p>}
+      {vocabularyId && <StarButton vocabularyId={vocabularyId} />}
       {last && (
         <p role="status" className="mr-auto text-muted-foreground">
           Removed from your path.{' '}

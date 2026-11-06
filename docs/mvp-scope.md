@@ -94,7 +94,7 @@ Cột "Qua stage" là điều kiện **mở stage sau** theo V7; V8 đổi mốc
 
 ### P0-7 — Practice
 
-Speed Matching ở chế độ Luyện tập (60 giây) và vòng boss (30 giây). Ưu tiên từ còn card giàn giáo và từ yếu. Ghi practice log; cộng điểm card (−1 / 0 / +1); **không đổi `due`**. *(Spec §8)*
+Speed Matching ở chế độ Luyện tập (60 giây) và vòng boss (30 giây). Ưu tiên Card lâu chưa ôn. Ghi practice log; cộng điểm card (−1 / 0 / +1); **không đổi `due`**. *(Spec §8)*
 
 ### P0-8 — Dashboard
 
@@ -218,7 +218,6 @@ Dữ liệu trên server → PC và mobile thấy cùng tiến độ
 
 Chi tiết: `docs/PROJECT_SPEC.md` §14 (các dòng không có ✅).
 
-- Công thức "từ yếu" / skill strength (OD-10).
 - Kỹ thuật: atomic review bằng Postgres RPC hay transaction ở server (OD-16); test stack (OD-21); mức chấm trên server (OD-24); giữ hay bỏ Vercel Analytics (OD-25).
 - Ưu tiên từ nào trong số từ đang học dở; số câu mỗi phiên ~5 phút.
 - Furigana; tham số FSRS (desired retention) — MVP dùng mặc định.

@@ -2,7 +2,8 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
-import type { CardType } from '@/lib/learning/types'
+import { isWordStarred } from '@/lib/dal/star-relearn'
+import type { CardType, ScoredStage } from '@/lib/learning/types'
 
 export interface WordDetail {
   id: string
@@ -15,12 +16,13 @@ export interface WordDetail {
   lesson: number | null
   isKanaOnly: boolean
   known: boolean
+  starred: boolean
   kanji: { character: string; hanViet: string; meaning: string }[]
   /** Chưa gặp từ này thì không có. */
   progress: {
     currentStage: number
     completed: boolean
-    stages: { stage: number; points: number; dueAt: string; completed: boolean }[]
+    stages: { id: string; stage: ScoredStage; points: number; dueAt: string; completed: boolean }[]
     cards: { id: string; type: CardType; points: number; dueAt: string; retired: boolean }[]
   } | null
 }
@@ -49,14 +51,15 @@ export async function getWordDetail(code: string): Promise<WordDetail | null> {
     vocabulary_kanji: { position: number; kanji: { character: string; han_viet: string; meaning_vi: string } }[]
   }
 
-  const [learner, known] = await Promise.all([
+  const [learner, known, starred] = await Promise.all([
     supabase
       .from('learner_vocabulary')
-      .select('current_stage, learning_status, learner_stage_schedules(stage_number, stage_points, due_at, completed_at), review_cards(id, card_type, card_points, due_at, retired_at)')
+      .select('current_stage, learning_status, learner_stage_schedules(id, stage_number, stage_points, due_at, completed_at), review_cards(id, card_type, card_points, due_at, retired_at)')
       .eq('user_id', user.id)
       .eq('vocabulary_id', word.id)
       .maybeSingle(),
     supabase.from('learner_vocabulary_exclusions').select('excluded_at').eq('user_id', user.id).eq('vocabulary_id', word.id).maybeSingle(),
+    isWordStarred(supabase, user.id, word.id),
   ])
   if (learner.error) throw new Error(`Không đọc được learner_vocabulary: ${learner.error.message}`)
   if (known.error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${known.error.message}`)
@@ -64,7 +67,7 @@ export async function getWordDetail(code: string): Promise<WordDetail | null> {
   const lv = learner.data as unknown as {
     current_stage: number
     learning_status: string
-    learner_stage_schedules: { stage_number: number; stage_points: number; due_at: string; completed_at: string | null }[]
+    learner_stage_schedules: { id: string; stage_number: ScoredStage; stage_points: number; due_at: string; completed_at: string | null }[]
     review_cards: { id: string; card_type: CardType; card_points: number; due_at: string; retired_at: string | null }[]
   } | null
 
@@ -85,12 +88,13 @@ export async function getWordDetail(code: string): Promise<WordDetail | null> {
     lesson: word.lesson,
     isKanaOnly: word.is_kana_only,
     known: known.data?.excluded_at != null,
+    starred,
     kanji,
     progress: lv && {
       currentStage: lv.current_stage,
       completed: lv.learning_status === 'initial_complete',
       stages: lv.learner_stage_schedules
-        .map((s) => ({ stage: s.stage_number, points: s.stage_points, dueAt: s.due_at, completed: s.completed_at !== null }))
+        .map((s) => ({ id: s.id, stage: s.stage_number, points: s.stage_points, dueAt: s.due_at, completed: s.completed_at !== null }))
         .sort((a, b) => a.stage - b.stage),
       cards: lv.review_cards.map((c) => ({ id: c.id, type: c.card_type, points: c.card_points, dueAt: c.due_at, retired: c.retired_at !== null })),
     },

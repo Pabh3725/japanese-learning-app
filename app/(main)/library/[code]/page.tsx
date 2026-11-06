@@ -2,10 +2,14 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
+import { relearnCardAction, relearnStageAction } from '@/app/learn/actions'
+import { StarButton, StarNote, StarredWordsProvider } from '@/components/learning/star-button'
 import { KnownToggle } from '@/components/library/known-toggle'
+import { RelearnButton } from '@/components/library/relearn-button'
 import { SpeakerButton } from '@/components/learning/speaker-button'
 import { getWordDetail } from '@/lib/dal/word-detail'
 import { CARD_LABELS } from '@/lib/learning/card-labels'
+import { relearnStagePoints } from '@/lib/learning/stage'
 import { formatVnDateTime } from '@/lib/learning/time'
 
 export const metadata: Metadata = { title: 'Word · Nihongo' }
@@ -22,6 +26,7 @@ export default async function WordDetailPage({ params }: { params: Promise<{ cod
         Back to Library
       </Link>
 
+      <StarredWordsProvider ids={word.starred ? [word.id] : []} refreshOnSave>
       <section className="rounded-3xl border border-border bg-card p-6 md:p-8">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -29,12 +34,18 @@ export default async function WordDetailPage({ params }: { params: Promise<{ cod
             {word.reading !== word.expression && <p lang="ja" className="mt-2 font-jp text-xl text-cyan">{word.reading}</p>}
             {word.romaji && <p className="mt-1 text-sm text-muted-foreground">{word.romaji}</p>}
           </div>
-          <SpeakerButton kana={word.reading} />
+          <div className="flex items-center gap-1">
+            <StarButton vocabularyId={word.id} />
+            <SpeakerButton kana={word.reading} />
+          </div>
         </div>
         {word.hanViet && <p className="mt-4 text-sm font-semibold tracking-wider text-yellow">{word.hanViet}</p>}
         <p className="mt-2 text-lg font-medium">{word.meaning}</p>
         {word.lesson !== null && <p className="mt-3 text-sm text-muted-foreground">Lesson {word.lesson}</p>}
+        <StarNote vocabularyId={word.id} />
       </section>
+
+      </StarredWordsProvider>
 
       {word.kanji.length > 0 && (
         <section aria-labelledby="kanji-title" className="rounded-3xl border border-border bg-card p-6">
@@ -66,6 +77,13 @@ export default async function WordDetailPage({ params }: { params: Promise<{ cod
                     <span className="text-muted-foreground tabular-nums">
                       {s.points} points · {s.completed ? 'complete' : `next ${formatVnDateTime(new Date(s.dueAt))}`}
                     </span>
+                    {s.completed && !word.known && (
+                      <RelearnButton
+                        label="Learn again"
+                        confirm={`Reopen Stage ${s.stage}? Points drop to ${relearnStagePoints(s.stage, word.isKanaOnly)}, and its questions return to Learn. Your cards stay.`}
+                        action={relearnStageAction.bind(null, s.id)}
+                      />
+                    )}
                   </li>
                 ))}
               </ul>
@@ -78,8 +96,9 @@ export default async function WordDetailPage({ params }: { params: Promise<{ cod
                     <li key={c.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
                       <span>{CARD_LABELS[c.type]}</span>
                       <span className="text-muted-foreground tabular-nums">
-                        {c.points} points · {c.retired ? 'retired' : word.known ? 'paused' : `next ${formatVnDateTime(new Date(c.dueAt))}`}
+                        {c.points} points · {c.retired ? 'retired' : word.known || (c.type === 'vocab.star_recall' && !word.starred) ? 'paused' : `next ${formatVnDateTime(new Date(c.dueAt))}`}
                       </span>
+                      {!word.known && (c.type !== 'vocab.star_recall' || word.starred) && <RelearnButton label="Review now" action={relearnCardAction.bind(null, c.id)} />}
                     </li>
                   ))}
                 </ul>

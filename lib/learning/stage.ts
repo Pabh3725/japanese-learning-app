@@ -148,6 +148,11 @@ export function allowedExercises(stage: ScoredStage, isKanaOnly: boolean): reado
   return list
 }
 
+/** Học lại Stage: điểm sau khi mở lại, để đúng thêm vài câu là hoàn tất lại. */
+export function relearnStagePoints(stage: ScoredStage, isKanaOnly: boolean): number {
+  return Math.max(0, completeAt(stage, isKanaOnly) - RULES_V4.relearn.pointsToComplete)
+}
+
 /** R3 + R4 + R5 — Áp một câu học vào trạng thái của từ ở stage này. */
 export function applyStageAttempt(state: StageState, attempt: StageAttempt): StageAttemptResult {
   const { stage, isKanaOnly } = state

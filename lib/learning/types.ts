@@ -43,6 +43,8 @@ export type CardType =
   | 'vocab.meaning_kanji'
   | 'vocab.kanji_meaning_hanviet'
   | 'vocab.meaning_hanviet'
+  /** Card riêng của từ có sao, chạy song song với lộ trình chính. */
+  | 'vocab.star_recall'
 
 export type Rating = 'Again' | 'Hard' | 'Good' | 'Easy'
 

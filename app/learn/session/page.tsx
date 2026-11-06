@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { LearnSession } from '@/components/learning/learn-session'
+import { StarredWordsProvider } from '@/components/learning/star-button'
 import { getLearnSession } from '@/lib/dal/stage-session'
 
 export const metadata: Metadata = { title: 'Learn · Nihongo' }
@@ -12,5 +13,9 @@ export default async function LearnSessionPage({ searchParams }: { searchParams:
   // clientEventId mới cho mỗi phiên, nên key đổi và phiên chạy lại từ câu đầu.
   const first = data.intros[0]
   const key = data.questions[0]?.clientEventId ?? (first ? (first.kind === 'new' ? first.word.id : first.learnerVocabularyId) : 'empty')
-  return <LearnSession key={key} data={data} sessionNumber={sessionNumber} />
+  return (
+    <StarredWordsProvider ids={data.starredIds}>
+      <LearnSession key={key} data={data} sessionNumber={sessionNumber} />
+    </StarredWordsProvider>
+  )
 }
