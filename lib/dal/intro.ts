@@ -6,9 +6,9 @@ import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { newPerDayOf, remainingNewToday } from '@/lib/learning/new-words'
 import { nextStudyDayStart } from '@/lib/learning/time'
-import { INTRO_WORDS_PER_SESSION, isVocabularyId, pickNewWords, stageAfterIntro, toIntroWord, type IntroVocabRow, type IntroWord } from '@/lib/intro/words'
+import { DUPLICATE_KANA_CODES, INTRO_WORDS_PER_SESSION, isVocabularyId, pickNewWords, stageAfterIntro, toIntroWord, type IntroVocabRow, type IntroWord } from '@/lib/intro/words'
 
-const VOCAB_COLUMNS = 'id, reading_kana, romaji, meaning_vi, emoji, jlpt_level'
+const VOCAB_COLUMNS = 'id, code, reading_kana, romaji, meaning_vi, emoji, jlpt_level'
 
 /** Như lib/dal/library.ts: Data API trả tối đa 1000 dòng mỗi lần, hiện có 912 từ. */
 const MAX_ROWS = 1000
@@ -50,7 +50,7 @@ export async function getIntroData(): Promise<IntroData> {
   const metToday = (started.data ?? []).filter((r) => r.created_at >= startOfToday).length
   const remaining = remainingNewToday(newPerDay, metToday)
   const picked = pickNewWords<IntroVocabRow>(
-    vocab.data ?? [],
+    (vocab.data ?? []).filter((row) => !DUPLICATE_KANA_CODES.includes(row.code)),
     new Set(started.data?.map((r) => r.vocabulary_id)),
     new Set(excluded.data?.map((r) => r.vocabulary_id)),
     Math.min(INTRO_WORDS_PER_SESSION, remaining),

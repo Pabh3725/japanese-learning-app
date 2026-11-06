@@ -1355,6 +1355,7 @@ Thay cách chọn dạng bài ngẫu nhiên, để mỗi stage đi từ dễ t�
 | Stage 5 | 0–10 | Như §18.3a, mở khi Stage 4 đạt 10 điểm và đủ 6 dạng |
 
 - **Hoàn tất stage** cần đủ điểm, đủ yêu cầu bắt buộc và 3 câu gần nhất đúng liên tiếp. Câu đúng nhưng không được cộng điểm vẫn nối chuỗi; câu sai hoặc gợi ý làm mất chuỗi. Mốc mở stage sau không cần chuỗi.
+- **Hỏi lại câu sai ở cuối lượt**, sau vòng ghép nếu có, mỗi câu một lần. Phần này chỉ để luyện: không ghi nhật ký, không đổi điểm và lịch, không tính vào tỷ lệ đúng/sai của lượt.
 - **Sai 3 câu liên tiếp** ở một stage: hiện lại thẻ của từ rồi mới sang câu sau, không trừ thêm điểm.
 - **Kanji chỉ hiện sau thẻ Giới thiệu Hán tự**, kể cả ở thẻ trả lời sai và vòng ghép. Hán Việt hiện từ thẻ Hán Việt ở Stage 3. Từ đã xem thẻ Stage 3 kiểu cũ được coi là đã xem thẻ Hán tự.
 - **Thẻ trả lời sai** hiện cả romaji ở mọi stage, là ngoại lệ của FR-ST-04.

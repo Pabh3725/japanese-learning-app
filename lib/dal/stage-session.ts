@@ -20,6 +20,7 @@ import {
   type KanjiRow,
   type QuestionData,
   type QuestionPools,
+  type StageAnswerRequest,
   type StageWord,
   type WordReveal,
 } from '@/lib/exercise/stage-questions'
@@ -202,25 +203,16 @@ export type SubmitStageAnswerResponse =
     }
   | { status: 'invalid' | 'not_found' | 'stage_changed' | 'conflict' }
 
-export async function submitStageAnswer(input: unknown): Promise<SubmitStageAnswerResponse> {
-  const req = parseStageAnswerRequest(input)
-  if (!req) return { status: 'invalid' }
-
-  const user = await requireUser()
-  const supabase = await createClient()
-
-  // Đáp án thật lấy từ database, không lấy từ trình duyệt
-  const [{ data, error }, daySeq] = await Promise.all([
-    supabase
-      .from('learner_vocabulary')
-      .select(`id, current_stage, kanji_intro_seen_at, vocabularies!inner(${WORD_COLUMNS})`)
-      .eq('id', req.learnerVocabularyId)
-      .eq('user_id', user.id)
-      .maybeSingle(),
-    getNextDaySeq(studyDate(new Date())),
-  ])
+/** Chấm một câu theo đáp án thật trong database, không lấy từ trình duyệt. Không ghi gì. */
+async function gradeOnServer(supabase: Supabase, userId: string, req: StageAnswerRequest) {
+  const { data, error } = await supabase
+    .from('learner_vocabulary')
+    .select(`id, current_stage, kanji_intro_seen_at, vocabularies!inner(${WORD_COLUMNS})`)
+    .eq('id', req.learnerVocabularyId)
+    .eq('user_id', userId)
+    .maybeSingle()
   if (error) throw new Error(`Không đọc được learner_vocabulary: ${error.message}`)
-  if (!data) return { status: 'not_found' }
+  if (!data) return null
 
   const row = data as unknown as { vocabularies: StageWord; current_stage: number; kanji_intro_seen_at: string | null }
   const word = row.vocabularies
@@ -235,7 +227,37 @@ export async function submitStageAnswer(input: unknown): Promise<SubmitStageAnsw
     if (kanjiError) throw new Error(`Không đọc được kanji: ${kanjiError.message}`)
     kanji = kanjiRows ?? []
   }
-  const { outcome, answer } = gradeStageAnswer(word, req.exercise, req.answer, kanji)
+  return { word, reveal: wordReveal(word, known), ...gradeStageAnswer(word, req.exercise, req.answer, kanji) }
+}
+
+export type CheckStageAnswerResponse =
+  | { status: 'graded'; outcome: Outcome; answer: string; reading: string; reveal: WordReveal }
+  | { status: 'invalid' | 'not_found' }
+
+/** Hỏi lại câu sai cuối lượt: chỉ chấm, không ghi nhật ký, không đổi điểm và lịch. */
+export async function checkStageAnswer(input: unknown): Promise<CheckStageAnswerResponse> {
+  const req = parseStageAnswerRequest(input)
+  if (!req) return { status: 'invalid' }
+  const user = await requireUser()
+  const supabase = await createClient()
+  const graded = await gradeOnServer(supabase, user.id, req)
+  if (!graded) return { status: 'not_found' }
+  return { status: 'graded', outcome: graded.outcome, answer: graded.answer, reading: graded.word.reading_kana, reveal: graded.reveal }
+}
+
+export async function submitStageAnswer(input: unknown): Promise<SubmitStageAnswerResponse> {
+  const req = parseStageAnswerRequest(input)
+  if (!req) return { status: 'invalid' }
+
+  const user = await requireUser()
+  const supabase = await createClient()
+
+  const [graded, daySeq] = await Promise.all([
+    gradeOnServer(supabase, user.id, req),
+    getNextDaySeq(studyDate(new Date())),
+  ])
+  if (!graded) return { status: 'not_found' }
+  const { word, outcome, answer, reveal } = graded
 
   const saved = await submitExercise({
     learnerVocabularyId: req.learnerVocabularyId,
@@ -247,7 +269,7 @@ export async function submitStageAnswer(input: unknown): Promise<SubmitStageAnsw
     responseMs: req.responseMs,
   })
   if (saved.status === 'saved' || saved.status === 'duplicate') {
-    return { status: 'graded', outcome, answer, reading: word.reading_kana, reveal: wordReveal(word, known), result: saved.result }
+    return { status: 'graded', outcome, answer, reading: word.reading_kana, reveal, result: saved.result }
   }
   return { status: saved.status }
 }

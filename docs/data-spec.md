@@ -89,7 +89,7 @@ Là các từ riêng biệt, mỗi từ một `code`. Hiện có: 人 (じん / 
 
 ## 5. Quy tắc khi dùng data trong app
 
-1. **Chọn đáp án nhiễu (distractor)**: loại mọi từ có `meaning_vi` trùng với đáp án đúng (so sánh sau khi `trim` và viết thường). Hiện còn 3 nhóm trùng nghĩa và cùng cách đọc (`はし`, `かみ`, `かえます`); không được có hai từ khác cách đọc mà trùng nghĩa, vì đề nghĩa ở câu gõ và câu ghép phải chỉ có một đáp án (có test kiểm tra). Xem mục 8.
+1. **Chọn đáp án nhiễu (distractor)**: loại mọi từ có `meaning_vi` trùng với đáp án đúng (so sánh sau khi `trim` và viết thường). Hiện còn 3 nhóm trùng nghĩa và cùng cách đọc (`はし`, `かみ`, `かえます`), dòng chỉ Kana của các nhóm này đã bị bỏ khỏi lộ trình từ mới (`DUPLICATE_KANA_CODES`) nhưng còn trong dữ liệu vì có thể đã có người đang học; không được có hai từ khác cách đọc mà trùng nghĩa, vì đề nghĩa ở câu gõ và câu ghép phải chỉ có một đáp án (có test kiểm tra). Xem mục 8.
 2. **Từ cùng `expression`**: khi câu hỏi hiển thị `expression` mà không kèm cách đọc, không đưa các từ cùng `expression` làm đáp án nhiễu của nhau.
 3. **`NULL` là trạng thái hợp lệ**: UI phải xử lý được `romaji`, `han_viet` (từ chỉ-kana) và `stroke_count` bằng `NULL`.
 4. **Mảnh nhiễu của câu ghép Kana**: khoảng một nửa là mảnh dễ nhầm với đáp án (khác dấu `か/が`, nhìn giống `あ/お`, khác cỡ `つ/っ`, đọc gần `す/つ`), khoảng một phần ba là mảnh đặc biệt (`ー`, `っ`, hàng `ぱ`, âm ghép), còn lại là chữ thường. Không mảnh nhiễu nào trùng mảnh đáp án.

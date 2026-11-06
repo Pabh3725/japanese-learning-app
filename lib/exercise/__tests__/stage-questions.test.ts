@@ -6,6 +6,7 @@ import { EXERCISES } from '../../learning/rules'
 import { allowedExercises } from '../../learning/stage'
 import type { ExerciseCode, ScoredStage } from '../../learning/types'
 import { convertAtCaret, isHanVietAnswerCorrect, isKanaAnswerCorrect, romajiToKanaInput } from '../answer-normalize'
+import { DUPLICATE_KANA_CODES } from '../../intro/words'
 import { isKatakana, seededRng } from '../questions'
 import { kanaSimilarity, kanjiSimilarity } from '../similarity'
 import {
@@ -62,6 +63,18 @@ const pools: QuestionPools = {
 const find = (expr: string) => words.find((w) => w.expression === expr)!
 
 describe('dữ liệu nghĩa', () => {
+  it('nghĩa không chứa cách đọc của chính từ, để không lộ đáp án', () => {
+    expect(words.filter((w) => w.meaning_vi.includes(w.reading_kana)).map((w) => w.reading_kana)).toEqual([])
+  })
+
+  it('dòng chỉ Kana bị bỏ khỏi lộ trình đều có dòng Kanji cùng cách đọc và cùng nghĩa', () => {
+    for (const code of DUPLICATE_KANA_CODES) {
+      const row = words.find((w) => w.id === code)!
+      expect(row.is_kana_only).toBe(true)
+      expect(words.some((w) => !w.is_kana_only && w.reading_kana === row.reading_kana && w.meaning_vi === row.meaning_vi)).toBe(true)
+    }
+  })
+
   it('mỗi nghĩa chỉ ứng với một cách đọc, để đề nghĩa chỉ có một đáp án khi gõ hoặc ghép', () => {
     const readingsOf = new Map<string, Set<string>>()
     for (const w of words) {

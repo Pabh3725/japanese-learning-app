@@ -3,6 +3,7 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
+import { DUPLICATE_KANA_CODES } from '@/lib/intro/words'
 import { toKanjiList, toVocabList } from '@/lib/library/mappers'
 import type { LibraryData } from '@/lib/library/types'
 
@@ -36,7 +37,10 @@ export async function getLibraryData(): Promise<LibraryData> {
   if (progress.error) throw new Error(`Không đọc được learner_vocabulary: ${progress.error.message}`)
   if (kanji.error) throw new Error(`Không đọc được kanji: ${kanji.error.message}`)
 
-  const vocabulary = toVocabList(vocab.data ?? [], progress.data ?? [])
+  // Dòng trùng chỉ còn hiện với người đang học dòng đó
+  const startedIds = new Set(progress.data?.map((r) => r.vocabulary_id))
+  const visibleVocab = (vocab.data ?? []).filter((r) => !DUPLICATE_KANA_CODES.includes(r.code) || startedIds.has(r.id))
+  const vocabulary = toVocabList(visibleVocab, progress.data ?? [])
   const kanjiList = toKanjiList(kanji.data ?? [])
 
   if (vocabulary.invalid || kanjiList.invalid) {

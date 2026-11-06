@@ -4,7 +4,7 @@
 // Câu chọn hiện kết quả ngay và lưu ở nền; câu ghép và câu gõ chờ server chấm vì đáp án không có ở trình duyệt.
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { submitMatchPenaltiesAction, submitStageAnswerAction } from '@/app/learn/actions'
+import { checkStageAnswerAction, submitMatchPenaltiesAction, submitStageAnswerAction } from '@/app/learn/actions'
 import { WRONG_ANSWER_NOTE } from '@/components/learning/exercise-footer'
 import { SessionComplete } from '@/components/learning/session-complete'
 import { SessionHeader } from '@/components/learning/session-header'
@@ -27,10 +27,12 @@ import type { AssemblyStep, ChoiceStep, RecallStep } from '@/lib/types'
 
 const SAVE_ERROR = "Couldn't check your answer. Check your connection and try again."
 const SAVE_WARNING = "Some answers couldn't be saved. Check your connection."
+const RETRY_NOTE = 'Practice only: this does not change your points.'
 
 type ChoiceQ = Extract<StageQuestion, { kind: 'choice' }>
 type AssemblyQ = Extract<StageQuestion, { kind: 'assembly' }>
 type TypingQ = Extract<StageQuestion, { kind: 'typing' }>
+type AnswerQ = ChoiceQ | AssemblyQ | TypingQ
 
 function toChoiceStep(q: ChoiceQ, stageLabel: string, note: string): ChoiceStep {
   return {
@@ -123,6 +125,8 @@ export function StageSession({ stage, questions, nextDueAt, kanjiIntroWaiting }:
   // Thẻ xem lại sau khi sai liên tiếp, hiện trước câu kế tiếp
   const [relearn, setRelearn] = useState<WordReveal | null>(null)
   const lastReveal = useRef<WordReveal | undefined>(undefined)
+  // Câu sai trong lượt, hỏi lại một lần ở cuối. Chỉ để luyện: không ghi nhật ký, không đổi điểm và lịch.
+  const [retries, setRetries] = useState<AnswerQ[]>([])
   const shownAt = useRef(0)
   // Lưu TUẦN TỰ: câu sau chỉ gửi khi câu trước lưu xong → server cấp day_seq đúng thứ tự,
   // luật giãn cách đọc đúng câu trước. Câu chọn không phải chờ: bấm Continue được ngay.
@@ -163,7 +167,7 @@ export function StageSession({ stage, questions, nextDueAt, kanjiIntroWaiting }:
     )
   }
 
-  if (relearn && index >= questions.length) {
+  if (relearn && index >= questions.length + retries.length) {
     return (
       <div className="flex min-h-dvh flex-col">
         <RelearnExercise key={relearn.kana} reveal={relearn} onContinue={() => setRelearn(null)} />
@@ -171,7 +175,10 @@ export function StageSession({ stage, questions, nextDueAt, kanjiIntroWaiting }:
     )
   }
 
-  if (index >= questions.length) {
+  const queue: StageQuestion[] = [...questions, ...retries]
+  const isRetry = index >= questions.length
+
+  if (index >= queue.length) {
     const correct = results.filter(Boolean).length
     const wrong = results.length - correct
     const accuracy = results.length > 0 ? Math.round((correct / results.length) * 100) : 0
@@ -193,18 +200,21 @@ export function StageSession({ stage, questions, nextDueAt, kanjiIntroWaiting }:
     )
   }
 
-  const q = questions[index]
+  const q = queue[index]
   const next = () => setIndex((i) => i + 1)
   /** Sai lần thứ 3 liên tiếp thì xem lại từ rồi mới sang câu sau. */
   const afterAnswer = (correct: boolean, reveal: WordReveal | undefined) => {
     next()
-    if (!correct && q.kind !== 'match' && reveal && shouldRelearn(q.wrongStreak + 1)) setRelearn(reveal)
+    if (correct || q.kind === 'match' || isRetry) return
+    setRetries((list) => [...list, q])
+    if (reveal && shouldRelearn(q.wrongStreak + 1)) setRelearn(reveal)
   }
   const responseMs = () => Date.now() - shownAt.current
 
   const answerChoice = (current: ChoiceQ, exercise: string) => (chosen: string) => {
     // Sai cũng đọc, để người học nghe đúng từ cần đọc lại
     speak(current.speak)
+    if (isRetry) return
     setResults((list) => [...list, chosen === current.answer])
     const payload = {
       learnerVocabularyId: current.learnerVocabularyId,
@@ -236,6 +246,19 @@ export function StageSession({ stage, questions, nextDueAt, kanjiIntroWaiting }:
     const elapsed = responseMs()
     try {
       await saveQueue.current
+      if (isRetry) {
+        const checked = await checkStageAnswerAction({
+          learnerVocabularyId: current.learnerVocabularyId,
+          stage,
+          exercise: current.exercise,
+          answer: given,
+          clientEventId: current.clientEventId,
+        })
+        if (checked.status !== 'graded') return { error: SAVE_ERROR }
+        speak(checked.reading)
+        lastReveal.current = checked.reveal
+        return { correct: checked.outcome === 'correct', answer: [checked.answer], explanation: RETRY_NOTE, reveal: checked.reveal }
+      }
       const res = await submitStageAnswerAction({
         learnerVocabularyId: current.learnerVocabularyId,
         stage,
@@ -277,6 +300,8 @@ export function StageSession({ stage, questions, nextDueAt, kanjiIntroWaiting }:
     next()
   }
 
+  // Cùng một câu hỏi lại nên cần key khác, để màn hình bắt đầu mới
+  const bodyKey = `${q.clientEventId}${isRetry ? '-retry' : ''}`
   let body: React.ReactNode
   if (q.kind === 'match') {
     body = <MatchRoundExercise key={q.clientEventId} round={q} onDone={finishMatch} />
@@ -289,10 +314,10 @@ export function StageSession({ stage, questions, nextDueAt, kanjiIntroWaiting }:
       const useAudio = listening && voice === 'available'
       const fallback = listening && !useAudio
       const exercise = fallback && q.noVoice ? q.noVoice.exercise : q.exercise
-      const step = toChoiceStep(q, stageLabel, notes[q.clientEventId] ?? '')
+      const step = toChoiceStep(q, stageLabel, isRetry ? RETRY_NOTE : (notes[q.clientEventId] ?? ''))
       body = (
         <ChoiceExercise
-          key={q.clientEventId}
+          key={bodyKey}
           step={fallback && q.noVoice ? { ...step, question: q.noVoice.question } : step}
           promptNode={useAudio ? <ListeningPrompt kana={q.listenTo!} /> : undefined}
           onAnswer={answerChoice(q, exercise)}
@@ -306,7 +331,7 @@ export function StageSession({ stage, questions, nextDueAt, kanjiIntroWaiting }:
   } else if (q.kind === 'assembly') {
     body = (
       <AssemblyExercise
-        key={q.clientEventId}
+        key={bodyKey}
         step={toAssemblyStep(q, stageLabel)}
         onComplete={(correct) => afterAnswer(correct, lastReveal.current)}
         onGrade={gradeOnServer(q)}
@@ -316,7 +341,7 @@ export function StageSession({ stage, questions, nextDueAt, kanjiIntroWaiting }:
   } else {
     body = (
       <RecallExercise
-        key={q.clientEventId}
+        key={bodyKey}
         step={toRecallStep(q, stageLabel)}
         onComplete={(correct) => afterAnswer(correct, lastReveal.current)}
         onGrade={gradeOnServer(q)}
@@ -330,9 +355,9 @@ export function StageSession({ stage, questions, nextDueAt, kanjiIntroWaiting }:
       <SessionHeader
         backHref="/learn"
         label={stageLabel}
-        sublabel={q.kind === 'match' ? 'Matching round' : `Step ${index + 1} of ${questions.length}`}
+        sublabel={q.kind === 'match' ? 'Matching round' : isRetry ? `Try again · ${index - questions.length + 1} of ${retries.length}` : `Step ${index + 1} of ${queue.length}`}
         current={index}
-        total={questions.length}
+        total={queue.length}
       />
       {warning && <p role="alert" className="mx-auto mt-3 w-full max-w-2xl px-4 text-sm text-error">{warning}</p>}
       {relearn ? <RelearnExercise key={relearn.kana} reveal={relearn} onContinue={() => setRelearn(null)} /> : body}

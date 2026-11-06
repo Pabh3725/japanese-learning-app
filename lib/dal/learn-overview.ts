@@ -2,6 +2,7 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
+import { DUPLICATE_KANA_CODES } from '@/lib/intro/words'
 import { newPerDayOf, remainingNewToday } from '@/lib/learning/new-words'
 import { RULES_V4 } from '@/lib/learning/rules'
 import { reachedKanjiIntro } from '@/lib/learning/stage'
@@ -32,8 +33,9 @@ export async function getLearnOverview(): Promise<LearnOverview> {
   const user = await requireUser()
   const supabase = await createClient()
 
-  const [total, started, excluded, settings, kanjiPending] = await Promise.all([
+  const [total, duplicates, started, excluded, settings, kanjiPending] = await Promise.all([
     supabase.from('vocabularies').select('id', { count: 'exact', head: true }),
+    supabase.from('vocabularies').select('id').in('code', [...DUPLICATE_KANA_CODES]),
     supabase.from('learner_vocabulary').select('vocabulary_id, current_stage, learning_status, created_at').eq('user_id', user.id).range(0, PAGE - 1),
     supabase
       .from('learner_vocabulary_exclusions')
@@ -54,6 +56,7 @@ export async function getLearnOverview(): Promise<LearnOverview> {
       .range(0, PAGE - 1),
   ])
   if (total.error) throw new Error(`Không đọc được vocabularies: ${total.error.message}`)
+  if (duplicates.error) throw new Error(`Không đọc được vocabularies: ${duplicates.error.message}`)
   if (started.error) throw new Error(`Không đọc được learner_vocabulary: ${started.error.message}`)
   if (excluded.error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${excluded.error.message}`)
   if (settings.error) throw new Error(`Không đọc được learner_settings: ${settings.error.message}`)
@@ -80,7 +83,9 @@ export async function getLearnOverview(): Promise<LearnOverview> {
   const excludedIds = new Set(excluded.data?.map((r) => r.vocabulary_id))
   const active = (started.data ?? []).filter((r) => !excludedIds.has(r.vocabulary_id))
   const startedIds = new Set(started.data?.map((r) => r.vocabulary_id))
-  const count = total.count ?? 0
+  // Dòng trùng không tính vào lộ trình, trừ khi người học đã bắt đầu dòng đó
+  const hiddenIds = (duplicates.data ?? []).map((r) => r.id).filter((id) => !startedIds.has(id))
+  const count = (total.count ?? 0) - hiddenIds.length
 
   const due = { 2: 0, 4: 0, 5: 0 }
   for (const row of dueRows) {
