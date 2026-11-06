@@ -8,7 +8,7 @@ export default async function LibraryPage() {
 
   return (
     <>
-      <PageHeader eyebrow="辞書" title="Library" description="Your N5 roadmap, with your progress on every word." />
+      <PageHeader eyebrow="辞書" title="Library" description="Every word on your path, with your progress. N5 is lessons 1–25, N4 is lessons 26–48." />
       <StarredWordsProvider ids={starredIds}>
         <LibraryBrowser vocabulary={vocabulary} kanji={kanji} />
       </StarredWordsProvider>

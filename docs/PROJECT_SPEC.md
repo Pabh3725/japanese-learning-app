@@ -1385,6 +1385,7 @@ Thay các trang từng stage bằng một luồng tại `/learn/session`; đư�
   - **Vòng học thêm:** tối đa 4 câu mỗi từ, dạng bài theo những gì đã giới thiệu; mỗi phiên Learn chèn tối đa 3 câu. Chỉ ghi `practice_attempts` (`star_round`), không đổi điểm và lịch nào, không tính vào giãn cách hay trần câu Stage. Xong vòng thì không lặp lại cho tới khi đánh sao lại.
   - **Card riêng `vocab.star_recall`:** có lịch FSRS và điểm riêng, chỉ gõ và ghép từ trí nhớ, không bị bỏ theo điểm. Xếp sau Card thường trong Review, tính vào trần Review, không tính vào ngưỡng chặn từ mới.
   - **Bỏ sao:** người học tự bỏ. Card riêng tạm dừng và giữ lịch; đánh sao lại thì chạy tiếp và có vòng học thêm mới.
+- **Khu Starred words (`/learn/starred`):** lối vào ở trang Learn, liệt kê từ có sao với tiến độ vòng học thêm và Card riêng. Có phiên riêng chỉ gồm câu vòng học thêm; xong vòng thì người học tự bắt đầu vòng mới. Không đổi điểm và lịch nào.
 - **Học lại Card:** ở trang chi tiết từ; Card đến hạn ngay, Card đã bỏ cũng được đưa lại. Chỉ đổi `due_at` và `retired_at`, điểm và FSRS khác giữ nguyên. Đây là ngoại lệ có chủ đích của luật "chỉ Official Review đổi FSRS", vì không có lần chấm nào.
 - **Học lại Stage:** chỉ cho stage đã hoàn tất (2, 4, 5), có xác nhận. Mở lại stage, điểm còn thiếu 3 so với mốc hoàn tất, câu vào Learn ngay. `current_stage` và Card đã có giữ nguyên; từ đã xong lộ trình trở lại trạng thái đang học cho tới khi hoàn tất lại.
 
@@ -1393,6 +1394,7 @@ Ngữ pháp và Thể động từ hiện chỉ là **bản xem trước giao di
 ### 18.3d Từ vựng theo bài giáo trình — CONFIRMED (2026-11-06)
 
 - `vocabularies.lesson` ghi bài của từng từ; `sort_order` đi theo đúng thứ tự trong từng bài, bài 1–48 theo danh sách chủ dự án cung cấp. File nguồn chỉ có tới bài 48.
+- Bài 1–25 là N5 (982 từ), bài 26–48 là N4 (890 từ); trang Learn và Library tách tiến độ và bộ lọc theo cấp.
 - Bài 1–25 là `jlpt_level` 5, bài 26–48 là 4. Từ không có trong danh sách vẫn giữ, đứng sau từ đứng trước nó trong thứ tự cũ.
 - Người học vẫn tự chọn số từ mỗi ngày; trang Learn hiện bài đang học, Library lọc được theo bài.
 - 307 chữ Kanji thêm cho đợt này chưa có âm On/Kun, phải bổ sung và rà ở KJ-01 trước khi mở khu Kanji.

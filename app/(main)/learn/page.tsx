@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Play } from 'lucide-react'
+import { ArrowRight, Play, Star } from 'lucide-react'
 import { actionButton } from '@/components/action-button'
 import { PageHeader } from '@/components/page-header'
 import { ProgressBar } from '@/components/progress-bar'
@@ -63,17 +63,35 @@ export default async function LearnPage() {
         </div>
       </section>
 
-      <section aria-labelledby="path-title" className="mt-8 rounded-3xl border border-border bg-card p-6">
-        <h2 id="path-title" className="font-semibold">JLPT N5 path</h2>
-        <div className="mt-5">
-          <div className="mb-2 flex justify-between text-sm">
-            <span className="text-subtle">Vocabulary completed</span>
-            <span className="tabular-nums text-muted-foreground">
-              {overview.completed} / {overview.total}
+      <Link href="/learn/starred" className="mt-8 flex items-center justify-between gap-4 rounded-3xl border border-border bg-card p-6 transition-colors hover:border-[#3b4250]">
+        <span className="flex items-center gap-3">
+          <Star className={cn('size-6 shrink-0 text-yellow', overview.starredCount > 0 && 'fill-current')} aria-hidden="true" />
+          <span>
+            <span className="block font-semibold">Starred words</span>
+            <span className="block text-sm text-muted-foreground">
+              {overview.starredCount > 0 ? `${overview.starredCount} ${overview.starredCount === 1 ? 'word' : 'words'} with extra practice` : 'Star the words you want to practice more'}
             </span>
-          </div>
-          <ProgressBar value={overview.completed} max={overview.total} tone="cyan" label="Vocabulary progress" />
-          <p className="mt-2 text-sm text-muted-foreground">{overview.inProgress} in progress</p>
+          </span>
+        </span>
+        <ArrowRight className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+      </Link>
+
+      <section aria-labelledby="path-title" className="mt-8 rounded-3xl border border-border bg-card p-6">
+        <h2 id="path-title" className="font-semibold">Your JLPT path</h2>
+        <div className="mt-5 flex flex-col gap-6">
+          {overview.levels.map((level) => (
+            <div key={level.level}>
+              <div className="mb-2 flex justify-between gap-3 text-sm">
+                <span className="text-subtle">
+                  <span className="font-medium text-foreground">{level.level}</span>
+                  {level.firstLesson !== null && ` · Lessons ${level.firstLesson}–${level.lastLesson}`}
+                </span>
+                <span className="tabular-nums text-muted-foreground">{level.completed} / {level.total}</span>
+              </div>
+              <ProgressBar value={level.completed} max={level.total} tone={level.level === 'N5' ? 'cyan' : 'pink'} label={`${level.level} vocabulary progress`} />
+            </div>
+          ))}
+          <p className="text-sm text-muted-foreground">{overview.inProgress} in progress</p>
         </div>
       </section>
 

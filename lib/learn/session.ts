@@ -22,6 +22,34 @@ export function shouldAddBossRound(answeredToday: number, questionsInSession: nu
   return Math.floor((answeredToday + questionsInSession) / QUESTIONS_PER_BOSS) > Math.floor(answeredToday / QUESTIONS_PER_BOSS)
 }
 
+export interface PathLevel {
+  level: 'N5' | 'N4'
+  completed: number
+  total: number
+  firstLesson: number | null
+  lastLesson: number | null
+}
+
+/** Tiến độ tách theo cấp JLPT, N5 trước. Từ đã biết không còn trong lộ trình nên không tính. */
+export function pathLevels(
+  rows: readonly { id: string; lesson: number | null; jlpt_level: number | null }[],
+  completedIds: ReadonlySet<string>,
+  excludedIds: ReadonlySet<string>,
+): PathLevel[] {
+  return ([[5, 'N5'], [4, 'N4']] as const).flatMap(([number, level]) => {
+    const words = rows.filter((r) => r.jlpt_level === number && !excludedIds.has(r.id))
+    if (words.length === 0) return []
+    const lessons = words.flatMap((r) => (r.lesson === null ? [] : [r.lesson]))
+    return [{
+      level,
+      completed: words.filter((r) => completedIds.has(r.id)).length,
+      total: words.length,
+      firstLesson: lessons.length > 0 ? Math.min(...lessons) : null,
+      lastLesson: lessons.length > 0 ? Math.max(...lessons) : null,
+    }]
+  })
+}
+
 export type NewWordsBlock = 'cards' | 'stage' | null
 
 /** Từ mới dừng khi Card đến hạn đạt ngưỡng, hoặc câu Stage đến hẹn đạt trần. */

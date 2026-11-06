@@ -73,14 +73,16 @@ export function LibraryBrowser({ vocabulary, kanji }: { vocabulary: VocabListIte
   const [status, setStatus] = useState<StatusFilter>('all')
   const starred = useStarredWords()
   const [lesson, setLesson] = useState<number | 'all'>('all')
-  const lessons = useMemo(() => [...new Set(vocabulary.flatMap((v) => (v.lesson === null ? [] : [v.lesson])))].sort((a, b) => a - b), [vocabulary])
+  const [level, setLevel] = useState<string>('all')
+  const levels = useMemo(() => [...new Set(vocabulary.map((v) => v.jlpt))].sort().reverse(), [vocabulary])
+  const lessons = useMemo(() => [...new Set(vocabulary.filter((v) => level === 'all' || v.jlpt === level).flatMap((v) => (v.lesson === null ? [] : [v.lesson])))].sort((a, b) => a - b), [vocabulary])
   const [selecting, setSelecting] = useState(false)
   const [selected, setSelected] = useState<ReadonlySet<string>>(() => new Set())
   const [error, setError] = useState<string | null>(null)
   const [saving, startSaving] = useTransition()
   const router = useRouter()
 
-  const vocabResults = useMemo(() => vocabulary.filter((v) => matchesVocab(v, query) && matchesStatus(v, status, starred) && (lesson === 'all' || v.lesson === lesson)), [vocabulary, query, status, lesson, starred])
+  const vocabResults = useMemo(() => vocabulary.filter((v) => matchesVocab(v, query) && matchesStatus(v, status, starred) && (level === 'all' || v.jlpt === level) && (lesson === 'all' || v.lesson === lesson)), [vocabulary, query, status, level, lesson, starred])
   const shown = vocabResults.slice(0, visible)
   const allShownSelected = shown.length > 0 && shown.every((v) => selected.has(v.id))
 
@@ -187,6 +189,21 @@ export function LibraryBrowser({ vocabulary, kanji }: { vocabulary: VocabListIte
             ))}
           </div>
           <label className="flex items-center gap-2 text-sm text-subtle">
+            Level
+            <select
+              value={level}
+              onChange={(e) => {
+                setLevel(e.target.value)
+                setLesson('all')
+                setVisible(PAGE_SIZE)
+              }}
+              className="h-9 rounded-xl border border-border bg-card px-2 text-sm text-foreground"
+            >
+              <option value="all">All</option>
+              {levels.map((l) => <option key={l} value={l}>{l}</option>)}
+            </select>
+          </label>
+          <label className="flex items-center gap-2 text-sm text-subtle">
             Lesson
             <select
               value={lesson}
@@ -257,7 +274,7 @@ export function LibraryBrowser({ vocabulary, kanji }: { vocabulary: VocabListIte
                     <Link href={`/library/${v.code}`} lang="ja" className="font-jp text-3xl font-medium hover:text-primary">{v.expression}</Link>
                     <span className="flex items-center gap-1">
                       <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground tabular-nums">
-                        {v.lesson === null ? `#${v.sortOrder}` : `Lesson ${v.lesson}`}
+                        {v.jlpt} · {v.lesson === null ? `#${v.sortOrder}` : `Lesson ${v.lesson}`}
                       </span>
                       <StarButton vocabularyId={v.id} />
                     </span>

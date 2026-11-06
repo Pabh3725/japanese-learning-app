@@ -3,8 +3,8 @@ import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { readDailyLimits } from '@/lib/dal/daily-limits'
-import { readStarRound } from '@/lib/dal/star-relearn'
-import { newWordsBlockedBy, sessionsFor, type NewWordsBlock } from '@/lib/learn/session'
+import { readStarRound, readStarredIds } from '@/lib/dal/star-relearn'
+import { newWordsBlockedBy, sessionsFor, type NewWordsBlock, pathLevels, type PathLevel } from '@/lib/learn/session'
 import { countMetToday, newPerDayOf, newWordsForToday, remainingNewToday } from '@/lib/learning/new-words'
 import { RULES_V4 } from '@/lib/learning/rules'
 import { reachedKanjiIntro } from '@/lib/learning/stage'
@@ -25,6 +25,10 @@ export interface LearnOverview {
   sessions: number
   /** Lý do hôm nay không có thêm từ mới. */
   block: NewWordsBlock
+  /** Tiến độ tách theo cấp: N5 là bài 1–25, N4 từ bài 26. */
+  levels: PathLevel[]
+  /** Số từ có sao, không tính từ đã biết. */
+  starredCount: number
   /** Số câu Learn đã trả lời hôm nay. */
   answeredToday: number
   /** Số từ có thể mượn thêm của ngày mai. */
@@ -46,12 +50,12 @@ type DueRow = {
 }
 const DAY_MS = 86_400_000
 
-type LessonRow = { id: string; lesson: number | null }
+type LessonRow = { id: string; lesson: number | null; jlpt_level: number | null }
 
 async function readLessons(supabase: Awaited<ReturnType<typeof createClient>>): Promise<LessonRow[]> {
   const rows: LessonRow[] = []
   for (let from = 0; ; from += PAGE) {
-    const { data, error } = await supabase.from('vocabularies').select('id, lesson').order('sort_order').range(from, from + PAGE - 1)
+    const { data, error } = await supabase.from('vocabularies').select('id, lesson, jlpt_level').order('sort_order').range(from, from + PAGE - 1)
     if (error) throw new Error(`Không đọc được vocabularies: ${error.message}`)
     rows.push(...(data ?? []))
     if ((data?.length ?? 0) < PAGE) return rows
@@ -149,6 +153,7 @@ export async function getLearnOverview(): Promise<LearnOverview> {
   // Câu vòng học thêm của từ có sao chạy song song, không tính vào trần câu Stage
   const starItems = await readStarRound<{ is_kana_only: boolean; han_viet: string | null }>(supabase, user.id, 'is_kana_only, han_viet', excludedIds)
   const starLeft = starItems.reduce((sum, item) => sum + item.exercises.length - item.answered, 0)
+  const starredIds = await readStarredIds(supabase, user.id)
   const questionsToday = Math.min(dueTotal, Math.max(0, limits.stageCap - limits.answeredToday)) + starLeft
 
   return {
@@ -158,6 +163,8 @@ export async function getLearnOverview(): Promise<LearnOverview> {
     questionsToday,
     sessions: sessionsFor(questionsToday + newToday + stage3Waiting),
     block,
+    levels: pathLevels(lessons, new Set(active.filter((r) => r.learning_status === 'initial_complete').map((r) => r.vocabulary_id)), excludedIds),
+    starredCount: starredIds.filter((id) => !excludedIds.has(id)).length,
     answeredToday: limits.answeredToday,
     canBorrow: block ? 0 : Math.min(left - newToday, Math.max(0, newPerDay - limits.borrowedForNext)),
     newPerDay,
