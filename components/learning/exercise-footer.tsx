@@ -1,3 +1,6 @@
+'use client'
+
+import { useEffect, useEffectEvent, useRef } from 'react'
 import { CheckCircle2, XCircle } from 'lucide-react'
 import { actionButton } from '@/components/action-button'
 import { cn } from '@/lib/utils'
@@ -6,6 +9,28 @@ export type CheckStatus = 'idle' | 'correct' | 'incorrect'
 
 /** Câu nhắc khi trả lời sai ở các màn học thật. */
 export const WRONG_ANSWER_NOTE = 'Hãy đọc lại 5 lần để nhớ từ nha'
+
+/**
+ * Enter hoặc Space bấm nút chính của màn hình, dù con trỏ đang ở đâu.
+ * Đang focus đúng nút đó thì để trình duyệt tự bấm, tránh bấm hai lần. Giữ phím không tính, để phím Enter
+ * vừa dùng nộp bài không trôi sang câu sau.
+ */
+function useContinueKeys(enabled: boolean, onPress: () => void, buttonRef: React.RefObject<HTMLButtonElement | null>) {
+  const onKey = useEffectEvent((e: KeyboardEvent) => {
+    if (!enabled || e.repeat || e.isComposing || e.ctrlKey || e.metaKey || e.altKey) return
+    if (e.key !== 'Enter' && e.key !== ' ') return
+    if (e.target === buttonRef.current || e.target instanceof HTMLAnchorElement) return
+    // Ô nhập còn đang sửa được thì Space là gõ chữ, Enter là nộp bài
+    if (e.target instanceof HTMLInputElement && !e.target.readOnly) return
+    e.preventDefault()
+    onPress()
+  })
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => onKey(e)
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
+}
 
 export function ContinueFooter({
   label,
@@ -18,11 +43,14 @@ export function ContinueFooter({
   disabled?: boolean
   hint?: string
 }) {
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  useContinueKeys(!disabled, onClick, buttonRef)
+
   return (
     <div className="border-t border-border bg-background">
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-3 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:flex-row md:items-center md:justify-between md:py-6">
         <p className="text-sm text-muted-foreground md:min-h-0">{hint}</p>
-        <button type="button" onClick={onClick} disabled={disabled} className={cn(actionButton({ size: 'lg' }), 'w-full md:w-48')}>
+        <button ref={buttonRef} type="button" onClick={onClick} disabled={disabled} className={cn(actionButton({ size: 'lg' }), 'w-full md:w-48')}>
           {label}
         </button>
       </div>
@@ -55,6 +83,8 @@ export function ExerciseFooter({
   secondary,
 }: ExerciseFooterProps) {
   const checked = status !== 'idle'
+  const continueRef = useRef<HTMLButtonElement>(null)
+  useContinueKeys(checked, onContinue, continueRef)
   return (
     <div
       className={cn(
@@ -91,6 +121,7 @@ export function ExerciseFooter({
         </div>
         {checked ? (
           <button
+            ref={continueRef}
             type="button"
             onClick={onContinue}
             autoFocus

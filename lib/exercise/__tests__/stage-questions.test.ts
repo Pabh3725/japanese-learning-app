@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { EXERCISES } from '../../learning/rules'
 import { allowedExercises } from '../../learning/stage'
 import type { ExerciseCode, ScoredStage } from '../../learning/types'
-import { isHanVietAnswerCorrect, isKanaAnswerCorrect, romajiToKanaInput } from '../answer-normalize'
+import { convertAtCaret, isHanVietAnswerCorrect, isKanaAnswerCorrect, romajiToKanaInput } from '../answer-normalize'
 import { isKatakana, seededRng } from '../questions'
 import { kanaSimilarity, kanjiSimilarity } from '../similarity'
 import {
@@ -121,6 +121,20 @@ describe('Gõ romaji → kana (VOC-08)', () => {
     expect(isKanaAnswerCorrect(romajiToKanaInput('kiotsukemasu', 'hiragana'), 'きをつけます')).toBe(true)
   })
 
+  it('sửa ở giữa từ: con trỏ ở ngay sau chữ vừa gõ, phần sau không đổi', () => {
+    // がこう, đặt con trỏ sau が, gõ っ bằng ltu
+    expect(convertAtCaret('がltuこう', 4, 'hiragana')).toEqual({ value: 'がっこう', caret: 2 })
+  })
+
+  it('gõ ở cuối: con trỏ ở cuối', () => {
+    expect(convertAtCaret('がっこu', 4, 'hiragana')).toEqual({ value: 'がっこう', caret: 4 })
+  })
+
+  it('nộp khi bàn phím còn giữ romaji vẫn chấm đúng', () => {
+    expect(isKanaAnswerCorrect('gakkou', 'がっこう')).toBe(true)
+    expect(isKanaAnswerCorrect('terebi', 'テレビ')).toBe(true)
+  })
+
   it('sai hoặc rỗng thì sai', () => {
     expect(isKanaAnswerCorrect('がくせい', 'がっこう')).toBe(false)
     expect(isKanaAnswerCorrect('  ', 'がっこう')).toBe(false)
@@ -195,7 +209,7 @@ describe('chooseStageExercise — ưu tiên phần còn thiếu (R9)', () => {
   })
 
   it('Stage 5: chọn dạng của kỹ năng còn thiếu', () => {
-    const earned: ExerciseCode[] = ['meaning_recognition_6', 'kana_free_recall', 'kanji_recognition_6']
+    const earned: ExerciseCode[] = ['meaning_assembly', 'kana_free_recall', 'kanji_assembly_nohint']
     for (let seed = 1; seed < 20; seed++) {
       expect(EXERCISES[chooseStageExercise(GAKKOU, 5, earned, seededRng(seed))].skill).toBe('S4')
     }
@@ -206,9 +220,29 @@ describe('chooseStageExercise — ưu tiên phần còn thiếu (R9)', () => {
     expect(skills).toEqual(new Set(['S1', 'S2']))
   })
 
-  it('từ nghĩa phức tạp không có ghép nghĩa', () => {
+  it('nghĩa phức tạp: không ghép nghĩa, vẫn chọn 1/6 để đạt kỹ năng Nghĩa', () => {
     const complex = words.find((w) => meaningPieces(w.meaning_vi) === null)!
     expect(usableExercises(complex, 5)).not.toContain('meaning_assembly')
+    expect(usableExercises(complex, 5)).toContain('meaning_recognition_6')
+  })
+
+  it('nghĩa đơn giản: ghép nghĩa, không còn chọn 1/6', () => {
+    expect(usableExercises(GAKKOU, 5)).toContain('meaning_assembly')
+    expect(usableExercises(GAKKOU, 5)).not.toContain('meaning_recognition_6')
+  })
+
+  it('không còn chọn Kanji 1/6; kỹ năng Kanji đạt qua ghép', () => {
+    expect(usableExercises(GAKKOU, 5)).not.toContain('kanji_recognition_6')
+    expect(usableExercises(GAKKOU, 5)).toContain('kanji_assembly_nohint')
+  })
+
+  it('toàn bộ data: mọi từ đều có dạng bài cho mọi kỹ năng bắt buộc ở Stage 5', () => {
+    for (const w of words) {
+      const skills = new Set(usableExercises(w, 5).map((code) => EXERCISES[code].skill))
+      for (const skill of w.is_kana_only ? ['S1', 'S2'] : ['S1', 'S2', 'S3', 'S4']) {
+        expect(skills.has(skill as never), `${w.expression} ${skill}`).toBe(true)
+      }
+    }
   })
 })
 

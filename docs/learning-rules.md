@@ -119,9 +119,9 @@ Dạng bài thuộc Skill nào ở Stage 5:
 
 | Skill | Dạng bài Stage 5 |
 | --- | --- |
-| S1 Meaning | `meaning_assembly`, `meaning_recognition_6` |
+| S1 Meaning | `meaning_assembly` (nghĩa đơn giản); `meaning_recognition_6` (nghĩa không ghép được) |
 | S2 Kana | `kana_free_recall` (gõ Romaji → Kana/Katakana) |
-| S3 Kanji | `kanji_assembly_nohint`, `kanji_recognition_6` |
+| S3 Kanji | `kanji_assembly_nohint` (bỏ chọn 1/6, spec §18.3a) |
 | S4 Hán Việt | `hanviet_free_recall`, `hanviet_recognition`, `hanviet_assembly` |
 
 Khi mở stage sau: điểm stage hiện tại **giữ nguyên**, stage kế tiếp theo R1 có điểm 0 và lịch mới. — CONFIRMED (V8)

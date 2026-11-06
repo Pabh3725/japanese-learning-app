@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { ExerciseFooter, type CheckStatus } from '@/components/learning/exercise-footer'
 import { ExercisePanel } from '@/components/learning/exercise-panel'
 import { PromptDisplay } from '@/components/learning/prompt-display'
 import type { AssemblyGrade } from '@/components/learning/steps/assembly-exercise'
-import { normalizeHanViet, romajiToKanaInput } from '@/lib/exercise/answer-normalize'
+import { convertAtCaret, normalizeHanViet } from '@/lib/exercise/answer-normalize'
 import type { RecallStep } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -47,9 +47,32 @@ export function RecallExercise({ step, onComplete, onGrade, wrongNote }: RecallE
     setStatus(result.correct ? 'correct' : 'incorrect')
   }
 
-  const onChange = (next: string) => {
-    if (step.input === 'hiragana' || step.input === 'katakana') setValue(romajiToKanaInput(next, step.input))
-    else setValue(next)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const composing = useRef(false)
+  const nextCaret = useRef<number | null>(null)
+
+  // Đặt lại con trỏ sau khi React đã gán giá trị mới vào ô
+  useLayoutEffect(() => {
+    if (nextCaret.current === null || !inputRef.current) return
+    inputRef.current.setSelectionRange(nextCaret.current, nextCaret.current)
+    nextCaret.current = null
+  }, [value])
+
+  const convert = (raw: string, caret: number | null) => {
+    if (step.input !== 'hiragana' && step.input !== 'katakana') {
+      setValue(raw)
+      return
+    }
+    const result = convertAtCaret(raw, caret ?? raw.length, step.input)
+    nextCaret.current = result.caret
+    setValue(result.value)
+  }
+
+  // Bàn phím điện thoại và bộ gõ giữ chữ đang soạn. Đổi chữ lúc này làm hỏng phần đang soạn,
+  // chữ bị nhảy hoặc lặp, nên chỉ đổi khi soạn xong. Server vẫn chấm đúng nếu nộp khi còn là romaji.
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (composing.current) setValue(e.target.value)
+    else convert(e.target.value, e.target.selectionStart)
   }
 
   return (
@@ -68,8 +91,16 @@ export function RecallExercise({ step, onComplete, onGrade, wrongNote }: RecallE
           </label>
           <input
             id={`recall-${step.id}`}
+            ref={inputRef}
             value={value}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={onChange}
+            onCompositionStart={() => {
+              composing.current = true
+            }}
+            onCompositionEnd={(e) => {
+              composing.current = false
+              convert(e.currentTarget.value, e.currentTarget.selectionStart)
+            }}
             onKeyDown={(e) => {
               // Enter lúc đang dùng bộ gõ tiếng Nhật chỉ để xác nhận chữ, không phải nộp bài
               if (e.key === 'Enter' && (e.nativeEvent.isComposing || e.keyCode === 229)) e.preventDefault()
@@ -78,6 +109,7 @@ export function RecallExercise({ step, onComplete, onGrade, wrongNote }: RecallE
             autoFocus
             autoComplete="off"
             autoCapitalize="off"
+            autoCorrect="off"
             spellCheck={false}
             lang={step.input === 'text' ? undefined : 'ja'}
             placeholder={step.placeholder}

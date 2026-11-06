@@ -76,6 +76,7 @@ export async function submitExercise(input: unknown): Promise<SubmitExerciseResp
       .select('day_seq')
       .eq('learner_vocabulary_id', lvId)
       .eq('study_date', today)
+      .eq('source', 'lesson') // câu vòng ghép ô không tính giãn cách
       .order('day_seq', { ascending: false })
       .limit(1),
   ])

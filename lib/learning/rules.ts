@@ -22,6 +22,8 @@ export const RULES_V3 = {
   },
   /** Lịch FSRS của Stage. Không giới hạn thì đúng mọi câu phải hơn 35 năm mới đạt 10 điểm. */
   stageSchedule: { maximumIntervalDays: 2 },
+  /** Vòng ghép ô ở Stage 5: đúng không cộng, ghép sai trừ một lần mỗi từ mỗi vòng. */
+  matchRound: { wrongPoints: -1 },
   /** Chỉ đếm câu trong khu Learn. Câu Review và câu vòng boss không tính. */
   spacing: { minGap: 4 },
   review: {

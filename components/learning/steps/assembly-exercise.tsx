@@ -1,11 +1,12 @@
 'use client'
 
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useEffectEvent, useState } from 'react'
 import { RotateCcw } from 'lucide-react'
 import { actionButton } from '@/components/action-button'
 import { ExerciseFooter, type CheckStatus } from '@/components/learning/exercise-footer'
 import { ExercisePanel } from '@/components/learning/exercise-panel'
 import { PromptDisplay } from '@/components/learning/prompt-display'
+import { isShortcutEvent, pieceIndexForKey, pieceKeyLabel } from '@/lib/keyboard'
 import type { AssemblyStep } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -61,6 +62,29 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
     setGraded({ answer: result.answer, explanation: result.explanation })
     setStatus(result.correct ? 'correct' : 'incorrect')
   }
+
+  // Phím số chọn mảnh theo thứ tự và đặt vào ô trống bên trái nhất. `placed` luôn lấp từ trái sang.
+  const onKey = useEffectEvent((e: KeyboardEvent) => {
+    if (!isShortcutEvent(e) || status !== 'idle' || checking) return
+    if (e.key === 'Backspace') {
+      e.preventDefault()
+      setPlaced((p) => p.slice(0, -1))
+    } else if (e.key === 'Escape') {
+      setPlaced([])
+    } else if (e.key === 'Enter') {
+      if (!full) return
+      e.preventDefault()
+      void check()
+    } else {
+      const index = pieceIndexForKey(e.key)
+      if (index >= 0 && index < step.pool.length) add(index)
+    }
+  })
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => onKey(e)
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
 
   const pieceText = isWord ? 'text-base md:text-lg' : isKanji ? 'text-[30px] md:text-[34px]' : 'text-[26px] md:text-[30px]'
   let nextSlot = 0
@@ -123,17 +147,26 @@ export function AssemblyExercise({ step, onComplete, onGrade, wrongNote }: Assem
                   aria-hidden={used}
                   tabIndex={used ? -1 : undefined}
                   className={cn(
-                    'flex items-center justify-center rounded-2xl border border-border bg-card shadow-[0_3px_0_0_#2e3440] transition-all duration-150',
+                    'relative flex items-center justify-center rounded-2xl border border-border bg-card shadow-[0_3px_0_0_#2e3440] transition-all duration-150',
                     isWord ? 'h-12 min-w-14 px-3 font-medium' : 'size-14 font-jp md:size-16',
                     pieceText,
                     used ? 'invisible' : 'hover:-translate-y-0.5 hover:border-[#3b4250] active:translate-y-0.5 active:shadow-none disabled:opacity-50',
                   )}
                 >
+                  <span
+                    className="absolute top-0.5 left-1.5 hidden font-sans text-[10px] font-medium text-muted-foreground md:block"
+                    aria-hidden="true"
+                  >
+                    {pieceKeyLabel(i)}
+                  </span>
                   <span lang={isWord ? undefined : 'ja'}>{piece}</span>
                 </button>
               )
             })}
           </div>
+          <p className="hidden text-center text-xs text-muted-foreground md:block">
+            Press a number to place a piece · Backspace to undo · Esc to clear · Enter to check
+          </p>
         </div>
       }
       footer={

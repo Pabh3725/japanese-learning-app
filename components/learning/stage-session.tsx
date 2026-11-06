@@ -4,15 +4,17 @@
 // Câu chọn hiện kết quả ngay và lưu ở nền; câu ghép và câu gõ chờ server chấm vì đáp án không có ở trình duyệt.
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { submitStageAnswerAction } from '@/app/learn/actions'
+import { submitMatchPenaltiesAction, submitStageAnswerAction } from '@/app/learn/actions'
 import { WRONG_ANSWER_NOTE } from '@/components/learning/exercise-footer'
 import { SessionComplete } from '@/components/learning/session-complete'
 import { SessionHeader } from '@/components/learning/session-header'
 import { SpeakerButton, useJapaneseVoice } from '@/components/learning/speaker-button'
 import { AssemblyExercise, type AssemblyGrade } from '@/components/learning/steps/assembly-exercise'
 import { ChoiceExercise } from '@/components/learning/steps/choice-exercise'
+import { MatchRoundExercise } from '@/components/learning/steps/match-round-exercise'
 import { RecallExercise } from '@/components/learning/steps/recall-exercise'
 import type { SubmitExerciseResponse } from '@/lib/dal/exercise'
+import type { MatchPenalty } from '@/lib/exercise/match-round'
 import type { StageQuestion } from '@/lib/dal/stage-session'
 import { formatVnDateTime } from '@/lib/learning/time'
 import type { ScoredStage } from '@/lib/learning/types'
@@ -149,13 +151,14 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
     const correct = saved.filter((s) => s.correct).length
     const points = saved.reduce((n, s) => n + s.delta, 0)
     const moved = saved.filter((s) => s.movedUp).length
+    const answerable = questions.filter((question) => question.kind !== 'match').length
     return (
       <div className="flex min-h-dvh flex-col">
         <SessionComplete
           title={pending > 0 ? 'Saving…' : 'Round complete!'}
-          subtitle={warning ?? `You practiced ${questions.length} ${questions.length === 1 ? 'word' : 'words'} in ${stageLabel}.`}
+          subtitle={warning ?? `You practiced ${answerable} ${answerable === 1 ? 'word' : 'words'} in ${stageLabel}.`}
           stats={[
-            { label: 'Correct', value: `${correct}/${questions.length}`, tone: 'text-success' },
+            { label: 'Correct', value: `${correct}/${answerable}`, tone: 'text-success' },
             { label: 'Stage points', value: `${points >= 0 ? '+' : ''}${points}`, tone: 'text-cyan' },
             { label: 'Moved up', value: String(moved), tone: 'text-yellow' },
           ]}
@@ -227,8 +230,25 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
     }
   }
 
+  /** Vòng ghép ô: lưu ở nền theo cùng hàng đợi, người học đi tiếp ngay. */
+  const finishMatch = (penalties: MatchPenalty[]) => {
+    if (penalties.length > 0) {
+      setPending((n) => n + 1)
+      saveQueue.current = saveQueue.current
+        .then(() => submitMatchPenaltiesAction(penalties))
+        .then((res) => {
+          if (res.status !== 'saved') setWarning('Some answers were not saved.')
+        })
+        .catch(() => setWarning('Some answers were not saved (network error).'))
+        .finally(() => setPending((n) => n - 1))
+    }
+    next()
+  }
+
   let body: React.ReactNode
-  if (q.kind === 'choice') {
+  if (q.kind === 'match') {
+    body = <MatchRoundExercise key={q.clientEventId} round={q} onDone={finishMatch} />
+  } else if (q.kind === 'choice') {
     const listening = q.listenTo !== undefined
     // Chưa biết có giọng Nhật không thì chờ; không có giọng thì đổi sang chọn Kana theo nghĩa, cùng đáp án
     if (listening && voice === 'checking') {
@@ -277,7 +297,7 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
       <SessionHeader
         backHref="/learn"
         label={stageLabel}
-        sublabel={`Word ${index + 1} of ${questions.length}`}
+        sublabel={q.kind === 'match' ? 'Matching round' : `Step ${index + 1} of ${questions.length}`}
         current={index}
         total={questions.length}
       />

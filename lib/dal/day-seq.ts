@@ -16,6 +16,7 @@ export async function getNextDaySeq(today: StudyDate): Promise<number> {
       .select('day_seq')
       .eq('user_id', user.id)
       .eq('study_date', today)
+      .eq('source', 'lesson')
       .order('day_seq', { ascending: false })
       .limit(1),
     supabase

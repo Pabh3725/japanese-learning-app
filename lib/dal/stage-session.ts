@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { getNextDaySeq } from '@/lib/dal/day-seq'
 import { submitExercise, type SubmitExerciseResponse } from '@/lib/dal/exercise'
+import { buildMatchRound, parseMatchPenalties, type MatchRoundData } from '@/lib/exercise/match-round'
 import { deriveEarned } from '@/lib/exercise/mappers'
 import { pickDueWords } from '@/lib/exercise/questions'
 import {
@@ -18,17 +19,20 @@ import {
   type QuestionPools,
   type StageWord,
 } from '@/lib/exercise/stage-questions'
+import { RULES_V3 } from '@/lib/learning/rules'
 import { studyDate } from '@/lib/learning/time'
 import type { Outcome, ScoredStage } from '@/lib/learning/types'
 
 const PAGE = 1000
 const WORD_COLUMNS = 'id, expression, reading_kana, meaning_vi, han_viet, is_kana_only, emoji'
 
-export type StageQuestion = QuestionData & {
-  learnerVocabularyId: string
-  /** Mã cho lần nộp câu này. Cấp ở server nên chạy được cả khi trình duyệt không có crypto.randomUUID. */
-  clientEventId: string
-}
+export type StageQuestion =
+  | (QuestionData & {
+      learnerVocabularyId: string
+      /** Mã cho lần nộp câu này. Cấp ở server nên chạy được cả khi trình duyệt không có crypto.randomUUID. */
+      clientEventId: string
+    })
+  | MatchRoundData
 
 export interface StageSessionData {
   questions: StageQuestion[]
@@ -110,7 +114,7 @@ export async function getStageSession(stage: ScoredStage): Promise<StageSessionD
   if (started.error) throw new Error(`Không đọc được learner_vocabulary: ${started.error.message}`)
   const poolsWithLearned = { ...pools, learnedWordIds: new Set(started.data?.map((r) => r.vocabulary_id)) }
 
-  const questions = due.map(({ row }): StageQuestion => {
+  const questions: StageQuestion[] = due.map(({ row }): StageQuestion => {
     const earned = deriveEarned((logs.data ?? []).filter((l) => l.learner_vocabulary_id === row.id))
     const exercise = chooseStageExercise(row.vocabularies, stage, earned)
     return {
@@ -119,7 +123,46 @@ export async function getStageSession(stage: ScoredStage): Promise<StageSessionD
       clientEventId: randomUUID(),
     }
   })
+
+  if (stage === 5) {
+    const round = await buildRoundForUser(supabase, user.id, excludedIds, due.map((r) => r.row.id), pools.words)
+    // Xen giữa lượt, sau ít nhất một câu
+    if (round) questions.splice(Math.max(1, Math.floor(questions.length / 2)), 0, round)
+  }
   return { questions, nextDueAt: null }
+}
+
+/** Vòng ghép ô dùng các từ đã học, ưu tiên từ vừa đến hẹn trong lượt và từ đang ở Stage 5. */
+async function buildRoundForUser(
+  supabase: Supabase,
+  userId: string,
+  excludedIds: ReadonlySet<string>,
+  dueIds: readonly string[],
+  words: readonly StageWord[],
+): Promise<MatchRoundData | null> {
+  const { data, error } = await supabase
+    .from('learner_vocabulary')
+    .select('id, vocabulary_id, current_stage, learner_stage_schedules(stage_number, completed_at)')
+    .eq('user_id', userId)
+    .range(0, PAGE - 1)
+  if (error) throw new Error(`Không đọc được learner_vocabulary: ${error.message}`)
+
+  const byId = new Map(words.map((w) => [w.id, w]))
+  const rows = (data ?? []) as unknown as {
+    id: string
+    vocabulary_id: string
+    current_stage: number
+    learner_stage_schedules: { stage_number: number; completed_at: string | null }[]
+  }[]
+  const candidates = rows.flatMap((row) => {
+    const word = byId.get(row.vocabulary_id)
+    if (!word || excludedIds.has(row.vocabulary_id)) return []
+    const stage5Active = row.learner_stage_schedules.some((s) => s.stage_number === 5 && s.completed_at === null)
+    return [{ ...word, learnerVocabularyId: row.id, currentStage: row.current_stage, stage5Active }]
+  })
+  // Từ chưa có ở Stage 5 thì không bị trừ điểm, nên cần ít nhất một từ đang chạy Stage 5
+  if (!candidates.some((c) => c.stage5Active && dueIds.includes(c.learnerVocabularyId))) return null
+  return buildMatchRound(candidates, randomUUID)
 }
 
 export type SubmitStageAnswerResponse =
@@ -171,4 +214,37 @@ export async function submitStageAnswer(input: unknown): Promise<SubmitStageAnsw
     return { status: 'graded', outcome, answer, reading: word.reading_kana, result: saved.result }
   }
   return { status: saved.status }
+}
+
+/** Vòng ghép ô: trừ điểm các từ bị ghép sai. Từ không chạy Stage 5 thì bỏ qua. */
+export async function submitMatchPenalties(input: unknown): Promise<{ status: 'saved' | 'invalid' }> {
+  const penalties = parseMatchPenalties(input)
+  if (!penalties) return { status: 'invalid' }
+  if (penalties.length === 0) return { status: 'saved' }
+
+  const user = await requireUser()
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('learner_stage_schedules')
+    .select('id, learner_vocabulary_id')
+    .eq('user_id', user.id)
+    .eq('stage_number', 5)
+    .is('completed_at', null)
+    .in('learner_vocabulary_id', penalties.map((p) => p.learnerVocabularyId))
+  if (error) throw new Error(`Không đọc được learner_stage_schedules: ${error.message}`)
+
+  const scheduleOf = new Map((data ?? []).map((r) => [r.learner_vocabulary_id, r.id]))
+  const applicable = penalties.filter((p) => scheduleOf.has(p.learnerVocabularyId))
+  if (applicable.length === 0) return { status: 'saved' }
+
+  const now = new Date()
+  const { error: rpcError } = await supabase.rpc('apply_match_penalties', {
+    p_schedule_ids: applicable.map((p) => scheduleOf.get(p.learnerVocabularyId)),
+    p_client_event_ids: applicable.map((p) => p.clientEventId),
+    p_points: RULES_V3.matchRound.wrongPoints,
+    p_study_date: studyDate(now),
+    p_answered_at: now.toISOString(),
+  })
+  if (rpcError) throw new Error(`apply_match_penalties lỗi: ${rpcError.message}`)
+  return { status: 'saved' }
 }

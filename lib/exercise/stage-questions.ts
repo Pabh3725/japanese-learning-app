@@ -91,11 +91,18 @@ function pickOne<T>(items: readonly T[], rng: Rng): T {
 
 const SKILL_ORDER: readonly Skill[] = ['S1', 'S2', 'S3', 'S4']
 
-/** Dạng bài dùng được cho từ này. Ghép nghĩa chỉ dành cho nghĩa đơn giản; từ không có Hán Việt thì bỏ dạng Hán Việt. */
+/**
+ * Dạng bài dùng được cho từ này. Stage 5 đã thay chọn 1/6 bằng vòng ghép ô:
+ * nghĩa đơn giản thì ghép nghĩa; nghĩa không ghép được thì vẫn chọn 1/6 để còn đạt kỹ năng Nghĩa;
+ * Kanji đạt kỹ năng qua ghép không gợi ý.
+ */
 export function usableExercises(word: StageWord, stage: ScoredStage): ExerciseCode[] {
-  return allowedExercises(stage, word.is_kana_only).filter(
-    (code) => code !== 'meaning_assembly' || meaningPieces(word.meaning_vi) !== null,
-  )
+  const canAssembleMeaning = meaningPieces(word.meaning_vi) !== null
+  return allowedExercises(stage, word.is_kana_only).filter((code) => {
+    if (code === 'meaning_assembly') return canAssembleMeaning
+    if (code === 'meaning_recognition_6') return !canAssembleMeaning
+    return code !== 'kanji_recognition_6'
+  })
 }
 
 /** Ưu tiên dạng bắt buộc chưa có điểm; đủ cả rồi thì xoay vòng trong mọi dạng của stage. */

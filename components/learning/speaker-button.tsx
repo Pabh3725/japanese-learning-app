@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useEffectEvent, useState } from 'react'
 import { Volume2 } from 'lucide-react'
+import { isShortcutEvent, REPLAY_KEY } from '@/lib/keyboard'
 import { hasJapaneseVoice, speak } from '@/lib/speech'
 import { cn } from '@/lib/utils'
 
@@ -39,6 +40,15 @@ export function NoVoiceNote() {
 /** Nút loa. Thiết bị không có giọng Nhật thì không hiện gì. `kana` là chuỗi Kana, không đưa Kanji. */
 export function SpeakerButton({ kana, large = false }: { kana: string; large?: boolean }) {
   const status = useJapaneseVoice()
+  const onKey = useEffectEvent((e: KeyboardEvent) => {
+    if (status === 'available' && isShortcutEvent(e) && e.key.toLowerCase() === REPLAY_KEY) speak(kana)
+  })
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => onKey(e)
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
+
   if (status !== 'available') return null
   return (
     <button
@@ -48,6 +58,7 @@ export function SpeakerButton({ kana, large = false }: { kana: string; large?: b
         speak(kana)
       }}
       aria-label="Play pronunciation"
+      title="Play again (P)"
       className={cn(
         'flex items-center justify-center rounded-full border border-border bg-secondary text-foreground transition-colors hover:border-primary/60 hover:text-primary active:scale-95',
         large ? 'size-20' : 'size-11',

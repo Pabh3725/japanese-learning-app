@@ -31,6 +31,19 @@ export function romajiToKanaInput(value: string, mode: 'hiragana' | 'katakana'):
 }
 
 /**
+ * Đổi phần trước con trỏ và giữ con trỏ đúng chỗ. Nếu đổi cả ô rồi gán lại, trình duyệt
+ * đưa con trỏ về cuối, nên sửa một chữ ở giữa thì con trỏ nhảy đi.
+ */
+export function convertAtCaret(
+  value: string,
+  caret: number,
+  mode: 'hiragana' | 'katakana',
+): { value: string; caret: number } {
+  const before = romajiToKanaInput(value.slice(0, caret), mode)
+  return { value: before + value.slice(caret), caret: before.length }
+}
+
+/**
  * Dạng so sánh của kana: đưa về Hiragana, ー thành nguyên âm đứng trước, を thành お.
  * Nhờ vậy ノート, のおと và nooto cùng một dạng; きをつけます và kiotsukemasu cùng một dạng.
  */
