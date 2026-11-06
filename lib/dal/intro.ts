@@ -4,7 +4,8 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
-import { countMetToday, newPerDayOf, remainingNewToday } from '@/lib/learning/new-words'
+import { readDailyLimits } from '@/lib/dal/daily-limits'
+import { countMetToday, newPerDayOf, newWordsForToday, remainingNewToday } from '@/lib/learning/new-words'
 import { nextStudyDayStart } from '@/lib/learning/time'
 import { INTRO_WORDS_PER_SESSION, isVocabularyId, pickNewWords, stageAfterIntro, toIntroWord, type IntroVocabRow, type IntroWord } from '@/lib/intro/words'
 
@@ -45,7 +46,7 @@ export async function getIntroData(): Promise<IntroData> {
   const supabase = await createClient()
 
   const startOfToday = new Date(nextStudyDayStart(new Date()).getTime() - DAY_MS).toISOString()
-  const [vocab, started, excluded, settings] = await Promise.all([
+  const [vocab, started, excluded, limits] = await Promise.all([
     readAllVocabulary(supabase),
     supabase.from('learner_vocabulary').select('vocabulary_id, created_at').eq('user_id', user.id).range(0, MAX_ROWS - 1),
     supabase
@@ -54,14 +55,13 @@ export async function getIntroData(): Promise<IntroData> {
       .eq('user_id', user.id)
       .not('excluded_at', 'is', null)
       .range(0, MAX_ROWS - 1),
-    supabase.from('learner_settings').select('daily_new_limit').eq('user_id', user.id).maybeSingle(),
+    readDailyLimits(supabase, user.id),
   ])
 
   if (started.error) throw new Error(`Không đọc được learner_vocabulary: ${started.error.message}`)
   if (excluded.error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${excluded.error.message}`)
-  if (settings.error) throw new Error(`Không đọc được learner_settings: ${settings.error.message}`)
 
-  const newPerDay = newPerDayOf(settings.data?.daily_new_limit)
+  const newPerDay = newWordsForToday(newPerDayOf(limits.newPerDay), limits.borrowedForToday, limits.borrowedForNext)
   const metToday = countMetToday(started.data ?? [], new Set(excluded.data?.map((r) => r.vocabulary_id)), startOfToday)
   const remaining = remainingNewToday(newPerDay, metToday)
   const picked = pickNewWords<IntroVocabRow>(

@@ -45,3 +45,8 @@ export function isValidStudyLimit(key: unknown, value: unknown): key is StudyLim
   const { min, max } = STUDY_LIMITS[key as StudyLimitKey]
   return (value as number) >= min && (value as number) <= max
 }
+
+/** Số từ mới của hôm nay: giới hạn, trừ phần hôm qua đã mượn, cộng phần hôm nay mượn của ngày mai. */
+export function newWordsForToday(newPerDay: number, borrowedForToday: number, borrowedForNext: number): number {
+  return Math.max(0, newPerDay - borrowedForToday) + borrowedForNext
+}

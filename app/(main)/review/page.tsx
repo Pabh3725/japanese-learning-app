@@ -3,16 +3,9 @@ import { Play } from 'lucide-react'
 import { actionButton } from '@/components/action-button'
 import { PageHeader } from '@/components/page-header'
 import { getReviewOverview } from '@/lib/dal/review'
+import { CARD_LABELS } from '@/lib/learning/card-labels'
 import type { CardType } from '@/lib/learning/types'
 import { cn } from '@/lib/utils'
-
-const CARD_LABELS: Record<CardType, string> = {
-  'vocab.meaning_kana': 'Meaning ↔ Kana',
-  'vocab.kana_hanviet': 'Kana ↔ Sino-Vietnamese',
-  'vocab.meaning_kanji': 'Meaning → Kanji',
-  'vocab.kanji_meaning_hanviet': 'Kanji → Meaning, Sino-Vietnamese',
-  'vocab.meaning_hanviet': 'Meaning ↔ Sino-Vietnamese',
-}
 
 /** Ước lượng để người học biết phiên ôn dài khoảng bao lâu. */
 const SECONDS_PER_CARD = 15
