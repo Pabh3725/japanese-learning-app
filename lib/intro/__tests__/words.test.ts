@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { INTRO_WORDS_PER_SESSION, isVocabularyId, parseVocabularyIds, pickNewWords, stageAfterIntro, toIntroWord } from '../words'
-import { countMetToday, newWordsForToday } from '../../learning/new-words'
+import { countMetToday, isValidNewPerDay, newPerDayOf, newWordsForToday } from '../../learning/new-words'
 
 const gakkou = {
   id: 'v1',
@@ -120,5 +120,16 @@ describe('newWordsForToday', () => {
     expect(newWordsForToday(5, 2, 0)).toBe(3)
     expect(newWordsForToday(5, 5, 3)).toBe(3)
     expect(newWordsForToday(5, 0, 5)).toBe(10)
+  })
+})
+
+describe('Từ mới mỗi ngày', () => {
+  it('nhận 1–50; giá trị cũ trên 50 hạ về 50, không rơi về mặc định', () => {
+    expect(isValidNewPerDay(50)).toBe(true)
+    expect(isValidNewPerDay(51)).toBe(false)
+    expect(isValidNewPerDay(0)).toBe(false)
+    expect(newPerDayOf(80)).toBe(50)
+    expect(newPerDayOf(7)).toBe(7)
+    expect(newPerDayOf(null)).toBe(5)
   })
 })
