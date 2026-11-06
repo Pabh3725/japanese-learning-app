@@ -5,9 +5,9 @@ import { getLearnOverview } from '@/lib/dal/learn-overview'
 
 const stages = [
   { step: '1', title: 'Meet', body: 'See the reading and meaning of a new word, and hear how it sounds.' },
-  { step: '2', title: 'Recognize', body: 'Choose, listen and build the reading from Kana pieces.' },
-  { step: '3', title: 'Reveal Kanji', body: 'See how the word is written, with its Sino-Vietnamese reading.' },
-  { step: '4', title: 'Practice Kanji', body: 'Choose and build the Kanji and Sino-Vietnamese reading.' },
+  { step: '2', title: 'Recognize', body: 'Choose the right answer first, then build the reading from Kana pieces.' },
+  { step: '3', title: 'Sino-Vietnamese', body: 'Meet the Sino-Vietnamese reading of the word. Its Kanji comes later.' },
+  { step: '4', title: 'Practice Kanji', body: 'Choose the reading, meet each Kanji, then build the word from pieces.' },
   { step: '5', title: 'Recall', body: 'Type and build the word from memory.' },
 ]
 
@@ -22,16 +22,16 @@ export default async function LearnPage() {
         <LearningCard
           href="/learn/intro"
           title="Stage 1 · New words"
-          description="Meet up to 10 words at a time"
+          description="Meet new words with their sound and meaning"
           sample="語"
-          count={overview.newWords}
-          countLabel="words left"
+          count={overview.newToday}
+          countLabel="new today"
           tone="cyan"
         />
         <LearningCard
           href="/learn/stage2"
           title="Stage 2 · Kana"
-          description="Choose, listen and build the reading"
+          description="Choose first, then build the reading"
           sample="か"
           count={overview.due[2]}
           countLabel="due now"
@@ -39,17 +39,17 @@ export default async function LearnPage() {
         />
         <LearningCard
           href="/learn/stage3"
-          title="Stage 3 · Reveal Kanji"
-          description="See how a word you know is written"
+          title="Stage 3 · Introductions"
+          description="Meet Sino-Vietnamese readings and Kanji"
           sample="字"
           count={overview.stage3Waiting}
-          countLabel="to reveal"
+          countLabel="to meet"
           tone="pink"
         />
         <LearningCard
           href="/learn/stage4"
           title="Stage 4 · Kanji"
-          description="Choose and build Kanji and Sino-Vietnamese"
+          description="Choose first, then build Kanji and Sino-Vietnamese"
           sample="漢"
           count={overview.due[4]}
           countLabel="due now"

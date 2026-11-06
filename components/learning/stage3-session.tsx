@@ -1,25 +1,26 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { completeStage3Action } from '@/app/learn/stage3/actions'
+import { completeKanjiIntroAction, completeStage3Action } from '@/app/learn/stage3/actions'
 import { SessionComplete } from '@/components/learning/session-complete'
 import { SessionHeader } from '@/components/learning/session-header'
+import { KanjiIntroExercise } from '@/components/learning/steps/word-kanji-intro-exercise'
 import { KanjiRevealExercise } from '@/components/learning/steps/kanji-reveal-exercise'
-import type { Stage3Word } from '@/lib/dal/stage3'
+import type { Stage3Item } from '@/lib/dal/stage3'
 
 const SAVE_ERROR = "Couldn't save. Check your connection and try again."
 
-export function Stage3Session({ words }: { words: Stage3Word[] }) {
+export function Stage3Session({ items }: { items: Stage3Item[] }) {
   const [index, setIndex] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [saving, startSaving] = useTransition()
 
-  if (words.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="flex min-h-dvh flex-col">
         <SessionComplete
-          title="No Kanji to reveal yet"
-          subtitle="A word reaches this step after you score enough points in Stage 2."
+          title="Nothing to meet right now"
+          subtitle="New readings come from Stage 2, and new Kanji come from Stage 4."
           stats={[]}
           primary={{ href: '/learn/stage2', label: 'Practice Stage 2' }}
           secondary={{ href: '/', label: 'Back to Home' }}
@@ -28,11 +29,11 @@ export function Stage3Session({ words }: { words: Stage3Word[] }) {
     )
   }
 
-  if (index >= words.length) {
+  if (index >= items.length) {
     return (
       <div className="flex min-h-dvh flex-col">
         <SessionComplete
-          title="New Kanji revealed!"
+          title="All met!"
           subtitle="These words now continue in Stage 4."
           stats={[]}
           primary={{ href: '/learn/stage4', label: 'Practice Stage 4' }}
@@ -42,14 +43,15 @@ export function Stage3Session({ words }: { words: Stage3Word[] }) {
     )
   }
 
-  const word = words[index]
+  const item = items[index]
 
   const complete = () => {
     if (saving) return
     setError(null)
     startSaving(async () => {
       try {
-        const { status } = await completeStage3Action(word.learnerVocabularyId)
+        const save = item.kind === 'kanji' ? completeKanjiIntroAction : completeStage3Action
+        const { status } = await save(item.learnerVocabularyId)
         // Đã mở trên máy khác cũng coi là xong
         if (status === 'saved' || status === 'stage_changed') setIndex((i) => i + 1)
         else setError(SAVE_ERROR)
@@ -64,11 +66,15 @@ export function Stage3Session({ words }: { words: Stage3Word[] }) {
       <SessionHeader
         backHref="/learn"
         label="Stage 3"
-        sublabel={`Word ${index + 1} of ${words.length}`}
+        sublabel={`Word ${index + 1} of ${items.length}`}
         current={index}
-        total={words.length}
+        total={items.length}
       />
-      <KanjiRevealExercise key={word.learnerVocabularyId} word={word} saving={saving} error={error} onComplete={complete} />
+      {item.kind === 'kanji' ? (
+        <KanjiIntroExercise key={item.learnerVocabularyId} word={item} saving={saving} error={error} onComplete={complete} />
+      ) : (
+        <KanjiRevealExercise key={item.learnerVocabularyId} word={item} saving={saving} error={error} onComplete={complete} />
+      )}
     </div>
   )
 }

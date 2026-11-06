@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: 'Stage 5 · Nihongo' }
 
 // Trang đọc cookie đăng nhập (requireUser) nên luôn render mới mỗi lần mở → đề xáo lại.
 export default async function Stage5Page() {
-  const { questions, nextDueAt } = await getStageSession(5)
+  const { questions, nextDueAt, kanjiIntroWaiting } = await getStageSession(5)
   // clientEventId mới cho mỗi lượt, nên key đổi và phiên chạy lại từ câu đầu.
-  return <StageSession key={questions[0]?.clientEventId ?? 'empty'} stage={5} questions={questions} nextDueAt={nextDueAt} />
+  return <StageSession key={questions[0]?.clientEventId ?? 'empty'} stage={5} questions={questions} nextDueAt={nextDueAt} kanjiIntroWaiting={kanjiIntroWaiting} />
 }

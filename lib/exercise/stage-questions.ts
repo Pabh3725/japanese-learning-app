@@ -2,8 +2,8 @@
 // Luật đáp án nhiễu: docs/data-spec.md §5. Câu chọn có đáp án ở trình duyệt để phản hồi ngay;
 // câu ghép và câu gõ thì không, server chấm sau khi nộp. Điểm luôn theo kết quả của server.
 
-import { EXERCISES, REQUIRED_EXERCISES, REQUIRED_SKILLS_STAGE5 } from '../learning/rules'
-import { allowedExercises } from '../learning/stage'
+import { EXERCISES, REQUIRED_EXERCISES, REQUIRED_SKILLS_STAGE5, RULES_V4 } from '../learning/rules'
+import { allowedExercises, stageStep } from '../learning/stage'
 import type { ExerciseCode, Outcome, ScoredStage, Skill } from '../learning/types'
 import { isHanVietAnswerCorrect, isKanaAnswerCorrect } from './answer-normalize'
 import { mixKanaPieces, pickKanaDistractors, splitKana } from './kana-pieces'
@@ -32,27 +32,33 @@ export interface WordReveal {
   meaning: string
 }
 
-/** Từ đã xem thẻ Stage 3 chưa. Chưa thì không lộ Kanji và Hán Việt. */
-export function kanjiRevealed(currentStage: number): boolean {
-  return currentStage >= 4
+/** Người học đã biết tới đâu: Hán Việt từ thẻ Stage 3, Kanji từ thẻ Giới thiệu Hán tự. */
+export interface WordKnowledge {
+  currentStage: number
+  kanjiIntroSeen: boolean
 }
 
-export function wordReveal(word: StageWord, currentStage: number): WordReveal {
-  const known = kanjiRevealed(currentStage)
+export function wordReveal(word: StageWord, known: WordKnowledge): WordReveal {
   return {
-    expression: known && !word.is_kana_only ? word.expression : null,
+    expression: known.kanjiIntroSeen && !word.is_kana_only ? word.expression : null,
     kana: word.reading_kana,
     romaji: word.romaji ?? null,
-    hanViet: known ? word.han_viet : null,
+    hanViet: known.currentStage >= 4 ? word.han_viet : null,
     meaning: word.meaning_vi,
   }
+}
+
+export interface KanjiRow {
+  character: string
+  han_viet: string
+  meaning_vi: string
 }
 
 export interface QuestionPools {
   /** Mọi từ, làm kho đáp án nhiễu. */
   words: readonly StageWord[]
   /** Kho chữ Kanji và âm Hán Việt cho mảnh nhiễu. */
-  kanji: readonly { character: string; han_viet: string }[]
+  kanji: readonly KanjiRow[]
   /** Các từ người học đã gặp: được ưu tiên làm đáp án nhiễu. */
   learnedWordIds?: ReadonlySet<string>
 }
@@ -78,8 +84,10 @@ export interface ChoiceQuestionData extends QuestionBase {
   speak: string
   /** DAL gắn vào, vì cần biết từ đã qua Stage 3 chưa. */
   reveal?: WordReveal
-  /** Câu nghe: đọc chuỗi này. Thiết bị không có giọng Nhật thì hiện prompt và đổi sang meaning_to_kana. */
+  /** Câu nghe: đọc chuỗi này. Thiết bị không có giọng Nhật thì hiện prompt và đổi sang dạng thay thế. */
   listenTo?: string
+  /** Dạng thay thế có cùng đáp án khi không có giọng Nhật. */
+  noVoice?: { exercise: ExerciseCode; question: string }
 }
 
 export interface AssemblyQuestionData extends QuestionBase {
@@ -134,23 +142,58 @@ export function usableExercises(word: StageWord, stage: ScoredStage): ExerciseCo
   })
 }
 
-/** Ưu tiên dạng bắt buộc chưa có điểm; đủ cả rồi thì xoay vòng trong mọi dạng của stage. */
+/** Dạng bài theo từng bước, đi từ dễ tới khó. Bước sau vẫn hỏi dạng bắt buộc còn thiếu của bước trước. */
+const STAGE2_CHOICE: readonly ExerciseCode[] = ['kana_to_meaning', 'meaning_to_kana']
+const STAGE2_REVIEW_CHOICE: readonly ExerciseCode[] = [...STAGE2_CHOICE, 'listening']
+const STAGE4_STEP1: readonly ExerciseCode[] = ['hanviet_from_kana']
+const STAGE4_STEP2: readonly ExerciseCode[] = ['hanviet_assembly', 'kanji_char_meaning', 'kanji_recognition', 'hanviet_recognition']
+const STAGE4_STEP3: readonly ExerciseCode[] = ['kanji_assembly', 'hanviet_assembly']
+const STAGE4_REVIEW_CHOICE: readonly ExerciseCode[] = ['hanviet_from_kana', 'kanji_char_meaning', 'kanji_recognition', 'hanviet_recognition']
+
+/** Đủ dạng bắt buộc: phần lớn là bài ghép, thỉnh thoảng một câu trắc nghiệm. */
+function assemblyOrChoice(assembly: readonly ExerciseCode[], choice: readonly ExerciseCode[], rng: Rng): ExerciseCode {
+  return pickOne(rng() < RULES_V4.stageSteps.choiceShareInAssembly ? choice : assembly, rng)
+}
+
+function chooseStage2(earned: readonly ExerciseCode[], points: number, rng: Rng): ExerciseCode {
+  if (stageStep(2, points) === 'choice') {
+    const missing = STAGE2_CHOICE.filter((code) => !earned.includes(code))
+    return pickOne(missing.length > 0 ? missing : STAGE2_CHOICE, rng)
+  }
+  const missing = REQUIRED_EXERCISES[2].filter((code) => !earned.includes(code))
+  return missing.length > 0 ? pickOne(missing, rng) : assemblyOrChoice(['kana_assembly'], STAGE2_REVIEW_CHOICE, rng)
+}
+
+function chooseStage4(earned: readonly ExerciseCode[], points: number, rng: Rng): ExerciseCode {
+  const step = stageStep(4, points)
+  if (step === 'choice') return STAGE4_STEP1[0]
+  const missingOf = (codes: readonly ExerciseCode[]) => codes.filter((code) => !earned.includes(code))
+  const missingEarlier = [...missingOf(STAGE4_STEP1), ...missingOf(STAGE4_STEP2)]
+  if (step === 'mixed') return pickOne(missingEarlier.length > 0 ? missingEarlier : STAGE4_STEP2, rng)
+  if (missingEarlier.length > 0) return pickOne(missingEarlier, rng)
+  const missingNow = missingOf(STAGE4_STEP3)
+  if (missingNow.length > 0) return pickOne(missingNow, rng)
+  const exercise = assemblyOrChoice(STAGE4_STEP3, STAGE4_REVIEW_CHOICE, rng)
+  // Câu nghe không bắt buộc, vì thiết bị không có giọng Nhật không làm được
+  return STAGE4_REVIEW_CHOICE.includes(exercise) && rng() < RULES_V4.stageSteps.listeningShareOfChoice ? 'listening_kanji' : exercise
+}
+
+/** Stage 2 và 4 đi theo bước; Stage 5 ưu tiên kỹ năng còn thiếu, đủ rồi thì xoay vòng. */
 export function chooseStageExercise(
   word: StageWord,
   stage: ScoredStage,
   earned: readonly ExerciseCode[],
+  points: number,
   rng: Rng = Math.random,
 ): ExerciseCode {
+  if (stage === 2) return chooseStage2(earned, points, rng)
+  if (stage === 4) return chooseStage4(earned, points, rng)
   const usable = usableExercises(word, stage)
-  if (stage === 5) {
-    const required = word.is_kana_only ? REQUIRED_SKILLS_STAGE5.kanaOnly : REQUIRED_SKILLS_STAGE5.withKanji
-    const earnedSkills = new Set(earned.map((code) => EXERCISES[code].skill))
-    const missingSkill = SKILL_ORDER.find((skill) => required.includes(skill) && !earnedSkills.has(skill))
-    if (missingSkill) return pickOne(usable.filter((code) => EXERCISES[code].skill === missingSkill), rng)
-    return pickOne(usable, rng)
-  }
-  const missing = REQUIRED_EXERCISES[stage].filter((code) => !earned.includes(code))
-  return pickOne(missing.length > 0 ? missing : usable, rng)
+  const required = word.is_kana_only ? REQUIRED_SKILLS_STAGE5.kanaOnly : REQUIRED_SKILLS_STAGE5.withKanji
+  const earnedSkills = new Set(earned.map((code) => EXERCISES[code].skill))
+  const missingSkill = SKILL_ORDER.find((skill) => required.includes(skill) && !earnedSkills.has(skill))
+  if (missingSkill) return pickOne(usable.filter((code) => EXERCISES[code].skill === missingSkill), rng)
+  return pickOne(usable, rng)
 }
 
 // ---------------------------------------------------------------------------
@@ -200,6 +243,34 @@ function pickWordDistractors(
     if (picked.length === count) return picked
   }
   throw new Error(`Không đủ đáp án nhiễu cho từ ${target.id}`)
+}
+
+/**
+ * Câu chọn nghĩa của một chữ Kanji trong từ. Đáp án nhiễu không lấy nghĩa của chữ khác trong cùng từ,
+ * vì server chấm đúng khi đáp án là nghĩa của bất kỳ chữ nào trong từ. Chữ dễ nhầm được ưu tiên.
+ */
+function kanjiCharMeaning(word: StageWord, pools: QuestionPools, rng: Rng): ChoiceQuestionData {
+  const byChar = new Map(pools.kanji.map((k) => [k.character, k]))
+  const chars = [...new Set(kanjiPieces(word.expression))].filter((c) => byChar.has(c))
+  const char = pickOne(chars, rng)
+  const answer = byChar.get(char)!.meaning_vi
+  const ownMeanings = new Set(chars.map((c) => byChar.get(c)!.meaning_vi))
+  const lookalike = new Set(lookalikeKanji(char))
+  const options = pools.kanji
+    .filter((k) => !ownMeanings.has(k.meaning_vi) && !chars.includes(k.character))
+    .map((k) => ({ meaning: k.meaning_vi, value: (lookalike.has(k.character) ? 3 : 0) + rng() * JITTER }))
+    .sort((a, b) => b.value - a.value)
+    .map((o) => o.meaning)
+  return {
+    kind: 'choice',
+    exercise: 'kanji_char_meaning',
+    question: 'What does this Kanji mean?',
+    prompt: { display: char, kind: 'vocab' },
+    optionKind: 'meaning',
+    answer,
+    speak: word.reading_kana,
+    options: shuffle([answer, ...[...new Set(options)].slice(0, 3)], rng),
+  }
 }
 
 function isKatakanaWord(word: StageWord): boolean {
@@ -287,6 +358,7 @@ function meaningScore(word: StageWord): DistractorScore {
   return (w) => (Math.abs(w.meaning_vi.length - length) <= 6 ? 1 : 0)
 }
 
+const KANJI_FROM_HANVIET = 'Which Kanji has this Sino-Vietnamese reading?'
 const KANJI_WORD_TEXT = (w: StageWord) => (w.is_kana_only ? null : w.expression)
 const HANVIET_TEXT = (w: StageWord) => w.han_viet
 const MEANING_TEXT = (w: StageWord) => w.meaning_vi
@@ -329,7 +401,15 @@ export function buildStageQuestion(word: StageWord, exercise: ExerciseCode, pool
     case 'meaning_to_kana':
       return choice(word, pools, exercise, 'Which word means this?', PROMPT_MEANING(word), 'kana', KANA_TEXT, 4, rng, kanaScore(word))
     case 'listening':
-      return choice(word, pools, exercise, 'Which word did you hear?', PROMPT_MEANING(word), 'kana', KANA_TEXT, 4, rng, kanaScore(word), { listenTo: word.reading_kana })
+      return choice(word, pools, exercise, 'Which word did you hear?', PROMPT_MEANING(word), 'kana', KANA_TEXT, 4, rng, kanaScore(word), {
+        listenTo: word.reading_kana,
+        noVoice: { exercise: 'meaning_to_kana', question: 'Which word means this?' },
+      })
+    case 'listening_kanji':
+      return choice(word, pools, exercise, 'Which word did you hear?', { display: word.han_viet ?? '', kind: 'meaning' }, 'vocab', KANJI_WORD_TEXT, 4, rng, kanjiScore(word), {
+        listenTo: word.reading_kana,
+        noVoice: { exercise: 'kanji_recognition', question: KANJI_FROM_HANVIET },
+      })
     case 'kana_assembly': {
       const pieces = splitKana(word.reading_kana)
       return {
@@ -342,8 +422,13 @@ export function buildStageQuestion(word: StageWord, exercise: ExerciseCode, pool
         pieceKind: 'kana',
       }
     }
+    case 'hanviet_from_kana':
+      // Đề không có Kanji: bước này người học mới biết Hán Việt
+      return choice(word, pools, exercise, 'Which Sino-Vietnamese reading is correct?', { ...PROMPT_KANA(word), hint: word.meaning_vi }, 'meaning', HANVIET_TEXT, 4, rng, hanVietScore(word))
+    case 'kanji_char_meaning':
+      return kanjiCharMeaning(word, pools, rng)
     case 'kanji_recognition':
-      return choice(word, pools, exercise, 'Which spelling is correct?', { ...PROMPT_KANA(word), hint: word.meaning_vi }, 'vocab', KANJI_WORD_TEXT, 4, rng, kanjiScore(word))
+      return choice(word, pools, exercise, KANJI_FROM_HANVIET, { display: word.han_viet ?? '', kind: 'meaning' }, 'vocab', KANJI_WORD_TEXT, 4, rng, kanjiScore(word))
     case 'kanji_recognition_6':
       return choice(word, pools, exercise, 'Which spelling means this?', PROMPT_MEANING(word), 'vocab', KANJI_WORD_TEXT, 6, rng, kanjiScore(word))
     case 'kanji_assembly':
@@ -403,7 +488,13 @@ export interface GradeResult {
   answer: string
 }
 
-export function gradeStageAnswer(word: StageWord, exercise: ExerciseCode, given: string | readonly string[]): GradeResult {
+/** `kanji`: bảng chữ Kanji, chỉ dạng chọn nghĩa của chữ Kanji mới cần. */
+export function gradeStageAnswer(
+  word: StageWord,
+  exercise: ExerciseCode,
+  given: string | readonly string[],
+  kanji: readonly KanjiRow[] = [],
+): GradeResult {
   const text = typeof given === 'string' ? given : ''
   const pieces = typeof given === 'string' ? [] : given
   const verdict = (ok: boolean, answer: string): GradeResult => ({ outcome: ok ? 'correct' : 'wrong', answer })
@@ -420,13 +511,20 @@ export function gradeStageAnswer(word: StageWord, exercise: ExerciseCode, given:
     case 'kana_free_recall':
       return verdict(isKanaAnswerCorrect(text, word.reading_kana), word.reading_kana)
     case 'kanji_recognition':
+    case 'listening_kanji':
     case 'kanji_recognition_6':
       return verdict(text === word.expression, word.expression)
     case 'kanji_assembly':
     case 'kanji_assembly_nohint':
       return verdict(pieces.join('') === kanjiPieces(word.expression).join(''), word.expression)
+    case 'hanviet_from_kana':
     case 'hanviet_recognition':
       return verdict(text === word.han_viet, word.han_viet ?? '')
+    case 'kanji_char_meaning': {
+      const chars = kanjiPieces(word.expression)
+      const meanings = kanji.filter((k) => chars.includes(k.character)).map((k) => k.meaning_vi)
+      return verdict(meanings.includes(text), meanings.join('; '))
+    }
     case 'hanviet_assembly':
       return verdict(pieces.join(' ') === hanVietPieces(word.han_viet ?? '').join(' '), word.han_viet ?? '')
     case 'hanviet_free_recall':

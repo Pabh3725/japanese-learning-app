@@ -21,10 +21,24 @@ function IntroSpeaker({ kana }: { kana: string }) {
   )
 }
 
-export function IntroSession({ words }: { words: IntroWord[] }) {
+export function IntroSession({ words, newPerDay, limitReached }: { words: IntroWord[]; newPerDay: number; limitReached: boolean }) {
   const [index, setIndex] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [saving, startSaving] = useTransition()
+
+  if (limitReached && words.length === 0) {
+    return (
+      <div className="flex min-h-dvh flex-col">
+        <SessionComplete
+          title="That's all for today"
+          subtitle={`You've met today's ${newPerDay} new ${newPerDay === 1 ? 'word' : 'words'}. Practice them, then come back tomorrow.`}
+          stats={[]}
+          primary={{ href: '/learn/stage2', label: 'Practice Stage 2' }}
+          secondary={{ href: '/settings', label: 'Change daily limit' }}
+        />
+      </div>
+    )
+  }
 
   if (words.length === 0) {
     return (

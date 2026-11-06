@@ -13,9 +13,12 @@ import { AssemblyExercise, type AssemblyGrade } from '@/components/learning/step
 import { ChoiceExercise } from '@/components/learning/steps/choice-exercise'
 import { MatchRoundExercise } from '@/components/learning/steps/match-round-exercise'
 import { RecallExercise } from '@/components/learning/steps/recall-exercise'
+import { RelearnExercise } from '@/components/learning/steps/relearn-exercise'
 import type { SubmitExerciseResponse } from '@/lib/dal/exercise'
 import type { MatchPenalty } from '@/lib/exercise/match-round'
+import type { WordReveal } from '@/lib/exercise/stage-questions'
 import type { StageQuestion } from '@/lib/dal/stage-session'
+import { shouldRelearn } from '@/lib/learning/stage'
 import { formatVnDateTime } from '@/lib/learning/time'
 import type { ScoredStage } from '@/lib/learning/types'
 import { withRetry } from '@/lib/retry'
@@ -77,11 +80,12 @@ function toRecallStep(q: TypingQ, stageLabel: string): RecallStep {
 
 function pointsNote(stage: ScoredStage, result: SubmitExerciseResponse['result']) {
   if (result?.completed) return `Stage ${stage} complete!`
+  if (result?.kanjiIntroReady) return 'New Kanji to meet! Open Stage 3 to continue this word.'
   if (result?.unlockedStage) return `Next stage unlocked! Stage ${stage} continues.`
   const delta = result?.delta
   if (delta === undefined) return undefined
   if (delta > 0) return '+1 point'
-  if (delta < 0) return '−1 point'
+  if (delta < 0) return `−${-delta} points`
   return 'No points this time: the word came up too soon, or today’s limit is reached.'
 }
 
@@ -103,9 +107,10 @@ interface StageSessionProps {
   stage: ScoredStage
   questions: StageQuestion[]
   nextDueAt: string | null
+  kanjiIntroWaiting: number
 }
 
-export function StageSession({ stage, questions, nextDueAt }: StageSessionProps) {
+export function StageSession({ stage, questions, nextDueAt, kanjiIntroWaiting }: StageSessionProps) {
   const router = useRouter()
   const voice = useJapaneseVoice()
   const [index, setIndex] = useState(0)
@@ -115,6 +120,9 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
   const [notes, setNotes] = useState<Record<string, string>>({})
   const [pending, setPending] = useState(0)
   const [warning, setWarning] = useState<string | null>(null)
+  // Thẻ xem lại sau khi sai liên tiếp, hiện trước câu kế tiếp
+  const [relearn, setRelearn] = useState<WordReveal | null>(null)
+  const lastReveal = useRef<WordReveal | undefined>(undefined)
   const shownAt = useRef(0)
   // Lưu TUẦN TỰ: câu sau chỉ gửi khi câu trước lưu xong → server cấp day_seq đúng thứ tự,
   // luật giãn cách đọc đúng câu trước. Câu chọn không phải chờ: bấm Continue được ngay.
@@ -125,6 +133,20 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
   }, [index])
 
   const stageLabel = `Stage ${stage}`
+
+  if (questions.length === 0 && kanjiIntroWaiting > 0) {
+    return (
+      <div className="flex min-h-dvh flex-col">
+        <SessionComplete
+          title="New Kanji to meet"
+          subtitle={`${kanjiIntroWaiting} ${kanjiIntroWaiting === 1 ? 'word is' : 'words are'} waiting for you in Stage 3 before continuing here.`}
+          stats={[]}
+          primary={{ href: '/learn/stage3', label: 'Open Stage 3' }}
+          secondary={{ href: '/learn', label: 'Back to Learn' }}
+        />
+      </div>
+    )
+  }
 
   if (questions.length === 0) {
     const empty = EMPTY_HINT[stage]
@@ -141,6 +163,14 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
     )
   }
 
+  if (relearn && index >= questions.length) {
+    return (
+      <div className="flex min-h-dvh flex-col">
+        <RelearnExercise key={relearn.kana} reveal={relearn} onContinue={() => setRelearn(null)} />
+      </div>
+    )
+  }
+
   if (index >= questions.length) {
     const correct = results.filter(Boolean).length
     const wrong = results.length - correct
@@ -149,7 +179,7 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
       <div className="flex min-h-dvh flex-col">
         <SessionComplete
           title={pending > 0 ? 'Saving…' : 'Round complete!'}
-          subtitle={warning ?? `You practiced ${results.length} ${results.length === 1 ? 'word' : 'words'} in ${stageLabel}.`}
+          subtitle={warning ?? (kanjiIntroWaiting > 0 ? 'Some words are waiting for you in Stage 3. ' : '') + `You practiced ${results.length} ${results.length === 1 ? 'word' : 'words'} in ${stageLabel}.`}
           stats={[
             { label: 'Correct', value: String(correct), tone: 'text-success' },
             { label: 'Wrong', value: String(wrong), tone: 'text-error' },
@@ -165,6 +195,11 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
 
   const q = questions[index]
   const next = () => setIndex((i) => i + 1)
+  /** Sai lần thứ 3 liên tiếp thì xem lại từ rồi mới sang câu sau. */
+  const afterAnswer = (correct: boolean, reveal: WordReveal | undefined) => {
+    next()
+    if (!correct && q.kind !== 'match' && reveal && shouldRelearn(q.wrongStreak + 1)) setRelearn(reveal)
+  }
   const responseMs = () => Date.now() - shownAt.current
 
   const answerChoice = (current: ChoiceQ, exercise: string) => (chosen: string) => {
@@ -213,6 +248,7 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
         const correct = res.outcome === 'correct'
         speak(res.reading)
         setResults((list) => [...list, correct])
+        lastReveal.current = res.reveal
         return { correct, answer: [res.answer], explanation: pointsNote(stage, res.result), reveal: res.reveal }
       }
       // Từ đã hoàn tất stage này (ví dụ học trên máy khác): câu này không còn hiệu lực.
@@ -246,24 +282,24 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
     body = <MatchRoundExercise key={q.clientEventId} round={q} onDone={finishMatch} />
   } else if (q.kind === 'choice') {
     const listening = q.listenTo !== undefined
-    // Chưa biết có giọng Nhật không thì chờ; không có giọng thì đổi sang chọn Kana theo nghĩa, cùng đáp án
+    // Chưa biết có giọng Nhật không thì chờ; không có giọng thì đổi sang dạng thay thế, cùng đáp án
     if (listening && voice === 'checking') {
       body = <p className="m-auto text-sm text-muted-foreground">Loading…</p>
     } else {
       const useAudio = listening && voice === 'available'
       const fallback = listening && !useAudio
-      const exercise = fallback ? 'meaning_to_kana' : q.exercise
+      const exercise = fallback && q.noVoice ? q.noVoice.exercise : q.exercise
       const step = toChoiceStep(q, stageLabel, notes[q.clientEventId] ?? '')
       body = (
         <ChoiceExercise
           key={q.clientEventId}
-          step={fallback ? { ...step, question: 'Which word means this?' } : step}
+          step={fallback && q.noVoice ? { ...step, question: q.noVoice.question } : step}
           promptNode={useAudio ? <ListeningPrompt kana={q.listenTo!} /> : undefined}
           onAnswer={answerChoice(q, exercise)}
           instant
           wrongNote={WRONG_ANSWER_NOTE}
           reveal={q.reveal}
-          onComplete={next}
+          onComplete={(correct) => afterAnswer(correct, q.reveal)}
         />
       )
     }
@@ -272,7 +308,7 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
       <AssemblyExercise
         key={q.clientEventId}
         step={toAssemblyStep(q, stageLabel)}
-        onComplete={next}
+        onComplete={(correct) => afterAnswer(correct, lastReveal.current)}
         onGrade={gradeOnServer(q)}
         wrongNote={WRONG_ANSWER_NOTE}
       />
@@ -282,7 +318,7 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
       <RecallExercise
         key={q.clientEventId}
         step={toRecallStep(q, stageLabel)}
-        onComplete={next}
+        onComplete={(correct) => afterAnswer(correct, lastReveal.current)}
         onGrade={gradeOnServer(q)}
         wrongNote={WRONG_ANSWER_NOTE}
       />
@@ -299,7 +335,7 @@ export function StageSession({ stage, questions, nextDueAt }: StageSessionProps)
         total={questions.length}
       />
       {warning && <p role="alert" className="mx-auto mt-3 w-full max-w-2xl px-4 text-sm text-error">{warning}</p>}
-      {body}
+      {relearn ? <RelearnExercise key={relearn.kana} reveal={relearn} onContinue={() => setRelearn(null)} /> : body}
     </div>
   )
 }

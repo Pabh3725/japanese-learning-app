@@ -4,25 +4,18 @@ import { useState } from 'react'
 import { ContinueFooter } from '@/components/learning/exercise-footer'
 import { ExercisePanel } from '@/components/learning/exercise-panel'
 import { SpeakerButton } from '@/components/learning/speaker-button'
-import type { Stage3Word } from '@/lib/dal/stage3'
+import type { HanVietIntroWord } from '@/lib/dal/stage3'
 import { speak } from '@/lib/speech'
 import { cn } from '@/lib/utils'
 
-function expressionSize(text: string) {
-  const len = Array.from(text).length
-  if (len <= 3) return 'text-[72px] md:text-[88px]'
-  if (len <= 6) return 'text-[48px] md:text-[60px]'
-  return 'text-[32px] md:text-[40px]'
-}
-
 interface KanjiRevealExerciseProps {
-  word: Stage3Word
+  word: HanVietIntroWord
   saving: boolean
   error: string | null
   onComplete: () => void
 }
 
-/** Stage 3: lật thẻ がっこう → 学校, Hán Việt toàn từ và từng chữ. Không có On/Kun để khỏi quá tải. */
+/** Stage 3: lật thẻ để biết Hán Việt của từ. Kanji để tới thẻ Giới thiệu Hán tự. */
 export function KanjiRevealExercise({ word, saving, error, onComplete }: KanjiRevealExerciseProps) {
   const [flipped, setFlipped] = useState(false)
 
@@ -35,14 +28,14 @@ export function KanjiRevealExercise({ word, saving, error, onComplete }: KanjiRe
 
   return (
     <ExercisePanel
-      stage="Stage 3 · Kanji & Sino-Vietnamese"
-      question={flipped ? 'This is how it is written' : 'You know this word. Tap to see its Kanji'}
+      stage="Stage 3 · Sino-Vietnamese"
+      question={flipped ? 'This is its Sino-Vietnamese reading' : 'You know this word. Tap to see its Sino-Vietnamese reading'}
       footer={
         <ContinueFooter
           label={!flipped ? 'Reveal' : saving ? 'Saving…' : error ? 'Try again' : 'Got it'}
           onClick={flipped ? onComplete : reveal}
           disabled={saving}
-          hint={error ?? (flipped ? 'Next: practice writing it from pieces.' : undefined)}
+          hint={error ?? (flipped ? 'Next: choose this reading in Stage 4.' : undefined)}
         />
       }
     >
@@ -68,27 +61,12 @@ export function KanjiRevealExercise({ word, saving, error, onComplete }: KanjiRe
             aria-hidden={!flipped}
             className="absolute inset-0 flex rotate-y-180 flex-col items-center justify-center gap-4 rounded-3xl border border-primary/30 bg-card px-6 py-6 text-center backface-hidden"
           >
-            <p lang="ja" className={cn('max-w-full font-jp leading-tight font-medium', expressionSize(word.expression))}>{word.expression}</p>
-            <span className="rounded-full bg-yellow/12 px-3 py-1 text-sm font-semibold tracking-wide text-yellow">{word.hanViet}</span>
+            <span className="rounded-full bg-yellow/12 px-4 py-2 text-2xl font-semibold tracking-wide text-yellow">{word.hanViet}</span>
             <div className="flex items-center gap-3">
               <p lang="ja" className="font-jp text-xl text-cyan">{word.reading}</p>
               <SpeakerButton kana={word.reading} />
             </div>
             <p className="text-pretty text-base font-medium">{word.meaning}</p>
-            {word.parts.length > 0 && (
-              <>
-                <div className="h-px w-16 bg-border" />
-                <ul className="flex flex-col gap-1.5 text-sm" aria-label="Kanji in this word">
-                  {word.parts.map((part) => (
-                    <li key={part.character} className="flex items-baseline justify-center gap-2">
-                      <span lang="ja" className="font-jp text-xl">{part.character}</span>
-                      <span className="font-semibold text-yellow">{part.hanViet}</span>
-                      <span className="text-muted-foreground">{part.meaning}</span>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
           </div>
         </div>
       </div>

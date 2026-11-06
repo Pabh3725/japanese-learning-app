@@ -95,8 +95,9 @@ describe('Case 8–9 · Trần review/ngày và quota từ mới', () => {
     expect(borrowFor(vn('2026-11-06 00:01'))).toBe('2026-11-07')
 
     // Hôm 05/11 mượn 5 từ cho 06/11 → bài học 06/11 còn 15 từ mới; đã mượn trọn quota thì hết mượn
-    expect(planDailyCounts({ dueSnapshot: 10, borrowedForToday: 5 }).newWords).toBe(15)
-    expect(allowedBorrow({ dueSnapshot: 10, alreadyBorrowedForTomorrow: 20, requested: 3 })).toBe(0)
+    const settings = { newPerDay: 20, reviewCap: 120, unlockThreshold: 80 }
+    expect(planDailyCounts({ dueSnapshot: 10, borrowedForToday: 5, settings }).newWords).toBe(15)
+    expect(allowedBorrow({ dueSnapshot: 10, alreadyBorrowedForTomorrow: 20, requested: 3, settings })).toBe(0)
   })
 })
 

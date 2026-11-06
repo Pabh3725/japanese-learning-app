@@ -1,7 +1,7 @@
 // VOC-04, SCH-01 — Test phần chuyển đổi database ↔ engine, và nghiệm thu bằng một "database giả"
 // trong bộ nhớ: mỗi câu đi đủ vòng  đọc → engine + lịch → tham số RPC → ghi lại  như ở server thật.
 import { describe, expect, it } from 'vitest'
-import { applyStageAttempt } from '../../learning/stage'
+import { applyStageAttempt, trailingCount } from '../../learning/stage'
 import { studyDate } from '../../learning/time'
 import type { ExerciseCode, Outcome } from '../../learning/types'
 import { newStageSchedule, reviewStageSchedule } from '../../srs/stage-scheduler'
@@ -41,7 +41,7 @@ const row = (over: Partial<StageScheduleRow> = {}): StageScheduleRow => ({
   version: 0,
   ...over,
 })
-const noCtx = { isKanaOnly: false, earned: [], lastSeq: null, lastSeqDate: null }
+const noCtx = { isKanaOnly: false, earned: [], lastSeq: null, lastSeqDate: null, correctStreak: 0 }
 
 describe('parseSubmitExerciseRequest — không tin trình duyệt', () => {
   const ok = { learnerVocabularyId: LV, stage: 2, clientEventId: EV, exercise: 'kana_to_meaning', outcome: 'correct', daySeq: 7 }
@@ -124,7 +124,7 @@ describe('toSubmitStageExerciseParams — kết quả engine → tham số RPC',
 
   it('hoàn tất Stage 4 lúc 23:30 giờ VN → card mới hạn 00:00 hôm sau, không mở thêm', () => {
     const now = vn('2026-11-05 23:30')
-    const state = rowToStageState(row({ stage_number: 4, stage_points: 9, unlocked_next_at: '2026-11-01T00:00:00Z' }), noCtx)
+    const state = rowToStageState(row({ stage_number: 4, stage_points: 14, unlocked_next_at: '2026-11-01T00:00:00Z' }), { ...noCtx, correctStreak: 2 })
     const p = params(state, 'hanviet_assembly', 'correct', now)
     expect(p).toMatchObject({
       p_schedule_id: SCH,
@@ -132,7 +132,7 @@ describe('toSubmitStageExerciseParams — kết quả engine → tham số RPC',
       p_counted: true,
       p_study_date: '2026-11-05',
       p_day_seq: 9,
-      p_stage_points: 10,
+      p_stage_points: 15,
       p_expected_version: 3,
       p_completed: true,
       p_unlocked_stage: null,
@@ -144,20 +144,20 @@ describe('toSubmitStageExerciseParams — kết quả engine → tham số RPC',
   })
 
   it('từ có Kanji mở Stage 3: chỉ có xem nên không tạo lịch', () => {
-    const state = rowToStageState(row({ stage_points: 4 }), { ...noCtx, earned: ['kana_to_meaning', 'meaning_to_kana'] })
+    const state = rowToStageState(row({ stage_points: 5 }), { ...noCtx, earned: ['kana_to_meaning', 'meaning_to_kana'] })
     const p = params(state, 'kana_assembly', 'correct', vn('2026-11-05 20:00'))
     expect(p).toMatchObject({ p_unlocked_stage: 3, p_open_schedule: false, p_completed: false, p_new_card_types: [] })
   })
 
   it('từ chỉ Kana mở Stage 5: có điểm nên phải tạo lịch', () => {
-    const state = rowToStageState(row({ stage_points: 4 }), { ...noCtx, isKanaOnly: true, earned: ['kana_to_meaning', 'meaning_to_kana'] })
+    const state = rowToStageState(row({ stage_points: 5 }), { ...noCtx, isKanaOnly: true, earned: ['kana_to_meaning', 'meaning_to_kana'] })
     const p = params(state, 'kana_assembly', 'correct', vn('2026-11-05 20:00'))
     expect(p).toMatchObject({ p_unlocked_stage: 5, p_open_schedule: true, p_required_stages: [2, 5] })
   })
 
   it('câu sai → không có card, không có hạn card', () => {
     const p = params(rowToStageState(row(), noCtx), 'kana_to_meaning', 'wrong', vn('2026-11-05 20:00'))
-    expect(p).toMatchObject({ p_points: -1, p_stage_points: -1, p_new_card_types: [], p_new_cards_due_at: null })
+    expect(p).toMatchObject({ p_points: -2, p_stage_points: -2, p_new_card_types: [], p_new_cards_due_at: null })
   })
 })
 
@@ -176,7 +176,7 @@ interface FakeDb {
   isKanaOnly: boolean
   currentStage: number
   schedules: Map<number, StageScheduleRow>
-  logs: { stage_number: number; exercise_type: string; points: number; study_date: string; day_seq: number }[]
+  logs: { stage_number: number; exercise_type: string; points: number; study_date: string; day_seq: number; outcome: Outcome }[]
   cards: string[]
   dueBefore: Map<string, Date>
 }
@@ -193,13 +193,14 @@ function answer(db: FakeDb, stage: 2 | 4 | 5, exercise: ExerciseCode, outcome: O
     isKanaOnly: db.isKanaOnly,
     earned: deriveEarned(db.logs.filter((l) => l.stage_number === stage)),
     ...deriveLastSeq(db.logs.filter((l) => l.study_date === today).map((l) => l.day_seq), today),
+    correctStreak: trailingCount(db.logs.filter((l) => l.stage_number === stage).map((l) => l.outcome).reverse(), 'correct'),
   })!
   const attempt = { exercise, outcome, seq, now }
   const result = applyStageAttempt(state, attempt)
   const schedule = reviewStageSchedule(rowToSchedule(r), outcome, now)
   const p = toSubmitStageExerciseParams({ scheduleId: r.id, clientEventId: EV, expectedVersion: r.version, attempt, result, schedule })
   // Những gì submit_stage_exercise ghi:
-  db.logs.push({ stage_number: stage, exercise_type: p.p_exercise_type, points: p.p_points, study_date: p.p_study_date, day_seq: p.p_day_seq })
+  db.logs.push({ outcome, stage_number: stage, exercise_type: p.p_exercise_type, points: p.p_points, study_date: p.p_study_date, day_seq: p.p_day_seq })
   db.schedules.set(stage, {
     ...r,
     state: p.p_state,
@@ -235,7 +236,7 @@ describe('Nghiệm thu SCH-01', () => {
     expect(db.logs).toHaveLength(5) // vẫn ghi đủ nhật ký
   })
 
-  it('学校: 5 điểm mở Stage 3 nhưng Stage 2 chạy tiếp; 8 điểm mới tạo card', () => {
+  it('学校: 6 điểm mở Stage 3 nhưng Stage 2 chạy tiếp; 10 điểm mới tạo card', () => {
     const db = fakeDb()
     answer(db, 2, 'kana_to_meaning', 'correct', 1, day(5))
     answer(db, 2, 'meaning_to_kana', 'correct', 6, day(5))
@@ -244,34 +245,48 @@ describe('Nghiệm thu SCH-01', () => {
     expect(db.schedules.get(2)).toMatchObject({ stage_points: 3, stage_points_today: 3 })
 
     answer(db, 2, 'kana_to_meaning', 'correct', 1, day(6)) // 4
-    const open = answer(db, 2, 'meaning_to_kana', 'correct', 6, day(6)) // 5 + đủ 3 dạng
+    answer(db, 2, 'meaning_to_kana', 'correct', 6, day(6)) // 5
+    const open = answer(db, 2, 'kana_assembly', 'correct', 11, day(6)) // 6 + đủ 3 dạng
     expect(open.result.unlockedStage).toBe(3)
     expect(db.currentStage).toBe(3)
-    expect(db.schedules.get(2)).toMatchObject({ stage_points: 5, completed_at: null })
-    expect(db.cards).toEqual([]) // chưa có card ở mốc 5
+    expect(db.schedules.get(2)).toMatchObject({ stage_points: 6, completed_at: null })
+    expect(db.cards).toEqual([]) // chưa có card ở mốc 6
     expect(db.schedules.has(4)).toBe(false) // Stage 4 mở khi xem xong Stage 3
 
-    answer(db, 2, 'kana_assembly', 'correct', 11, day(6)) // 6
-    answer(db, 2, 'kana_to_meaning', 'correct', 1, day(7)) // 7
-    const done = answer(db, 2, 'meaning_to_kana', 'correct', 6, day(7)) // 8
+    answer(db, 2, 'kana_assembly', 'correct', 1, day(7)) // 7
+    answer(db, 2, 'kana_assembly', 'correct', 6, day(7)) // 8
+    answer(db, 2, 'kana_assembly', 'correct', 11, day(7)) // 9
+    const done = answer(db, 2, 'kana_assembly', 'correct', 1, day(8)) // 10
     expect(done.result.completed).toBe(true)
     expect(db.schedules.get(2)!.completed_at).not.toBe(null)
     expect(db.cards).toEqual(['vocab.meaning_kana'])
   })
 
-  it('テレビ: 5 điểm tạo lịch Stage 5; hai stage giữ điểm và lịch riêng', () => {
+  it('sai ngay trước mốc: đủ điểm cũng phải đúng 3 câu liên tiếp mới hoàn tất', () => {
+    const db = fakeDb()
+    db.schedules.set(2, row({ stage_points: 11, unlocked_next_at: day(1).toISOString() }))
+    answer(db, 2, 'kana_assembly', 'wrong', 1, day(5)) // 9
+    answer(db, 2, 'kana_assembly', 'correct', 6, day(5)) // 10, chuỗi 1
+    answer(db, 2, 'kana_assembly', 'correct', 11, day(5)) // 11, chuỗi 2
+    expect(db.schedules.get(2)!.completed_at).toBe(null)
+    const done = answer(db, 2, 'kana_assembly', 'correct', 1, day(6)) // 12, chuỗi 3
+    expect(done.result.completed).toBe(true)
+  })
+
+  it('テレビ: 6 điểm tạo lịch Stage 5; hai stage giữ điểm và lịch riêng', () => {
     const db = fakeDb(true)
     answer(db, 2, 'kana_to_meaning', 'correct', 1, day(5))
     answer(db, 2, 'meaning_to_kana', 'correct', 6, day(5))
     answer(db, 2, 'kana_assembly', 'correct', 11, day(5))
     answer(db, 2, 'kana_to_meaning', 'correct', 1, day(6))
     answer(db, 2, 'meaning_to_kana', 'correct', 6, day(6))
+    answer(db, 2, 'kana_assembly', 'correct', 11, day(6))
     expect(db.currentStage).toBe(5)
     expect(db.schedules.get(5)).toMatchObject({ stage_points: 0, completed_at: null })
 
-    answer(db, 5, 'meaning_assembly', 'correct', 11, day(6))
+    answer(db, 5, 'meaning_assembly', 'correct', 16, day(6))
     expect(db.schedules.get(5)!.stage_points).toBe(1)
-    expect(db.schedules.get(2)!.stage_points).toBe(5) // điểm Stage 2 không đổi
+    expect(db.schedules.get(2)!.stage_points).toBe(6) // điểm Stage 2 không đổi
   })
 
   it('giãn cách tính chung cho cả từ, kể cả câu ở stage khác', () => {
@@ -287,7 +302,7 @@ describe('Nghiệm thu SCH-01', () => {
     for (let d = 1; d <= 20; d++) {
       const { params } = answer(db, 2, 'kana_to_meaning', d % 3 === 0 ? 'hint' : 'correct', 1, vn(`2026-11-${String(d).padStart(2, '0')} 20:00`))
       expect(params.p_scheduled_days).toBeLessThanOrEqual(2)
-      if (db.schedules.get(2)!.stage_points >= 8) break
+      if (db.schedules.get(2)!.stage_points >= 10) break
     }
   })
 
@@ -299,6 +314,7 @@ describe('Nghiệm thu SCH-01', () => {
       isKanaOnly: false,
       earned: deriveEarned(db.logs),
       ...deriveLastSeq(db.logs.map((l) => l.day_seq), '2026-11-05'),
+      correctStreak: 2,
     })!
     expect(reloaded).toMatchObject({ stage: 2, points: 2, plusToday: 2, lastSeq: 6 })
     expect([...reloaded.earned].sort()).toEqual(['kana_assembly', 'kana_to_meaning'])

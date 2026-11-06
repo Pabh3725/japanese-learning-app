@@ -39,16 +39,20 @@ describe('typedRomaji', () => {
 describe('wordReveal', () => {
   const word: StageWord = { id: 'a', expression: '学校', reading_kana: 'がっこう', meaning_vi: 'trường học', han_viet: 'HỌC HIỆU', is_kana_only: false, romaji: 'gakkou' }
 
-  it.each([2, 3])('chưa xem thẻ Stage 3 (current_stage %i): không có Kanji và Hán Việt', (stage) => {
-    expect(wordReveal(word, stage)).toEqual({ expression: null, kana: 'がっこう', romaji: 'gakkou', hanViet: null, meaning: 'trường học' })
+  it.each([2, 3])('chưa xem thẻ Hán Việt (current_stage %i): không có Kanji và Hán Việt', (currentStage) => {
+    expect(wordReveal(word, { currentStage, kanjiIntroSeen: false })).toEqual({ expression: null, kana: 'がっこう', romaji: 'gakkou', hanViet: null, meaning: 'trường học' })
   })
 
-  it('đã xem thẻ Stage 3: đủ thông tin, kể cả câu Stage 2 còn đang chạy', () => {
-    expect(wordReveal(word, 4)).toMatchObject({ expression: '学校', hanViet: 'HỌC HIỆU' })
+  it('đã xem thẻ Hán Việt nhưng chưa xem thẻ Hán tự: có Hán Việt, chưa có Kanji', () => {
+    expect(wordReveal(word, { currentStage: 4, kanjiIntroSeen: false })).toMatchObject({ expression: null, hanViet: 'HỌC HIỆU' })
+  })
+
+  it('đã xem thẻ Hán tự: đủ thông tin, kể cả câu Stage 2 còn đang chạy', () => {
+    expect(wordReveal(word, { currentStage: 4, kanjiIntroSeen: true })).toMatchObject({ expression: '学校', hanViet: 'HỌC HIỆU' })
   })
 
   it('từ chỉ có Kana không có dòng Kanji', () => {
-    expect(wordReveal({ ...word, expression: 'テレビ', han_viet: null, is_kana_only: true }, 5)).toMatchObject({ expression: null, hanViet: null })
+    expect(wordReveal({ ...word, expression: 'テレビ', han_viet: null, is_kana_only: true }, { currentStage: 5, kanjiIntroSeen: false })).toMatchObject({ expression: null, hanViet: null })
   })
 })
 

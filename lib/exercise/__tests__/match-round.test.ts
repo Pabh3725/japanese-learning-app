@@ -13,7 +13,7 @@ const word = (n: number, over: Partial<MatchCandidate> = {}): MatchCandidate => 
   meaning_vi: `nghĩa ${n}`,
   han_viet: `HÁN ${n}`,
   is_kana_only: false,
-  currentStage: 5,
+  kanjiIntroSeen: true,
   stage5Active: true,
   ...over,
 })
@@ -41,7 +41,7 @@ describe('buildMatchRound', () => {
   })
 
   it('không lộ Kanji của từ chưa xem Stage 3', () => {
-    const notYet = Array.from({ length: 8 }, (_, i) => word(i, { currentStage: 2 }))
+    const notYet = Array.from({ length: 8 }, (_, i) => word(i, { kanjiIntroSeen: false }))
     for (let s = 1; s < 30; s++) expect(buildMatchRound(notYet, newId, seededRng(s))!.pairType).toBe('kana_meaning')
   })
 

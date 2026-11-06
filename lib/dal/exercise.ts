@@ -8,7 +8,9 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
-import { applyStageAttempt, type StageAttemptResult } from '@/lib/learning/stage'
+import { RULES_V4 } from '@/lib/learning/rules'
+import { applyStageAttempt, reachedKanjiIntro, trailingCount, type StageAttemptResult } from '@/lib/learning/stage'
+import type { Outcome } from '@/lib/learning/types'
 import { studyDate } from '@/lib/learning/time'
 import {
   canAnswer,
@@ -27,9 +29,11 @@ import { reviewStageSchedule } from '@/lib/srs/stage-scheduler'
 const SCHEDULE_COLUMNS =
   'id, stage_number, state, due_at, stability, difficulty, scheduled_days, learning_steps, reps, lapses, ' +
   'last_review_at, stage_points, stage_points_today, points_date, unlocked_next_at, completed_at, version, ' +
-  'learner_vocabulary!inner(vocabularies!inner(is_kana_only))'
+  'learner_vocabulary!inner(kanji_intro_seen_at, vocabularies!inner(is_kana_only))'
 
-type ScheduleQueryRow = StageScheduleRow & { learner_vocabulary: { vocabularies: { is_kana_only: boolean } } }
+type ScheduleQueryRow = StageScheduleRow & {
+  learner_vocabulary: { kanji_intro_seen_at: string | null; vocabularies: { is_kana_only: boolean } }
+}
 
 export interface SubmitExerciseResponse {
   /** 'invalid' = trình duyệt gửi dữ liệu sai dạng. Còn lại: kết quả của submit_stage_exercise. */
@@ -37,6 +41,8 @@ export interface SubmitExerciseResponse {
   /** Chỉ có khi status = 'saved' — để giao diện hiện phản hồi (+1, mở stage sau…). */
   result?: Pick<StageAttemptResult, 'delta' | 'counted' | 'unlockedStage' | 'completed' | 'cardsCreated'> & {
     points: number
+    /** Câu này vừa mở thẻ Giới thiệu Hán tự. */
+    kanjiIntroReady: boolean
   }
 }
 
@@ -54,7 +60,7 @@ export async function submitExercise(input: unknown): Promise<SubmitExerciseResp
   const today = studyDate(now)
 
   // 3. Đọc song song: các truy vấn không phụ thuộc nhau, chờ nối tiếp sẽ làm người học phải đợi lâu.
-  const [schedule_, earnedLogs, lastExercise] = await Promise.all([
+  const [schedule_, earnedLogs, lastExercise, recentLogs] = await Promise.all([
     // 3a. Lịch (RLS + lọc user_id: chỉ của chính mình)
     supabase
       .from('learner_stage_schedules')
@@ -79,10 +85,20 @@ export async function submitExercise(input: unknown): Promise<SubmitExerciseResp
       .eq('source', 'lesson') // câu vòng ghép ô không tính giãn cách
       .order('day_seq', { ascending: false })
       .limit(1),
+    // 3d. Các câu gần nhất ở stage này, để biết chuỗi đúng liên tiếp
+    supabase
+      .from('exercise_logs')
+      .select('outcome')
+      .eq('learner_vocabulary_id', lvId)
+      .eq('stage_number', req.stage)
+      .eq('source', 'lesson')
+      .order('answered_at', { ascending: false })
+      .limit(RULES_V4.completion.correctStreak),
   ])
   if (schedule_.error) throw new Error(`Không đọc được learner_stage_schedules: ${schedule_.error.message}`)
   if (earnedLogs.error) throw new Error(`Không đọc được exercise_logs: ${earnedLogs.error.message}`)
   if (lastExercise.error) throw new Error(`Không đọc được exercise_logs: ${lastExercise.error.message}`)
+  if (recentLogs.error) throw new Error(`Không đọc được exercise_logs: ${recentLogs.error.message}`)
 
   if (!schedule_.data) {
     // Không có lịch: hoặc từ không phải của mình, hoặc stage này chưa mở
@@ -102,6 +118,7 @@ export async function submitExercise(input: unknown): Promise<SubmitExerciseResp
     isKanaOnly: row.learner_vocabulary.vocabularies.is_kana_only,
     earned: deriveEarned(earnedLogs.data ?? []),
     ...deriveLastSeq((lastExercise.data ?? []).map((l) => l.day_seq as number | null), today),
+    correctStreak: trailingCount((recentLogs.data ?? []).map((l) => l.outcome as Outcome), 'correct'),
   })
   if (!state) throw new Error(`learner_stage_schedules ${row.id} sai dạng`)
 
@@ -137,6 +154,11 @@ export async function submitExercise(input: unknown): Promise<SubmitExerciseResp
       completed: result.completed,
       cardsCreated: result.cardsCreated,
       points: result.state.points,
+      kanjiIntroReady:
+        req.stage === 4 &&
+        row.learner_vocabulary.kanji_intro_seen_at === null &&
+        !reachedKanjiIntro(state.points) &&
+        reachedKanjiIntro(result.state.points),
     },
   }
 }

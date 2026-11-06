@@ -234,7 +234,7 @@ Chi tiết: §8.
 | FR-ST-01 | Daily goal và các switch. | IMPLEMENTED (UI demo, chỉ React state) |
 | FR-ST-02 | Settings lưu theo từng người học và đồng bộ giữa thiết bị. | CONFIRMED (V7) |
 | FR-ST-03 | Tham số học do người học tự chỉnh, mặc định và giới hạn theo §18.5. Bỏ chế độ xen kẽ/review trước. | CONFIRMED (V8) |
-| FR-ST-04 | Romaji chỉ hiện ở Stage 1–2 (kiểu `gakkou`), ẩn từ Stage 3. Furigana: PENDING. | CONFIRMED (V7) phần Romaji |
+| FR-ST-04 | Romaji chỉ hiện ở Stage 1–2 (kiểu `gakkou`), ẩn từ Stage 3; riêng thẻ trả lời sai vẫn hiện (§18.3b). Furigana: PENDING. | CONFIRMED (V7) phần Romaji |
 
 ---
 
@@ -841,7 +841,7 @@ Kana pieces cho Assembly (`kanaPieces` trong v0): lưu sẵn hay sinh tự độ
 | Thực thể | Trường chính (PROPOSED) |
 | --- | --- |
 | `vocabulary_progress` | `user_id`, `vocabulary_id`, `current_stage` (1–5), `stage_points`, `stage_points_today` + `points_date`, `stage_n_passed_at`, `initial_learning_completed_at`, `excluded_at` (loại khỏi lộ trình), `rules_version` |
-| `user_settings` *(V7)* | `user_id`, `new_per_day` (20), `review_cap` (120), `unlock_threshold` (80), `mode` (`mixed`/`review_first`), `borrowed_new_count` + `borrowed_for_date` |
+| `user_settings` *(V7)* | `user_id`, `new_per_day` (5, V4), `review_cap` (120), `unlock_threshold` (80), `mode` (`mixed`/`review_first`), `borrowed_new_count` + `borrowed_for_date` |
 | `vocabulary_skill_progress` | `user_id`, `vocabulary_id`, `skill` (S1–S4), `checkpoint_state` (theo Stage), `strength` (cách tính PENDING), `last_attempt_at`, `correct_streak` |
 
 Phân tách rõ checkpoint (không mất) và strength (biến động) — CONFIRMED về nguyên tắc.
@@ -1325,17 +1325,40 @@ Mỗi stage có mốc riêng:
 
 | Stage | Mở stage sau | Hoàn tất, tạo card | Điều kiện thêm |
 | --- | --- | --- | --- |
-| Stage 2 | 5 điểm | 8 điểm | Đủ 3 dạng bắt buộc để mở stage sau |
-| Stage 4 | 6 điểm | 10 điểm | Đủ 4 dạng bắt buộc để mở stage sau |
+| Stage 2 | 6 điểm | 10 điểm | Đủ 3 dạng bắt buộc để mở stage sau |
+| Stage 4 | 10 điểm | 15 điểm | Đủ 6 dạng bắt buộc để mở stage sau |
 | Stage 5, từ có Kanji | Không có | 10 điểm | Đủ 4 kỹ năng |
-| Stage 5, từ chỉ có Kana | Không có | 8 điểm | Đủ 2 kỹ năng |
+| Stage 5, từ chỉ có Kana | Không có | 10 điểm | Đủ 2 kỹ năng |
+
+Hoàn tất cần thêm **3 câu gần nhất của stage đúng liên tiếp** (§18.3b).
 
 - Sau khi mở stage sau, stage hiện tại **vẫn tiếp tục** đến khi hoàn tất. Hoàn tất thì dừng lịch và bài tập của stage đó, tạo card của stage.
 - Từ hoàn thành vòng học ban đầu khi mọi stage tính điểm của nó đều hoàn tất.
-- Điểm giữ nguyên: đúng +1, gợi ý 0, sai −1; tối đa +3 điểm mỗi stage mỗi ngày; điểm có thể âm.
+- Điểm (V4, 2026-11-06): đúng +1, gợi ý 0, sai **−2**; tối đa +3 điểm mỗi stage mỗi ngày; điểm có thể âm.
 - Sai sau khi đã mở stage sau: trừ điểm, nhưng không đóng stage đã mở.
-- Stage 1 và Stage 3 chỉ có xem. Xem xong Stage 3 thì tạo card kana–Hán Việt như V7.
+- Stage 1 và Stage 3 chỉ có xem. Xem xong thẻ Hán Việt ở Stage 3 thì tạo card kana–Hán Việt như V7.
 - Ước tính nếu đúng mọi câu: từ có Kanji cần tối thiểu 28 câu, có card chấm điểm đầu tiên khoảng ngày 12, hoàn thành khoảng ngày 30; từ chỉ có Kana cần tối thiểu 16 câu, hoàn thành khoảng ngày 18.
+
+### 18.3b Lộ trình theo bước — CONFIRMED (2026-11-06)
+
+Thay cách chọn dạng bài ngẫu nhiên, để mỗi stage đi từ dễ tới khó. Sai làm tụt dưới mốc thì quay lại bước trước. Không thêm số stage mới.
+
+| Chặng | Điểm | Nội dung |
+| --- | --- | --- |
+| Stage 2 | 0–3 | Trắc nghiệm Kana ↔ nghĩa |
+| Stage 2 | Từ 4 | Ghép Kana; đủ dạng bắt buộc thì khoảng 1/5 là trắc nghiệm |
+| Stage 3 | Chỉ xem | Thẻ Hán Việt: Kana, nghĩa, Hán Việt. **Chưa hiện Kanji** |
+| Stage 4, bước 1 | 0–2 | Trắc nghiệm Hán Việt (đề là Kana và nghĩa) |
+| Thẻ Giới thiệu Hán tự | Đạt 3 | Ở trang Stage 3. Cả từ, rồi mỗi chữ một màn: mặt chữ, Hán Việt, nghĩa. Không có On/Kun. Từ tạm dừng ở Stage 4 tới khi xem xong |
+| Stage 4, bước 2 | 3–6 | Ghép Hán Việt; chọn nghĩa của chữ Kanji; chọn Kanji từ Hán Việt và ngược lại |
+| Stage 4, bước 3 | Từ 7 | Ghép Kanji, ghép Hán Việt; đủ dạng bắt buộc thì khoảng 1/5 là trắc nghiệm, trong đó một nửa là câu nghe chọn Kanji (không bắt buộc; máy không có giọng Nhật thì đổi sang chọn Kanji từ Hán Việt) |
+| Stage 5 | 0–10 | Như §18.3a, mở khi Stage 4 đạt 10 điểm và đủ 6 dạng |
+
+- **Hoàn tất stage** cần đủ điểm, đủ yêu cầu bắt buộc và 3 câu gần nhất đúng liên tiếp. Câu đúng nhưng không được cộng điểm vẫn nối chuỗi; câu sai hoặc gợi ý làm mất chuỗi. Mốc mở stage sau không cần chuỗi.
+- **Sai 3 câu liên tiếp** ở một stage: hiện lại thẻ của từ rồi mới sang câu sau, không trừ thêm điểm.
+- **Kanji chỉ hiện sau thẻ Giới thiệu Hán tự**, kể cả ở thẻ trả lời sai và vòng ghép. Hán Việt hiện từ thẻ Hán Việt ở Stage 3. Từ đã xem thẻ Stage 3 kiểu cũ được coi là đã xem thẻ Hán tự.
+- **Thẻ trả lời sai** hiện cả romaji ở mọi stage, là ngoại lệ của FR-ST-04.
+- Ước tính bằng giả lập khi đúng 90%, chỉ tính câu Stage: mỗi từ mất khoảng 67 ngày; 5 từ mới mỗi ngày thì ngày cao nhất khoảng 235 câu, vượt trần 200 câu từ khoảng ngày 69.
 
 ### 18.3a Vòng ghép ô ở Stage 5 — CONFIRMED (2026-11-06)
 
@@ -1355,7 +1378,7 @@ Thay các câu chọn 1/6 vì ở giai đoạn này người học đã nhớ m�
 
 | Cài đặt | Mặc định | Giới hạn | Áp dụng cho |
 | --- | --- | --- | --- |
-| Từ mới/ngày | 20 | 0–50 | Learn |
+| Từ mới/ngày | 5 (V4, 2026-11-06) | 1–100, Settings có sẵn 3, 5, 8, 12, 20 | Learn |
 | Câu Stage tối đa/ngày | 200 | 20–1000 | Learn |
 | Card ôn tối đa/ngày | 120 | 10–500 | Review |
 | Ngưỡng Card để mở từ mới | 80 | 0–500 | Learn |

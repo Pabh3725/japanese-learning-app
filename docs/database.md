@@ -456,7 +456,12 @@ Spec §18 và `docs/learning-rules.md` (R9, R10) là nguồn chuẩn. Chỉ thê
 
 ### 9.2 `learner_settings` — cột mới
 
-`stage_cap` (200), `kanji_new_per_day` (5), `kanji_cap` (50). Cột `mode` không dùng nữa.
+`stage_cap` (200), `kanji_new_per_day` (5), `kanji_cap` (50). Cột `mode` không dùng nữa. `daily_new_limit` mặc định 5 từ V4.
+
+### 9.2a Luật V4 (2026-11-06)
+
+- `learner_vocabulary.kanji_intro_seen_at`: lúc xem xong thẻ Giới thiệu Hán tự, ghi qua RPC `complete_kanji_intro`. Null thì chưa được hiện Kanji của từ.
+- `exercise_logs.points` nhận từ −2 đến +1.
 
 ### 9.3 Khu Kanji
 

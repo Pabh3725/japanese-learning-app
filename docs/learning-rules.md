@@ -1,6 +1,6 @@
-# ENG-01 — Luật học (Learning Rules) `RULES_V3`
+# ENG-01 — Luật học (Learning Rules) `RULES_V4`
 
-> Trạng thái: **Đã chốt thiết kế V8**. Stage đã có trong code (`lib/learning/` theo `RULES_V3`, SCH-01); R7 làm ở SES-01, R10 ở KJ-02.
+> Trạng thái: **Đã chốt thiết kế V8**. Stage đã có trong code (`lib/learning/` theo `RULES_V4`, SCH-01; các thay đổi V4 ở `PROJECT_SPEC.md` §18.3b); R7 làm ở SES-01, R10 ở KJ-02.
 >
 > Ngày: 2026-11-05 (bản V7: 2026-11-01)
 >
@@ -48,7 +48,7 @@
 | --- | --- |
 | `correct` | +1 |
 | `hint` | 0 |
-| `wrong` | −1 |
+| `wrong` | −2 (V4) |
 
 Điểm thô chưa chắc được cộng; R3 quyết định.
 
@@ -81,7 +81,7 @@ Practice **không** tạo rating và **không** đổi `due`. — CONFIRMED
 Áp cho câu học ở Stage 2, 4, 5:
 
 1. Câu **không được giãn cách** → **0 điểm** (vẫn ghi log, `counted = false`).
-2. Câu được giãn cách, `wrong` → **−1**. Không có trần cho điểm trừ. — CONFIRMED (4a, 5a)
+2. Câu được giãn cách, `wrong` → **−2** (V4). Không có trần cho điểm trừ. — CONFIRMED (4a, 5a)
 3. Câu được giãn cách, `hint` → 0.
 4. Câu được giãn cách, `correct`:
    - nếu **điểm +1 trong ngày** của từ ở Stage này **< 3** → **+1**;
@@ -95,10 +95,12 @@ Mốc riêng từng stage — CONFIRMED (V8, 2026-11-05):
 
 | Stage | Mở stage sau | Hoàn tất |
 | --- | --- | --- |
-| 2 | 5 điểm | 8 điểm |
-| 4 | 6 điểm | 10 điểm |
+| 2 | 6 điểm | 10 điểm |
+| 4 | 10 điểm | 15 điểm |
 | 5, từ có Kanji | Không có | 10 điểm |
-| 5, từ chỉ có Kana | Không có | 8 điểm |
+| 5, từ chỉ có Kana | Không có | 10 điểm |
+
+V4: hoàn tất cần thêm 3 câu gần nhất đúng liên tiếp.
 
 **Mở stage sau** ngay khi đạt mốc điểm **và** mọi **yêu cầu bắt buộc** của Stage đã có **ít nhất một lần được +1** (tính từ lúc vào Stage này, xuyên qua các ngày).
 
@@ -131,11 +133,11 @@ Khi mở stage sau: điểm stage hiện tại **giữ nguyên**, stage kế ti�
 | Vừa hoàn tất | Tạo card |
 | --- | --- |
 | Stage 1 | — |
-| Stage 2 (8 điểm) | `vocab.meaning_kana` |
+| Stage 2 (10 điểm) | `vocab.meaning_kana` |
 | Stage 3 (xem xong) | `vocab.kana_hanviet` |
-| Stage 4 (10 điểm) | `vocab.meaning_kanji`, `vocab.kanji_meaning_hanviet` |
+| Stage 4 (15 điểm) | `vocab.meaning_kanji`, `vocab.kanji_meaning_hanviet` |
 | Stage 5 có Kanji (10 điểm) | `vocab.meaning_hanviet` |
-| Stage 5 chỉ Kana (8 điểm) | — (đã có `vocab.meaning_kana` từ Stage 2) |
+| Stage 5 chỉ Kana (10 điểm) | — (đã có `vocab.meaning_kana` từ Stage 2) |
 
 - Card mới: trạng thái FSRS `New`, điểm card 0, **đến hạn lần đầu lúc 00:00 ngày học hôm sau**. — CONFIRMED (6a)
 - Tạo card idempotent: hoàn tất Stage hai lần (ví dụ do submit trùng) không tạo card thứ hai. — PROPOSED
@@ -168,7 +170,7 @@ Khi mở stage sau: điểm stage hiện tại **giữ nguyên**, stage kế ti�
 
 ## 9. R7 — Dựng Learn và Review mỗi ngày (V8)
 
-Settings mặc định — CONFIRMED (V8): `new_per_day = 20`, `stage_cap = 200`, `review_cap = 120`, `unlock_threshold = 80`.
+Settings mặc định — CONFIRMED (V8): `new_per_day = 5` (V4), `stage_cap = 200`, `review_cap = 120`, `unlock_threshold = 80`.
 
 1. **Chụp hai số** lúc dựng lần đầu trong ngày, cố định cả ngày: `D` = số card `active` có `due ≤ thời điểm đó`; `S` = số lịch Stage đang chạy có `due ≤ thời điểm đó`.
 2. **Review hôm nay** = `min(D, review_cap)` card, ưu tiên card quá hạn lâu nhất. Phần dư dời sang ngày sau.

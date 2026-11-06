@@ -4,7 +4,7 @@
 import { completeIntro } from '../learning/stage'
 import type { Stage } from '../learning/types'
 
-/** Số từ mỗi lần giới thiệu. Tạm thời, chưa áp quota từ mới/ngày: SES-01 sẽ thay phần chọn từ. */
+/** Số từ tối đa mỗi lần giới thiệu. Giới hạn trong ngày do lib/dal/intro.ts áp thêm. */
 export const INTRO_WORDS_PER_SESSION = 10
 
 /**

@@ -13,7 +13,8 @@ const PAIR_TYPES: readonly MatchPairType[] = ['kana_meaning', 'kanji_meaning', '
 
 export interface MatchCandidate extends StageWord {
   learnerVocabularyId: string
-  currentStage: number
+  /** Đã xem thẻ Giới thiệu Hán tự. */
+  kanjiIntroSeen: boolean
   /** Đang chạy Stage 5: được ưu tiên và là từ duy nhất bị trừ điểm. */
   stage5Active: boolean
 }
@@ -46,8 +47,8 @@ function shuffle<T>(items: readonly T[], rng: Rng): T[] {
 }
 
 function sidesOf(word: MatchCandidate, type: MatchPairType): [string, string] | null {
-  // Chỉ dùng Kanji của từ đã xem thẻ Stage 3, để không lộ chữ người học chưa gặp
-  const kanjiKnown = !word.is_kana_only && word.currentStage >= 4
+  // Chỉ dùng Kanji của từ đã xem thẻ Giới thiệu Hán tự, để không lộ chữ người học chưa gặp
+  const kanjiKnown = !word.is_kana_only && word.kanjiIntroSeen
   switch (type) {
     case 'kana_meaning':
       return [word.reading_kana, word.meaning_vi]
