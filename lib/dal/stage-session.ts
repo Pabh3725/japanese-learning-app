@@ -16,7 +16,7 @@ import { INTROS_PER_SESSION, mixQuestions, newWordsBlockedBy, QUESTIONS_PER_SESS
 import { readDailyLimits, saveBorrowed } from '@/lib/dal/daily-limits'
 import { readSpeedModes } from '@/lib/dal/speed-matching'
 import { EXERCISES } from '@/lib/learning/rules'
-import { readStarRound, readStarredIds } from '@/lib/dal/star-relearn'
+import { readStarRound, readStarredIds, type StarRoundWord } from '@/lib/dal/star-relearn'
 import { planStarQuestions, practiceSkillCode } from '@/lib/learn/star-round'
 import { MIN_SPEED_WORDS, type SpeedWord } from '@/lib/speed-matching'
 import { allowedBorrow } from '@/lib/learning/daily-plan'
@@ -228,21 +228,7 @@ export async function getLearnSession(practiceOnly: boolean): Promise<LearnSessi
   })
   const questions: StageQuestion[] = mixQuestions(built)
 
-  const starSessionId = randomUUID()
-  for (const { word, exercise } of starPlan) {
-    const question = buildStageQuestion(word.word, exercise, poolsWithLearned)
-    const known = { currentStage: word.currentStage, kanjiIntroSeen: word.kanjiIntroSeen }
-    questions.push({
-      ...question,
-      ...(question.kind === 'choice' ? { reveal: wordReveal(word.word, known) } : {}),
-      stage: 2,
-      wrongStreak: 0,
-      learnerVocabularyId: word.learnerVocabularyId,
-      vocabularyId: word.vocabularyId,
-      clientEventId: randomUUID(),
-      starSessionId,
-    })
-  }
+  questions.push(...buildStarQuestions(starPlan, poolsWithLearned))
 
   const stage5Ids = entries.filter((e) => e.stage === 5).map((e) => e.row.id)
   // Cuối phiên: đặt sớm hơn thì các cặp ghép sẽ lộ cách đọc và nghĩa của những câu còn lại
@@ -254,6 +240,41 @@ export async function getLearnSession(practiceOnly: boolean): Promise<LearnSessi
     if (boss) questions.push(boss)
   }
   return { ...common, intros: [], questions, sessionsLeft: Math.max(1, sessionsFor(dueCount + newLeft + starLeft)), nextDueAt: null }
+}
+
+/** Khu Starred words: chỉ câu vòng học thêm, không giới hạn 3 câu như khi chèn vào phiên Learn. */
+export async function getStarredSession(): Promise<{ questions: StageQuestion[]; starredIds: string[] }> {
+  const user = await requireUser()
+  const supabase = await createClient()
+  const [excluded, starredIds, started, pools] = await Promise.all([
+    supabase.from('learner_vocabulary_exclusions').select('vocabulary_id').eq('user_id', user.id).not('excluded_at', 'is', null).range(0, PAGE - 1),
+    readStarredIds(supabase, user.id),
+    supabase.from('learner_vocabulary').select('vocabulary_id').eq('user_id', user.id).range(0, PAGE - 1),
+    loadPools(supabase),
+  ])
+  if (excluded.error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${excluded.error.message}`)
+  if (started.error) throw new Error(`Không đọc được learner_vocabulary: ${started.error.message}`)
+  const items = await readStarRound<StageWord>(supabase, user.id, WORD_COLUMNS, new Set(excluded.data?.map((r) => r.vocabulary_id)))
+  const poolsWithLearned = { ...pools, learnedWordIds: new Set(started.data?.map((r) => r.vocabulary_id)) }
+  return { questions: buildStarQuestions(planStarQuestions(items, QUESTIONS_PER_SESSION), poolsWithLearned), starredIds }
+}
+
+function buildStarQuestions(plan: ReturnType<typeof planStarQuestions<StarRoundWord<StageWord>>>, pools: QuestionPools): StageQuestion[] {
+  const starSessionId = randomUUID()
+  return plan.map(({ word, exercise }) => {
+    const question = buildStageQuestion(word.word, exercise, pools)
+    const known = { currentStage: word.currentStage, kanjiIntroSeen: word.kanjiIntroSeen }
+    return {
+      ...question,
+      ...(question.kind === 'choice' ? { reveal: wordReveal(word.word, known) } : {}),
+      stage: 2 as const,
+      wrongStreak: 0,
+      learnerVocabularyId: word.learnerVocabularyId,
+      vocabularyId: word.vocabularyId,
+      clientEventId: randomUUID(),
+      starSessionId,
+    }
+  })
 }
 
 /** Vòng boss: Speed Matching 30 giây với các từ đã gặp. Chỉ đổi điểm Card, không tính vào giãn cách. */

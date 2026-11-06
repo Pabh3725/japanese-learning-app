@@ -110,9 +110,11 @@ interface LearnPracticeProps {
   sessionNumber: number
   /** Số phiên còn lại, kể cả phiên này. */
   sessionsLeft: number
+  /** Phiên riêng (Starred words): kết thúc về đây thay vì tổng kết ngày. */
+  finish?: { href: string; label: string }
 }
 
-export function LearnPractice({ questions: initialQuestions, sessionNumber, sessionsLeft }: LearnPracticeProps) {
+export function LearnPractice({ questions: initialQuestions, sessionNumber, sessionsLeft, finish }: LearnPracticeProps) {
   const [questions, setQuestions] = useState(initialQuestions)
   const voice = useJapaneseVoice()
   const [index, setIndex] = useState(0)
@@ -163,14 +165,14 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
     return (
       <div className="flex min-h-dvh flex-col">
         <SessionComplete
-          title={pending > 0 ? 'Saving…' : `Session ${sessionNumber} complete!`}
+          title={pending > 0 ? 'Saving…' : finish ? 'Extra practice done!' : `Session ${sessionNumber} complete!`}
           subtitle={warning ?? `${levelUpCount > 0 ? `${levelUpCount} new ${levelUpCount === 1 ? 'milestone' : 'milestones'}. ` : ''}${hasNext ? `${sessionsLeft - 1} more ${sessionsLeft === 2 ? 'session' : 'sessions'} today. Your progress is saved if you stop here.` : 'You’re done for now.'}`}
           stats={[
             { label: 'Correct', value: String(correct), tone: 'text-success' },
             { label: 'Wrong', value: String(wrong), tone: 'text-error' },
             { label: 'Accuracy', value: `${accuracy}%`, tone: 'text-cyan' },
           ]}
-          primary={hasNext ? { href: `/learn/session?n=${sessionNumber + 1}`, label: 'Next session' } : { href: '/learn/summary', label: "See today's summary" }}
+          primary={hasNext ? { href: `/learn/session?n=${sessionNumber + 1}`, label: 'Next session' } : (finish ?? { href: '/learn/summary', label: "See today's summary" })}
           busy={!hasNext && pending > 0}
           secondary={hasNext ? { href: '/learn', label: 'Take a break' } : { href: '/learn', label: 'Back to Learn' }}
         />
@@ -360,8 +362,8 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
   return (
     <div className="flex min-h-dvh flex-col">
       <SessionHeader
-        backHref="/learn"
-        label={`Session ${sessionNumber} of ${sessionNumber - 1 + sessionsLeft}`}
+        backHref={finish?.href ?? '/learn'}
+        label={finish ? 'Starred words' : `Session ${sessionNumber} of ${sessionNumber - 1 + sessionsLeft}`}
         sublabel={q.kind === 'boss' ? 'Boss round' : q.kind === 'match' ? 'Matching round' : isRetry ? `Try again · ${index - questions.length + 1} of ${retries.length}` : `Step ${index + 1} of ${queue.length}`}
         current={index}
         total={queue.length}

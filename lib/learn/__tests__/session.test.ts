@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { seededRng } from '../../exercise/questions'
-import { mixQuestions, newWordsBlockedBy, sessionsFor, shouldAddBossRound } from '../session'
+import { mixQuestions, newWordsBlockedBy, pathLevels, sessionsFor, shouldAddBossRound } from '../session'
 
 describe('sessionsFor', () => {
   it.each([[0, 0], [1, 1], [20, 1], [21, 2], [45, 3], [200, 10]])('%i câu cần %i phiên', (questions, sessions) => {
@@ -62,5 +62,24 @@ describe('shouldAddBossRound', () => {
     expect(shouldAddBossRound(30, 19, 10)).toBe(false) // 30 → 49
     expect(shouldAddBossRound(30, 20, 10)).toBe(true) // 30 → 50
     expect(shouldAddBossRound(10, 20, 5)).toBe(false)
+  })
+})
+
+describe('pathLevels', () => {
+  const rows = [
+    { id: 'a', lesson: 1, jlpt_level: 5 },
+    { id: 'b', lesson: 25, jlpt_level: 5 },
+    { id: 'c', lesson: 26, jlpt_level: 4 },
+    { id: 'd', lesson: 48, jlpt_level: 4 },
+    { id: 'e', lesson: 30, jlpt_level: 4 },
+  ]
+  it('tách N5, N4, N5 đứng trước; từ đã biết không tính', () => {
+    expect(pathLevels(rows, new Set(['a', 'c']), new Set(['e']))).toEqual([
+      { level: 'N5', completed: 1, total: 2, firstLesson: 1, lastLesson: 25 },
+      { level: 'N4', completed: 1, total: 2, firstLesson: 26, lastLesson: 48 },
+    ])
+  })
+  it('cấp không có từ thì bỏ qua', () => {
+    expect(pathLevels(rows.slice(0, 2), new Set(), new Set()).map((l) => l.level)).toEqual(['N5'])
   })
 })

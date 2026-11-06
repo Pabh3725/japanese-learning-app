@@ -130,3 +130,90 @@ export async function relearnStage(scheduleId: unknown): Promise<RelearnResponse
   if (error) throw new Error(`relearn_stage lỗi: ${error.message}`)
   return data as RelearnResponse
 }
+
+export async function restartStarRound(): Promise<{ status: 'saved' }> {
+  const user = await requireUser()
+  const supabase = await createClient()
+  const { error } = await supabase.from('learner_vocabulary_stars').update({ round_answered: 0 }).eq('user_id', user.id)
+  if (error) throw new Error(`Không ghi được learner_vocabulary_stars: ${error.message}`)
+  return { status: 'saved' }
+}
+
+export interface StarredAreaWord {
+  id: string
+  code: string
+  label: string
+  meaning: string
+  met: boolean
+  roundAnswered: number
+  roundSize: number
+  cardDueAt: string | null
+}
+
+export interface StarredArea {
+  words: StarredAreaWord[]
+  questionsLeft: number
+  cardsDue: number
+  /** Có từ đã gặp nên bắt đầu được một vòng mới. */
+  canRestart: boolean
+}
+
+/** Khu Starred words: mọi từ có sao với vòng học thêm và Card riêng. */
+export async function getStarredArea(): Promise<StarredArea> {
+  const user = await requireUser()
+  const supabase = await createClient()
+  const [stars, excluded, learners] = await Promise.all([
+    supabase
+      .from('learner_vocabulary_stars')
+      .select('vocabulary_id, round_answered, vocabularies!inner(code, expression, reading_kana, meaning_vi, han_viet, is_kana_only)')
+      .eq('user_id', user.id)
+      .order('starred_at', { ascending: false })
+      .range(0, PAGE - 1),
+    supabase.from('learner_vocabulary_exclusions').select('vocabulary_id').eq('user_id', user.id).not('excluded_at', 'is', null).range(0, PAGE - 1),
+    supabase.from('learner_vocabulary').select("vocabulary_id, current_stage, kanji_intro_seen_at, review_cards(card_type, due_at, retired_at)").eq('user_id', user.id).range(0, PAGE - 1),
+  ])
+  if (stars.error) throw new Error(`Không đọc được learner_vocabulary_stars: ${stars.error.message}`)
+  if (excluded.error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${excluded.error.message}`)
+  if (learners.error) throw new Error(`Không đọc được learner_vocabulary: ${learners.error.message}`)
+
+  const excludedIds = new Set(excluded.data?.map((r) => r.vocabulary_id))
+  const rows = (stars.data ?? []) as unknown as {
+    vocabulary_id: string
+    round_answered: number
+    vocabularies: { code: string; expression: string; reading_kana: string; meaning_vi: string; han_viet: string | null; is_kana_only: boolean }
+  }[]
+  const learnerRows = (learners.data ?? []) as unknown as {
+    vocabulary_id: string
+    current_stage: number
+    kanji_intro_seen_at: string | null
+    review_cards: { card_type: string; due_at: string; retired_at: string | null }[]
+  }[]
+  const learnerOf = new Map(learnerRows.map((r) => [r.vocabulary_id, r]))
+  const now = Date.now()
+
+  let questionsLeft = 0
+  let cardsDue = 0
+  const words = rows
+    .filter((r) => !excludedIds.has(r.vocabulary_id))
+    .map((r): StarredAreaWord => {
+      const word = r.vocabularies
+      const learner = learnerOf.get(r.vocabulary_id)
+      const kanjiSeen = learner?.kanji_intro_seen_at != null
+      const roundSize = learner ? starRoundExercises(word, { currentStage: learner.current_stage, kanjiIntroSeen: kanjiSeen }).length : 0
+      const card = learner?.review_cards.find((c) => c.card_type === 'vocab.star_recall' && c.retired_at === null)
+      if (learner) questionsLeft += Math.max(0, roundSize - r.round_answered)
+      if (card && Date.parse(card.due_at) <= now) cardsDue += 1
+      return {
+        id: r.vocabulary_id,
+        code: word.code,
+        // Kanji chỉ hiện sau khi đã được giới thiệu
+        label: kanjiSeen ? word.expression : word.reading_kana,
+        meaning: word.meaning_vi,
+        met: learner !== undefined,
+        roundAnswered: r.round_answered,
+        roundSize,
+        cardDueAt: card?.due_at ?? null,
+      }
+    })
+  return { words, questionsLeft, cardsDue, canRestart: words.some((w) => w.met) }
+}
