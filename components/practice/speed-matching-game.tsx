@@ -5,49 +5,48 @@ import Link from 'next/link'
 import { Flame, Timer, X } from 'lucide-react'
 import { SessionComplete } from '@/components/learning/session-complete'
 import { ProgressBar } from '@/components/progress-bar'
-import { createBoard, getVocab, replacePair, type MatchBoard } from '@/lib/speed-matching'
+import { createBoard, nextBoard, type MatchBoard, type SpeedTile, type SpeedWord } from '@/lib/speed-matching'
 import { cn } from '@/lib/utils'
 
 const DURATION = 60
 
-type Side = 'left' | 'right'
-type Flash = { ids: [string, string]; kind: 'correct' | 'wrong' } | null
+type Flash = { keys: [string, string]; kind: 'correct' | 'wrong' } | null
 
 function MatchTile({
-  label,
-  isJapanese,
+  tile,
   selected,
   flash,
   onClick,
 }: {
-  label: string
-  isJapanese: boolean
+  tile: SpeedTile
   selected: boolean
   flash: 'correct' | 'wrong' | null
   onClick: () => void
 }) {
+  const isJapanese = tile.kind === 'word'
   return (
     <button
       type="button"
       onClick={onClick}
       aria-pressed={selected}
       className={cn(
-        'flex h-16 w-full items-center justify-center rounded-2xl border-2 bg-card px-3 text-center transition-all duration-150 active:scale-[0.97] md:h-20',
-        isJapanese ? 'font-jp text-[26px] md:text-[30px]' : 'text-base font-medium md:text-lg',
+        'flex h-24 w-full items-center justify-center rounded-2xl border-2 bg-card p-1.5 text-center break-words transition-all duration-150 active:scale-[0.97] md:h-28 md:p-2',
+        isJapanese ? 'font-jp text-base md:text-2xl' : 'text-xs font-medium md:text-sm',
         !flash && !selected && 'border-border shadow-[0_3px_0_0_#2e3440] hover:border-[#3b4250]',
         !flash && selected && 'border-cyan bg-cyan/10 shadow-[0_3px_0_0_rgba(95,214,200,0.4)]',
         flash === 'correct' && 'scale-95 border-success bg-success/15 opacity-0 duration-300',
         flash === 'wrong' && 'animate-shake border-error bg-error/10',
       )}
     >
-      <span lang={isJapanese ? 'ja' : 'vi'}>{label}</span>
+      <span lang={isJapanese ? 'ja' : 'vi'} className="min-w-0">{tile.label}</span>
     </button>
   )
 }
 
-export function SpeedMatchingGame() {
-  const [board, setBoard] = useState<MatchBoard>(() => createBoard())
-  const [selection, setSelection] = useState<{ left: string | null; right: string | null }>({ left: null, right: null })
+export function SpeedMatchingGame({ words }: { words: SpeedWord[] }) {
+  const [board, setBoard] = useState<MatchBoard>(() => createBoard(words))
+  const [cleared, setCleared] = useState<ReadonlySet<string>>(() => new Set())
+  const [selected, setSelected] = useState<SpeedTile | null>(null)
   const [flash, setFlash] = useState<Flash>(null)
   const [score, setScore] = useState(0)
   const [combo, setCombo] = useState(0)
@@ -58,6 +57,7 @@ export function SpeedMatchingGame() {
   const flashTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   const over = timeLeft <= 0
+  const seed = `g${game}`
 
   useEffect(() => {
     if (over) return
@@ -67,41 +67,44 @@ export function SpeedMatchingGame() {
 
   useEffect(() => () => clearTimeout(flashTimer.current), [])
 
-  const pick = (side: Side, id: string) => {
+  const pick = (tile: SpeedTile) => {
     if (flash || over) return
-    const next = { ...selection, [side]: selection[side] === id ? null : id }
-    if (!next.left || !next.right) {
-      setSelection(next)
+    if (!selected || selected.kind === tile.kind) {
+      // Bấm lại ô đang chọn thì bỏ chọn; bấm ô cùng loại thì đổi ô chọn, không tính là sai
+      setSelected(selected?.key === tile.key ? null : tile)
       return
     }
-    const pair: [string, string] = [next.left, next.right]
-    if (next.left === next.right) {
-      setFlash({ ids: pair, kind: 'correct' })
+    const keys: [string, string] = [selected.key, tile.key]
+    setSelected(null)
+    if (selected.wordId === tile.wordId) {
+      setFlash({ keys, kind: 'correct' })
       setScore((s) => s + 1)
       const nextCombo = combo + 1
       setCombo(nextCombo)
       setBestCombo((b) => Math.max(b, nextCombo))
       flashTimer.current = setTimeout(() => {
-        setBoard((b) => replacePair(b, pair[0]))
+        const nowCleared = new Set([...cleared, ...keys])
+        if (nowCleared.size === board.tiles.length) {
+          setBoard(nextBoard(words, board, seed))
+          setCleared(new Set())
+        } else {
+          setCleared(nowCleared)
+        }
         setFlash(null)
       }, 280)
     } else {
-      setFlash({ ids: pair, kind: 'wrong' })
+      setFlash({ keys, kind: 'wrong' })
       setCombo(0)
       setMistakes((m) => m + 1)
       flashTimer.current = setTimeout(() => setFlash(null), 360)
     }
-    setSelection({ left: null, right: null })
-  }
-
-  const flashFor = (side: Side, id: string) => {
-    if (!flash) return null
-    return flash.ids[side === 'left' ? 0 : 1] === id ? flash.kind : null
   }
 
   const restart = () => {
-    setBoard(createBoard(`g${game + 1}`))
-    setSelection({ left: null, right: null })
+    clearTimeout(flashTimer.current)
+    setBoard(createBoard(words, `g${game + 1}`))
+    setCleared(new Set())
+    setSelected(null)
     setFlash(null)
     setScore(0)
     setCombo(0)
@@ -116,7 +119,7 @@ export function SpeedMatchingGame() {
     return (
       <SessionComplete
         title={`${score} pairs matched!`}
-        subtitle={`Best combo ×${bestCombo}. Keep going to unlock Lightning Hands.`}
+        subtitle={`Best combo ×${bestCombo}. Practice results aren't saved yet.`}
         stats={[
           { label: 'Pairs', value: String(score), tone: 'text-cyan' },
           { label: 'Accuracy', value: `${accuracy}%`, tone: 'text-success' },
@@ -162,36 +165,24 @@ export function SpeedMatchingGame() {
         </div>
       </div>
 
-      <p className="mb-4 text-center text-sm text-subtle">Tap a word, then its meaning</p>
+      <p className="mb-4 text-center text-sm text-subtle">Round {board.round} · Tap a word and its meaning</p>
 
-      <div className="grid grid-cols-2 gap-3 pb-10 md:gap-4">
-        <ul className="flex flex-col gap-3" aria-label="Japanese words">
-          {board.left.map((id) => (
-            <li key={`l-${id}`}>
+      <ul key={board.round} className="grid grid-cols-4 gap-2 pb-10 animate-in fade-in duration-300 md:gap-3" aria-label="Words and meanings">
+        {board.tiles.map((tile) => (
+          <li key={tile.key}>
+            {cleared.has(tile.key) ? (
+              <div className="h-24 md:h-28" aria-hidden="true" />
+            ) : (
               <MatchTile
-                label={getVocab(id).word}
-                isJapanese
-                selected={selection.left === id}
-                flash={flashFor('left', id)}
-                onClick={() => pick('left', id)}
+                tile={tile}
+                selected={selected?.key === tile.key}
+                flash={flash?.keys.includes(tile.key) ? flash.kind : null}
+                onClick={() => pick(tile)}
               />
-            </li>
-          ))}
-        </ul>
-        <ul className="flex flex-col gap-3" aria-label="Vietnamese meanings">
-          {board.right.map((id) => (
-            <li key={`r-${id}`}>
-              <MatchTile
-                label={getVocab(id).meaning}
-                isJapanese={false}
-                selected={selection.right === id}
-                flash={flashFor('right', id)}
-                onClick={() => pick('right', id)}
-              />
-            </li>
-          ))}
-        </ul>
-      </div>
+            )}
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

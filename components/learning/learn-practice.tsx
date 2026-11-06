@@ -13,11 +13,13 @@ import { AssemblyExercise, type AssemblyGrade } from '@/components/learning/step
 import { ChoiceExercise } from '@/components/learning/steps/choice-exercise'
 import { MatchRoundExercise } from '@/components/learning/steps/match-round-exercise'
 import { RecallExercise } from '@/components/learning/steps/recall-exercise'
+import { LevelUpCard } from '@/components/learning/steps/level-up-card'
 import { RelearnExercise } from '@/components/learning/steps/relearn-exercise'
 import type { SubmitExerciseResponse } from '@/lib/dal/exercise'
 import type { MatchPenalty } from '@/lib/exercise/match-round'
 import type { AssemblyQuestionData, ChoiceQuestionData, TypingQuestionData, WordReveal } from '@/lib/exercise/stage-questions'
 import type { StageQuestion } from '@/lib/dal/stage-session'
+import { levelUpOf, type LevelUp } from '@/lib/learn/level-up'
 import { shouldRelearn } from '@/lib/learning/stage'
 import type { ScoredStage } from '@/lib/learning/types'
 import { withRetry } from '@/lib/retry'
@@ -123,6 +125,10 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
   const lastReveal = useRef<WordReveal | undefined>(undefined)
   // Câu sai trong lượt, hỏi lại một lần ở cuối. Chỉ để luyện: không ghi nhật ký, không đổi điểm và lịch.
   const [retries, setRetries] = useState<AnswerQ[]>([])
+  // Mốc mới đạt được. Câu chọn lưu ở nền nên thẻ chúc mừng chờ tới lần chuyển câu kế tiếp, không chen vào câu đang làm.
+  const [levelUps, setLevelUps] = useState<LevelUp[]>([])
+  const [levelUp, setLevelUp] = useState<LevelUp | null>(null)
+  const [levelUpCount, setLevelUpCount] = useState(0)
   const shownAt = useRef(0)
   // Lưu TUẦN TỰ: câu sau chỉ gửi khi câu trước lưu xong → server cấp day_seq đúng thứ tự,
   // luật giãn cách đọc đúng câu trước. Câu chọn không phải chờ: bấm Continue được ngay.
@@ -132,10 +138,14 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
     shownAt.current = Date.now()
   }, [index])
 
-  if (relearn && index >= questions.length + retries.length) {
+  if ((relearn || levelUp) && index >= questions.length + retries.length) {
     return (
       <div className="flex min-h-dvh flex-col">
-        <RelearnExercise key={relearn.kana} reveal={relearn} onContinue={() => setRelearn(null)} />
+        {levelUp ? (
+          <LevelUpCard levelUp={levelUp} onContinue={() => setLevelUp(null)} />
+        ) : (
+          <RelearnExercise key={relearn!.kana} reveal={relearn!} onContinue={() => setRelearn(null)} />
+        )}
       </div>
     )
   }
@@ -152,13 +162,14 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
       <div className="flex min-h-dvh flex-col">
         <SessionComplete
           title={pending > 0 ? 'Saving…' : `Session ${sessionNumber} complete!`}
-          subtitle={warning ?? (hasNext ? `${sessionsLeft - 1} more ${sessionsLeft === 2 ? 'session' : 'sessions'} today. Your progress is saved if you stop here.` : 'You’re done for now.')}
+          subtitle={warning ?? `${levelUpCount > 0 ? `${levelUpCount} new ${levelUpCount === 1 ? 'milestone' : 'milestones'}. ` : ''}${hasNext ? `${sessionsLeft - 1} more ${sessionsLeft === 2 ? 'session' : 'sessions'} today. Your progress is saved if you stop here.` : 'You’re done for now.'}`}
           stats={[
             { label: 'Correct', value: String(correct), tone: 'text-success' },
             { label: 'Wrong', value: String(wrong), tone: 'text-error' },
             { label: 'Accuracy', value: `${accuracy}%`, tone: 'text-cyan' },
           ]}
-          primary={hasNext ? { href: `/learn/session?n=${sessionNumber + 1}`, label: 'Next session' } : { href: '/review', label: 'Go to Review' }}
+          primary={hasNext ? { href: `/learn/session?n=${sessionNumber + 1}`, label: 'Next session' } : { href: '/learn/summary', label: "See today's summary" }}
+          busy={!hasNext && pending > 0}
           secondary={hasNext ? { href: '/learn', label: 'Take a break' } : { href: '/learn', label: 'Back to Learn' }}
         />
       </div>
@@ -166,7 +177,18 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
   }
 
   const q = queue[index]
-  const next = () => setIndex((i) => i + 1)
+  const next = () => {
+    setIndex((i) => i + 1)
+    if (levelUps.length > 0) {
+      setLevelUp(levelUps[0])
+      setLevelUps((list) => list.slice(1))
+    }
+  }
+  const recordLevelUp = (earned: LevelUp | null) => {
+    if (!earned) return
+    setLevelUps((list) => [...list, earned])
+    setLevelUpCount((n) => n + 1)
+  }
   /** Sai lần thứ 3 liên tiếp thì xem lại từ rồi mới sang câu sau. */
   const afterAnswer = (correct: boolean, reveal: WordReveal | undefined) => {
     next()
@@ -197,6 +219,7 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
         if (res.status === 'graded') {
           const note = pointsNote(current.stage, res.result)
           if (note) setNotes((all) => ({ ...all, [current.clientEventId]: note }))
+          recordLevelUp(levelUpOf(current.stage, res.result, current.reveal))
         } else if (res.status !== 'stage_changed' && res.status !== 'not_found') {
           // Hai trường hợp kia là từ đã học xong trên máy khác, không phải lỗi của người học
           setWarning(SAVE_WARNING)
@@ -239,6 +262,7 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
         speak(res.reading)
         setResults((list) => [...list, correct])
         lastReveal.current = res.reveal
+        recordLevelUp(levelUpOf(current.stage, res.result, res.reveal))
         return { correct, answer: [res.answer], explanation: res.outcome === 'hint' ? HINT_NOTE : pointsNote(current.stage, res.result), reveal: res.reveal }
       }
       // Từ đã hoàn tất stage này (ví dụ học trên máy khác): câu này không còn hiệu lực.
@@ -335,9 +359,15 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
         current={index}
         total={queue.length}
       />
-      <KnownWordBar vocabularyId={q.kind === 'match' ? null : q.vocabularyId} onKnown={removeWord} />
+      <KnownWordBar vocabularyId={q.kind === 'match' || levelUp ? null : q.vocabularyId} onKnown={removeWord} />
       {warning && <p role="alert" className="mx-auto mt-3 w-full max-w-2xl px-4 text-sm text-error">{warning}</p>}
-      {relearn ? <RelearnExercise key={relearn.kana} reveal={relearn} onContinue={() => setRelearn(null)} /> : body}
+      {levelUp ? (
+        <LevelUpCard levelUp={levelUp} onContinue={() => setLevelUp(null)} />
+      ) : relearn ? (
+        <RelearnExercise key={relearn.kana} reveal={relearn} onContinue={() => setRelearn(null)} />
+      ) : (
+        body
+      )}
     </div>
   )
 }

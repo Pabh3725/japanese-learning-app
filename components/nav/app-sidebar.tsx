@@ -2,12 +2,10 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Flame } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { userProfile } from '@/lib/mock-data'
 import { isActive, primaryNav, secondaryNav } from './nav-items'
 
-export function AppSidebar() {
+export function AppSidebar({ streak }: { streak: React.ReactNode }) {
   const pathname = usePathname()
 
   const renderItem = (item: (typeof primaryNav)[number]) => {
@@ -50,13 +48,7 @@ export function AppSidebar() {
         </div>
       </nav>
 
-      <div className="rounded-2xl border border-border bg-secondary p-4">
-        <div className="flex items-center gap-2 text-sm font-medium">
-          <Flame className="size-4 text-yellow" aria-hidden="true" />
-          {userProfile.streak}-day streak
-        </div>
-        <p className="mt-1 text-xs text-muted-foreground">Keep it going — one review session today.</p>
-      </div>
+      {streak}
     </aside>
   )
 }

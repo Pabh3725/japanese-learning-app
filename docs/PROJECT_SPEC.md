@@ -1374,6 +1374,11 @@ Thay các trang từng stage bằng một luồng tại `/learn/session`; đư�
 - **Trộn câu:** cùng một từ cách ít nhất 4 câu, không có 2 câu cùng dạng liền nhau; không xếp được thì nới luật cùng dạng trước.
 - **Chặn từ mới:** khi Card đến hạn đạt ngưỡng hoặc câu Stage đến hẹn đạt trần. Hai số này (D, S) chụp lần đầu trong ngày học vào `learner_daily_plans`, cố định cả ngày.
 
+- **Thẻ lên stage:** hiện giữa hai câu khi một từ mở stage sau hoặc hoàn tất stage. Câu chọn lưu ở nền nên thẻ có thể hiện chậm một câu.
+- **Tổng kết ngày (`/learn/summary`):** số câu, tỷ lệ đúng, tổng điểm và số stage hoàn tất hôm nay, lấy từ log. Log không ghi lúc mở stage nên không đếm việc này.
+- **Progress và streak:** số liệu thật từ log. Ngày có ít nhất 1 câu Learn hoặc Review được tính vào streak; hôm nay chưa học chưa làm mất chuỗi. Tỷ lệ nhớ = Card không chọn Again trong 30 ngày. Achievements ẩn tới khi có thiết kế riêng.
+- **Practice:** Speed Matching là lưới 4×4 (8 cặp nằm lộn xộn), ghép đúng thì ô biến mất, xóa hết bàn thì hiện bàn mới, 60 giây cho cả lượt. Trò chơi chạy bằng từ đã gặp (cần ít nhất 8 từ khác nhau), chưa lưu kết quả; các trò khác ghi Coming soon. Lưu kết quả và cộng điểm Card làm ở GAME-01.
+
 Ngữ pháp và Thể động từ hiện chỉ là **bản xem trước giao diện** (`/grammar`, `/verbs`), dùng nội dung mẫu và không lưu kết quả. Phần thật làm sau v0.1.
 
 ### 18.3d Từ vựng theo bài giáo trình — CONFIRMED (2026-11-06)

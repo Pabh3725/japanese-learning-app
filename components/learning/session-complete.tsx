@@ -22,9 +22,12 @@ interface SessionCompleteProps {
   primary: { href: string; label: string }
   secondary: { href: string; label: string }
   onRestart?: () => void
+  /** Còn câu đang lưu: chưa cho đi tiếp, vì màn sau đọc số liệu từ database. */
+  busy?: boolean
+  children?: React.ReactNode
 }
 
-export function SessionComplete({ title, subtitle, stats, primary, secondary, onRestart }: SessionCompleteProps) {
+export function SessionComplete({ title, subtitle, stats, primary, secondary, onRestart, busy = false, children }: SessionCompleteProps) {
   const router = useRouter()
 
   // Enter hoặc Space đi theo nút chính, R làm lại. Đang focus một nút hoặc link khác thì để trình duyệt tự bấm nút đó.
@@ -33,7 +36,7 @@ export function SessionComplete({ title, subtitle, stats, primary, secondary, on
     if (e.target instanceof HTMLAnchorElement || e.target instanceof HTMLButtonElement) return
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
-      router.push(primary.href)
+      if (!busy) router.push(primary.href)
     } else if (onRestart && e.key.toLowerCase() === 'r') {
       onRestart()
     }
@@ -66,9 +69,16 @@ export function SessionComplete({ title, subtitle, stats, primary, secondary, on
         ))}
       </dl>
       <div className="flex w-full flex-col gap-3">
-        <Link href={primary.href} className={cn(actionButton({ size: 'lg' }), 'w-full')}>
-          {primary.label}
-        </Link>
+        {children}
+        {busy ? (
+          <button type="button" disabled className={cn(actionButton({ size: 'lg' }), 'w-full')}>
+            {primary.label}
+          </button>
+        ) : (
+          <Link href={primary.href} className={cn(actionButton({ size: 'lg' }), 'w-full')}>
+            {primary.label}
+          </Link>
+        )}
         <Link href={secondary.href} className={cn(actionButton({ size: 'lg', variant: 'secondary' }), 'w-full')}>
           {secondary.label}
         </Link>
