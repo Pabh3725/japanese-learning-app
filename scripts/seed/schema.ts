@@ -135,7 +135,7 @@ export const VOCAB_COLUMNS = [
   'jlpt_level',
 ] as const
 /** Cột tuỳ chọn, được phép thêm vào cuối header (DATA-05). */
-export const VOCAB_OPTIONAL_COLUMNS = ['emoji'] as const
+export const VOCAB_OPTIONAL_COLUMNS = ['emoji', 'lesson'] as const
 
 export const vocabRowSchema = z
   .object({
@@ -151,6 +151,8 @@ export const vocabRowSchema = z
       .transform((v) => v === 'true'),
     jlpt_level: intIn(1, 5),
     emoji: optionalText((v) => !/\s/.test(v), 'không được có khoảng trắng').optional(),
+    /** Bài trong giáo trình. */
+    lesson: optionalInt(1, 50).optional(),
   })
   .superRefine((row, ctx) => {
     const kanji = hasKanji(row.expression)

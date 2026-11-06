@@ -34,6 +34,7 @@ describe('toProgress', () => {
 describe('toVocabListItem', () => {
   it('đổi tên cột DB sang tên DTO', () => {
     expect(toVocabListItem(gakkou)).toEqual({
+      lesson: null,
       id: 'v1',
       code: 'n5-0013',
       sortOrder: 13,

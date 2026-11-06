@@ -3,26 +3,39 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
-import { DUPLICATE_KANA_CODES } from '@/lib/intro/words'
 import { toKanjiList, toVocabList } from '@/lib/library/mappers'
 import type { LibraryData } from '@/lib/library/types'
 
-const VOCAB_COLUMNS = 'id, code, sort_order, expression, reading_kana, meaning_vi, han_viet, is_kana_only, jlpt_level'
+const VOCAB_COLUMNS = 'id, code, sort_order, expression, reading_kana, meaning_vi, han_viet, is_kana_only, jlpt_level, lesson'
 const PROGRESS_COLUMNS = 'vocabulary_id, current_stage, learning_status'
 const KANJI_COLUMNS = 'id, character, han_viet, meaning_vi, onyomi, kunyomi, stroke_count, jlpt_level'
 
 /**
  * Supabase Data API trả tối đa 1000 dòng mỗi lần (mặc định).
- * Hiện có 912 từ và 516 Kanji; khi vượt mức này cần chuyển sang phân trang.
+ * Bảng từ vựng đã vượt mức này nên đọc từng trang; Kanji hiện dưới 1000 chữ.
  */
 const MAX_ROWS = 1000
+
+async function readAllVocabulary(supabase: Awaited<ReturnType<typeof createClient>>): Promise<unknown[]> {
+  const rows: unknown[] = []
+  for (let from = 0; ; from += MAX_ROWS) {
+    const { data, error } = await supabase
+      .from('vocabularies')
+      .select(VOCAB_COLUMNS)
+      .order('sort_order', { ascending: true })
+      .range(from, from + MAX_ROWS - 1)
+    if (error) throw new Error(`Không đọc được vocabularies: ${error.message}`)
+    rows.push(...(data ?? []))
+    if ((data?.length ?? 0) < MAX_ROWS) return rows
+  }
+}
 
 export async function getLibraryData(): Promise<LibraryData> {
   const user = await requireUser()
   const supabase = await createClient()
 
   const [vocab, progress, kanji, known] = await Promise.all([
-    supabase.from('vocabularies').select(VOCAB_COLUMNS).order('sort_order', { ascending: true }).range(0, MAX_ROWS - 1),
+    readAllVocabulary(supabase),
     // RLS đã chỉ trả dòng của chính user; lọc thêm user_id cho rõ ý và để query dùng index.
     supabase.from('learner_vocabulary').select(PROGRESS_COLUMNS).eq('user_id', user.id).range(0, MAX_ROWS - 1),
     supabase
@@ -34,21 +47,17 @@ export async function getLibraryData(): Promise<LibraryData> {
     supabase.from('learner_vocabulary_exclusions').select('vocabulary_id').eq('user_id', user.id).not('excluded_at', 'is', null).range(0, MAX_ROWS - 1),
   ])
 
-  if (vocab.error) throw new Error(`Không đọc được vocabularies: ${vocab.error.message}`)
   if (progress.error) throw new Error(`Không đọc được learner_vocabulary: ${progress.error.message}`)
   if (kanji.error) throw new Error(`Không đọc được kanji: ${kanji.error.message}`)
   if (known.error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${known.error.message}`)
 
-  // Dòng trùng chỉ còn hiện với người đang học dòng đó
-  const startedIds = new Set(progress.data?.map((r) => r.vocabulary_id))
-  const visibleVocab = (vocab.data ?? []).filter((r) => !DUPLICATE_KANA_CODES.includes(r.code) || startedIds.has(r.id))
-  const vocabulary = toVocabList(visibleVocab, progress.data ?? [])
+  const vocabulary = toVocabList(vocab, progress.data ?? [])
   const kanjiList = toKanjiList(kanji.data ?? [])
 
   if (vocabulary.invalid || kanjiList.invalid) {
     console.warn(`[library] Bỏ qua dòng sai dạng: ${vocabulary.invalid} từ, ${kanjiList.invalid} Kanji`)
   }
-  if ((vocab.data?.length ?? 0) >= MAX_ROWS || (kanji.data?.length ?? 0) >= MAX_ROWS) {
+  if ((kanji.data?.length ?? 0) >= MAX_ROWS) {
     console.warn('[library] Có thể đã chạm giới hạn 1000 dòng — cần phân trang')
   }
 

@@ -4,7 +4,6 @@ import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { readDailyLimits } from '@/lib/dal/stage-session'
 import { newWordsBlockedBy, sessionsFor, type NewWordsBlock } from '@/lib/learn/session'
-import { DUPLICATE_KANA_CODES } from '@/lib/intro/words'
 import { countMetToday, newPerDayOf, remainingNewToday } from '@/lib/learning/new-words'
 import { RULES_V4 } from '@/lib/learning/rules'
 import { reachedKanjiIntro } from '@/lib/learning/stage'
@@ -28,6 +27,8 @@ export interface LearnOverview {
   completed: number
   inProgress: number
   total: number
+  /** Bài đang học: bài đầu tiên còn từ chưa gặp. null khi đã gặp hết. */
+  currentLesson: { lesson: number; met: number; total: number } | null
 }
 
 type DueRow = {
@@ -37,13 +38,33 @@ type DueRow = {
 }
 const DAY_MS = 86_400_000
 
+type LessonRow = { id: string; lesson: number | null }
+
+async function readLessons(supabase: Awaited<ReturnType<typeof createClient>>): Promise<LessonRow[]> {
+  const rows: LessonRow[] = []
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase.from('vocabularies').select('id, lesson').order('sort_order').range(from, from + PAGE - 1)
+    if (error) throw new Error(`Không đọc được vocabularies: ${error.message}`)
+    rows.push(...(data ?? []))
+    if ((data?.length ?? 0) < PAGE) return rows
+  }
+}
+
+/** Từ đã gặp hoặc đã đánh dấu là đã biết đều coi là xong với bài đó. */
+function currentLesson(rows: readonly LessonRow[], doneIds: ReadonlySet<string>): LearnOverview['currentLesson'] {
+  const lesson = rows.find((r) => r.lesson !== null && !doneIds.has(r.id))?.lesson
+  if (!lesson) return null
+  const inLesson = rows.filter((r) => r.lesson === lesson)
+  return { lesson, met: inLesson.filter((r) => doneIds.has(r.id)).length, total: inLesson.length }
+}
+
 export async function getLearnOverview(): Promise<LearnOverview> {
   const user = await requireUser()
   const supabase = await createClient()
 
-  const [total, duplicates, started, excluded, limits, kanjiPending] = await Promise.all([
+  const [total, lessons, started, excluded, limits, kanjiPending] = await Promise.all([
     supabase.from('vocabularies').select('id', { count: 'exact', head: true }),
-    supabase.from('vocabularies').select('id').in('code', [...DUPLICATE_KANA_CODES]),
+    readLessons(supabase),
     supabase.from('learner_vocabulary').select('vocabulary_id, current_stage, learning_status, created_at').eq('user_id', user.id).range(0, PAGE - 1),
     supabase
       .from('learner_vocabulary_exclusions')
@@ -64,7 +85,6 @@ export async function getLearnOverview(): Promise<LearnOverview> {
       .range(0, PAGE - 1),
   ])
   if (total.error) throw new Error(`Không đọc được vocabularies: ${total.error.message}`)
-  if (duplicates.error) throw new Error(`Không đọc được vocabularies: ${duplicates.error.message}`)
   if (started.error) throw new Error(`Không đọc được learner_vocabulary: ${started.error.message}`)
   if (excluded.error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${excluded.error.message}`)
   if (kanjiPending.error) throw new Error(`Không đọc được learner_stage_schedules: ${kanjiPending.error.message}`)
@@ -90,10 +110,8 @@ export async function getLearnOverview(): Promise<LearnOverview> {
   const excludedIds = new Set(excluded.data?.map((r) => r.vocabulary_id))
   const active = (started.data ?? []).filter((r) => !excludedIds.has(r.vocabulary_id))
   const startedIds = new Set(started.data?.map((r) => r.vocabulary_id))
-  // Dòng trùng không tính vào lộ trình, trừ khi người học đã bắt đầu dòng đó
-  const hiddenIds = (duplicates.data ?? []).map((r) => r.id).filter((id) => !startedIds.has(id))
-  // Từ đã biết cũng không còn trong lộ trình
-  const count = (total.count ?? 0) - new Set([...hiddenIds, ...excludedIds]).size
+  // Từ đã biết không còn trong lộ trình
+  const count = (total.count ?? 0) - excludedIds.size
 
   const due = { 2: 0, 4: 0, 5: 0 }
   for (const row of dueRows) {
@@ -128,6 +146,7 @@ export async function getLearnOverview(): Promise<LearnOverview> {
     questionsToday,
     sessions: sessionsFor(questionsToday + newToday + stage3Waiting),
     block,
+    currentLesson: currentLesson(lessons, new Set([...startedIds, ...excludedIds])),
     completed,
     inProgress: active.length - completed,
     total: count,

@@ -57,6 +57,7 @@ export function toVocabListItem(row: unknown, progressRow?: unknown): VocabListI
     isKanaOnly: r.is_kana_only === true,
     jlpt: jlptLabel(r.jlpt_level) ?? 'N5',
     progress: toProgress(progressRow),
+    lesson: typeof r.lesson === 'number' ? r.lesson : null,
   }
 }
 

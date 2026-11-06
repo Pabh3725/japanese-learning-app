@@ -32,6 +32,11 @@ export default async function LearnPage() {
             <p className="mt-2 text-sm text-subtle">
               {overview.questionsToday} questions due · {overview.newToday} new words · {overview.stage3Waiting} new readings and Kanji to meet
             </p>
+            {overview.currentLesson && (
+              <p className="mt-2 text-sm text-subtle">
+                Lesson {overview.currentLesson.lesson}: {overview.currentLesson.met} of {overview.currentLesson.total} words met
+              </p>
+            )}
             {overview.block && (
               <p className="mt-2 text-sm text-yellow">
                 {overview.block === 'cards' ? 'New words are paused: many cards are waiting in Review.' : "New words are paused: you've reached today's question limit."}

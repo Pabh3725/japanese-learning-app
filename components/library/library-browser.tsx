@@ -67,13 +67,15 @@ export function LibraryBrowser({ vocabulary, kanji }: { vocabulary: VocabListIte
   const [query, setQuery] = useState('')
   const [visible, setVisible] = useState(PAGE_SIZE)
   const [status, setStatus] = useState<StatusFilter>('all')
+  const [lesson, setLesson] = useState<number | 'all'>('all')
+  const lessons = useMemo(() => [...new Set(vocabulary.flatMap((v) => (v.lesson === null ? [] : [v.lesson])))].sort((a, b) => a - b), [vocabulary])
   const [selecting, setSelecting] = useState(false)
   const [selected, setSelected] = useState<ReadonlySet<string>>(() => new Set())
   const [error, setError] = useState<string | null>(null)
   const [saving, startSaving] = useTransition()
   const router = useRouter()
 
-  const vocabResults = useMemo(() => vocabulary.filter((v) => matchesVocab(v, query) && matchesStatus(v, status)), [vocabulary, query, status])
+  const vocabResults = useMemo(() => vocabulary.filter((v) => matchesVocab(v, query) && matchesStatus(v, status) && (lesson === 'all' || v.lesson === lesson)), [vocabulary, query, status, lesson])
   const shown = vocabResults.slice(0, visible)
   const allShownSelected = shown.length > 0 && shown.every((v) => selected.has(v.id))
 
@@ -179,6 +181,20 @@ export function LibraryBrowser({ vocabulary, kanji }: { vocabulary: VocabListIte
               </button>
             ))}
           </div>
+          <label className="flex items-center gap-2 text-sm text-subtle">
+            Lesson
+            <select
+              value={lesson}
+              onChange={(e) => {
+                setLesson(e.target.value === 'all' ? 'all' : Number(e.target.value))
+                setVisible(PAGE_SIZE)
+              }}
+              className="h-9 rounded-xl border border-border bg-card px-2 text-sm text-foreground"
+            >
+              <option value="all">All</option>
+              {lessons.map((n) => <option key={n} value={n}>{n}</option>)}
+            </select>
+          </label>
           <button type="button" onClick={() => { setSelecting((on) => !on); setSelected(new Set()) }} className="text-sm font-medium text-primary">
             {selecting ? 'Cancel' : 'Select words'}
           </button>
@@ -235,7 +251,7 @@ export function LibraryBrowser({ vocabulary, kanji }: { vocabulary: VocabListIte
                   <div className="flex items-start justify-between gap-2">
                     <p lang="ja" className="font-jp text-3xl font-medium">{v.expression}</p>
                     <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground tabular-nums">
-                      #{v.sortOrder}
+                      {v.lesson === null ? `#${v.sortOrder}` : `Lesson ${v.lesson}`}
                     </span>
                   </div>
                   <div>

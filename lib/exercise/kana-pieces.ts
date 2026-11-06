@@ -5,6 +5,7 @@ import { confusableKana } from './similarity'
 /** Số mảnh nhiễu mỗi câu: bằng số mảnh của từ, trong khoảng này. Đủ nhiều thì mới xen giữa được các mảnh đáp án. */
 export const KANA_DISTRACTORS_MIN = 3
 export const KANA_DISTRACTORS_MAX = 6
+const MAX_POOL = 18
 
 /** Kana nhỏ ghép với chữ đứng trước thành một âm: きょ, シャ, ティ, ファ. っ/ッ và ー là mảnh riêng. */
 const COMBINING_SMALL_KANA = new Set('ぁぃぅぇぉゃゅょゎァィゥェォャュョヮ')
@@ -70,7 +71,8 @@ function pickConfusables(pieces: readonly string[], count: number, random: () =>
  * Khoảng một nửa là mảnh dễ nhầm với đáp án, khoảng một phần ba là mảnh đặc biệt (mỗi mảnh một loại), còn lại là chữ thường.
  */
 export function pickKanaDistractors(pieces: readonly string[], random: () => number, extra = 0): string[] {
-  const count = Math.min(KANA_DISTRACTORS_MAX, Math.max(KANA_DISTRACTORS_MIN, pieces.length)) + extra
+  // Mỗi phím chọn một mảnh nên một câu có tối đa 18 mảnh
+  const count = Math.min(MAX_POOL - pieces.length, Math.min(KANA_DISTRACTORS_MAX, Math.max(KANA_DISTRACTORS_MIN, pieces.length)) + extra)
   const text = pieces.join('')
   const hasHiragana = /[ぁ-ゖ]/.test(text)
   const hasKatakana = /[ァ-ヺ]/.test(text)

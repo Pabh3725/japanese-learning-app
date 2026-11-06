@@ -1374,6 +1374,13 @@ Thay các trang từng stage bằng một luồng tại `/learn/session`; đư�
 
 Ngữ pháp và Thể động từ hiện chỉ là **bản xem trước giao diện** (`/grammar`, `/verbs`), dùng nội dung mẫu và không lưu kết quả. Phần thật làm sau v0.1.
 
+### 18.3d Từ vựng theo bài giáo trình — CONFIRMED (2026-11-06)
+
+- `vocabularies.lesson` ghi bài của từng từ; `sort_order` đi theo đúng thứ tự trong từng bài, bài 1–48 theo danh sách chủ dự án cung cấp. File nguồn chỉ có tới bài 48.
+- Bài 1–25 là `jlpt_level` 5, bài 26–48 là 4. Từ không có trong danh sách vẫn giữ, đứng sau từ đứng trước nó trong thứ tự cũ.
+- Người học vẫn tự chọn số từ mỗi ngày; trang Learn hiện bài đang học, Library lọc được theo bài.
+- 309 chữ Kanji thêm cho đợt này chưa có âm On/Kun, phải bổ sung và rà ở KJ-01 trước khi mở khu Kanji.
+
 ### 18.3a Vòng ghép ô ở Stage 5 — CONFIRMED (2026-11-06)
 
 Thay các câu chọn 1/6 vì ở giai đoạn này người học đã nhớ mặt chữ.
