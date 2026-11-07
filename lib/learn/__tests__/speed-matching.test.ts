@@ -88,6 +88,20 @@ describe('Speed Matching: chọn từ theo chế độ', () => {
     expect(words.map((w) => w.id)).toEqual(['never', 'old', 'recent', 'capped', 'noCard'])
   })
 
+  it('Card giàn giáo ra trước Card giữ lâu dài, kể cả khi Card kia lâu chưa ôn hơn', () => {
+    const words = wordsForMode(
+      [
+        source('keep', [card('vocab.meaning_kanji', '2026-01-01T00:00:00Z')], { kanjiSeen: true }),
+        source('scaffold', [card('vocab.meaning_kana', '2026-11-06T00:00:00Z')]),
+        source('kanaOnly', [card('vocab.meaning_kana', '2026-02-01T00:00:00Z')], { isKanaOnly: true }),
+      ],
+      'mixed',
+      today,
+      3,
+    ).words
+    expect(words.map((w) => w.id)).toEqual(['scaffold', 'keep', 'kanaOnly'])
+  })
+
   it('trần của hôm qua không còn tính', () => {
     const words = wordsForMode(
       [

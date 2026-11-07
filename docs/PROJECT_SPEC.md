@@ -1379,7 +1379,8 @@ Thay các trang từng stage bằng một luồng tại `/learn/session`; đư�
 - **Practice (GAME-01):** Speed Matching là lưới 4×4 (8 cặp nằm lộn xộn), ghép đúng thì ô biến mất, xóa hết bàn thì hiện bàn mới, 60 giây cho cả lượt, cần ít nhất 8 từ khác nhau. Các trò khác ghi Coming soon.
 - **Chọn chế độ khi vào game:** Hỗn hợp (Kana → `vocab.meaning_kana`, Kanji đã giới thiệu → `vocab.meaning_kanji`) hoặc đúng một loại Card; chế độ một loại Card chỉ gồm từ có Card đó còn hoạt động. Hỗn hợp vẫn gồm từ chưa có Card, chơi được nhưng không có điểm.
 - **Điểm game:** chỉ đổi điểm Card, không đổi lịch ôn, lịch Stage hay điểm Stage. Đúng +1 (tối đa +3 mỗi Card mỗi ngày); sai −1 cho Card của **cả 2 từ**, mỗi từ bị trừ tối đa 1 lần mỗi bàn. Điểm game có thể đưa Card tới mốc bị bỏ (chủ dự án duyệt 2026-11-07).
-- **Thứ tự từ ra bàn:** Card lâu chưa ôn nhất trước, chưa ôn lần nào coi là lâu nhất; Card đã chạm trần hôm nay xuống sau, từ chưa có Card xuống cuối.
+- **Thứ tự từ ra bàn (SMART-03):** Card giàn giáo chưa bỏ trước; cùng nhóm thì Card lâu chưa ôn nhất trước, chưa ôn lần nào coi là lâu nhất; Card giữ lâu dài sau đó; Card đã chạm trần hôm nay xuống sau, từ chưa có Card xuống cuối.
+- **Kiểm thử tích hợp (INT-01, SYNC-01):** `lib/learning/__tests__/integration.test.ts` đi trọn 学校 và テレビ qua engine; `supabase/tests/gd4_checks.sql` kiểm tra trên database thật rồi hoàn tác: practice không đổi lịch, học lại, dấu sao, tách biệt hai tài khoản.
 
 - **Dấu sao (thay từ yếu, 2026-11-07):** lộ trình phụ song song, lộ trình chính giữ nguyên. Đánh dấu ở Library, trang chi tiết từ và trong phiên học, kể cả từ chưa gặp; phần thêm bắt đầu khi từ đã được giới thiệu. Gồm:
   - **Vòng học thêm:** tối đa 4 câu mỗi từ, dạng bài theo những gì đã giới thiệu; mỗi phiên Learn chèn tối đa 3 câu. Chỉ ghi `practice_attempts` (`star_round`), không đổi điểm và lịch nào, không tính vào giãn cách hay trần câu Stage. Xong vòng thì không lặp lại cho tới khi đánh sao lại.
