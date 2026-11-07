@@ -32,12 +32,12 @@ Migration và seed script phải khớp với tài liệu này. Khi data thay đ
 | `onyomi` | `text[]` | Có | Katakana, định dạng mảng Postgres | `{"ガク"}` |
 | `kunyomi` | `text[]` | Có | Hiragana, dấu `.` ngăn phần okurigana. **`{}` nếu chữ không có kunyomi** | `{"まな.ぶ"}` |
 | `stroke_count` | `smallint` | Không | Số nét. Hiện tại `NULL` cho cả 516 chữ | `8` |
-| `jlpt_level` | `smallint` | Không | Cấp JLPT của chữ, từ 1 đến 5. `5` cho 145 chữ N5 gốc, `NULL` cho 371 chữ bổ sung (chưa xác định) | `5` |
+| `jlpt_level` | `smallint` | Không | Cấp JLPT của chữ, từ 1 đến 5. `5` cho 145 chữ N5 gốc; các chữ còn lại lấy từ cấp JLPT cũ của KANJIDIC2 (4→5, 3→4, 2→3, 1→1); `NULL` cho 4 chữ KANJIDIC2 không xếp cấp | `5` |
 
 Ghi chú:
 - Bảng gồm **mọi Kanji xuất hiện trong từ vựng** (499 chữ) cộng với 17 chữ N5 chưa dùng trong từ vựng nào (火, 口, 夕...), tổng 516 chữ.
 - 371 chữ bổ sung: âm Hán Việt lấy từ `vocabularies.han_viet`; âm On, âm Kun và nghĩa do Claude soạn, đã đối chiếu với cách đọc của 912 từ vựng nhưng **chưa được rà soát thủ công**.
-- `jlpt_level` để `NULL` cho chữ bổ sung, vì không có nguồn đáng tin để gán cấp lúc soạn. Cần điền khi làm module Kanji.
+- `jlpt_level` quyết định thứ tự học ở khu Kanji. JLPT không còn công bố danh sách chính thức nên đây là cấp ước lượng.
 - 12 chữ N5 có `kunyomi = {}` (ví dụ 百, 万, 週, 校, 気, 肉, 茶, 電). Đây là dữ liệu đúng, không phải thiếu.
 - **Không import `kanji` bằng CSV trên dashboard**: trình import gửi ô trống thành chuỗi `""`, và Postgres từ chối `""` cho cột `smallint`. Dùng câu `insert` có `null` rõ ràng (`02b_import_kanji.sql`), hoặc seed script.
 

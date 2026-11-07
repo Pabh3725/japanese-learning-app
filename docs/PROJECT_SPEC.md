@@ -1434,7 +1434,8 @@ Thay các câu chọn 1/6 vì ở giai đoạn này người học đã nhớ m�
 
 Mục **Kanji trong tab Learn** (`/learn/kanji`), bên cạnh mục Vocabulary. Bản lai giữa Stage và Card. Bảng riêng `learner_kanji`, `kanji_logs`, `learner_kanji_exclusions`; học Kanji không đổi tiến độ từ vựng và ngược lại.
 
-- **Phạm vi:** 823 chữ, gồm mọi Kanji trong từ vựng (N5 và N4) và 3 chữ chưa dùng. Thứ tự (`kanji.study_order`, seed tính): chữ gặp trước trong lộ trình từ vựng học trước.
+- **Phạm vi:** 823 chữ, gồm mọi Kanji trong từ vựng (N5 và N4) và 3 chữ chưa dùng. Thứ tự (`kanji.study_order`, seed tính): cấp dễ trước (N5 → N4 → N3 → N1, chữ chưa có cấp cuối cùng); trong một cấp, chữ gặp trước trong lộ trình từ vựng đứng trước, nên chữ của từ đã học và sắp học ra trước.
+- **Cấp của chữ:** JLPT không còn công bố danh sách chính thức. 145 chữ N5 gốc giữ nguyên; các chữ còn lại lấy từ cấp JLPT cũ trong KANJIDIC2: 4 → N5, 3 → N4, 2 → N3 (gộp cả N2), 1 → N1. Bốn chữ KANJIDIC2 không xếp cấp nằm cuối.
 - **Ba giai đoạn:**
   1. **Giới thiệu:** thẻ có chữ, Hán Việt, nghĩa, On, Kun, vài từ chứa chữ đó. Xem xong mới có lịch. Thẻ không tự hiện lại ở các buổi sau, trừ khi sai 3 câu liên tiếp.
   2. **Học:** 12 câu trong 4 buổi, mỗi buổi 3 câu xen kẽ với chữ khác. Đúng +1, tối đa +3/ngày; đúng nhờ gợi ý 0; sai −2, không dưới 0. Câu sai hỏi lại cuối phiên, không tính.

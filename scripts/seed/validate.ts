@@ -115,13 +115,20 @@ function findDuplicates<T>(
   }
 }
 
-/** Thứ tự học ở khu Kanji: chữ gặp trước trong lộ trình từ vựng học trước, chữ không có trong từ nào xếp cuối. */
-export function withStudyOrder<K extends { character: string }>(kanji: readonly K[], words: readonly { sort_order: number; expression: string }[]): (K & { study_order: number })[] {
-  const order = new Map<string, number>()
+/**
+ * Thứ tự học ở khu Kanji: cấp dễ trước (N5 → N1, chữ chưa có cấp cuối cùng).
+ * Trong một cấp, chữ gặp trước trong lộ trình từ vựng đứng trước, nên chữ của từ đã học và sắp học ra trước;
+ * chữ không có trong từ nào đứng cuối cấp đó.
+ */
+export function withStudyOrder<K extends { character: string; jlpt_level?: number | null }>(kanji: readonly K[], words: readonly { sort_order: number; expression: string }[]): (K & { study_order: number })[] {
+  const firstSeen = new Map<string, number>()
   for (const word of [...words].sort((a, b) => a.sort_order - b.sort_order)) {
-    for (const ch of kanjiOf(word.expression)) if (!order.has(ch)) order.set(ch, order.size + 1)
+    for (const ch of kanjiOf(word.expression)) if (!firstSeen.has(ch)) firstSeen.set(ch, firstSeen.size)
   }
-  for (const { character } of kanji) if (!order.has(character)) order.set(character, order.size + 1)
+  const ranked = kanji
+    .map((k, fileOrder) => ({ k, fileOrder, level: k.jlpt_level ?? 0, seen: firstSeen.get(k.character) ?? Number.MAX_SAFE_INTEGER }))
+    .sort((a, b) => b.level - a.level || a.seen - b.seen || a.fileOrder - b.fileOrder)
+  const order = new Map(ranked.map(({ k }, i) => [k.character, i + 1]))
   return kanji.map((k) => ({ ...k, study_order: order.get(k.character)! }))
 }
 
