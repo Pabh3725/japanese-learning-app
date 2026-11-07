@@ -35,8 +35,8 @@ export const STUDY_LIMITS = {
   stage_cap: { label: 'Stage questions per day', hint: 'Learn stops for the day at this number.', min: 20, max: 1000 },
   review_cap: { label: 'Cards per day', hint: 'Extra cards move to the next day.', min: 10, max: 500 },
   unlock_threshold: { label: 'Cards before pausing new words', hint: 'New words pause when this many cards are due.', min: 0, max: 500 },
-  kanji_new_per_day: { label: 'New Kanji per day', hint: 'Used when the Kanji area opens.', min: 0, max: 50 },
-  kanji_cap: { label: 'Kanji questions per day', hint: 'Used when the Kanji area opens.', min: 10, max: 500 },
+  kanji_new_per_day: { label: 'New Kanji per day', hint: 'Counts Kanji already opened today. New ones pause when questions need the room.', min: 0, max: 50 },
+  kanji_cap: { label: 'Kanji questions per day', hint: 'The Kanji area stops for the day at this number.', min: 10, max: 500 },
 } as const
 
 export type StudyLimitKey = keyof typeof STUDY_LIMITS

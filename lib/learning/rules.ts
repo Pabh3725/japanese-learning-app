@@ -54,9 +54,24 @@ export const RULES_V4 = {
     'vocab.kana_hanviet': 40,
   } as Partial<Record<CardType, number>>,
   bossRound: { seconds: 30 },
+  /** Khu Kanji, giai đoạn Học: 12 câu trong 4 buổi. */
+  kanji: {
+    completeAt: 12,
+    maxPositivePerDay: 3,
+    wrong: -2,
+    middleFrom: 3,
+    recallFrom: 6,
+    questionsPerSitting: 3,
+    /** Khoảng cách tới buổi kế tiếp: ngày 1, 2, 3, 5. */
+    sittingGaps: [1, 1, 2],
+    /** Câu đến hạn vượt trần từ chừng này thì gợi ý chỉnh Settings. */
+    overloadFrom: 10,
+    /** Phần trần dành cho câu Học khi gợi ý số chữ mới. */
+    learningShareOfCap: 0.7,
+  },
   /** Học lại Stage: còn thiếu từng này điểm so với mốc hoàn tất. */
   relearn: { pointsToComplete: 3 },
-  defaults: { newPerDay: 5, stageCap: 200, reviewCap: 120, unlockThreshold: 80, kanjiNewPerDay: 5, kanjiCap: 50 },
+  defaults: { newPerDay: 5, stageCap: 200, reviewCap: 120, unlockThreshold: 80, kanjiNewPerDay: 10, kanjiCap: 100 },
   borrow: { maxDaysAhead: 1 },
 } as const
 

@@ -28,7 +28,7 @@ export interface VocabularyKanjiLink {
 }
 
 export interface ValidationResult {
-  kanji: KanjiRow[]
+  kanji: (KanjiRow & { study_order: number })[]
   vocabularies: VocabRow[]
   links: VocabularyKanjiLink[]
   /** Có cột emoji trong vocabularies.csv không. Không có thì seed không đụng emoji trong DB. */
@@ -113,6 +113,16 @@ function findDuplicates<T>(
       firstSeen.set(k, line)
     }
   }
+}
+
+/** Thứ tự học ở khu Kanji: chữ gặp trước trong lộ trình từ vựng học trước, chữ không có trong từ nào xếp cuối. */
+export function withStudyOrder<K extends { character: string }>(kanji: readonly K[], words: readonly { sort_order: number; expression: string }[]): (K & { study_order: number })[] {
+  const order = new Map<string, number>()
+  for (const word of [...words].sort((a, b) => a.sort_order - b.sort_order)) {
+    for (const ch of kanjiOf(word.expression)) if (!order.has(ch)) order.set(ch, order.size + 1)
+  }
+  for (const { character } of kanji) if (!order.has(character)) order.set(character, order.size + 1)
+  return kanji.map((k) => ({ ...k, study_order: order.get(k.character)! }))
 }
 
 /** Các Kanji của một từ theo thứ tự; 々 tính là chữ đứng trước (data-spec §4). */
@@ -211,7 +221,7 @@ export function validateAll(files: SeedFiles): ValidationResult {
   errors.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line)
 
   return {
-    kanji: kanji.rows.map((r) => r.row),
+    kanji: withStudyOrder(kanji.rows.map((r) => r.row), vocab.rows.map((r) => r.row)),
     vocabularies: vocab.rows.map((r) => r.row),
     links,
     hasEmojiColumn: vocab.header.includes('emoji'),

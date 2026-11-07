@@ -32,7 +32,7 @@ export interface SeedSummary {
   wrote: boolean
 }
 
-const KANJI_COLS = ['character', 'han_viet', 'meaning_vi', 'onyomi', 'kunyomi', 'stroke_count', 'jlpt_level'] as const
+const KANJI_COLS = ['character', 'han_viet', 'meaning_vi', 'onyomi', 'kunyomi', 'stroke_count', 'jlpt_level', 'study_order'] as const
 const VOCAB_COLS = ['code', 'sort_order', 'expression', 'reading_kana', 'meaning_vi', 'romaji', 'han_viet', 'is_kana_only', 'jlpt_level'] as const
 
 function printPlan(name: string, plan: TablePlan<Row>, log: (s: string) => void) {

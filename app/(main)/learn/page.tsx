@@ -4,6 +4,7 @@ import { actionButton } from '@/components/action-button'
 import { PageHeader } from '@/components/page-header'
 import { ProgressBar } from '@/components/progress-bar'
 import { LearnMoreButton } from '@/components/learning/learn-more-button'
+import { LearnTabs } from '@/components/learning/learn-tabs'
 import { getLearnOverview } from '@/lib/dal/learn-overview'
 import { cn } from '@/lib/utils'
 
@@ -22,6 +23,7 @@ export default async function LearnPage() {
   return (
     <>
       <PageHeader eyebrow="学習" title="Learn" description="New words and practice, mixed into short sessions." />
+      <LearnTabs active="vocabulary" />
 
       <section aria-labelledby="today-title" className="rounded-3xl border border-primary/30 bg-card p-6 md:p-8">
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
