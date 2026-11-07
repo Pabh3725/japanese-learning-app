@@ -3,6 +3,8 @@ import 'server-only'
 import { randomUUID } from 'node:crypto'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
+import { readSkillLevels } from '@/lib/dal/skill-levels'
+import { inLevel, nextLevel } from '@/lib/learn/levels'
 import {
   buildKanjiQuestion,
   gradeKanjiAnswer,
@@ -37,7 +39,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const DAY_MS = 86_400_000
 const QUESTIONS_PER_SESSION = 20
 const INTROS_PER_SESSION = 5
-const KANJI_COLUMNS = 'id, character, han_viet, meaning_vi, onyomi, kunyomi'
+const KANJI_COLUMNS = 'id, character, han_viet, meaning_vi, onyomi, kunyomi, jlpt_level'
 const LEARNER_COLUMNS =
   'id, kanji_id, phase, points, points_today, points_date, state, due_at, stability, difficulty, scheduled_days, learning_steps, reps, lapses, last_review_at, version, created_at'
 
@@ -152,19 +154,21 @@ export interface KanjiOverview {
   cap: number
   nextDueAt: string | null
   advice: KanjiLoadAdvice | null
+  /** Cấp Kanji đang học. */
+  level: number
+  /** Cấp sau có thể mở khi đã mở hết chữ của cấp này. */
+  nextLevel: number | null
 }
 
 export async function getKanjiOverview(): Promise<KanjiOverview> {
   const user = await requireUser()
   const supabase = await createClient()
   const known = await readKnownKanjiIds(supabase, user.id)
-  const [learners, totalAll] = await Promise.all([
-    readLearners(supabase, user.id, known),
-    supabase.from('kanji').select('id', { count: 'exact', head: true }),
-  ])
-  if (totalAll.error) throw new Error(`Không đọc được kanji: ${totalAll.error.message}`)
-  const total = (totalAll.count ?? 0) - known.size
-  const today = await readToday(supabase, user.id, learners, total - learners.length)
+  const [learners, all, levels] = await Promise.all([readLearners(supabase, user.id, known), readAllKanji(supabase), readSkillLevels(supabase, user.id)])
+  const total = all.length - known.size
+  const opened = new Set(learners.map((r) => r.kanji_id))
+  const leftInLevel = all.filter((k) => !known.has(k.id) && !opened.has(k.id) && inLevel(k.jlpt_level ?? null, levels.kanji)).length
+  const today = await readToday(supabase, user.id, learners, leftInLevel)
   const now = Date.now()
   return {
     total,
@@ -181,6 +185,8 @@ export async function getKanjiOverview(): Promise<KanjiOverview> {
     answeredToday: today.answeredToday,
     cap: today.cap,
     nextDueAt: learners.map((r) => r.due_at).filter((due) => Date.parse(due) > now).sort()[0] ?? null,
+    level: levels.kanji,
+    nextLevel: leftInLevel === 0 ? nextLevel(levels.kanji, all.map((k) => k.jlpt_level ?? null)) : null,
     advice: kanjiLoadAdvice({ dueQuestions: today.dueQuestions, room: today.room, cap: today.cap, newPerDay: today.newPerDay }),
   }
 }
@@ -271,8 +277,11 @@ export async function getKanjiSession(): Promise<KanjiSessionData> {
   const supabase = await createClient()
   const known = await readKnownKanjiIds(supabase, user.id)
   const [learners, allKanji] = await Promise.all([readLearners(supabase, user.id, known), readAllKanji(supabase)])
-  const kanji = allKanji.filter((k) => !known.has(k.id))
-  const today = await readToday(supabase, user.id, learners, kanji.length - learners.length)
+  const levels = await readSkillLevels(supabase, user.id)
+  // Chỉ mở chữ mới trong cấp đang học; hết chữ của cấp thì app hỏi rồi mới mở cấp sau
+  const openedAll = new Set(learners.map((r) => r.kanji_id))
+  const kanji = allKanji.filter((k) => !known.has(k.id) && inLevel(k.jlpt_level ?? null, levels.kanji))
+  const today = await readToday(supabase, user.id, learners, kanji.filter((k) => !openedAll.has(k.id)).length)
   const byId = new Map(allKanji.map((k) => [k.id, k]))
   const byDue = (a: LearnerRow, b: LearnerRow) => Date.parse(a.due_at) - Date.parse(b.due_at)
   const reviews = today.due.filter((r) => r.phase === 'review').sort(byDue)
@@ -325,7 +334,7 @@ export async function getKanjiSession(): Promise<KanjiSessionData> {
 
   const questions: KanjiSessionQuestion[] = reviews.map((row) => {
     const own = logsOf(row.id)
-    return toQuestion(row, chooseReviewExercise(own[0]?.exercise_type ?? null, words.has(row.kanji_id)), streakOf(own))
+    return toQuestion(row, chooseReviewExercise(own[0]?.exercise_type ?? null), streakOf(own))
   })
   const plans = learning.map((row) => {
     const own = logsOf(row.id)

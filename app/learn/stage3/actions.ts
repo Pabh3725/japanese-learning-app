@@ -1,11 +1,7 @@
 'use server'
 
-import { completeKanjiIntro, completeStage3, type CompleteStage3Response } from '@/lib/dal/stage3'
+import { openWordKanji, type OpenWordKanjiResponse } from '@/lib/dal/word-kanji'
 
-export async function completeStage3Action(learnerVocabularyId: string): Promise<CompleteStage3Response> {
-  return completeStage3(learnerVocabularyId)
-}
-
-export async function completeKanjiIntroAction(learnerVocabularyId: string): Promise<CompleteStage3Response> {
-  return completeKanjiIntro(learnerVocabularyId)
+export async function openWordKanjiAction(learnerVocabularyId: string): Promise<OpenWordKanjiResponse> {
+  return openWordKanji(learnerVocabularyId)
 }

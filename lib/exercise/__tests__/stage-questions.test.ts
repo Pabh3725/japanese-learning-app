@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { EXERCISES } from '../../learning/rules'
+import { REQUIRED_SKILLS, EXERCISES } from '../../learning/rules'
 import { allowedExercises } from '../../learning/stage'
 import type { ExerciseCode, ScoredStage } from '../../learning/types'
 import { convertAtCaret, isHanVietAnswerCorrect, isKanaAnswerCorrect, romajiToKanaInput } from '../answer-normalize'
@@ -228,13 +228,6 @@ describe('chooseStageExercise — đi theo bước, ưu tiên phần còn thiế
     expect(pick(2, ['kana_to_meaning', 'meaning_to_kana'], 4)).toEqual(new Set(['kana_assembly']))
   })
 
-  it('Stage 2 đủ dạng: phần lớn ghép, khoảng 1/5 trắc nghiệm', () => {
-    const all: ExerciseCode[] = ['kana_to_meaning', 'meaning_to_kana', 'kana_assembly']
-    const picks = Array.from({ length: 2000 }, (_, s) => chooseStageExercise(GAKKOU, 2, all, 6, seededRng(s + 1)))
-    const share = picks.filter((c) => c === 'kana_assembly').length / picks.length
-    expect(share).toBeGreaterThan(0.72)
-    expect(share).toBeLessThan(0.88)
-  })
 
   it('Stage 4 dưới 3 điểm: chỉ trắc nghiệm Hán Việt không có Kanji', () => {
     expect(pick(4, [], 0)).toEqual(new Set(['hanviet_from_kana']))
@@ -269,12 +262,6 @@ describe('chooseStageExercise — đi theo bước, ưu tiên phần còn thiế
     expect(seen).toContain('listening')
   })
 
-  it('Stage 5: chọn dạng của kỹ năng còn thiếu', () => {
-    const earned: ExerciseCode[] = ['meaning_assembly', 'kana_free_recall', 'kanji_assembly_nohint']
-    for (let seed = 1; seed < 20; seed++) {
-      expect(EXERCISES[chooseStageExercise(GAKKOU, 5, earned, 0, seededRng(seed))].skill).toBe('S4')
-    }
-  })
 
   it('テレビ: Stage 5 không có bài Kanji, Hán Việt', () => {
     const skills = new Set(usableExercises(TEREBI, 5).map((code) => EXERCISES[code].skill))
@@ -292,17 +279,14 @@ describe('chooseStageExercise — đi theo bước, ưu tiên phần còn thiế
     expect(usableExercises(GAKKOU, 5)).not.toContain('meaning_recognition_6')
   })
 
-  it('không còn chọn Kanji 1/6; kỹ năng Kanji đạt qua ghép', () => {
-    expect(usableExercises(GAKKOU, 5)).not.toContain('kanji_recognition_6')
-    expect(usableExercises(GAKKOU, 5)).toContain('kanji_assembly_nohint')
-  })
 
-  it('toàn bộ data: mọi từ đều có dạng bài cho mọi kỹ năng bắt buộc ở Stage 5', () => {
-    for (const w of words) {
-      const skills = new Set(usableExercises(w, 5).map((code) => EXERCISES[code].skill))
-      for (const skill of w.is_kana_only ? ['S1', 'S2'] : ['S1', 'S2', 'S3', 'S4']) {
-        expect(skills.has(skill as never), `${w.expression} ${skill}`).toBe(true)
-      }
+  it('toàn bộ data: mọi từ đều có dạng bài cho mọi kỹ năng bắt buộc ở Stage 5, từ có Kanji ở cả Stage 6', () => {
+    for (const word of words) {
+      const skills5 = new Set(usableExercises(word, 5).map((code) => EXERCISES[code].skill))
+      for (const skill of REQUIRED_SKILLS[5]) expect(skills5.has(skill), `${word.reading_kana} ${skill}`).toBe(true)
+      if (word.is_kana_only) continue
+      const skills6 = new Set(usableExercises(word, 6).map((code) => EXERCISES[code].skill))
+      for (const skill of REQUIRED_SKILLS[6]) expect(skills6.has(skill), `${word.expression} ${skill}`).toBe(true)
     }
   })
 })
@@ -328,7 +312,7 @@ describe('Câu hỏi và chấm trên toàn bộ data', () => {
     let seed = 1
     for (const word of words.slice(0, 300)) {
       for (const exercise of ['kana_to_meaning', 'meaning_recognition_6', 'meaning_to_kana', 'listening'] as const) {
-        if (!allowedExercises(exercise === 'meaning_recognition_6' ? 5 : 2, word.is_kana_only).includes(exercise)) continue
+        if (!allowedExercises(exercise === 'meaning_recognition_6' ? 5 : 2).includes(exercise)) continue
         const q = buildStageQuestion(word, exercise, pools, seededRng(seed++)) as ChoiceQuestionData
         expect(new Set(q.options).size).toBe(q.options.length)
         expect(q.options).toContain(q.answer)

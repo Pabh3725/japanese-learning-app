@@ -50,6 +50,7 @@ export function KanaIntroExercise({ word, saving, error, onComplete, speaker }: 
         {speaker}
         <div className="h-px w-16 bg-border" />
         <p className="max-w-full text-pretty text-[22px] font-semibold wrap-break-word md:text-[26px]">{word.meaning}</p>
+        {word.hanViet && <p className="text-sm text-muted-foreground">Hán Việt: {word.hanViet}</p>}
       </div>
     </ExercisePanel>
   )

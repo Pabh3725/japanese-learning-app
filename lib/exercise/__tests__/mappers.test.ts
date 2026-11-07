@@ -122,35 +122,10 @@ describe('toSubmitStageExerciseParams — kết quả engine → tham số RPC',
     })
   }
 
-  it('hoàn tất Stage 4 lúc 23:30 giờ VN → card mới hạn 00:00 hôm sau, không mở thêm', () => {
-    const now = vn('2026-11-05 23:30')
-    const state = rowToStageState(row({ stage_number: 4, stage_points: 14, unlocked_next_at: '2026-11-01T00:00:00Z' }), { ...noCtx, correctStreak: 2 })
-    const p = params(state, 'hanviet_assembly', 'correct', now)
-    expect(p).toMatchObject({
-      p_schedule_id: SCH,
-      p_points: 1,
-      p_counted: true,
-      p_study_date: '2026-11-05',
-      p_day_seq: 9,
-      p_stage_points: 15,
-      p_expected_version: 3,
-      p_completed: true,
-      p_unlocked_stage: null,
-      p_open_schedule: false,
-      p_required_stages: [2, 4, 5],
-    })
-    expect(p.p_new_card_types).toEqual(['vocab.meaning_kanji', 'vocab.kanji_meaning_hanviet'])
-    expect(p.p_new_cards_due_at).toBe(vn('2026-11-06 00:00').toISOString())
-  })
 
-  it('từ có Kanji mở Stage 3: chỉ có xem nên không tạo lịch', () => {
+
+  it('mở Stage 5: có điểm nên phải tạo lịch', () => {
     const state = rowToStageState(row({ stage_points: 5 }), { ...noCtx, earned: ['kana_to_meaning', 'meaning_to_kana'] })
-    const p = params(state, 'kana_assembly', 'correct', vn('2026-11-05 20:00'))
-    expect(p).toMatchObject({ p_unlocked_stage: 3, p_open_schedule: false, p_completed: false, p_new_card_types: [] })
-  })
-
-  it('từ chỉ Kana mở Stage 5: có điểm nên phải tạo lịch', () => {
-    const state = rowToStageState(row({ stage_points: 5 }), { ...noCtx, isKanaOnly: true, earned: ['kana_to_meaning', 'meaning_to_kana'] })
     const p = params(state, 'kana_assembly', 'correct', vn('2026-11-05 20:00'))
     expect(p).toMatchObject({ p_unlocked_stage: 5, p_open_schedule: true, p_required_stages: [2, 5] })
   })
@@ -190,7 +165,6 @@ function answer(db: FakeDb, stage: 2 | 4 | 5, exercise: ExerciseCode, outcome: O
   const today = studyDate(now)
   const r = db.schedules.get(stage)!
   const state = rowToStageState(r, {
-    isKanaOnly: db.isKanaOnly,
     earned: deriveEarned(db.logs.filter((l) => l.stage_number === stage)),
     ...deriveLastSeq(db.logs.filter((l) => l.study_date === today).map((l) => l.day_seq), today),
     correctStreak: trailingCount(db.logs.filter((l) => l.stage_number === stage).map((l) => l.outcome).reverse(), 'correct'),
@@ -236,31 +210,6 @@ describe('Nghiệm thu SCH-01', () => {
     expect(db.logs).toHaveLength(5) // vẫn ghi đủ nhật ký
   })
 
-  it('学校: 6 điểm mở Stage 3 nhưng Stage 2 chạy tiếp; 10 điểm mới tạo card', () => {
-    const db = fakeDb()
-    answer(db, 2, 'kana_to_meaning', 'correct', 1, day(5))
-    answer(db, 2, 'meaning_to_kana', 'correct', 6, day(5))
-    answer(db, 2, 'kana_assembly', 'correct', 11, day(5))
-    answer(db, 2, 'kana_to_meaning', 'correct', 16, day(5)) // chạm trần 3/ngày → 0
-    expect(db.schedules.get(2)).toMatchObject({ stage_points: 3, stage_points_today: 3 })
-
-    answer(db, 2, 'kana_to_meaning', 'correct', 1, day(6)) // 4
-    answer(db, 2, 'meaning_to_kana', 'correct', 6, day(6)) // 5
-    const open = answer(db, 2, 'kana_assembly', 'correct', 11, day(6)) // 6 + đủ 3 dạng
-    expect(open.result.unlockedStage).toBe(3)
-    expect(db.currentStage).toBe(3)
-    expect(db.schedules.get(2)).toMatchObject({ stage_points: 6, completed_at: null })
-    expect(db.cards).toEqual([]) // chưa có card ở mốc 6
-    expect(db.schedules.has(4)).toBe(false) // Stage 4 mở khi xem xong Stage 3
-
-    answer(db, 2, 'kana_assembly', 'correct', 1, day(7)) // 7
-    answer(db, 2, 'kana_assembly', 'correct', 6, day(7)) // 8
-    answer(db, 2, 'kana_assembly', 'correct', 11, day(7)) // 9
-    const done = answer(db, 2, 'kana_assembly', 'correct', 1, day(8)) // 10
-    expect(done.result.completed).toBe(true)
-    expect(db.schedules.get(2)!.completed_at).not.toBe(null)
-    expect(db.cards).toEqual(['vocab.meaning_kana'])
-  })
 
   it('sai ngay trước mốc: đủ điểm cũng phải đúng 3 câu liên tiếp mới hoàn tất', () => {
     const db = fakeDb()
@@ -311,7 +260,6 @@ describe('Nghiệm thu SCH-01', () => {
     answer(db, 2, 'kana_to_meaning', 'correct', 1, day(5))
     answer(db, 2, 'kana_assembly', 'correct', 6, day(5))
     const reloaded = rowToStageState(db.schedules.get(2)!, {
-      isKanaOnly: false,
       earned: deriveEarned(db.logs),
       ...deriveLastSeq(db.logs.map((l) => l.day_seq), '2026-11-05'),
       correctStreak: 2,

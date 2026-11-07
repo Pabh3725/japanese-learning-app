@@ -1,8 +1,7 @@
-// INT-01 — 学校 đi trọn 1 → 5 và テレビ đi 1 → 2 → 5 qua engine, bộ lịch và Review ghép lại.
-// Mốc theo luật V4: Stage 2 mở ở 6, xong ở 10; Stage 4 mở ở 10, xong ở 15; Stage 5 xong ở 10.
-// Phần lưu xuống database: supabase/tests/gd4_checks.sql.
+// INT-01 — 学校 đi hai lộ trình và テレビ đi một lộ trình, qua engine và bộ lịch ghép lại.
+// Từ vựng: 1 → 2 → 5. Từ Kanji: 3 → 4 → 6. Phần lưu xuống database: supabase/tests/.
 import { describe, expect, it } from 'vitest'
-import { createScheduler, type ReviewCard } from '../../srs/scheduler'
+import { createScheduler } from '../../srs/scheduler'
 import { newStageSchedule, reviewStageSchedule } from '../../srs/stage-scheduler'
 import {
   addStudyDays,
@@ -10,7 +9,6 @@ import {
   completeIntro,
   firstDueAt,
   REQUIRED_EXERCISES,
-  shouldRetire,
   STAGE_EXERCISES,
   type CardType,
   type ExerciseCode,
@@ -23,8 +21,8 @@ const PER_DAY = 3
 const GAP = 5
 
 /** Trả lời đúng mỗi ngày tới khi hoàn tất, ghi lại điểm lúc mở stage sau và lúc xong. */
-function runStage(stage: ScoredStage, isKanaOnly: boolean, startDay: string, exercises: readonly ExerciseCode[]) {
-  let state = word({ stage, isKanaOnly })
+function runStage(stage: ScoredStage, startDay: string, exercises: readonly ExerciseCode[]) {
+  let state = word({ stage })
   let schedule = newStageSchedule(vn(`${startDay} 20:00`))
   let day = startDay
   let unlocked: { stage: Stage; atPoints: number } | null = null
@@ -40,84 +38,75 @@ function runStage(stage: ScoredStage, isKanaOnly: boolean, startDay: string, exe
     schedule = reviewStageSchedule(schedule, 'correct', now)
     maxScheduledDays = Math.max(maxScheduledDays, schedule.scheduledDays)
     if (result.unlockedStage) unlocked = { stage: result.unlockedStage, atPoints: state.points }
-    if (result.completed) return { points: state.points, cards: result.cardsCreated, unlocked, maxScheduledDays, day }
+    if (result.completed) return { points: state.points, cards: result.cardsCreated, unlocked, maxScheduledDays }
   }
   throw new Error(`Stage ${stage} không hoàn tất`)
 }
 
-describe('INT-01 — 学校 đi trọn 1 → 5', () => {
-  const cards: CardType[] = []
-  const stage4List = [...REQUIRED_EXERCISES[4], ...STAGE_EXERCISES[4].filter((e) => !REQUIRED_EXERCISES[4].includes(e))]
-
-  it('mỗi stage mở và hoàn tất đúng mốc, gom đủ 5 loại Card', () => {
-    expect(completeIntro(1, false).openedStage).toBe(2)
-
-    const s2 = runStage(2, false, '2026-11-01', REQUIRED_EXERCISES[2])
-    expect(s2.unlocked).toEqual({ stage: 3, atPoints: 6 })
+describe('INT-01 — 学校', () => {
+  it('Từ vựng: mở Stage 5 ở 6 điểm, xong Stage 2 ở 10 tạo Card Kana, Stage 5 xong ở 10', () => {
+    expect(completeIntro(1).openedStage).toBe(2)
+    const s2 = runStage(2, '2026-11-01', REQUIRED_EXERCISES[2])
+    expect(s2.unlocked).toEqual({ stage: 5, atPoints: 6 })
     expect(s2.points).toBe(10)
-    expect(s2.cards).toEqual(['vocab.meaning_kana'])
-    cards.push(...s2.cards)
+    expect(s2.cards).toEqual<CardType[]>(['vocab.kana'])
+    expect(s2.maxScheduledDays).toBeLessThanOrEqual(2)
 
-    // Stage 3 chỉ xem: xem xong là có Card, mở Stage 4
-    const s3 = completeIntro(3, false)
-    expect(s3.openedStage).toBe(4)
-    expect(s3.cardsCreated).toEqual(['vocab.kana_hanviet'])
-    cards.push(...s3.cardsCreated)
-
-    const s4 = runStage(4, false, '2026-11-03', stage4List)
-    expect(s4.unlocked).toEqual({ stage: 5, atPoints: 10 })
-    expect(s4.points).toBe(15)
-    expect(s4.cards).toEqual(['vocab.meaning_kanji', 'vocab.kanji_meaning_hanviet'])
-    cards.push(...s4.cards)
-
-    const s5 = runStage(5, false, '2026-11-08', STAGE_EXERCISES[5])
+    const s5 = runStage(5, '2026-11-03', STAGE_EXERCISES[5])
     expect(s5.points).toBe(10)
-    expect(s5.cards).toEqual(['vocab.meaning_hanviet'])
-    cards.push(...s5.cards)
-
-    expect(new Set(cards).size).toBe(5)
-    // Lịch Stage không vượt 2 ngày ở mọi stage
-    for (const stage of [s2, s4, s5]) expect(stage.maxScheduledDays).toBeLessThanOrEqual(2)
+    expect(s5.cards).toEqual([])
   })
 
-  it('Card mới đến hạn 00:00 hôm sau, ôn đúng thì lịch giãn ra và điểm tăng', () => {
-    const scheduler = createScheduler({ enableFuzz: false })
-    const now = vn('2026-11-01 20:00')
-    const [card] = scheduler.createCardsForStage(2, false, now)
-    expect(card.schedule.due).toEqual(firstDueAt(now))
-    const { card: next } = scheduler.reviewCard(card, { outcome: 'correct', exercise: 'meaning_to_kana', responseMs: 5000 }, card.schedule.due)
-    expect(next.points.points).toBe(1)
-    expect(next.schedule.due.getTime()).toBeGreaterThan(card.schedule.due.getTime())
-  })
+  it('Từ Kanji: thẻ mở Stage 4, mở Stage 6 ở 10 điểm, xong Stage 6 tạo Card Kanji', () => {
+    expect(completeIntro(3).openedStage).toBe(4)
+    const stage4List = [...REQUIRED_EXERCISES[4], ...STAGE_EXERCISES[4].filter((e) => !REQUIRED_EXERCISES[4].includes(e))]
+    const s4 = runStage(4, '2026-11-05', stage4List)
+    expect(s4.unlocked).toEqual({ stage: 6, atPoints: 10 })
+    expect(s4.points).toBe(15)
+    expect(s4.cards).toEqual([])
 
-  it('Card giàn giáo bị bỏ khi đủ điểm, Card giữ lâu dài thì không', () => {
-    const scheduler = createScheduler({ enableFuzz: false })
-    const now = vn('2026-11-01 20:00')
-    const [meaningKana] = scheduler.createCardsForStage(2, false, now)
-    const nearRetire: ReviewCard = { ...meaningKana, points: { ...meaningKana.points, points: 29 } }
-    const { card } = scheduler.reviewCard(nearRetire, { outcome: 'correct', exercise: 'meaning_to_kana', responseMs: 5000 }, nearRetire.schedule.due)
-    expect(card.points.points).toBe(30)
-    expect(card.points.status).toBe('retired')
-
-    expect(shouldRetire({ type: 'vocab.kana_hanviet', points: 39, wordIsKanaOnly: false })).toBe(false)
-    expect(shouldRetire({ type: 'vocab.kana_hanviet', points: 40, wordIsKanaOnly: false })).toBe(true)
-    for (const type of ['vocab.meaning_kanji', 'vocab.kanji_meaning_hanviet', 'vocab.meaning_hanviet', 'vocab.star_recall'] as const) {
-      expect(shouldRetire({ type, points: 1000, wordIsKanaOnly: false })).toBe(false)
-    }
+    const s6 = runStage(6, '2026-11-09', STAGE_EXERCISES[6])
+    expect(s6.points).toBe(10)
+    expect(s6.cards).toEqual<CardType[]>(['vocab.kanji'])
+    expect(s6.maxScheduledDays).toBeLessThanOrEqual(2)
   })
 })
 
-describe('INT-01 — テレビ đi 1 → 2 → 5', () => {
-  it('bỏ qua Stage 3, 4; chỉ có Card nghĩa–Kana và không bao giờ bị bỏ', () => {
-    expect(completeIntro(1, true).openedStage).toBe(2)
-    const s2 = runStage(2, true, '2026-11-01', REQUIRED_EXERCISES[2])
-    expect(s2.unlocked).toEqual({ stage: 5, atPoints: 6 })
-    expect(s2.cards).toEqual(['vocab.meaning_kana'])
-    expect(s2.maxScheduledDays).toBeLessThanOrEqual(2)
+describe('INT-01 — テレビ', () => {
+  it('chỉ đi Từ vựng, chỉ có Card Kana', () => {
+    const s2 = runStage(2, '2026-11-01', REQUIRED_EXERCISES[2])
+    expect(s2.cards).toEqual<CardType[]>(['vocab.kana'])
+    expect(runStage(5, '2026-11-03', ['meaning_assembly', 'kana_free_recall']).cards).toEqual([])
+  })
+})
 
-    const s5 = runStage(5, true, '2026-11-03', ['meaning_assembly', 'kana_free_recall'])
-    expect(s5.points).toBe(10)
-    expect(s5.cards).toEqual([])
-    expect(shouldRetire({ type: 'vocab.meaning_kana', points: 1000, wordIsKanaOnly: true })).toBe(false)
+describe('Card trong Review', () => {
+  const scheduler = createScheduler({ enableFuzz: false })
+  const now = vn('2026-11-01 20:00')
+  const answer = (outcome: 'correct' | 'wrong') => ({ outcome, exercise: 'kana_free_recall', responseMs: 500 })
+
+  it('đến hạn 00:00 hôm sau', () => {
+    const [card] = scheduler.createCardsForStage(2, now)
+    expect(card.type).toBe('vocab.kana')
+    expect(card.schedule.due).toEqual(firstDueAt(now))
+  })
+
+  it('đúng liên tục thì giãn 2, 11, 46 rồi dừng ở 90 ngày, không bao giờ bị bỏ', () => {
+    let [card] = scheduler.createCardsForStage(2, now)
+    const gaps: number[] = []
+    let at = card.schedule.due
+    for (let i = 0; i < 8; i++) {
+      card = scheduler.reviewCard(card, answer('correct'), at).card
+      gaps.push(Math.round((card.schedule.due.getTime() - at.getTime()) / 864e5))
+      at = card.schedule.due
+    }
+    expect(gaps).toEqual([0, 2, 11, 46, 90, 90, 90, 90])
+    expect(card.status).toBe('active')
+  })
+
+  it('trả lời nhanh cũng chỉ là Good, không có Easy', () => {
+    const [card] = scheduler.createCardsForStage(2, now)
+    expect(scheduler.reviewCard(card, answer('correct'), card.schedule.due).log.rating).toBe('Good')
+    expect(scheduler.reviewCard(card, answer('wrong'), card.schedule.due).log.rating).toBe('Again')
   })
 })

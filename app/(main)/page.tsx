@@ -19,7 +19,7 @@ const EXPLORE = [
 export default async function DashboardPage() {
   const [user, learn, review, kanji] = await Promise.all([requireUser(), getLearnOverview(), getReviewOverview(), getKanjiOverview()])
   const cards = Object.values(review.byType).reduce((sum, n) => sum + n, 0)
-  const learnWork = learn.questionsToday + learn.newToday + learn.stage3Waiting
+  const learnWork = learn.questionsToday + learn.newToday
   const kanjiWork = kanji.questionsToday + kanji.newToday
   const reviewMinutes = Math.max(1, Math.ceil((review.dueNow * 15) / 60))
 

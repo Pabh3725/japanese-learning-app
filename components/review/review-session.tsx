@@ -9,30 +9,24 @@ import { WRONG_ANSWER_NOTE } from '@/components/learning/exercise-footer'
 import { KnownWordBar } from '@/components/learning/known-word-button'
 import { SessionComplete } from '@/components/learning/session-complete'
 import { SessionHeader } from '@/components/learning/session-header'
-import { ListeningPrompt, toAssemblyStep, toChoiceStep, toRecallStep } from '@/components/learning/learn-practice'
-import { useJapaneseVoice } from '@/components/learning/speaker-button'
-import { AssemblyExercise, type AssemblyGrade } from '@/components/learning/steps/assembly-exercise'
-import { ChoiceExercise } from '@/components/learning/steps/choice-exercise'
+import type { AssemblyGrade } from '@/components/learning/steps/assembly-exercise'
 import { RecallExercise } from '@/components/learning/steps/recall-exercise'
+import { SelfCheckExercise } from '@/components/learning/steps/self-check-exercise'
+import { KanjiReadExercise, type KanjiReadGrade } from '@/components/review/kanji-read-exercise'
 import type { ReviewQuestion } from '@/lib/dal/review'
-import { withRetry } from '@/lib/retry'
 import { speak } from '@/lib/speech'
+import type { RecallStep } from '@/lib/types'
 
 const SAVE_ERROR = "Couldn't check your answer. Check your connection and try again."
 const SAVE_WARNING = "Some answers couldn't be saved. They'll come up again."
 
-type ChoiceQ = Extract<ReviewQuestion, { kind: 'choice' }>
-type AssemblyQ = Extract<ReviewQuestion, { kind: 'assembly' }>
-type TypingQ = Extract<ReviewQuestion, { kind: 'typing' }>
-
 export function ReviewSession({ questions: initialQuestions, capReached, cardsLeft }: { questions: ReviewQuestion[]; capReached: boolean; cardsLeft: number }) {
   const [questions, setQuestions] = useState(initialQuestions)
   const router = useRouter()
-  const voice = useJapaneseVoice()
   const [index, setIndex] = useState(0)
   const [results, setResults] = useState<boolean[]>([])
-  const [pending, setPending] = useState(0)
-  const [warning, setWarning] = useState<string | null>(null)
+  const pending = 0
+  const [warning] = useState<string | null>(null)
   const shownAt = useRef(0)
   // Lưu tuần tự để hai câu của cùng một từ không ghi đè nhau
   const saveQueue = useRef<Promise<void>>(Promise.resolve())
@@ -81,40 +75,23 @@ export function ReviewSession({ questions: initialQuestions, capReached, cardsLe
   const next = () => setIndex((i) => i + 1)
   const responseMs = () => Date.now() - shownAt.current
 
-  const answerChoice = (current: ChoiceQ, exercise: string) => (chosen: string) => {
-    speak(current.speak)
-    setResults((list) => [...list, chosen === current.answer])
-    const payload = { cardId: current.cardId, clientEventId: current.clientEventId, exercise, answer: chosen, responseMs: responseMs() }
-    setPending((n) => n + 1)
-    saveQueue.current = saveQueue.current
-      // clientEventId giữ nguyên nên gửi lại không bị tính hai lần
-      .then(() => withRetry(() => submitReviewAnswerAction(payload), (res) => res.status === 'conflict'))
-      .then((res) => {
-        if (res.status === 'invalid' || res.status === 'conflict') setWarning(SAVE_WARNING)
-      })
-      .catch(() => setWarning(SAVE_WARNING))
-      .finally(() => setPending((n) => n - 1))
+  /** Server chấm rồi mới tính lịch. Câu tự chấm dựa vào người học. */
+  const submit = async (current: ReviewQuestion, fields: { answer?: string; reading?: string; hanViet?: string; remembered?: boolean }) => {
+    const elapsed = responseMs()
+    await saveQueue.current
+    return submitReviewAnswerAction({ cardId: current.cardId, clientEventId: current.clientEventId, exercise: current.exercise, responseMs: elapsed, ...fields })
   }
 
-  const gradeOnServer = (current: AssemblyQ | TypingQ) => async (given: string | string[], usedHint = false): Promise<AssemblyGrade> => {
-    const elapsed = responseMs()
+  const gradeTyping = (current: Extract<ReviewQuestion, { kind: 'typing' }>) => async (typed: string): Promise<AssemblyGrade> => {
     try {
-      await saveQueue.current
-      const res = await submitReviewAnswerAction({
-        cardId: current.cardId,
-        clientEventId: current.clientEventId,
-        exercise: current.exercise,
-        answer: given,
-        responseMs: elapsed,
-        usedHint,
-      })
+      const res = await submit(current, { answer: typed })
       if (res.status === 'graded') {
         const correct = res.outcome !== 'wrong'
         speak(res.reading)
         setResults((list) => [...list, correct])
         return { correct, answer: [res.answer], reveal: res.reveal }
       }
-      // Card đã bị bỏ hoặc tạm ngưng trên máy khác: câu này không còn hiệu lực
+      // Card đã bị tạm dừng trên máy khác: câu này không còn hiệu lực
       if (res.status === 'not_active' || res.status === 'not_found') {
         next()
         return null
@@ -125,6 +102,38 @@ export function ReviewSession({ questions: initialQuestions, capReached, cardsLe
     }
   }
 
+  const gradeRead = (current: Extract<ReviewQuestion, { kind: 'kanji_read' }>) => async (reading: string, hanViet: string): Promise<KanjiReadGrade> => {
+    try {
+      const res = await submit(current, { reading, hanViet })
+      if (res.status === 'graded') {
+        const correct = res.outcome !== 'wrong'
+        speak(res.reading)
+        setResults((list) => [...list, correct])
+        return { correct, answer: res.answer, reveal: res.reveal }
+      }
+      if (res.status === 'not_active' || res.status === 'not_found') {
+        next()
+        return null
+      }
+      return { error: SAVE_ERROR }
+    } catch {
+      return { error: SAVE_ERROR }
+    }
+  }
+
+  const saveSelf = (current: Extract<ReviewQuestion, { kind: 'self' }>) => async (remembered: boolean): Promise<string | null> => {
+    try {
+      const res = await submit(current, { remembered })
+      if (res.status === 'graded' || res.status === 'not_active' || res.status === 'not_found') {
+        if (res.status === 'graded') setResults((list) => [...list, remembered])
+        return null
+      }
+      return SAVE_ERROR
+    } catch {
+      return SAVE_ERROR
+    }
+  }
+
   /** Bỏ mọi card còn lại của từ này. Card đang hiện cũng bị bỏ nên câu kế tiếp tự hiện ra. */
   const removeWord = (vocabularyId: string) => {
     setQuestions((list) => list.filter((item, i) => i < index || item.vocabularyId !== vocabularyId))
@@ -132,36 +141,13 @@ export function ReviewSession({ questions: initialQuestions, capReached, cardsLe
 
   const label = 'Review'
   let body: React.ReactNode
-  if (q.kind === 'choice') {
-    const listening = q.listenTo !== undefined
-    if (listening && voice === 'checking') {
-      body = <p className="m-auto text-sm text-muted-foreground">Loading…</p>
-    } else {
-      const useAudio = listening && voice === 'available'
-      const fallback = listening && !useAudio
-      const exercise = fallback && q.noVoice ? q.noVoice.exercise : q.exercise
-      const step = toChoiceStep(q, label, '')
-      body = (
-        <ChoiceExercise
-          key={q.clientEventId}
-          step={fallback && q.noVoice ? { ...step, question: q.noVoice.question } : step}
-          promptNode={useAudio ? <ListeningPrompt kana={q.listenTo!} /> : undefined}
-          onAnswer={answerChoice(q, exercise)}
-          instant
-          wrongNote={WRONG_ANSWER_NOTE}
-          reveal={q.reveal}
-          onComplete={next}
-        />
-      )
-    }
-  } else if (q.kind === 'assembly') {
-    body = (
-      <AssemblyExercise key={q.clientEventId} step={toAssemblyStep(q, label)} onComplete={next} onGrade={gradeOnServer(q)} wrongNote={WRONG_ANSWER_NOTE} />
-    )
+  if (q.kind === 'typing') {
+    const step: RecallStep = { id: q.clientEventId, type: 'recall', stage: label, prompt: q.prompt, question: q.question, placeholder: q.placeholder, accepted: [], displayAnswer: '', explanation: '', input: q.input }
+    body = <RecallExercise key={q.clientEventId} step={step} onComplete={next} onGrade={gradeTyping(q)} wrongNote={WRONG_ANSWER_NOTE} />
+  } else if (q.kind === 'kanji_read') {
+    body = <KanjiReadExercise key={q.clientEventId} stage={label} question={q.question} prompt={q.prompt} wrongNote={WRONG_ANSWER_NOTE} onGrade={gradeRead(q)} onComplete={next} />
   } else {
-    body = (
-      <RecallExercise key={q.clientEventId} step={toRecallStep(q, label)} onComplete={next} onGrade={gradeOnServer(q)} wrongNote={WRONG_ANSWER_NOTE} />
-    )
+    body = <SelfCheckExercise key={q.clientEventId} stage={label} question={q.question} prompt={q.prompt} answer={q.answer} reading={q.reading} onResult={saveSelf(q)} onComplete={next} />
   }
 
   return (

@@ -5,7 +5,7 @@ import {
   CARDS_ON_PASS,
   EXERCISES,
   REQUIRED_EXERCISES,
-  REQUIRED_SKILLS_STAGE5,
+  REQUIRED_SKILLS,
   RULES_V4,
   STAGE_EXERCISES,
 } from './rules'
@@ -15,7 +15,6 @@ import type { CardType, ExerciseCode, Outcome, ScoredStage, Stage, StudyDate } f
 
 /** Trạng thái của một từ ở một Stage tính điểm. Tương ứng một dòng `learner_stage_schedules`. */
 export interface StageState {
-  isKanaOnly: boolean
   stage: ScoredStage
   /** Điểm của stage này; có thể âm. Giữ nguyên sau khi đã mở stage sau. */
   points: number
@@ -33,9 +32,8 @@ export interface StageState {
   correctStreak: number
 }
 
-export function newStageState(stage: ScoredStage, isKanaOnly: boolean): StageState {
+export function newStageState(stage: ScoredStage): StageState {
   return {
-    isKanaOnly,
     stage,
     points: 0,
     plusToday: 0,
@@ -48,39 +46,33 @@ export function newStageState(stage: ScoredStage, isKanaOnly: boolean): StageSta
   }
 }
 
-/** R1 — Stage kế tiếp. Từ chỉ Kana: 2 → 5. */
-export function nextStage(stage: Stage, isKanaOnly: boolean): Stage | 'complete' {
+/** R1 — Stage kế tiếp. Từ vựng: 1 → 2 → 5. Từ Kanji: 3 → 4 → 6. */
+export function nextStage(stage: Stage): Stage | 'complete' {
   switch (stage) {
     case 1:
       return 2
     case 2:
-      return isKanaOnly ? 5 : 3
+      return 5
     case 3:
       return 4
     case 4:
-      return 5
+      return 6
     case 5:
+    case 6:
       return 'complete'
   }
 }
 
-/** Các stage phải hoàn tất thì từ mới hoàn thành vòng học ban đầu. */
-export function requiredScoredStages(isKanaOnly: boolean): ScoredStage[] {
-  return isKanaOnly ? [2, 5] : [2, 4, 5]
-}
+/** Các stage phải hoàn tất thì từ hoàn thành kỹ năng Từ vựng. Từ Kanji tính tiến độ riêng. */
+export const VOCABULARY_STAGES: readonly ScoredStage[] = [2, 5]
 
 /** R5 — Card tạo ra khi hoàn tất `stage`. */
-export function cardsToCreate(stage: Stage, isKanaOnly: boolean): CardType[] {
-  if (isKanaOnly && stage !== 2) return []
+export function cardsToCreate(stage: Stage): CardType[] {
   return [...CARDS_ON_PASS[stage]]
 }
 
 /** Điểm cần để hoàn tất stage. */
-export function completeAt(stage: ScoredStage, isKanaOnly: boolean): number {
-  if (stage === 5) {
-    const { withKanji, kanaOnly } = RULES_V4.stageThresholds[5].completeAt
-    return isKanaOnly ? kanaOnly : withKanji
-  }
+export function completeAt(stage: ScoredStage): number {
   return RULES_V4.stageThresholds[stage].completeAt
 }
 
@@ -93,26 +85,25 @@ export function isSpaced(state: Pick<StageState, 'lastSeq' | 'lastSeqDate'>, seq
   return seq - state.lastSeq - 1 >= RULES_V4.spacing.minGap
 }
 
-function hasRequiredEarned({ stage, earned, isKanaOnly }: StageState): boolean {
-  if (stage === 5) {
-    const required = isKanaOnly ? REQUIRED_SKILLS_STAGE5.kanaOnly : REQUIRED_SKILLS_STAGE5.withKanji
+function hasRequiredEarned({ stage, earned }: StageState): boolean {
+  if (stage === 5 || stage === 6) {
     const skills = new Set(earned.map((code) => EXERCISES[code].skill))
-    return required.every((s) => skills.has(s))
+    return REQUIRED_SKILLS[stage].every((s) => skills.has(s))
   }
   return REQUIRED_EXERCISES[stage].every((code) => earned.includes(code))
 }
 
-/** R4 — Đủ điều kiện mở stage sau chưa. Stage 5 không có stage sau. */
+/** R4 — Đủ điều kiện mở stage sau chưa. Stage 5 và 6 không có stage sau. */
 export function canUnlockNext(state: StageState): boolean {
-  if (state.stage === 5) return false
+  if (state.stage === 5 || state.stage === 6) return false
   return state.points >= RULES_V4.stageThresholds[state.stage].unlockNextAt && hasRequiredEarned(state)
 }
 
 /** R4 — Đủ điều kiện hoàn tất stage chưa. Stage 2, 4 phải mở stage sau trước. */
 export function canComplete(state: StageState): boolean {
-  if (state.points < completeAt(state.stage, state.isKanaOnly)) return false
+  if (state.points < completeAt(state.stage)) return false
   if (state.correctStreak < RULES_V4.completion.correctStreak) return false
-  return state.stage === 5 ? hasRequiredEarned(state) : state.unlockedNext
+  return state.stage === 5 || state.stage === 6 ? hasRequiredEarned(state) : state.unlockedNext
 }
 
 export interface StageAttempt {
@@ -136,27 +127,20 @@ export interface StageAttemptResult {
   cardsCreated: CardType[]
 }
 
-/** Các dạng bài hợp lệ cho một Stage của từ. */
-export function allowedExercises(stage: ScoredStage, isKanaOnly: boolean): readonly ExerciseCode[] {
-  const list = STAGE_EXERCISES[stage]
-  if (stage === 5 && isKanaOnly) {
-    return list.filter((code) => {
-      const skill = EXERCISES[code].skill
-      return skill === 'S1' || skill === 'S2'
-    })
-  }
-  return list
+/** Các dạng bài hợp lệ cho một Stage. */
+export function allowedExercises(stage: ScoredStage): readonly ExerciseCode[] {
+  return STAGE_EXERCISES[stage]
 }
 
 /** Học lại Stage: điểm sau khi mở lại, để đúng thêm vài câu là hoàn tất lại. */
-export function relearnStagePoints(stage: ScoredStage, isKanaOnly: boolean): number {
-  return Math.max(0, completeAt(stage, isKanaOnly) - RULES_V4.relearn.pointsToComplete)
+export function relearnStagePoints(stage: ScoredStage): number {
+  return Math.max(0, completeAt(stage) - RULES_V4.relearn.pointsToComplete)
 }
 
 /** R3 + R4 + R5 — Áp một câu học vào trạng thái của từ ở stage này. */
 export function applyStageAttempt(state: StageState, attempt: StageAttempt): StageAttemptResult {
-  const { stage, isKanaOnly } = state
-  if (!allowedExercises(stage, isKanaOnly).includes(attempt.exercise)) {
+  const { stage } = state
+  if (!allowedExercises(stage).includes(attempt.exercise)) {
     throw new Error(`Dạng bài ${attempt.exercise} không thuộc Stage ${stage}`)
   }
 
@@ -200,21 +184,15 @@ export function applyStageAttempt(state: StageState, attempt: StageAttempt): Sta
     state: next,
     delta,
     counted,
-    unlockedStage: unlockedNow ? (nextStage(stage, isKanaOnly) as Stage) : null,
+    unlockedStage: unlockedNow ? (nextStage(stage) as Stage) : null,
     completed,
-    cardsCreated: completed ? cardsToCreate(stage, isKanaOnly) : [],
+    cardsCreated: completed ? cardsToCreate(stage) : [],
   }
 }
 
-/** Stage 1 và 3: xem xong là qua, mở stage kế tiếp ngay. */
-export function completeIntro(
-  stage: 1 | 3,
-  isKanaOnly: boolean,
-): { openedStage: Stage; cardsCreated: CardType[] } {
-  return {
-    openedStage: nextStage(stage, isKanaOnly) as Stage,
-    cardsCreated: cardsToCreate(stage, isKanaOnly),
-  }
+/** Stage 1 và 3: xem xong là qua, mở stage kế tiếp ngay. Không tạo Card. */
+export function completeIntro(stage: 1 | 3): { openedStage: Stage } {
+  return { openedStage: nextStage(stage) as Stage }
 }
 
 /** Bước hiện tại của từ trong một stage. Stage 5 không chia bước. */
@@ -223,16 +201,11 @@ export type StageStep = 'choice' | 'mixed' | 'assembly'
 export function stageStep(stage: ScoredStage, points: number): StageStep {
   if (stage === 2) return points < RULES_V4.stageSteps[2].assemblyFrom ? 'choice' : 'assembly'
   if (stage === 4) {
-    const { kanjiIntroAt, assemblyFrom } = RULES_V4.stageSteps[4]
-    if (points < kanjiIntroAt) return 'choice'
+    const { mixedFrom, assemblyFrom } = RULES_V4.stageSteps[4]
+    if (points < mixedFrom) return 'choice'
     return points < assemblyFrom ? 'mixed' : 'assembly'
   }
   return 'assembly'
-}
-
-/** Từ ở Stage 4 đã đủ điểm để xem thẻ Giới thiệu Hán tự chưa. */
-export function reachedKanjiIntro(points: number): boolean {
-  return points >= RULES_V4.stageSteps[4].kanjiIntroAt
 }
 
 /** Đã sai liên tiếp đủ số câu để hiện lại thẻ giới thiệu chưa. */

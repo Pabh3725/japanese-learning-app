@@ -3,13 +3,15 @@ import { cn } from '@/lib/utils'
 
 const TABS = [
   { id: 'vocabulary', href: '/learn', label: 'Vocabulary' },
+  { id: 'word_kanji', href: '/learn/word-kanji', label: 'Kanji words' },
   { id: 'kanji', href: '/learn/kanji', label: 'Kanji' },
 ] as const
 
-/** Khu Learn chia hai mục: học từ vựng và học Kanji. */
+/** Khu Learn có ba mục trong một tab, và nút học hỗn hợp trộn cả ba. */
 export function LearnTabs({ active }: { active: (typeof TABS)[number]['id'] }) {
   return (
-    <nav aria-label="Learn sections" className="mb-6 flex gap-2 rounded-2xl border border-border bg-card p-1.5">
+    <div className="mb-6 flex flex-col gap-3">
+    <nav aria-label="Learn sections" className="flex gap-2 rounded-2xl border border-border bg-card p-1.5">
       {TABS.map((tab) => (
         <Link
           key={tab.id}
@@ -24,5 +26,9 @@ export function LearnTabs({ active }: { active: (typeof TABS)[number]['id'] }) {
         </Link>
       ))}
     </nav>
+    <Link href="/learn/mixed" className="text-center text-sm font-medium text-primary underline-offset-2 hover:underline">
+      Mixed: practice everything due together
+    </Link>
+    </div>
   )
 }

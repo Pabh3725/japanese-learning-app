@@ -14,22 +14,13 @@ const gakkou = {
 }
 
 describe('toIntroWord', () => {
-  it('giữ kana, romaji, nghĩa, emoji', () => {
-    expect(toIntroWord(gakkou)).toEqual({
-      id: 'v1',
-      reading: 'がっこう',
-      romaji: 'gakkou',
-      meaning: 'trường học',
-      emoji: '🏫',
-      jlpt: 'N5',
-    })
+  it('giữ kana, nghĩa, Hán Việt để làm quen; không có Kanji', () => {
+    const word = toIntroWord({ id: 'a', reading_kana: 'がっこう', romaji: 'gakkou', meaning_vi: 'trường học', han_viet: 'HỌC HIỆU', emoji: null, jlpt_level: 5, expression: '学校' } as never)
+    expect(word).toMatchObject({ reading: 'がっこう', meaning: 'trường học', hanViet: 'HỌC HIỆU' })
+    expect(JSON.stringify(word)).not.toContain('学校')
   })
 
-  it('không để lộ Kanji và Hán Việt, kể cả khi dòng DB có', () => {
-    const json = JSON.stringify(toIntroWord(gakkou))
-    expect(json).not.toContain('学校')
-    expect(json).not.toContain('HỌC HIỆU')
-  })
+
 
   it('romaji và emoji trống → null, thẻ vẫn hiện được', () => {
     const word = toIntroWord({ ...gakkou, romaji: null, emoji: '' })
@@ -74,8 +65,7 @@ describe('pickNewWords', () => {
 
 describe('stageAfterIntro', () => {
   it('từ có Kanji và từ chỉ có Kana đều sang Stage 2 (R1)', () => {
-    expect(stageAfterIntro(false)).toBe(2)
-    expect(stageAfterIntro(true)).toBe(2)
+    expect(stageAfterIntro()).toBe(2)
   })
 })
 

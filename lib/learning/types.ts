@@ -4,16 +4,17 @@
 /** Kết quả chấm một câu: đúng (không gợi ý), đúng nhờ gợi ý, sai. */
 export type Outcome = 'correct' | 'hint' | 'wrong'
 
-export type Stage = 1 | 2 | 3 | 4 | 5
+/** Từ vựng: 1 → 2 → 5. Từ Kanji: 3 → 4 → 6. */
+export type Stage = 1 | 2 | 3 | 4 | 5 | 6
 
 /** Stage có điểm và lịch riêng. Stage 1 và 3 chỉ có xem. */
-export type ScoredStage = 2 | 4 | 5
+export type ScoredStage = 2 | 4 | 5 | 6
 
 /** S1 Meaning · S2 Kana · S3 Kanji · S4 Hán Việt */
 export type Skill = 'S1' | 'S2' | 'S3' | 'S4'
 
-/** Cách trả lời: chọn đáp án, ghép mảnh, gõ. */
-export type ExerciseKind = 'choice' | 'assembly' | 'typing'
+/** Cách trả lời: chọn đáp án, ghép mảnh, gõ, tự chấm. */
+export type ExerciseKind = 'choice' | 'assembly' | 'typing' | 'self'
 
 export type ExerciseCode =
   // Stage 2 (và củng cố ở Stage 4)
@@ -36,19 +37,22 @@ export type ExerciseCode =
   | 'kanji_assembly_nohint'
   | 'kanji_recognition_6'
   | 'hanviet_free_recall'
+  // Review, Card Kanji
+  | 'kanji_read_typing'
+  | 'kanji_write_self'
 
 export type CardType =
-  | 'vocab.meaning_kana'
-  | 'vocab.kana_hanviet'
-  | 'vocab.meaning_kanji'
-  | 'vocab.kanji_meaning_hanviet'
-  | 'vocab.meaning_hanviet'
+  /** Mọi từ: nghĩa → gõ Kana. */
+  | 'vocab.kana'
+  /** Từ có Kanji: nhìn Kanji → gõ Kana và Hán Việt; nhìn nghĩa → viết rồi tự chấm. */
+  | 'vocab.kanji'
   /** Card riêng của từ có sao, chạy song song với lộ trình chính. */
   | 'vocab.star_recall'
 
-export type Rating = 'Again' | 'Hard' | 'Good' | 'Easy'
+export type Rating = 'Again' | 'Hard' | 'Good'
 
-export type CardStatus = 'active' | 'suspended' | 'retired'
+/** suspended: từ đã đánh dấu là đã biết, hoặc Card riêng của từ đã bỏ sao. */
+export type CardStatus = 'active' | 'suspended'
 
 /** Ngày học dạng 'YYYY-MM-DD' theo giờ Việt Nam. */
 export type StudyDate = string

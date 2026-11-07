@@ -7,5 +7,5 @@ export function vn(local: string): Date {
 
 /** Tạo trạng thái của từ ở một stage với các trường cần thiết cho ví dụ. Mặc định Stage 2. */
 export function word(partial: Partial<StageState> = {}): StageState {
-  return { ...newStageState(partial.stage ?? 2, partial.isKanaOnly ?? false), ...partial }
+  return { ...newStageState(partial.stage ?? 2), ...partial }
 }

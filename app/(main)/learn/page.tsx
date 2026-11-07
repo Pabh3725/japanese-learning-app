@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/page-header'
 import { ProgressBar } from '@/components/progress-bar'
 import { LearnMoreButton } from '@/components/learning/learn-more-button'
 import { LearnTabs } from '@/components/learning/learn-tabs'
+import { LevelUpPrompt } from '@/components/learning/level-up-prompt'
 import { getLearnOverview } from '@/lib/dal/learn-overview'
 import { cn } from '@/lib/utils'
 
@@ -18,12 +19,13 @@ const stages = [
 
 export default async function LearnPage() {
   const overview = await getLearnOverview()
-  const hasWork = overview.questionsToday + overview.newToday + overview.stage3Waiting > 0
+  const hasWork = overview.questionsToday + overview.newToday > 0
 
   return (
     <>
       <PageHeader eyebrow="学習" title="Learn" description="New words and practice, mixed into short sessions." />
       <LearnTabs active="vocabulary" />
+      {overview.nextLevel !== null && <LevelUpPrompt skill="vocabulary" level={overview.level} next={overview.nextLevel} itemName="words" />}
 
       <section aria-labelledby="today-title" className="rounded-3xl border border-primary/30 bg-card p-6 md:p-8">
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
@@ -33,7 +35,7 @@ export default async function LearnPage() {
               {hasWork ? `${overview.sessions} ${overview.sessions === 1 ? 'session' : 'sessions'}` : 'All caught up'}
             </h2>
             <p className="mt-2 text-sm text-subtle">
-              {overview.questionsToday} questions due · {overview.newToday} new words · {overview.stage3Waiting} new readings and Kanji to meet
+              {overview.questionsToday} questions due · {overview.newToday} new words
             </p>
             {overview.currentLesson && (
               <p className="mt-2 text-sm text-subtle">

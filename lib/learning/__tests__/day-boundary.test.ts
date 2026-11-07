@@ -5,7 +5,7 @@
 //   05/11 23:59 VN = 05/11 16:59Z  → ngày học 05/11
 //   06/11 00:01 VN = 05/11 17:01Z  → ngày học 06/11 (dù ngày UTC vẫn là 05/11)
 import { describe, expect, it } from 'vitest'
-import { firstDueAt, applyPracticeToCard, newCardState } from '../cards'
+import { firstDueAt } from '../cards'
 import { allowedBorrow, planDailyCounts } from '../daily-plan'
 import { applyStageAttempt } from '../stage'
 import { addStudyDays, formatVnDateTime, isDueAt, nextStudyDayStart, studyDate } from '../time'
@@ -65,11 +65,6 @@ describe('Case 5–7 · Các trần "mỗi ngày" reset đúng 00:00 giờ VN', 
     expect(r.counted).toBe(true)
   })
 
-  it('7. trần practice +3/card/ngày reset lúc 00:00 VN', () => {
-    const card = { ...newCardState('vocab.meaning_kana', false), practicePlusToday: 3, practiceDate: '2026-11-05' }
-    expect(applyPracticeToCard(card, 'correct', vn('2026-11-05 23:59')).delta).toBe(0)
-    expect(applyPracticeToCard(card, 'correct', vn('2026-11-06 00:01')).delta).toBe(1)
-  })
 })
 
 describe('Case 8–9 · Trần review/ngày và quota từ mới', () => {

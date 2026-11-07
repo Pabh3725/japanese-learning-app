@@ -2,17 +2,9 @@
 // Pure: không gọi database. lib/dal/review.ts dùng các hàm này.
 
 import type { CardStatus, CardType } from '../learning/types'
-import type { ReviewAnswer } from '../learning/scoring'
-import type { ReviewCard, ReviewResult, ScheduleState } from './scheduler'
+import type { ReviewAnswer, ReviewCard, ReviewResult, ScheduleState } from './scheduler'
 
-const CARD_TYPES: readonly CardType[] = [
-  'vocab.meaning_kana',
-  'vocab.kana_hanviet',
-  'vocab.meaning_kanji',
-  'vocab.kanji_meaning_hanviet',
-  'vocab.meaning_hanviet',
-  'vocab.star_recall',
-]
+const CARD_TYPES: readonly CardType[] = ['vocab.kana', 'vocab.kanji', 'vocab.star_recall']
 
 /** Một dòng review_cards như Supabase trả về (timestamp là chuỗi ISO). */
 export interface ReviewCardRow {
@@ -35,27 +27,18 @@ export interface ReviewCardRow {
 }
 
 export interface CardContext {
-  /** Từ của card là từ chỉ có Kana (vocabularies.is_kana_only). */
-  isKanaOnly: boolean
-  /** Từ đang bị loại khỏi lộ trình (R8) → card tạm dừng. */
-  excluded: boolean
+  /** Từ đã đánh dấu là đã biết, hoặc Card riêng của từ đã bỏ sao. */
+  paused: boolean
 }
 
-/** Dòng database → card của bộ tính lịch. Dòng cũ thiếu card_type hoặc sai dạng → null. */
+/** Dòng database → card của bộ tính lịch. Dòng cũ thiếu card_type hoặc sai dạng thì trả null. */
 export function rowToReviewCard(row: ReviewCardRow, ctx: CardContext): ReviewCard | null {
   const type = CARD_TYPES.find((t) => t === row.card_type)
   if (!type || row.state < 0 || row.state > 3) return null
-
-  const status: CardStatus = row.retired_at ? 'retired' : ctx.excluded ? 'suspended' : 'active'
+  const status: CardStatus = ctx.paused ? 'suspended' : 'active'
   return {
-    points: {
-      type,
-      wordIsKanaOnly: ctx.isKanaOnly,
-      status,
-      points: row.card_points,
-      practicePlusToday: row.practice_points_today,
-      practiceDate: row.practice_points_date,
-    },
+    type,
+    status,
     schedule: {
       state: row.state as ScheduleState,
       due: new Date(row.due_at),
@@ -98,10 +81,11 @@ export function toSubmitReviewParams({ cardId, clientEventId, expectedVersion, a
     p_learning_steps: s.learningSteps,
     p_reps: s.reps,
     p_lapses: s.lapses,
-    p_card_points: card.points.points,
-    p_retire: card.points.status === 'retired',
+    // Không còn điểm và không còn bỏ Card; hàm trong database vẫn nhận hai tham số này
+    p_card_points: 0,
+    p_retire: false,
     p_rating: log.ratingNumber,
-    p_card_points_delta: log.cardPointsDelta,
+    p_card_points_delta: 0,
     p_state_before: log.stateBefore,
     p_due_before: log.dueBefore.toISOString(),
     p_exercise_type: answer.exercise,

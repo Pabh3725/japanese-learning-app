@@ -133,10 +133,17 @@ describe('Ôn dài hạn', () => {
     expect(schedule.scheduledDays).toBeLessThan(before)
   })
 
-  it('không lặp dạng lần trước, không hỏi từ khi chưa có từ', () => {
+  it('chỉ có gõ và viết rồi tự chấm, không lặp dạng lần trước, tối đa 90 ngày', () => {
     for (let s = 1; s < 40; s++) {
-      expect(chooseReviewExercise('hanviet_typing', false, seeded(s))).not.toBe('hanviet_typing')
-      expect(chooseReviewExercise(null, false, seeded(s))).not.toBe('word_meaning')
+      const exercise = chooseReviewExercise('hanviet_typing', seeded(s))
+      expect(['reading_typing', 'kanji_write']).toContain(exercise)
+    }
+    let schedule = newLongTermSchedule(vn(5))
+    let now = schedule.due
+    for (let i = 0; i < 8; i++) {
+      schedule = reviewLongTermSchedule(schedule, 'correct', now, false)
+      expect(schedule.scheduledDays).toBeLessThanOrEqual(90)
+      now = schedule.due
     }
   })
 })
@@ -187,7 +194,7 @@ describe('Trên toàn bộ chữ trong data', () => {
   it('mọi dạng: đủ 4 đáp án, đáp án đúng chấm đúng, đáp án nhiễu không bao giờ được chấm đúng', () => {
     let seed = 1
     for (const kanji of all) {
-      for (const exercise of KANJI_EXERCISES.filter((e) => e !== 'word_meaning')) {
+      for (const exercise of KANJI_EXERCISES.filter((e) => e !== 'word_meaning' && e !== 'kanji_write')) {
         const q = buildKanjiQuestion(kanji, exercise, all, null, seeded(seed++))
         if (q.kind !== 'choice') continue
         expect(new Set(q.options).size, `${kanji.character} ${exercise}`).toBe(4)
@@ -226,6 +233,8 @@ describe('Trên toàn bộ chữ trong data', () => {
     expect(gradeKanjiAnswer(kanji, 'hanviet_typing', 'hoc').outcome).toBe('correct')
     expect(gradeKanjiAnswer(kanji, 'hanviet_typing', 'HỌC').outcome).toBe('correct')
     expect(gradeKanjiAnswer(kanji, 'hanviet_typing', 'sinh').outcome).toBe('wrong')
+    expect(gradeKanjiAnswer(kanji, 'kanji_write', 'remembered').outcome).toBe('correct')
+    expect(gradeKanjiAnswer(kanji, 'kanji_write', 'forgot').outcome).toBe('wrong')
     expect(showReading('ひと.つ')).toBe('ひとつ')
   })
 

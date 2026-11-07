@@ -1,30 +1,14 @@
-// GAME-01 — Từ cho Speed Matching và lưu từng lượt: chỉ đổi điểm Card, không đổi lịch ôn, lịch Stage hay điểm Stage. Server-only.
+// GAME-01 — Từ cho Speed Matching và lưu từng lượt. Chỉ ôn vui: không đổi điểm và lịch nào. Server-only.
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
-import { applyPracticeToCard } from '@/lib/learning/cards'
-import { RULES_V4 } from '@/lib/learning/rules'
 import { studyDate } from '@/lib/learning/time'
-import type { CardType, Outcome } from '@/lib/learning/types'
-import { cardTypeFor, isSpeedMode, skillOf, SPEED_MODES, wordsForMode, type SpeedMode, type SpeedModeData, type SpeedWordSource } from '@/lib/speed-matching'
+import { isSpeedMode, skillOf, SPEED_MODES, wordsForMode, type SpeedMode, type SpeedModeData, type SpeedWordSource } from '@/lib/speed-matching'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 
 const PAGE = 1000
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-
-const CARD_FIELDS = 'id, card_type, card_points, retired_at, last_review_at, practice_points_today, practice_points_date, version'
-
-type CardRow = {
-  id: string
-  card_type: CardType
-  card_points: number
-  retired_at: string | null
-  last_review_at: string | null
-  practice_points_today: number
-  practice_points_date: string | null
-  version: number
-}
 
 async function readExcluded(supabase: Supabase, userId: string): Promise<Set<string>> {
   const { data, error } = await supabase.from('learner_vocabulary_exclusions').select('vocabulary_id').eq('user_id', userId).not('excluded_at', 'is', null).range(0, PAGE - 1)
@@ -38,7 +22,7 @@ export async function readSpeedModes(supabase: Supabase, userId: string): Promis
     readExcluded(supabase, userId),
     supabase
       .from('learner_vocabulary')
-      .select(`vocabulary_id, kanji_intro_seen_at, vocabularies!inner(expression, reading_kana, meaning_vi, han_viet, is_kana_only), review_cards(${CARD_FIELDS})`)
+      .select('vocabulary_id, kanji_intro_seen_at, vocabularies!inner(expression, reading_kana, meaning_vi, han_viet, is_kana_only), review_cards(last_review_at)')
       .eq('user_id', userId)
       .range(0, PAGE - 1),
   ])
@@ -47,7 +31,7 @@ export async function readSpeedModes(supabase: Supabase, userId: string): Promis
     vocabulary_id: string
     kanji_intro_seen_at: string | null
     vocabularies: { expression: string; reading_kana: string; meaning_vi: string; han_viet: string | null; is_kana_only: boolean }
-    review_cards: CardRow[]
+    review_cards: { last_review_at: string | null }[]
   }[]
   const sources: SpeedWordSource[] = list
     .filter((r) => !excludedIds.has(r.vocabulary_id))
@@ -59,16 +43,9 @@ export async function readSpeedModes(supabase: Supabase, userId: string): Promis
       hanViet: r.vocabularies.han_viet,
       isKanaOnly: r.vocabularies.is_kana_only,
       kanjiSeen: r.kanji_intro_seen_at !== null,
-      cards: r.review_cards.map((c) => ({
-        type: c.card_type,
-        retired: c.retired_at !== null,
-        lastReviewAt: c.last_review_at,
-        practiceDate: c.practice_points_date,
-        practiceToday: c.practice_points_today,
-      })),
+      lastReviewAt: r.review_cards.map((c) => c.last_review_at).filter((at): at is string => at !== null).sort().at(-1) ?? null,
     }))
-  const today = studyDate(new Date())
-  return SPEED_MODES.map((mode) => wordsForMode(sources, mode, today, RULES_V4.practice.maxPositivePerCardPerDay))
+  return SPEED_MODES.map((mode) => wordsForMode(sources, mode))
 }
 
 export async function getSpeedModes(): Promise<SpeedModeData[]> {
@@ -85,8 +62,6 @@ export interface SpeedPairRequest {
   /** Từ của ô chữ và từ của ô nghĩa. Trùng nhau là ghép đúng. */
   wordId: string
   meaningId: string
-  /** Từ đã bị trừ ở bàn này: vẫn ghi nhật ký nhưng không trừ thêm. */
-  noPenalty: string[]
   responseMs: number
   boss: boolean
 }
@@ -97,85 +72,36 @@ function parseRequest(input: unknown): SpeedPairRequest | null {
   if (!Array.isArray(v.eventIds) || v.eventIds.length !== 2 || !v.eventIds.every((id) => typeof id === 'string' && UUID.test(id))) return null
   if (!isSpeedMode(v.mode)) return null
   if (typeof v.wordId !== 'string' || !UUID.test(v.wordId) || typeof v.meaningId !== 'string' || !UUID.test(v.meaningId)) return null
-  if (!Array.isArray(v.noPenalty) || !v.noPenalty.every((id) => typeof id === 'string')) return null
   if (typeof v.responseMs !== 'number' || !Number.isFinite(v.responseMs)) return null
   return { ...(v as SpeedPairRequest), boss: v.boss === true }
 }
 
-export type SpeedPairResponse = { status: 'saved' | 'conflict' | 'invalid'; cardPoints: number }
+export type SpeedPairResponse = { status: 'saved' | 'invalid' }
 
-async function saveAttempt(supabase: Supabase, userId: string, req: SpeedPairRequest, vocabularyId: string, eventId: string, outcome: Outcome, canScore: boolean) {
-  const { data, error } = await supabase
-    .from('learner_vocabulary')
-    .select(`kanji_intro_seen_at, vocabularies!inner(is_kana_only), review_cards(${CARD_FIELDS})`)
-    .eq('user_id', userId)
-    .eq('vocabulary_id', vocabularyId)
-    .maybeSingle()
-  if (error) throw new Error(`Không đọc được learner_vocabulary: ${error.message}`)
-  // Từ người học chưa gặp thì không thể có trên bàn
-  if (!data) return { status: 'invalid' as const, cardPoints: 0 }
-  const row = data as unknown as { kanji_intro_seen_at: string | null; vocabularies: { is_kana_only: boolean }; review_cards: CardRow[] }
-
-  const excluded = await readExcluded(supabase, userId)
-  const isKanaOnly = row.vocabularies.is_kana_only
-  const type = cardTypeFor(req.mode, row.kanji_intro_seen_at !== null && !isKanaOnly)
-  const card = row.review_cards.find((c) => c.card_type === type && c.retired_at === null)
-  const now = new Date()
-
-  const applied =
-    card && canScore && !excluded.has(vocabularyId)
-      ? applyPracticeToCard(
-          { type, wordIsKanaOnly: isKanaOnly, status: 'active', points: card.card_points, practicePlusToday: card.practice_points_today, practiceDate: card.practice_points_date },
-          outcome,
-          now,
-        )
-      : null
-
-  const { data: saved, error: rpcError } = await supabase.rpc('submit_practice_attempt', {
-    p_session_id: req.sessionId,
-    p_client_event_id: eventId,
-    p_vocabulary_id: vocabularyId,
-    p_skill_code: skillOf(type),
-    p_is_correct: outcome === 'correct',
-    p_response_time_ms: Math.max(0, Math.round(req.responseMs)),
-    p_study_date: studyDate(now),
-    p_settings: { mode: req.mode, boss: req.boss },
-    p_review_card_id: applied ? card!.id : null,
-    p_expected_version: applied ? card!.version : null,
-    p_card_points: applied ? applied.card.points : null,
-    p_card_points_delta: applied ? applied.delta : 0,
-    p_practice_today: applied ? applied.card.practicePlusToday : null,
-    p_retire: applied ? applied.retiredNow : false,
-  })
-  if (rpcError) throw new Error(`submit_practice_attempt lỗi: ${rpcError.message}`)
-  const status = (saved as { status: string }).status
-  if (status === 'conflict') return { status: 'conflict' as const, cardPoints: 0 }
-  return { status: 'saved' as const, cardPoints: status === 'saved' && applied ? applied.delta : 0 }
-}
-
-/** Ghép đúng: +1 cho Card của từ đó. Ghép sai: −1 cho Card của cả 2 từ. Đúng hay sai do server so sánh. */
+/** Game chỉ để ôn vui: ghi nhật ký từng lượt, không đổi điểm và lịch nào. */
 export async function submitSpeedPair(input: unknown): Promise<SpeedPairResponse> {
   const req = parseRequest(input)
-  if (!req) return { status: 'invalid', cardPoints: 0 }
+  if (!req) return { status: 'invalid' }
   const user = await requireUser()
   const supabase = await createClient()
-
-  const attempts: { id: string; event: string; outcome: Outcome; canScore: boolean }[] =
-    req.wordId === req.meaningId
-      ? [{ id: req.wordId, event: req.eventIds[0], outcome: 'correct', canScore: true }]
-      : [
-          { id: req.wordId, event: req.eventIds[0], outcome: 'wrong', canScore: !req.noPenalty.includes(req.wordId) },
-          { id: req.meaningId, event: req.eventIds[1], outcome: 'wrong', canScore: !req.noPenalty.includes(req.meaningId) },
-        ]
-
-  let cardPoints = 0
+  const correct = req.wordId === req.meaningId
+  const attempts = correct
+    ? [{ id: req.wordId, event: req.eventIds[0] }]
+    : [{ id: req.wordId, event: req.eventIds[0] }, { id: req.meaningId, event: req.eventIds[1] }]
   for (const attempt of attempts) {
-    const result = await saveAttempt(supabase, user.id, req, attempt.id, attempt.event, attempt.outcome, attempt.canScore)
-    // Gửi lại an toàn: lượt đã lưu trả về duplicate, không cộng hai lần
-    if (result.status !== 'saved') return { status: result.status, cardPoints }
-    cardPoints += result.cardPoints
+    const { error } = await supabase.rpc('submit_practice_attempt', {
+      p_session_id: req.sessionId,
+      p_client_event_id: attempt.event,
+      p_vocabulary_id: attempt.id,
+      p_skill_code: skillOf(req.mode),
+      p_is_correct: correct,
+      p_response_time_ms: Math.max(0, Math.round(req.responseMs)),
+      p_study_date: studyDate(new Date()),
+      p_settings: { mode: req.mode, boss: req.boss },
+    })
+    if (error) throw new Error(`submit_practice_attempt lỗi: ${error.message}`)
   }
-  return { status: 'saved', cardPoints }
+  return { status: 'saved' }
 }
 
 /** Ghi điểm khi hết giờ. Chưa có lượt nào thì chưa có phiên, không có gì để ghi. */

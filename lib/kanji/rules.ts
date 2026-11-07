@@ -11,6 +11,7 @@ export const KANJI_EXERCISES = [
   'hanviet_typing',
   'reading_typing',
   'word_meaning',
+  'kanji_write',
 ] as const
 export type KanjiExercise = (typeof KANJI_EXERCISES)[number]
 
@@ -71,9 +72,9 @@ export function planSitting(points: number, counts: KanjiCounts, questions: numb
   return plan
 }
 
-/** Ôn dài hạn: trộn các dạng, không lặp dạng lần trước. */
-export function chooseReviewExercise(last: string | null, hasWord: boolean, rng: Rng = Math.random): KanjiExercise {
-  const list = KANJI_EXERCISES.filter((code) => code !== last && (hasWord || code !== 'word_meaning'))
+/** Ôn dài hạn: chỉ gõ và viết rồi tự chấm, không lặp dạng lần trước. */
+export function chooseReviewExercise(last: string | null, rng: Rng = Math.random): KanjiExercise {
+  const list = (['hanviet_typing', 'reading_typing', 'kanji_write'] as const).filter((code) => code !== last)
   return list[Math.floor(rng() * list.length)]
 }
 

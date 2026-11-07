@@ -10,6 +10,7 @@ export interface KanjiRow {
   meaning_vi: string
   onyomi: string[]
   kunyomi: string[]
+  jlpt_level?: number | null
 }
 
 export interface KanjiReveal {
@@ -36,6 +37,8 @@ interface QuestionBase {
 export type KanjiQuestionData =
   | (QuestionBase & { kind: 'choice'; options: string[]; answer: string; optionKind: 'kana' | 'vocab' | 'meaning'; wordId?: string })
   | (QuestionBase & { kind: 'typing'; placeholder: string; input: 'text' | 'hiragana' | 'katakana' })
+  /** Nhìn nghĩa và Hán Việt → viết chữ ra giấy hoặc nhớ trong đầu → lật → tự chấm. */
+  | (QuestionBase & { kind: 'self'; answer: string })
 
 /** Từ đã gặp chứa chữ này, cùng các nghĩa khác để làm đáp án nhiễu. */
 export interface KanjiWordOption {
@@ -153,6 +156,8 @@ export function buildKanjiQuestion(kanji: KanjiRow, exercise: KanjiExercise, poo
         input: useOn ? 'katakana' : 'hiragana',
       }
     }
+    case 'kanji_write':
+      return { ...base, kind: 'self', question: 'Write this Kanji, then check', prompt: { display: `${kanji.meaning_vi} · ${kanji.han_viet}`, kind: 'meaning' }, answer: kanji.character }
     case 'word_meaning': {
       if (!word) throw new Error('word_meaning cần một từ đã gặp')
       const wrong = distinct(word.distractors, new Set([word.meaning]), rng)
@@ -160,6 +165,9 @@ export function buildKanjiQuestion(kanji: KanjiRow, exercise: KanjiExercise, poo
     }
   }
 }
+
+/** Câu tự chấm gửi chuỗi này khi người học bấm nhớ. */
+export const REMEMBERED = 'remembered'
 
 export interface KanjiGrade {
   outcome: Outcome
@@ -187,6 +195,8 @@ export function gradeKanjiAnswer(kanji: KanjiRow, exercise: KanjiExercise, answe
       const typed = toHiragana(answer.trim())
       return { outcome: readings.some((reading) => toHiragana(reading) === typed) ? 'correct' : 'wrong', answer: readings.join('、') }
     }
+    case 'kanji_write':
+      return { outcome: answer === REMEMBERED ? 'correct' : 'wrong', answer: kanji.character }
     case 'word_meaning':
       return { outcome: wordMeaning !== null && answer === wordMeaning ? 'correct' : 'wrong', answer: wordMeaning ?? '' }
   }

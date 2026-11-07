@@ -25,60 +25,35 @@ const newRow: ReviewCardRow = {
   practice_points_date: null,
   version: 0,
 }
-const ctx = { isKanaOnly: false, excluded: false }
+const ctx = { paused: false }
 
 describe('rowToReviewCard — dòng database → card', () => {
-  it('đọc đúng loại card, ngày đến hạn và điểm', () => {
-    const card = rowToReviewCard(newRow, ctx)!
-    expect(card.points.type).toBe('vocab.meaning_kanji')
-    expect(card.points.status).toBe('active')
+  it('đọc đúng loại card và ngày đến hạn', () => {
+    const card = rowToReviewCard({ ...newRow, card_type: 'vocab.kanji' }, ctx)!
+    expect(card.type).toBe('vocab.kanji')
+    expect(card.status).toBe('active')
     expect(card.schedule.due.getTime()).toBe(vn('2026-11-05 00:00').getTime())
     expect(card.schedule.lastReviewAt).toBe(null)
   })
 
-  it('retired_at có giá trị → status retired', () => {
-    expect(rowToReviewCard({ ...newRow, retired_at: '2026-11-10T13:00:00Z' }, ctx)!.points.status).toBe('retired')
+  it('từ đã biết hoặc đã bỏ sao → tạm dừng', () => {
+    expect(rowToReviewCard({ ...newRow, card_type: 'vocab.kana' }, { paused: true })!.status).toBe('suspended')
   })
 
-  it('từ bị loại khỏi lộ trình → status suspended', () => {
-    expect(rowToReviewCard(newRow, { ...ctx, excluded: true })!.points.status).toBe('suspended')
-  })
-
-  it('dòng cũ chưa có card_type → null (không đoán)', () => {
-    expect(rowToReviewCard({ ...newRow, card_type: null }, ctx)).toBe(null)
+  it('dòng cũ chưa có card_type hoặc loại đã bỏ → null (không đoán)', () => {
+    expect(rowToReviewCard({ ...newRow, card_type: null }, ctx)).toBeNull()
+    expect(rowToReviewCard({ ...newRow, card_type: 'vocab.meaning_kanji' }, ctx)).toBeNull()
   })
 })
 
 describe('toSubmitReviewParams — kết quả bộ tính lịch → tham số submit_review', () => {
-  it('ghép 学+校 đúng trong 2,1 giây → Easy: rating 4, +2, đến hạn sau 10 phút', () => {
-    const card = rowToReviewCard(newRow, ctx)!
-    const answer = { outcome: 'correct' as const, exercise: 'kanji_assembly' as const, responseMs: 2100 }
-    const now = vn('2026-11-05 20:00')
-    const result = s.reviewCard(card, answer, now)
-    const p = toSubmitReviewParams({ cardId: 'card-1', clientEventId: 'ev-1', expectedVersion: 0, answer, result })
-
-    expect(p.p_review_card_id).toBe('card-1')
-    expect(p.p_client_event_id).toBe('ev-1')
-    expect(p.p_expected_version).toBe(0)
-    expect(p.p_rating).toBe(4)
-    expect(p.p_card_points).toBe(2)
-    expect(p.p_card_points_delta).toBe(2)
-    expect(p.p_retire).toBe(false)
-    expect(p.p_state_before).toBe(0)
-    expect(p.p_reviewed_at).toBe(now.toISOString())
-    expect(p.p_due_before).toBe(vn('2026-11-05 00:00').toISOString())
-    expect(p.p_exercise_type).toBe('kanji_assembly')
-    expect(p.p_response_time_ms).toBe(2100)
-    expect(p.p_study_date).toBe(null)
-  })
-
-  it('card đủ mốc → p_retire = true', () => {
-    const card = rowToReviewCard({ ...newRow, card_type: 'vocab.meaning_kana', card_points: 29 }, ctx)!
-    const answer = { outcome: 'correct' as const, exercise: 'kana_to_meaning' as const, responseMs: 4000 }
+  it('đúng là Good, không còn điểm và không bỏ Card', () => {
+    const s = createScheduler({ enableFuzz: false })
+    const card = rowToReviewCard({ ...newRow, card_type: 'vocab.kana' }, ctx)!
+    const answer = { outcome: 'correct' as const, exercise: 'kana_free_recall', responseMs: 500 }
     const result = s.reviewCard(card, answer, vn('2026-11-05 20:00'))
-    const p = toSubmitReviewParams({ cardId: 'c', clientEventId: 'e', expectedVersion: 7, answer, result })
-    expect(p.p_retire).toBe(true)
-    expect(p.p_card_points).toBe(30)
+    const params = toSubmitReviewParams({ cardId: 'c', clientEventId: 'e', expectedVersion: 0, answer, result, studyDate: '2026-11-05' })
+    expect(params).toMatchObject({ p_rating: 3, p_card_points: 0, p_card_points_delta: 0, p_retire: false, p_exercise_type: 'kana_free_recall', p_study_date: '2026-11-05' })
   })
 })
 

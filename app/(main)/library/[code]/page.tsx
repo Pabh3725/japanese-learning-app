@@ -80,7 +80,7 @@ export default async function WordDetailPage({ params }: { params: Promise<{ cod
                     {s.completed && !word.known && (
                       <RelearnButton
                         label="Learn again"
-                        confirm={`Reopen Stage ${s.stage}? Points drop to ${relearnStagePoints(s.stage, word.isKanaOnly)}, and its questions return to Learn. Your cards stay.`}
+                        confirm={`Reopen Stage ${s.stage}? Points drop to ${relearnStagePoints(s.stage)}, and its questions return to Learn. Your cards stay.`}
                         action={relearnStageAction.bind(null, s.id)}
                       />
                     )}
@@ -96,7 +96,7 @@ export default async function WordDetailPage({ params }: { params: Promise<{ cod
                     <li key={c.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
                       <span>{CARD_LABELS[c.type]}</span>
                       <span className="text-muted-foreground tabular-nums">
-                        {c.points} points · {c.retired ? 'retired' : word.known || (c.type === 'vocab.star_recall' && !word.starred) ? 'paused' : `next ${formatVnDateTime(new Date(c.dueAt))}`}
+                        {word.known || (c.type === 'vocab.star_recall' && !word.starred) ? 'paused' : `next ${formatVnDateTime(new Date(c.dueAt))}`}
                       </span>
                       {!word.known && (c.type !== 'vocab.star_recall' || word.starred) && <RelearnButton label="Review now" action={relearnCardAction.bind(null, c.id)} />}
                     </li>

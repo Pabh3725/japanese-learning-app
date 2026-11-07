@@ -1,56 +1,71 @@
-// REV-02 — Dạng bài của từng loại Card và câu hỏi khi ôn. Pure. Bảng dạng bài: docs/learning-rules.md §7.
-// Dùng lại câu hỏi và cách chấm của Stage, chỉ đổi đề. Card kana–Hán Việt có từ trước thẻ Hán tự nên đề không được có Kanji.
-
-import type { CardType, ExerciseCode } from '../learning/types'
+// REV-02 — Câu hỏi khi ôn Card: chỉ có gõ và viết rồi tự chấm, không trắc nghiệm, không ghép. Pure.
+import type { CardType, ExerciseCode, Outcome } from '../learning/types'
 import type { Rng } from './questions'
-import { buildStageQuestion, type PromptData, type QuestionData, type QuestionPools, type StageWord, type WordKnowledge } from './stage-questions'
-import { meaningPieces } from './word-parts'
+import { plainHanViet } from '../kanji/questions'
+import type { StageWord, WordKnowledge } from './stage-questions'
+
+export type ReviewQuestionData =
+  /** Nghĩa → gõ Kana. */
+  | { kind: 'typing'; exercise: 'kana_free_recall'; question: string; prompt: { display: string; kind: 'meaning'; hint?: string }; placeholder: string; input: 'hiragana' }
+  /** Nhìn Kanji → gõ Kana và Hán Việt trong cùng một câu. Sai một ô là sai cả câu. */
+  | { kind: 'kanji_read'; exercise: 'kanji_read_typing'; question: string; prompt: { display: string; kind: 'vocab' } }
+  /** Nhìn nghĩa → viết ra giấy hoặc nhớ trong đầu → lật thẻ → tự chấm. */
+  | { kind: 'self'; exercise: 'kanji_write_self'; question: string; prompt: { display: string; kind: 'meaning'; hint?: string }; reading: string; answer: string }
 
 const CARD_EXERCISES: Record<CardType, readonly ExerciseCode[]> = {
-  'vocab.meaning_kana': ['kana_to_meaning', 'meaning_to_kana', 'kana_assembly', 'listening', 'kana_free_recall'],
-  'vocab.kana_hanviet': ['hanviet_from_kana', 'hanviet_assembly', 'hanviet_free_recall'],
-  'vocab.meaning_kanji': ['kanji_recognition_6', 'kanji_assembly_nohint'],
-  'vocab.kanji_meaning_hanviet': ['meaning_recognition_6', 'meaning_assembly', 'hanviet_recognition', 'hanviet_free_recall'],
-  'vocab.meaning_hanviet': ['hanviet_free_recall', 'hanviet_assembly', 'meaning_recognition_6'],
-  // Card riêng của từ có sao: chỉ gõ và ghép từ trí nhớ. Hán Việt, Kanji thêm khi đã giới thiệu.
-  'vocab.star_recall': ['kana_free_recall', 'kana_assembly', 'hanviet_free_recall', 'kanji_assembly_nohint'],
+  'vocab.kana': ['kana_free_recall'],
+  'vocab.kanji': ['kanji_read_typing', 'kanji_write_self'],
+  'vocab.star_recall': ['kana_free_recall'],
 }
 
-/** Dạng bài dùng được cho card của từ này. Nghĩa không ghép được thì bỏ dạng ghép nghĩa. */
-export function reviewExercises(type: CardType, word: StageWord, known: WordKnowledge): readonly ExerciseCode[] {
-  return CARD_EXERCISES[type].filter((code) => {
-    if (code === 'meaning_assembly') return meaningPieces(word.meaning_vi) !== null
-    if (type !== 'vocab.star_recall') return true
-    if (code === 'hanviet_free_recall') return !word.is_kana_only && word.han_viet !== null && known.currentStage >= 4
-    if (code === 'kanji_assembly_nohint') return !word.is_kana_only && known.kanjiIntroSeen
-    return true
-  })
+export function reviewExercises(type: CardType): readonly ExerciseCode[] {
+  return CARD_EXERCISES[type]
 }
 
 /** Xoay vòng: không lặp dạng của lần ôn trước nếu còn dạng khác. */
-export function chooseReviewExercise(type: CardType, word: StageWord, known: WordKnowledge, last: string | null, rng: Rng = Math.random): ExerciseCode {
-  const all = reviewExercises(type, word, known)
+export function chooseReviewExercise(type: CardType, last: string | null, rng: Rng = Math.random): ExerciseCode {
+  const all = reviewExercises(type)
   const others = all.filter((code) => code !== last)
   const pool = others.length > 0 ? others : all
   return pool[Math.floor(rng() * pool.length)]
 }
 
-/** Đề theo loại card. Không có trong bảng thì giữ đề mặc định của dạng bài. */
-function reviewPrompt(type: CardType, exercise: ExerciseCode, word: StageWord): PromptData | null {
-  const kanaMeaning: PromptData = { display: word.reading_kana, kind: 'kana', hint: word.meaning_vi }
-  const meaning: PromptData = { display: word.meaning_vi, kind: 'meaning', hint: word.emoji ?? undefined }
-  const written: PromptData = { display: word.expression, kind: 'vocab' }
-  const hanViet: PromptData = { display: word.han_viet ?? '', kind: 'meaning' }
+const meaningPrompt = (word: StageWord) => ({
+  display: word.meaning_vi,
+  kind: 'meaning' as const,
+  hint: word.han_viet ? `Hán Việt: ${word.han_viet}` : undefined,
+})
 
-  if (type === 'vocab.kana_hanviet') return kanaMeaning
-  if (type === 'vocab.star_recall' && exercise === 'hanviet_free_recall') return kanaMeaning
-  if (type === 'vocab.kanji_meaning_hanviet') return written
-  if (type === 'vocab.meaning_hanviet') return exercise === 'meaning_recognition_6' ? hanViet : meaning
-  return null
+export function buildReviewQuestion(word: StageWord, exercise: ExerciseCode): ReviewQuestionData {
+  switch (exercise) {
+    case 'kanji_read_typing':
+      return { kind: 'kanji_read', exercise, question: 'Type its reading and Sino-Vietnamese', prompt: { display: word.expression, kind: 'vocab' } }
+    case 'kanji_write_self':
+      return { kind: 'self', exercise, question: 'Write this word in Kanji, then check', prompt: meaningPrompt(word), reading: word.reading_kana, answer: word.expression }
+    default:
+      return { kind: 'typing', exercise: 'kana_free_recall', question: 'Type this word in Kana', prompt: meaningPrompt(word), placeholder: 'Type in romaji', input: 'hiragana' }
+  }
 }
 
-export function buildReviewQuestion(type: CardType, word: StageWord, exercise: ExerciseCode, pools: QuestionPools, rng: Rng = Math.random): QuestionData {
-  const question = buildStageQuestion(word, exercise, pools, rng, { blind: true })
-  const prompt = reviewPrompt(type, exercise, word)
-  return prompt ? { ...question, prompt } : question
+export interface ReviewAnswerInput {
+  /** Câu gõ Kana. */
+  answer?: string
+  /** Câu nhìn Kanji. */
+  reading?: string
+  hanViet?: string
+  /** Câu tự chấm. */
+  remembered?: boolean
 }
+
+/** Chấm theo dữ liệu thật. Câu tự chấm dựa vào người học. */
+export function gradeReviewAnswer(word: StageWord, exercise: ExerciseCode, input: ReviewAnswerInput): { outcome: Outcome; answer: string } {
+  const reading = word.reading_kana
+  if (exercise === 'kanji_write_self') return { outcome: input.remembered === true ? 'correct' : 'wrong', answer: word.expression }
+  if (exercise === 'kanji_read_typing') {
+    const ok = (input.reading ?? '').trim() === reading && plainHanViet(input.hanViet ?? '') === plainHanViet(word.han_viet ?? '')
+    return { outcome: ok ? 'correct' : 'wrong', answer: `${reading} · ${word.han_viet ?? ''}` }
+  }
+  return { outcome: (input.answer ?? '').trim() === reading ? 'correct' : 'wrong', answer: reading }
+}
+
+export type { WordKnowledge }

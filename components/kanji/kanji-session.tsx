@@ -12,10 +12,11 @@ import { SessionComplete } from '@/components/learning/session-complete'
 import { SessionHeader } from '@/components/learning/session-header'
 import type { AssemblyGrade } from '@/components/learning/steps/assembly-exercise'
 import { ChoiceExercise } from '@/components/learning/steps/choice-exercise'
+import { SelfCheckExercise } from '@/components/learning/steps/self-check-exercise'
 import { RecallExercise } from '@/components/learning/steps/recall-exercise'
 import type { KanjiIntroItem, KanjiSessionData, KanjiSessionQuestion } from '@/lib/dal/kanji'
 import type { WordReveal } from '@/lib/exercise/stage-questions'
-import type { KanjiReveal } from '@/lib/kanji/questions'
+import { REMEMBERED, type KanjiReveal } from '@/lib/kanji/questions'
 import { RULES_V4 } from '@/lib/learning/rules'
 import { formatVnDateTime } from '@/lib/learning/time'
 import { withRetry } from '@/lib/retry'
@@ -90,7 +91,15 @@ function IntroCluster({ items: initialItems }: { items: KanjiIntroItem[] }) {
   )
 }
 
-function Practice({ questions: initialQuestions }: { questions: KanjiSessionQuestion[] }) {
+/** Chờ lưu xong rồi mới báo xong cụm. */
+function FinishSegment({ pending, onDone }: { pending: number; onDone: () => void }) {
+  useEffect(() => {
+    if (pending === 0) onDone()
+  }, [pending, onDone])
+  return <p className="m-auto text-sm text-muted-foreground">Saving…</p>
+}
+
+export function KanjiPractice({ questions: initialQuestions, onDone }: { questions: KanjiSessionQuestion[]; onDone?: () => void }) {
   const [questions, setQuestions] = useState(initialQuestions)
   const [index, setIndex] = useState(0)
   const [results, setResults] = useState<boolean[]>([])
@@ -123,6 +132,7 @@ function Practice({ questions: initialQuestions }: { questions: KanjiSessionQues
   }
 
   if (index >= queue.length) {
+    if (onDone) return <div className="flex min-h-dvh flex-col"><FinishSegment pending={pending} onDone={onDone} /></div>
     const correct = results.filter(Boolean).length
     const accuracy = results.length > 0 ? Math.round((correct / results.length) * 100) : 0
     return (
@@ -217,6 +227,23 @@ function Practice({ questions: initialQuestions }: { questions: KanjiSessionQues
       explanation: isRetry ? RETRY_NOTE : (notes[q.clientEventId] ?? ''),
     }
     body = <ChoiceExercise key={key} step={step} onAnswer={answerChoice(q)} instant wrongNote={WRONG_ANSWER_NOTE} reveal={toReveal(q.reveal)} onComplete={afterAnswer} />
+  } else if (q.kind === 'self') {
+    const saveSelf = async (remembered: boolean): Promise<string | null> => {
+      if (isRetry) return null
+      try {
+        await saveQueue.current
+        const res = await withRetry(
+          () => submitKanjiAnswerAction({ learnerKanjiId: q.learnerKanjiId, clientEventId: q.clientEventId, exercise: q.exercise, answer: remembered ? REMEMBERED : 'forgot', responseMs: responseMs() }),
+          (r) => r.status === 'conflict',
+        )
+        if (res.status !== 'graded') return SAVE_ERROR
+        setResults((list) => [...list, remembered])
+        return null
+      } catch {
+        return SAVE_ERROR
+      }
+    }
+    body = <SelfCheckExercise key={key} stage={stage} question={q.question} prompt={q.prompt} answer={q.answer} onResult={saveSelf} onComplete={afterAnswer} />
   } else {
     const step: RecallStep = {
       id: key,
@@ -251,7 +278,7 @@ function Practice({ questions: initialQuestions }: { questions: KanjiSessionQues
 
 export function KanjiSession({ data }: { data: KanjiSessionData }) {
   if (data.intros.length > 0) return <IntroCluster items={data.intros} />
-  if (data.questions.length > 0) return <Practice questions={data.questions} />
+  if (data.questions.length > 0) return <KanjiPractice questions={data.questions} />
   const subtitle = data.capReached
     ? "You've reached today's Kanji limit. The rest will come up tomorrow."
     : data.nextDueAt

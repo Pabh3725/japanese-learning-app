@@ -2,6 +2,7 @@
 
 // Server Function cho các câu Stage 2, 4, 5. Mỏng: mọi logic nằm ở lib/dal/stage-session.ts.
 import { markWordsKnown, unmarkWordsKnown } from '@/lib/dal/known-words'
+import { raiseSkillLevel } from '@/lib/dal/skill-levels'
 import { relearnCard, relearnStage, restartStarRound, setWordStarred, type RelearnResponse } from '@/lib/dal/star-relearn'
 import {
   borrowNewWords,
@@ -27,6 +28,10 @@ export async function submitStarAnswerAction(input: unknown): Promise<SubmitStag
 
 export async function restartStarRoundAction(): Promise<{ status: 'saved' }> {
   return restartStarRound()
+}
+
+export async function raiseSkillLevelAction(skill: unknown, level: unknown): Promise<{ status: 'saved' | 'invalid' }> {
+  return raiseSkillLevel(skill, level)
 }
 
 export async function setWordStarredAction(vocabularyId: unknown, starred: unknown): Promise<{ status: 'saved' | 'invalid' }> {

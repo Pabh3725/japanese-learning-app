@@ -3,7 +3,7 @@
 
 import { createEmptyCard, fsrs, generatorParameters } from 'ts-fsrs'
 import { RULES_V4 } from '../learning/rules'
-import { stageRating } from '../learning/scoring'
+import { ratingOf } from '../learning/scoring'
 import type { Outcome } from '../learning/types'
 import { fromFsrs, RATING_TO_FSRS, toFsrs, type Schedule } from './scheduler'
 
@@ -22,7 +22,7 @@ export function newStageSchedule(now: Date): Schedule {
 
 /** Một câu Stage → lịch mới. */
 export function reviewStageSchedule(schedule: Schedule, outcome: Outcome, now: Date): Schedule {
-  const next = fromFsrs(f.next(toFsrs(schedule), now, RATING_TO_FSRS[stageRating(outcome)]).card)
+  const next = fromFsrs(f.next(toFsrs(schedule), now, RATING_TO_FSRS[ratingOf(outcome)]).card)
   // ts-fsrs 6.0.0 không áp maximum_interval khi card chuyển từ Learning sang Review và trả lời muộn
   // (đã gặp thật: hẹn 7 ngày). Vì vậy tự chặn ở đây, nếu không submit_stage_exercise sẽ từ chối.
   if (next.scheduledDays <= MAX_DAYS) return next

@@ -12,7 +12,7 @@ export default async function LearnSummaryPage() {
   const [summary, learn, review] = await Promise.all([getDaySummary(), getLearnOverview(), getReviewOverview()])
   if (summary.answered === 0) redirect('/learn')
 
-  const hasWork = learn.questionsToday + learn.newToday + learn.stage3Waiting > 0
+  const hasWork = learn.questionsToday + learn.newToday > 0
   const accuracy = Math.round((summary.correct / summary.answered) * 100)
   const stages = `${summary.stagesCompleted} ${summary.stagesCompleted === 1 ? 'stage' : 'stages'} completed today.`
   const primary = hasWork

@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest'
 import { newStageSchedule, reviewStageSchedule } from '../stage-scheduler'
 import type { Schedule } from '../scheduler'
-import { stageRating } from '../../learning/scoring'
+import { ratingOf } from '../../learning/scoring'
 import type { Outcome } from '../../learning/types'
 
 const start = new Date('2026-11-01T01:00:00Z')
@@ -62,10 +62,10 @@ describe('reviewStageSchedule', () => {
   })
 })
 
-describe('stageRating — không có Easy', () => {
+describe('ratingOf — không có Easy', () => {
   it('sai = Again, gợi ý = Hard, đúng = Good', () => {
-    expect(stageRating('wrong')).toBe('Again')
-    expect(stageRating('hint')).toBe('Hard')
-    expect(stageRating('correct')).toBe('Good')
+    expect(ratingOf('wrong')).toBe('Again')
+    expect(ratingOf('hint')).toBe('Hard')
+    expect(ratingOf('correct')).toBe('Good')
   })
 })

@@ -9,7 +9,7 @@ import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { RULES_V4 } from '@/lib/learning/rules'
-import { applyStageAttempt, reachedKanjiIntro, trailingCount, type StageAttemptResult } from '@/lib/learning/stage'
+import { applyStageAttempt, trailingCount, type StageAttemptResult } from '@/lib/learning/stage'
 import type { Outcome } from '@/lib/learning/types'
 import { studyDate } from '@/lib/learning/time'
 import {
@@ -41,8 +41,6 @@ export interface SubmitExerciseResponse {
   /** Chỉ có khi status = 'saved' — để giao diện hiện phản hồi (+1, mở stage sau…). */
   result?: Pick<StageAttemptResult, 'delta' | 'counted' | 'unlockedStage' | 'completed' | 'cardsCreated'> & {
     points: number
-    /** Câu này vừa mở thẻ Giới thiệu Hán tự. */
-    kanjiIntroReady: boolean
   }
 }
 
@@ -115,7 +113,6 @@ export async function submitExercise(input: unknown): Promise<SubmitExerciseResp
   if (row.completed_at) return { status: 'stage_changed' }
 
   const state = rowToStageState(row, {
-    isKanaOnly: row.learner_vocabulary.vocabularies.is_kana_only,
     earned: deriveEarned(earnedLogs.data ?? []),
     ...deriveLastSeq((lastExercise.data ?? []).map((l) => l.day_seq as number | null), today),
     correctStreak: trailingCount((recentLogs.data ?? []).map((l) => l.outcome as Outcome), 'correct'),
@@ -155,11 +152,6 @@ export async function submitExercise(input: unknown): Promise<SubmitExerciseResp
       // Học lại Stage hoàn tất lần hai thì Card đã có sẵn, không tạo thêm
       cardsCreated: (saved as { cards_created?: number }).cards_created ? result.cardsCreated : [],
       points: result.state.points,
-      kanjiIntroReady:
-        req.stage === 4 &&
-        row.learner_vocabulary.kanji_intro_seen_at === null &&
-        !reachedKanjiIntro(state.points) &&
-        reachedKanjiIntro(result.state.points),
     },
   }
 }

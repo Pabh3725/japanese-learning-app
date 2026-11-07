@@ -87,7 +87,6 @@ export function toRecallStep(q: TypingQuestionData & { clientEventId: string }, 
 
 function pointsNote(stage: ScoredStage, result: SubmitExerciseResponse['result']) {
   if (result?.completed) return `Stage ${stage} complete!`
-  if (result?.kanjiIntroReady) return 'New Kanji to meet! It will open in your next session.'
   if (result?.unlockedStage) return `Next stage unlocked! Stage ${stage} continues.`
   const delta = result?.delta
   if (delta === undefined) return undefined
@@ -112,9 +111,21 @@ interface LearnPracticeProps {
   sessionsLeft: number
   /** Phiên riêng (Starred words): kết thúc về đây thay vì tổng kết ngày. */
   finish?: { href: string; label: string }
+  /** Giữ kỹ năng khi sang phiên kế tiếp. */
+  skillQuery?: string
+  /** Học hỗn hợp: xong cụm câu thì sang cụm sau, không có màn kết thúc riêng. */
+  onDone?: () => void
 }
 
-export function LearnPractice({ questions: initialQuestions, sessionNumber, sessionsLeft, finish }: LearnPracticeProps) {
+/** Chờ lưu xong rồi mới báo xong cụm. */
+function FinishSegment({ pending, onDone }: { pending: number; onDone: () => void }) {
+  useEffect(() => {
+    if (pending === 0) onDone()
+  }, [pending])
+  return <p className="m-auto text-sm text-muted-foreground">Saving…</p>
+}
+
+export function LearnPractice({ questions: initialQuestions, sessionNumber, sessionsLeft, finish, skillQuery = '', onDone }: LearnPracticeProps) {
   const [questions, setQuestions] = useState(initialQuestions)
   const voice = useJapaneseVoice()
   const [index, setIndex] = useState(0)
@@ -158,6 +169,7 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
   const isRetry = index >= questions.length
 
   if (index >= queue.length) {
+    if (onDone) return <div className="flex min-h-dvh flex-col"><FinishSegment pending={pending} onDone={onDone} /></div>
     const correct = results.filter(Boolean).length
     const wrong = results.length - correct
     const accuracy = results.length > 0 ? Math.round((correct / results.length) * 100) : 0
@@ -172,7 +184,7 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
             { label: 'Wrong', value: String(wrong), tone: 'text-error' },
             { label: 'Accuracy', value: `${accuracy}%`, tone: 'text-cyan' },
           ]}
-          primary={hasNext ? { href: `/learn/session?n=${sessionNumber + 1}`, label: 'Next session' } : (finish ?? { href: '/learn/summary', label: "See today's summary" })}
+          primary={hasNext ? { href: `/learn/session?n=${sessionNumber + 1}${skillQuery}`, label: 'Next session' } : (finish ?? { href: '/learn/summary', label: "See today's summary" })}
           busy={!hasNext && pending > 0}
           secondary={hasNext ? { href: '/learn', label: 'Take a break' } : { href: '/learn', label: 'Back to Learn' }}
         />

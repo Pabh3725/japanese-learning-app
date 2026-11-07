@@ -1430,6 +1430,18 @@ Thay các câu chọn 1/6 vì ở giai đoạn này người học đã nhớ m�
 - Settings hiện ước tính thời gian và số từ mới thực tế.
 - **Hệ quả của mặc định:** trung bình mỗi từ cần khoảng 24 câu đúng (có Kanji 28, chỉ Kana 16). Với 200 câu/ngày, về lâu dài chỉ học được khoảng 8 từ/ngày, học hết 912 từ trong khoảng 3,5 tháng. 20 từ mới chỉ là mức tối đa.
 
+### 18.5b Lộ trình v2 — CONFIRMED (2026-11-07), thay các mô tả cũ về Stage và Card
+
+Mục tiêu thi JLPT. Stage học thật kỹ, Review thoải mái hơn. Tab Learn có 3 mục và nút Học hỗn hợp; trần câu riêng từng mục.
+
+- **Từ vựng (mọi từ):** thẻ Kana, nghĩa → Stage 2 (mở Stage 5 ở 6 điểm, xong ở 10) → Stage 5 chỉ Kana (xong ở 10). Hỏi nhẹ Hán Việt, không bắt buộc. Có hiện nghĩa thì có chú thích nhỏ "Hán Việt: …". Chưa học Từ Kanji thì không lộ cách viết.
+- **Từ Kanji (từ có Kanji):** mở khi từ đã xong Stage 2 và mọi chữ trong từ đã xong giai đoạn Học ở khu Kanji (hoặc đã đánh dấu đã biết). Thẻ Kanji → Stage 4 (mở Stage 6 ở 10 điểm, xong ở 15) → Stage 6 (xong ở 10). Tiến độ tách riêng khỏi Từ vựng.
+- **Cấp theo từng kỹ năng:** bắt đầu N5. Đã mở hết mục mới của cấp thì app hỏi có mở cấp sau không; đồng ý mới mở, phần cũ vẫn học tiếp.
+- **Card:** mỗi từ tối đa 2 Card. Card Kana tạo khi xong Stage 2: nghĩa → gõ Kana. Card Kanji tạo khi xong Stage 6: luân phiên nhìn Kanji → gõ Kana và Hán Việt (sai một ô là sai cả câu), và nhìn nghĩa → viết rồi tự chấm. Không có trắc nghiệm, ghép, nghe trong Review.
+- **Lịch Card:** sai Again, đúng Good, không có Easy, tối đa 90 ngày (đúng liên tục: 2, 11, 46, 90, 90…). Không còn điểm Card, không bỏ Card theo điểm, không gộp Card.
+- **Speed Matching:** chỉ ôn vui, không đổi điểm và lịch nào. Chế độ: Hỗn hợp, Kana, Kanji, Hán Việt.
+- **Học hỗn hợp:** luân phiên cụm 5 câu đến hạn của từng mục. Từ mới và chữ mới bắt đầu ở mục của nó.
+
 ### 18.6 Khu Kanji — CONFIRMED (2026-11-07)
 
 Mục **Kanji trong tab Learn** (`/learn/kanji`), bên cạnh mục Vocabulary. Bản lai giữa Stage và Card. Bảng riêng `learner_kanji`, `kanji_logs`, `learner_kanji_exclusions`; học Kanji không đổi tiến độ từ vựng và ngược lại.
@@ -1439,9 +1451,9 @@ Mục **Kanji trong tab Learn** (`/learn/kanji`), bên cạnh mục Vocabulary. 
 - **Ba giai đoạn:**
   1. **Giới thiệu:** thẻ có chữ, Hán Việt, nghĩa, On, Kun, vài từ chứa chữ đó. Xem xong mới có lịch. Thẻ không tự hiện lại ở các buổi sau, trừ khi sai 3 câu liên tiếp.
   2. **Học:** 12 câu trong 4 buổi, mỗi buổi 3 câu xen kẽ với chữ khác. Đúng +1, tối đa +3/ngày; đúng nhờ gợi ý 0; sai −2, không dưới 0. Câu sai hỏi lại cuối phiên, không tính.
-  3. **Ôn dài hạn:** ôn ngay trong khu Kanji, không trộn vào Review. FSRS mặc định, bắt đầu 00:00 hôm sau. Không có Easy: sai Again, gợi ý Hard, đúng Good.
+  3. **Ôn dài hạn:** ôn ngay trong khu Kanji, không trộn vào Review. FSRS tối đa 90 ngày, bắt đầu 00:00 hôm sau. Không có Easy. Chỉ có gõ Hán Việt, gõ âm, và viết rồi tự chấm.
 - **Hoàn tất Học khi đủ cả 3 điều kiện:** 12 điểm; nghĩa, Hán Việt, âm mỗi mặt đúng ít nhất 2 lần, trong đó gõ Hán Việt và gõ âm mỗi loại ít nhất 1 lần; 3 câu gần nhất đều đúng. Câu về từ không bắt buộc.
-- **Dạng bài theo điểm khi Học:** 0–2 chọn nghĩa, chọn Hán Việt; 3–5 chọn chữ từ nghĩa hoặc Hán Việt, chọn On/Kun; từ 6 gõ Hán Việt, gõ âm, câu về từ đã gặp và đã xem Kanji của từ đó. Ôn dài hạn trộn các dạng, không lặp dạng lần trước.
+- **Dạng bài theo điểm khi Học:** 0–2 chọn nghĩa, chọn Hán Việt; 3–5 chọn chữ từ nghĩa hoặc Hán Việt, chọn On/Kun; từ 6 gõ Hán Việt, gõ âm, câu về từ đã gặp và đã xem Kanji của từ đó. Ôn dài hạn không lặp dạng lần trước.
 - **Đáp án nhiễu:** không trùng nghĩa, không trùng âm Hán Việt (so không dấu) với chữ đúng; câu âm chỉ dùng âm cùng loại và không trùng âm nào của chữ. Gõ âm: đủ một âm của chữ là đúng.
 - **Lịch khi đúng hết (đã duyệt):** ngày 1 thẻ và 3 câu, ngày 2 và 3 mỗi ngày 3 câu, ngày 5 thêm 3 câu và hoàn tất. Ngày 6 ôn đầu tiên, rồi cách khoảng 2, 11, 46, 163, 498 ngày. Chưa hoàn tất sau 4 buổi thì mỗi ngày thêm một buổi.
 - **Mỗi ngày:** mặc định 10 chữ mới, 100 câu, chỉnh trong Settings. Ôn trước, Học sau, rồi tới chữ mới; chữ mới chỉ mở khi còn chỗ cho buổi đầu. Câu chưa làm chuyển sang hôm sau.

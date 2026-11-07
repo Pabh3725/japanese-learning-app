@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Play } from 'lucide-react'
 import { actionButton } from '@/components/action-button'
 import { LearnTabs } from '@/components/learning/learn-tabs'
+import { LevelUpPrompt } from '@/components/learning/level-up-prompt'
 import { PageHeader } from '@/components/page-header'
 import { ProgressBar } from '@/components/progress-bar'
 import { getKanjiOverview } from '@/lib/dal/kanji'
@@ -32,6 +33,7 @@ export default async function KanjiPage() {
     <>
       <PageHeader eyebrow="学習" title="Learn" description="Learn each character on its own, separate from your vocabulary path." />
       <LearnTabs active="kanji" />
+      {overview.nextLevel !== null && <LevelUpPrompt skill="kanji" level={overview.level} next={overview.nextLevel} itemName="Kanji" />}
 
       <section aria-labelledby="kanji-today" className="rounded-3xl border border-primary/30 bg-card p-6 md:p-8">
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">

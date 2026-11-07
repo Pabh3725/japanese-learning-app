@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { ContinueFooter } from '@/components/learning/exercise-footer'
 import { ExercisePanel } from '@/components/learning/exercise-panel'
 import { SpeakerButton, useAutoSpeak } from '@/components/learning/speaker-button'
-import type { KanjiIntroWord } from '@/lib/dal/stage3'
+import type { KanjiIntroWord } from '@/lib/dal/word-kanji'
 
 function WordScreen({ word }: { word: KanjiIntroWord }) {
   useAutoSpeak(word.reading)

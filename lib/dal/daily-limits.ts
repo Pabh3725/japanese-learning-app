@@ -33,6 +33,8 @@ async function countDue(supabase: Supabase, table: 'review_cards' | 'learner_sta
     let query = supabase.from(table).select('id, learner_vocabulary!inner(vocabulary_id)').eq('user_id', userId).is(filterColumn, null).lte('due_at', now)
     // Card riêng của từ có sao không được làm dừng từ mới
     if (table === 'review_cards') query = query.neq('card_type', 'vocab.star_recall')
+    // S chỉ tính kỹ năng Từ vựng; Từ Kanji có trần riêng
+    else query = query.in('stage_number', [2, 5])
     const { data, error } = await query.order('id').range(from, from + PAGE - 1)
     if (error) throw new Error(`Không đọc được ${table}: ${error.message}`)
     const rows = (data ?? []) as unknown as { learner_vocabulary: { vocabulary_id: string } }[]
@@ -78,7 +80,7 @@ export async function readDailyLimits(supabase: Supabase, userId: string): Promi
     supabase.from('learner_settings').select('daily_new_limit, stage_cap, review_cap, unlock_threshold').eq('user_id', userId).maybeSingle(),
     todayPlan(supabase, userId, today),
     supabase.from('learner_daily_plans').select('borrowed_for_next').eq('user_id', userId).eq('study_date', addStudyDays(today, -1)).maybeSingle(),
-    supabase.from('exercise_logs').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('study_date', today).eq('source', 'lesson'),
+    supabase.from('exercise_logs').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('study_date', today).eq('source', 'lesson').in('stage_number', [2, 5]),
   ])
   if (settings.error) throw new Error(`Không đọc được learner_settings: ${settings.error.message}`)
   if (yesterday.error) throw new Error(`Không đọc được learner_daily_plans: ${yesterday.error.message}`)

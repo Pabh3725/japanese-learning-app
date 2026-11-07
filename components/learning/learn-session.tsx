@@ -4,14 +4,13 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { completeIntroAction } from '@/app/learn/intro/actions'
-import { completeKanjiIntroAction, completeStage3Action } from '@/app/learn/stage3/actions'
+import { openWordKanjiAction } from '@/app/learn/stage3/actions'
 import { KnownWordBar } from '@/components/learning/known-word-button'
 import { LearnPractice } from '@/components/learning/learn-practice'
 import { SessionComplete } from '@/components/learning/session-complete'
 import { SessionHeader } from '@/components/learning/session-header'
 import { NoVoiceNote, SpeakerButton, useAutoSpeak } from '@/components/learning/speaker-button'
 import { KanaIntroExercise } from '@/components/learning/steps/kana-intro-exercise'
-import { KanjiRevealExercise } from '@/components/learning/steps/kanji-reveal-exercise'
 import { WordKanjiIntroExercise } from '@/components/learning/steps/word-kanji-intro-exercise'
 import type { LearnIntroItem, LearnSessionData } from '@/lib/dal/stage-session'
 import { formatVnDateTime } from '@/lib/learning/time'
@@ -35,21 +34,18 @@ function vocabularyIdOf(item: LearnIntroItem): string {
 
 async function saveIntro(item: LearnIntroItem): Promise<boolean> {
   if (item.kind === 'new') return (await completeIntroAction(item.word.id)).status === 'saved'
-  const save = item.kind === 'kanji' ? completeKanjiIntroAction : completeStage3Action
-  const { status } = await save(item.learnerVocabularyId)
-  // Đã xem trên máy khác cũng coi là xong
-  return status === 'saved' || status === 'stage_changed'
+  return (await openWordKanjiAction(item.learnerVocabularyId)).status === 'saved'
 }
 
 /** Thẻ giới thiệu đi liền nhau; xem xong thì câu đầu tiên của các từ này đến ngay sau đó. */
-function IntroCluster({ items: initialItems, sessionNumber, sessionsLeft }: { items: LearnIntroItem[]; sessionNumber: number; sessionsLeft: number }) {
+function IntroCluster({ items: initialItems, sessionNumber, sessionsLeft, skillQuery }: { items: LearnIntroItem[]; sessionNumber: number; sessionsLeft: number; skillQuery: string }) {
   const router = useRouter()
   const [items, setItems] = useState(initialItems)
   const [index, setIndex] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [saving, startSaving] = useTransition()
   const item = items[index]
-  const goToPractice = () => router.replace(`/learn/session?n=${sessionNumber}&practice=1`)
+  const goToPractice = () => router.replace(`/learn/session?n=${sessionNumber}&practice=1${skillQuery}`)
 
   const complete = () => {
     if (saving) return
@@ -88,18 +84,18 @@ function IntroCluster({ items: initialItems, sessionNumber, sessionsLeft }: { it
       {item.kind === 'new' && (
         <KanaIntroExercise key={key} word={item.word} saving={saving} error={error} onComplete={complete} speaker={<IntroSpeaker kana={item.word.reading} />} />
       )}
-      {item.kind === 'hanviet' && <KanjiRevealExercise key={key} word={item} saving={saving} error={error} onComplete={complete} />}
       {item.kind === 'kanji' && <WordKanjiIntroExercise key={key} word={item} saving={saving} error={error} onComplete={complete} />}
     </div>
   )
 }
 
-export function LearnSession({ data, sessionNumber }: { data: LearnSessionData; sessionNumber: number }) {
+export function LearnSession({ data, sessionNumber, wordKanji = false }: { data: LearnSessionData; sessionNumber: number; wordKanji?: boolean }) {
+  const skillQuery = wordKanji ? '&skill=word_kanji' : ''
   if (data.intros.length > 0) {
-    return <IntroCluster items={data.intros} sessionNumber={sessionNumber} sessionsLeft={data.sessionsLeft} />
+    return <IntroCluster items={data.intros} sessionNumber={sessionNumber} sessionsLeft={data.sessionsLeft} skillQuery={skillQuery} />
   }
   if (data.questions.length > 0) {
-    return <LearnPractice questions={data.questions} sessionNumber={sessionNumber} sessionsLeft={data.sessionsLeft} />
+    return <LearnPractice questions={data.questions} sessionNumber={sessionNumber} sessionsLeft={data.sessionsLeft} skillQuery={skillQuery} />
   }
 
   const subtitle = data.stageLimitReached
@@ -115,7 +111,7 @@ export function LearnSession({ data, sessionNumber }: { data: LearnSessionData; 
         title="All caught up!"
         subtitle={subtitle}
         stats={[]}
-        primary={data.block === 'cards' ? { href: '/review', label: 'Go to Review' } : { href: '/learn', label: 'Back to Learn' }}
+        primary={data.block === 'cards' ? { href: '/review', label: 'Go to Review' } : { href: wordKanji ? '/learn/word-kanji' : '/learn', label: 'Back to Learn' }}
         secondary={{ href: '/', label: 'Back to Home' }}
       />
     </div>
