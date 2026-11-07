@@ -1,3 +1,4 @@
+import { RULES_V4 } from './learning/rules'
 import type { CardType } from './learning/types'
 
 function hashString(value: string) {
@@ -140,8 +141,8 @@ function sidesFor(source: SpeedWordSource, mode: SpeedMode, showsKanji: boolean)
 }
 
 /**
- * Từ của một chế độ, theo thứ tự ra bàn: Card lâu chưa ôn nhất trước (chưa ôn lần nào coi như lâu nhất).
- * Card đã chạm trần điểm hôm nay xuống sau vì chơi tiếp không được thêm điểm;
+ * Từ của một chế độ, theo thứ tự ra bàn: Card giàn giáo chưa bỏ trước, trong đó Card lâu chưa ôn nhất trước
+ * (chưa ôn lần nào coi như lâu nhất). Card đã chạm trần điểm hôm nay xuống sau vì chơi tiếp không được thêm điểm;
  * từ không có Card xuống cuối, và chỉ chế độ Hỗn hợp mới có.
  */
 export function wordsForMode(sources: readonly SpeedWordSource[], mode: SpeedMode, today: string, capPerDay: number): SpeedModeData {
@@ -155,9 +156,11 @@ export function wordsForMode(sources: readonly SpeedWordSource[], mode: SpeedMod
     const card = source.cards.find((c) => c.type === type && !c.retired)
     if (!card && mode !== 'mixed') return []
     const capped = card !== undefined && card.practiceDate === today && card.practiceToday >= capPerDay
+    // Card giàn giáo gần như chỉ đạt mốc bỏ nhờ practice (fsrs-notes F1), nên ra trước
+    const scaffold = card !== undefined && !(type === 'vocab.meaning_kana' && source.isKanaOnly) && RULES_V4.retireAt[type] !== undefined
     return [{
       word: { id: source.id, ...sides },
-      rank: !card ? 2 : capped ? 1 : 0,
+      rank: !card ? 3 : capped ? 2 : scaffold ? 0 : 1,
       lastReview: card?.lastReviewAt ?? '',
     }]
   })

@@ -43,8 +43,10 @@ export default async function DashboardPage() {
         />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <DashboardStatCard label="Words completed" value={learn.completed} total={learn.total} icon={BookText} tone="cyan" jp="語" />
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+        {learn.levels.map((level) => (
+          <DashboardStatCard key={level.level} label={`${level.level} completed`} value={level.completed} total={level.total} icon={BookText} tone={level.level === 'N5' ? 'cyan' : 'primary'} jp={level.level === 'N5' ? '語' : '話'} />
+        ))}
         <DashboardStatCard label="Words in progress" value={learn.inProgress} icon={Languages} tone="yellow" jp="習" />
         <DashboardStatCard label="Review cards" value={cards} icon={Layers} tone="pink" jp="札" />
       </div>
