@@ -432,3 +432,14 @@ Chưa sửa. 68 chữ, phần lớn là khác kiểu i/y hoặc dấu, nhưng c�
 | 訳 | DỊCH | Dịch |
 | 酔 | TÚY | Túy |
 | 頼 | LẠI | Lại, Trái |
+
+## 5. Cấp JLPT cần xem
+
+Cấp lấy từ danh sách JLPT cũ trong KANJIDIC2, chỉ là ước lượng. Bốn chữ không có cấp đang xếp cuối thứ tự học, nên chữ thông dụng như 誰 sẽ đến rất muộn; có thể gán tay.
+
+| Chữ | Ghi chú |
+| --- | --- |
+| 誰 | Không có cấp trong KANJIDIC2 |
+| 韓 | Không có cấp trong KANJIDIC2 |
+| 阪 | Không có cấp trong KANJIDIC2 |
+| 賑 | Không có cấp trong KANJIDIC2 |

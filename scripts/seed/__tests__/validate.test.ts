@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { parseCsv } from '../csv'
 import { parsePgArray } from '../schema'
-import { kanjiOf, validateAll, type Issue } from '../validate'
+import { kanjiOf, validateAll, withStudyOrder, type Issue } from '../validate'
 import { KANJI_ROWS, VOCAB_HEADER, VOCAB_ROWS, files, withRow } from './helpers'
 
 /** Dòng 1 là header, nên phần tử thứ i của danh sách nằm ở dòng i + 2. */
@@ -221,5 +221,35 @@ describe('Cảnh báo không chặn', () => {
     expect(r.errors).toEqual([])
     expect(r.warnings.map((w) => w.message).join('\n')).toMatch(/"cái này" dùng chung/)
     expect(r.warnings.some((w) => w.line === lineOf(4) && /chữ Nhật/.test(w.message))).toBe(true)
+  })
+})
+
+describe('Thứ tự học Kanji', () => {
+  const kanji = [
+    { character: '難', jlpt_level: 1 },
+    { character: '学', jlpt_level: 5 },
+    { character: '校', jlpt_level: 5 },
+    { character: '林', jlpt_level: 5 },
+    { character: '駅', jlpt_level: 4 },
+    { character: '誰', jlpt_level: null },
+  ]
+  const words = [
+    { sort_order: 2, expression: '学校' },
+    { sort_order: 1, expression: '駅' },
+    { sort_order: 3, expression: '校長' },
+  ]
+
+  it('cấp dễ trước; trong cấp thì theo từ vựng; chữ không có trong từ nào cuối cấp; chưa có cấp cuối cùng', () => {
+    const order = withStudyOrder(kanji, words).sort((a, b) => a.study_order - b.study_order).map((k) => k.character)
+    expect(order).toEqual(['学', '校', '林', '駅', '難', '誰'])
+  })
+
+  it('data thật: N5 đứng trước N4, thứ tự liền mạch từ 1', () => {
+    const read = (name: string) => ({ name, text: readFileSync(join(process.cwd(), 'data', 'n5', name), 'utf8') })
+    const { kanji: rows } = validateAll({ kanji: read('kanji.csv'), vocabularies: read('vocabularies.csv') })
+    const sorted = [...rows].sort((a, b) => a.study_order - b.study_order)
+    expect(sorted.map((k) => k.study_order)).toEqual(sorted.map((_, i) => i + 1))
+    const levels = sorted.map((k) => k.jlpt_level ?? 0)
+    expect(levels).toEqual([...levels].sort((a, b) => b - a))
   })
 })
