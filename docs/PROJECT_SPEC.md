@@ -163,8 +163,8 @@ Chi tiết: §5, §6.
 | FR-KJ-01 | Mỗi Kanji có character, meanings, Hán Việt, readings. | CONFIRMED |
 | FR-KJ-02 | Một Kanji có thể thuộc nhiều Vocabulary. | CONFIRMED |
 | FR-KJ-03 | Khu Kanji độc lập bên cạnh Vocabulary, dạy từng chữ. | CONFIRMED — **trong MVP** (V8, §18.6) |
-| FR-KJ-04 | Mỗi chữ có đúng một lịch FSRS riêng. | CONFIRMED (V8) |
-| FR-KJ-05 | Khu Kanji không có Stage và điểm; dạng bài theo §18.6. | CONFIRMED (V8) |
+| FR-KJ-04 | Mỗi chữ có một lịch học ngắn hạn, rồi một lịch FSRS dài hạn. | CONFIRMED (2026-11-07) |
+| FR-KJ-05 | Khu Kanji có giai đoạn Học tính điểm riêng, không dùng Stage của từ; dạng bài theo §18.6. | CONFIRMED (2026-11-07) |
 | FR-KJ-06 | Lưu và kiểm tra toàn bộ On/Kun trong file data; chữ không có Kun thì không hỏi Kun. | CONFIRMED (V8) |
 | FR-KJ-07 | Stroke count, components. | PROPOSED (source v0 đã có trường này trong mock) |
 
@@ -1070,7 +1070,7 @@ Bản đầy đủ kèm acceptance criteria chi tiết: `docs/mvp-scope.md` (PLA
 | P0-11 | Practice: Speed Matching (Luyện tập + vòng boss), practice log, cộng điểm card | CONFIRMED (V7) |
 | P0-12 | Trải nghiệm: đổi dạng câu liên tục, câu nghe (Web Speech), lật thẻ/lên stage, emoji, gõ Romaji → Kana (`wanakana`) | CONFIRMED (V7) |
 | P0-13 | Quality baseline: typecheck không bỏ qua, unit test domain logic, CI, không commit secret; deploy Vercel + Supabase prod | CONFIRMED (V7) |
-| P0-14 | **Khu Kanji**: 516 chữ, xem thẻ rồi vào một lịch FSRS, 4 dạng bài, quota riêng (§18.6) | CONFIRMED (V8) |
+| P0-14 | **Khu Kanji**: 823 chữ trong tab Learn, giới thiệu → học 12 câu trong 4 buổi → ôn FSRS dài hạn, quota riêng (§18.6) | CONFIRMED (2026-11-07) |
 
 ### 13.2 P1 / sau MVP
 
@@ -1430,22 +1430,23 @@ Thay các câu chọn 1/6 vì ở giai đoạn này người học đã nhớ m�
 - Settings hiện ước tính thời gian và số từ mới thực tế.
 - **Hệ quả của mặc định:** trung bình mỗi từ cần khoảng 24 câu đúng (có Kanji 28, chỉ Kana 16). Với 200 câu/ngày, về lâu dài chỉ học được khoảng 8 từ/ngày, học hết 912 từ trong khoảng 3,5 tháng. 20 từ mới chỉ là mức tối đa.
 
-### 18.6 Khu Kanji
+### 18.6 Khu Kanji — CONFIRMED (2026-11-07)
 
-- **Phạm vi:** toàn bộ 516 chữ trong `kanji.csv`, theo thứ tự trong file. Độc lập với tiến độ từ vựng.
-- **Luồng:** xem thẻ giới thiệu một lần, rồi chữ đó có **một lịch FSRS** theo tham số mặc định. Không có Stage và điểm. Câu đến hạn và chữ mới nằm chung một phiên.
-- **Dạng bài** (máy chấm):
+Mục **Kanji trong tab Learn** (`/learn/kanji`), bên cạnh mục Vocabulary. Bản lai giữa Stage và Card. Bảng riêng `learner_kanji`, `kanji_logs`, `learner_kanji_exclusions`; học Kanji không đổi tiến độ từ vựng và ngược lại.
 
-| Dạng | Ví dụ | Ghi chú |
-| --- | --- | --- |
-| Chữ → chọn nghĩa | 学 → học | Loại đáp án nhiễu trùng nghĩa |
-| Chữ → chọn hoặc gõ Hán Việt | 学 → HỌC | Gõ thì bỏ dấu, không phân biệt hoa thường; loại đáp án nhiễu trùng âm |
-| Nghĩa/Hán Việt → chọn chữ | HỌC → 学 | Không dùng chữ có cùng âm hoặc cùng nghĩa làm đáp án nhiễu |
-| Chữ → chọn âm On hoặc Kun | 学 → ガク | Đáp án nhiễu không trùng âm nào của chữ; chữ không có Kun chỉ hỏi On |
-
-- **Rating:** sai = Again, gợi ý = Hard, đúng = Good. **Không có Easy.**
-- **Dữ liệu còn rủi ro:** On, Kun và nghĩa của 371 chữ bổ sung chưa được người rà soát (`data-spec` §2), nên có khả năng dạy sai. Phải có task rà soát trước khi phát hành (KJ-01). 94 chữ không có Kun. Chưa có số nét nên không có bài theo nét.
-- **Ước tính:** với 5 chữ mới/ngày, học hết 516 chữ trong khoảng 3,5 tháng.
+- **Phạm vi:** 823 chữ, gồm mọi Kanji trong từ vựng (N5 và N4) và 3 chữ chưa dùng. Thứ tự (`kanji.study_order`, seed tính): chữ gặp trước trong lộ trình từ vựng học trước.
+- **Ba giai đoạn:**
+  1. **Giới thiệu:** thẻ có chữ, Hán Việt, nghĩa, On, Kun, vài từ chứa chữ đó. Xem xong mới có lịch. Thẻ không tự hiện lại ở các buổi sau, trừ khi sai 3 câu liên tiếp.
+  2. **Học:** 12 câu trong 4 buổi, mỗi buổi 3 câu xen kẽ với chữ khác. Đúng +1, tối đa +3/ngày; đúng nhờ gợi ý 0; sai −2, không dưới 0. Câu sai hỏi lại cuối phiên, không tính.
+  3. **Ôn dài hạn:** ôn ngay trong khu Kanji, không trộn vào Review. FSRS mặc định, bắt đầu 00:00 hôm sau. Không có Easy: sai Again, gợi ý Hard, đúng Good.
+- **Hoàn tất Học khi đủ cả 3 điều kiện:** 12 điểm; nghĩa, Hán Việt, âm mỗi mặt đúng ít nhất 2 lần, trong đó gõ Hán Việt và gõ âm mỗi loại ít nhất 1 lần; 3 câu gần nhất đều đúng. Câu về từ không bắt buộc.
+- **Dạng bài theo điểm khi Học:** 0–2 chọn nghĩa, chọn Hán Việt; 3–5 chọn chữ từ nghĩa hoặc Hán Việt, chọn On/Kun; từ 6 gõ Hán Việt, gõ âm, câu về từ đã gặp và đã xem Kanji của từ đó. Ôn dài hạn trộn các dạng, không lặp dạng lần trước.
+- **Đáp án nhiễu:** không trùng nghĩa, không trùng âm Hán Việt (so không dấu) với chữ đúng; câu âm chỉ dùng âm cùng loại và không trùng âm nào của chữ. Gõ âm: đủ một âm của chữ là đúng.
+- **Lịch khi đúng hết (đã duyệt):** ngày 1 thẻ và 3 câu, ngày 2 và 3 mỗi ngày 3 câu, ngày 5 thêm 3 câu và hoàn tất. Ngày 6 ôn đầu tiên, rồi cách khoảng 2, 11, 46, 163, 498 ngày. Chưa hoàn tất sau 4 buổi thì mỗi ngày thêm một buổi.
+- **Mỗi ngày:** mặc định 10 chữ mới, 100 câu, chỉnh trong Settings. Ôn trước, Học sau, rồi tới chữ mới; chữ mới chỉ mở khi còn chỗ cho buổi đầu. Câu chưa làm chuyển sang hôm sau.
+- **Quá tải:** câu đến hạn vượt phần còn lại của trần từ 10 câu trở lên thì trang Kanji gợi ý giảm chữ mới (phần Học chiếm khoảng 70% trần) hoặc tăng trần, có lối sang Settings.
+- **Đã biết chữ này:** nút và phím K ở thẻ giới thiệu và trong phiên; chữ rời khỏi khu Kanji, không tính vào hạn mức và tổng. Khôi phục ở tab Kanji của Library, điểm và lịch còn nguyên. Không ảnh hưởng từ vựng.
+- **Dữ liệu:** 307 chữ điền âm từ KANJIDIC2 (EDRDG, CC BY-SA 4.0), ghi nguồn ở trang Kanji. Danh sách cần người rà soát: `docs/kanji-review.md`. Chưa có số nét nên không có bài theo nét.
 
 ### 18.7 Việc phải làm trong code
 

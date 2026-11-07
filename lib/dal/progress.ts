@@ -23,20 +23,22 @@ async function readStreak(supabase: Supabase, userId: string, today: StudyDate) 
   if (error) throw new Error(`Không đọc được exercise_logs: ${error.message}`)
   const days = new Set<StudyDate>(data?.map((r) => r.study_date))
 
-  // Review không ghi day_seq: đọc từ mới về cũ, dừng khi đã qua chỗ chuỗi đứt
-  for (let from = 0; ; from += PAGE) {
-    const { data: rows, error: reviewError } = await supabase
-      .from('review_logs')
-      .select('study_date')
-      .eq('user_id', userId)
-      .not('study_date', 'is', null)
-      .order('study_date', { ascending: false })
-      .range(from, from + PAGE - 1)
-    if (reviewError) throw new Error(`Không đọc được review_logs: ${reviewError.message}`)
-    for (const row of rows ?? []) days.add(row.study_date as StudyDate)
-    const oldest = rows?.at(-1)?.study_date as StudyDate | undefined
-    if (!oldest || (rows?.length ?? 0) < PAGE) break
-    if (oldest < addStudyDays(today, -(currentStreak(days, today) + 1))) break
+  // Review và Kanji không ghi day_seq: đọc từ mới về cũ, dừng khi đã qua chỗ chuỗi đứt
+  for (const table of ['review_logs', 'kanji_logs'] as const) {
+    for (let from = 0; ; from += PAGE) {
+      const { data: rows, error: logError } = await supabase
+        .from(table)
+        .select('study_date')
+        .eq('user_id', userId)
+        .not('study_date', 'is', null)
+        .order('study_date', { ascending: false })
+        .range(from, from + PAGE - 1)
+      if (logError) throw new Error(`Không đọc được ${table}: ${logError.message}`)
+      for (const row of rows ?? []) days.add(row.study_date as StudyDate)
+      const oldest = rows?.at(-1)?.study_date as StudyDate | undefined
+      if (!oldest || (rows?.length ?? 0) < PAGE) break
+      if (oldest < addStudyDays(today, -(currentStreak(days, today) + 1))) break
+    }
   }
   return { streak: currentStreak(days, today), studiedToday: days.has(today) }
 }
@@ -47,8 +49,8 @@ export async function getStudyStreak(): Promise<{ streak: number; studiedToday: 
   return readStreak(supabase, user.id, studyDate(new Date()))
 }
 
-/** Đếm số câu theo ngày, gồm cả câu học và câu ôn. */
-async function addCountsByDay(supabase: Supabase, table: 'exercise_logs' | 'review_logs', userId: string, since: StudyDate, counts: Map<StudyDate, number>) {
+/** Đếm số câu theo ngày: câu học, câu ôn và câu Kanji. */
+async function addCountsByDay(supabase: Supabase, table: 'exercise_logs' | 'review_logs' | 'kanji_logs', userId: string, since: StudyDate, counts: Map<StudyDate, number>) {
   for (let from = 0; ; from += PAGE) {
     let query = supabase.from(table).select('study_date').eq('user_id', userId).gte('study_date', since).order('id').range(from, from + PAGE - 1)
     if (table === 'exercise_logs') query = query.eq('source', 'lesson')
@@ -84,6 +86,7 @@ export async function getProgressStats(): Promise<ProgressStats> {
     reviewCount().eq('rating', 1),
     addCountsByDay(supabase, 'exercise_logs', user.id, week[0], counts),
     addCountsByDay(supabase, 'review_logs', user.id, week[0], counts),
+    addCountsByDay(supabase, 'kanji_logs', user.id, week[0], counts),
   ])
   if (total.error) throw new Error(`Không đọc được review_logs: ${total.error.message}`)
   if (forgot.error) throw new Error(`Không đọc được review_logs: ${forgot.error.message}`)

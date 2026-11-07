@@ -34,9 +34,11 @@ export interface KanjiListItem {
   meaning: string
   onyomi: string[]
   kunyomi: string[]
-  /** null khi chưa có dữ liệu (hiện là cả 516 chữ). */
+  /** Đã đánh dấu là đã biết: không còn trong khu Kanji. */
+  known?: boolean
+  /** null khi chưa có dữ liệu (hiện là toàn bộ chữ). */
   strokes: number | null
-  /** null với 371 chữ bổ sung chưa xác định cấp. */
+  /** null với các chữ bổ sung chưa xác định cấp. */
   jlpt: string | null
 }
 

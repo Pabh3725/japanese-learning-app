@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { StarButton, useStarredWords } from '@/components/learning/star-button'
+import { KanjiKnownToggle } from '@/components/library/kanji-known-toggle'
 import { Check, Search } from 'lucide-react'
 import { markWordsKnownAction, unmarkWordsKnownAction } from '@/app/learn/actions'
 import { actionButton } from '@/components/action-button'
@@ -306,6 +307,7 @@ export function LibraryBrowser({ vocabulary, kanji }: { vocabulary: VocabListIte
                   </p>
                 )}
                 {k.strokes !== null && <p className="text-xs text-muted-foreground">{k.strokes} strokes</p>}
+                <KanjiKnownToggle kanjiId={k.id} known={k.known === true} />
               </li>
             ))}
           </ul>

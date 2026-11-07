@@ -5,6 +5,7 @@ import { Greeting } from '@/components/dashboard/greeting'
 import { QuickTraining } from '@/components/dashboard/quick-training'
 import { StudyHeroCard } from '@/components/dashboard/study-hero-card'
 import { requireUser } from '@/lib/dal/auth'
+import { getKanjiOverview } from '@/lib/dal/kanji'
 import { getLearnOverview } from '@/lib/dal/learn-overview'
 import { getReviewOverview } from '@/lib/dal/review'
 
@@ -13,20 +14,20 @@ const EXPLORE = [
   { href: '/verbs', title: 'Verb forms', body: 'Practice て, た, ない, たい and more.', sample: '動', badge: 'Preview' },
   { href: '/practice', title: 'Practice', body: 'Short games with the words you have met.', sample: '遊', badge: 'Games' },
   { href: '/library', title: 'Word list', body: 'Browse every word by lesson and see your progress.', sample: '語', badge: 'Library' },
-  { href: null, title: 'Kanji', body: 'Learn each character before it appears in a word.', sample: '字', badge: 'Coming soon' },
 ]
 
 export default async function DashboardPage() {
-  const [user, learn, review] = await Promise.all([requireUser(), getLearnOverview(), getReviewOverview()])
+  const [user, learn, review, kanji] = await Promise.all([requireUser(), getLearnOverview(), getReviewOverview(), getKanjiOverview()])
   const cards = Object.values(review.byType).reduce((sum, n) => sum + n, 0)
   const learnWork = learn.questionsToday + learn.newToday + learn.stage3Waiting
+  const kanjiWork = kanji.questionsToday + kanji.newToday
   const reviewMinutes = Math.max(1, Math.ceil((review.dueNow * 15) / 60))
 
   return (
     <div className="flex flex-col gap-8">
       <Greeting name={user.username ?? 'there'} />
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-3">
         <StudyHeroCard
           eyebrow="Learn"
           title={learnWork > 0 ? `${learn.sessions} ${learn.sessions === 1 ? 'session' : 'sessions'} today` : 'All caught up'}
@@ -40,6 +41,13 @@ export default async function DashboardPage() {
           subtitle={review.dueNow > 0 ? `About ${reviewMinutes} ${reviewMinutes === 1 ? 'minute' : 'minutes'}` : `${review.dueTomorrow} due tomorrow`}
           href={review.dueNow > 0 ? '/review/session' : undefined}
           cta="Start review"
+        />
+        <StudyHeroCard
+          eyebrow="Kanji"
+          title={kanji.questionsToday > 0 ? `${kanji.questionsToday} ${kanji.questionsToday === 1 ? 'question' : 'questions'}` : kanji.newToday > 0 ? `${kanji.newToday} new Kanji` : 'All caught up'}
+          subtitle={`${kanji.questionsToday > 0 && kanji.newToday > 0 ? `${kanji.newToday} new · ` : ''}${kanji.longTerm} of ${kanji.total} learned · ${kanji.learning} still learning`}
+          href={kanjiWork > 0 ? '/learn/kanji/session' : '/learn/kanji'}
+          cta={kanjiWork > 0 ? 'Start Kanji' : 'Open Kanji'}
         />
       </div>
 
