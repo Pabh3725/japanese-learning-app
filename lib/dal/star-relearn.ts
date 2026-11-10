@@ -116,16 +116,16 @@ export async function relearnStage(scheduleId: unknown): Promise<RelearnResponse
   const supabase = await createClient()
   const { data: row, error: readError } = await supabase
     .from('learner_stage_schedules')
-    .select('stage_number, learner_vocabulary!inner(vocabularies!inner(is_kana_only))')
+    .select('stage_number')
     .eq('id', scheduleId)
     .eq('user_id', user.id)
     .maybeSingle()
   if (readError) throw new Error(`Không đọc được learner_stage_schedules: ${readError.message}`)
   if (!row) return { status: 'not_found' }
-  const schedule = row as unknown as { stage_number: ScoredStage; learner_vocabulary: { vocabularies: { is_kana_only: boolean } } }
+  const schedule = row as unknown as { stage_number: ScoredStage }
   const { data, error } = await supabase.rpc('relearn_stage', {
     p_schedule_id: scheduleId,
-    p_stage_points: relearnStagePoints(schedule.stage_number, schedule.learner_vocabulary.vocabularies.is_kana_only),
+    p_stage_points: relearnStagePoints(schedule.stage_number),
   })
   if (error) throw new Error(`relearn_stage lỗi: ${error.message}`)
   return data as RelearnResponse

@@ -3,7 +3,7 @@ import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { isValidNewPerDay, isValidStudyLimit, newPerDayOf, type StudyLimitKey } from '@/lib/learning/new-words'
-import { RULES_V4 } from '@/lib/learning/rules'
+import { RULES_V9 } from '@/lib/learning/rules'
 
 export async function getNewPerDay(): Promise<number> {
   const user = await requireUser()
@@ -29,17 +29,20 @@ export async function getStudyLimits(): Promise<Record<StudyLimitKey, number>> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('learner_settings')
-    .select('stage_cap, review_cap, unlock_threshold, kanji_new_per_day, kanji_cap')
+    .select('stage_cap, word_kanji_cap, review_cap, word_kanji_review_cap, unlock_threshold, kanji_new_per_day, kanji_cap, kanji_review_cap')
     .eq('user_id', user.id)
     .maybeSingle()
   if (error) throw new Error(`Không đọc được learner_settings: ${error.message}`)
-  const { defaults } = RULES_V4
+  const { defaults } = RULES_V9
   return {
     stage_cap: data?.stage_cap ?? defaults.stageCap,
+    word_kanji_cap: data?.word_kanji_cap ?? defaults.wordKanjiCap,
     review_cap: data?.review_cap ?? defaults.reviewCap,
+    word_kanji_review_cap: data?.word_kanji_review_cap ?? defaults.wordKanjiReviewCap,
     unlock_threshold: data?.unlock_threshold ?? defaults.unlockThreshold,
     kanji_new_per_day: data?.kanji_new_per_day ?? defaults.kanjiNewPerDay,
     kanji_cap: data?.kanji_cap ?? defaults.kanjiCap,
+    kanji_review_cap: data?.kanji_review_cap ?? defaults.kanjiReviewCap,
   }
 }
 

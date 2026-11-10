@@ -1,4 +1,4 @@
-// DAL cho các câu Stage 2, 4, 5 (VOC-02, VOC-03, VOC-07, VOC-08, SCH-02). Server-only.
+// DAL cho các câu Stage 2, 3, 5, 6 (VOC-02, VOC-03, VOC-07, VOC-08, SCH-02). Server-only.
 //   getLearnSession:   một phiên khu Learn: thẻ giới thiệu, rồi câu đến hẹn của mọi stage đã trộn
 //   submitStageAnswer: SERVER chấm, tự cấp vị trí câu trong ngày, gọi submitExercise
 import 'server-only'
@@ -9,7 +9,8 @@ import { getNextDaySeq } from '@/lib/dal/day-seq'
 import { submitExercise, type SubmitExerciseResponse } from '@/lib/dal/exercise'
 import { buildMatchRound, parseMatchPenalties, type MatchRoundData } from '@/lib/exercise/match-round'
 import { getIntroData } from '@/lib/dal/intro'
-import { getStage3Items, type Stage3Item } from '@/lib/dal/stage3'
+import { readEligibleWords, type KanjiIntroWord } from '@/lib/dal/word-kanji'
+import type { LearnSkill } from '@/lib/learn/levels'
 import { deriveEarned } from '@/lib/exercise/mappers'
 import type { IntroWord } from '@/lib/intro/words'
 import { INTROS_PER_SESSION, mixQuestions, newWordsBlockedBy, QUESTIONS_PER_SESSION, sessionsFor, shouldAddBossRound, type NewWordsBlock } from '@/lib/learn/session'
@@ -33,11 +34,12 @@ import {
   type QuestionPools,
   type StageAnswerRequest,
   type StageWord,
+  kanaView,
   type WordReveal,
 } from '@/lib/exercise/stage-questions'
-import { RULES_V4 } from '@/lib/learning/rules'
+import { RULES_V9 } from '@/lib/learning/rules'
 import { studyDate } from '@/lib/learning/time'
-import { reachedKanjiIntro, trailingCount } from '@/lib/learning/stage'
+import { trailingCount } from '@/lib/learning/stage'
 import type { Outcome, ScoredStage } from '@/lib/learning/types'
 
 const PAGE = 1000
@@ -96,7 +98,7 @@ export async function loadPools(supabase: Supabase): Promise<QuestionPools> {
 
 type DueEntry = { row: WordRow; stage: ScoredStage; schedule: WordRow['learner_stage_schedules'][number] }
 
-export type LearnIntroItem = { kind: 'new'; word: IntroWord } | Stage3Item
+export type LearnIntroItem = { kind: 'new'; word: IntroWord } | KanjiIntroWord
 
 export interface LearnSessionData {
   /** Cụm thẻ giới thiệu ở đầu phiên. Có thẻ thì làm xong mới sang câu hỏi. */
@@ -105,7 +107,8 @@ export interface LearnSessionData {
   /** Số phiên còn lại hôm nay, kể cả phiên này. */
   sessionsLeft: number
   /** Lý do hôm nay không có thêm từ mới. */
-  block: NewWordsBlock
+  /** Null ở kỹ năng Từ Kanji. */
+  block: NewWordsBlock | null
   stageLimitReached: boolean
   /** Lần hẹn gần nhất khi hiện không có câu nào đến hẹn. */
   nextDueAt: string | null
@@ -116,7 +119,8 @@ export interface LearnSessionData {
  * Một phiên của khu Learn. `practiceOnly`: đã xong cụm thẻ giới thiệu nên chỉ lấy câu hỏi.
  * Từ vừa giới thiệu chưa từng được hỏi nên đứng trước, để câu đầu tiên đến ngay sau thẻ.
  */
-export async function getLearnSession(practiceOnly: boolean): Promise<LearnSessionData> {
+export async function getLearnSession(practiceOnly: boolean, skill: Exclude<LearnSkill, 'kanji'> = 'vocabulary'): Promise<LearnSessionData> {
+  const stages: readonly number[] = skill === 'vocabulary' ? [2, 3] : [5, 6]
   const user = await requireUser()
   const supabase = await createClient()
 
@@ -125,7 +129,6 @@ export async function getLearnSession(practiceOnly: boolean): Promise<LearnSessi
       .from('learner_vocabulary')
       .select(`id, vocabulary_id, current_stage, kanji_intro_seen_at, vocabularies!inner(${WORD_COLUMNS}, sort_order), learner_stage_schedules(stage_number, due_at, stage_points, completed_at, reps)`)
       .eq('user_id', user.id)
-      .eq('learning_status', 'learning')
       .range(0, PAGE - 1),
     supabase
       .from('learner_vocabulary_exclusions')
@@ -145,9 +148,7 @@ export async function getLearnSession(practiceOnly: boolean): Promise<LearnSessi
     .filter((row) => !excludedIds.has(row.vocabulary_id))
     .flatMap((row) =>
       row.learner_stage_schedules
-        .filter((s) => s.completed_at === null && (s.stage_number === 2 || s.stage_number === 4 || s.stage_number === 5))
-        // Stage 4: đủ điểm mà chưa xem thẻ Giới thiệu Hán tự thì tạm dừng, vì các câu tiếp theo có Kanji
-        .filter((s) => !(s.stage_number === 4 && row.kanji_intro_seen_at === null && reachedKanjiIntro(s.stage_points)))
+        .filter((s) => s.completed_at === null && stages.includes(s.stage_number))
         .map((schedule) => ({ row, stage: schedule.stage_number as ScoredStage, schedule })),
     )
   const dueAll = active
@@ -158,7 +159,8 @@ export async function getLearnSession(practiceOnly: boolean): Promise<LearnSessi
         Date.parse(a.schedule.due_at) - Date.parse(b.schedule.due_at) ||
         a.row.vocabularies.sort_order - b.row.vocabularies.sort_order,
     )
-  const stageRoom = Math.max(0, limits.stageCap - limits.answeredToday)
+  const wordKanji = skill === 'word_kanji' ? await readWordKanjiLimit(supabase, user.id) : null
+  const stageRoom = wordKanji ? Math.max(0, wordKanji.cap - wordKanji.answeredToday) : Math.max(0, limits.stageCap - limits.answeredToday)
   const dueCount = Math.min(dueAll.length, stageRoom)
   const block = newWordsBlockedBy({
     cardsDue: limits.cardsDueToday,
@@ -167,26 +169,31 @@ export async function getLearnSession(practiceOnly: boolean): Promise<LearnSessi
     stageCap: limits.stageCap,
   })
 
-  const [intro, stage3Items] = await Promise.all([getIntroData(), getStage3Items()])
-  const newLeft = block ? 0 : intro.remainingToday
-  const common = { starredIds, block, stageLimitReached: stageRoom === 0 && dueAll.length > 0 }
+  const newItems: LearnIntroItem[] =
+    skill === 'word_kanji'
+      ? await readEligibleWords(supabase, user.id)
+      : block
+        ? []
+        : (await getIntroData()).words.map((word) => ({ kind: 'new' as const, word }))
+  const newLeft = skill === 'word_kanji' ? newItems.length : block ? 0 : (await getIntroData()).remainingToday
+  const common = { starredIds, block: skill === 'word_kanji' ? null : block, stageLimitReached: stageRoom === 0 && dueAll.length > 0 }
 
   if (!practiceOnly) {
-    const newItems: LearnIntroItem[] = block ? [] : intro.words.map((word) => ({ kind: 'new' as const, word }))
-    const intros = [...stage3Items, ...newItems].slice(0, INTROS_PER_SESSION)
+    const intros = newItems.slice(0, INTROS_PER_SESSION)
     if (intros.length > 0) {
       return {
         ...common,
         intros,
         questions: [],
-        sessionsLeft: Math.max(1, sessionsFor(dueCount + newLeft + stage3Items.length)),
+        sessionsLeft: Math.max(1, sessionsFor(dueCount + newLeft)),
         nextDueAt: null,
       }
     }
   }
 
   const entries = dueAll.slice(0, Math.min(QUESTIONS_PER_SESSION, stageRoom))
-  const starItems = await readStarRound<StageWord>(supabase, user.id, WORD_COLUMNS, excludedIds)
+  // Câu học thêm của từ có sao và vòng ghép chỉ thuộc kỹ năng Từ vựng
+  const starItems = skill === 'vocabulary' ? await readStarRound<StageWord>(supabase, user.id, WORD_COLUMNS, excludedIds) : []
   const starPlan = planStarQuestions(starItems)
   const starLeft = starItems.reduce((sum, item) => sum + item.exercises.length - item.answered, 0)
   if (entries.length === 0 && starPlan.length === 0) {
@@ -213,7 +220,9 @@ export async function getLearnSession(practiceOnly: boolean): Promise<LearnSessi
   const built = entries.map(({ row, stage, schedule }) => {
     const wordLogs = (logs.data ?? []).filter((l) => l.learner_vocabulary_id === row.id && l.stage_number === stage)
     const exercise = chooseStageExercise(row.vocabularies, stage, deriveEarned(wordLogs), schedule.stage_points)
-    const question = buildStageQuestion(row.vocabularies, exercise, poolsWithLearned, undefined, { blind: stage === 5 })
+    // Stage 2, 3 thuộc Từ vựng Kana: chưa lộ cách viết Kanji của từ
+    const word = stage === 2 || stage === 3 ? kanaView(row.vocabularies) : row.vocabularies
+    const question = buildStageQuestion(word, exercise, poolsWithLearned, undefined, { blind: stage === 3 || stage === 6 })
     const known = { currentStage: row.current_stage, kanjiIntroSeen: row.kanji_intro_seen_at !== null }
     return {
       ...question,
@@ -230,9 +239,9 @@ export async function getLearnSession(practiceOnly: boolean): Promise<LearnSessi
 
   questions.push(...buildStarQuestions(starPlan, poolsWithLearned))
 
-  const stage5Ids = entries.filter((e) => e.stage === 5).map((e) => e.row.id)
+  const stage3Ids = entries.filter((e) => e.stage === 3).map((e) => e.row.id)
   // Cuối phiên: đặt sớm hơn thì các cặp ghép sẽ lộ cách đọc và nghĩa của những câu còn lại
-  const round = stage5Ids.length > 0 ? await buildRoundForUser(supabase, user.id, excludedIds, stage5Ids, pools.words) : null
+  const round = stage3Ids.length > 0 ? await buildRoundForUser(supabase, user.id, excludedIds, stage3Ids, pools.words) : null
   if (round) {
     questions.push(round)
   } else if (shouldAddBossRound(limits.answeredToday, entries.length, new Set(entries.map((e) => e.row.id)).size)) {
@@ -240,6 +249,16 @@ export async function getLearnSession(practiceOnly: boolean): Promise<LearnSessi
     if (boss) questions.push(boss)
   }
   return { ...common, intros: [], questions, sessionsLeft: Math.max(1, sessionsFor(dueCount + newLeft + starLeft)), nextDueAt: null }
+}
+
+async function readWordKanjiLimit(supabase: Supabase, userId: string) {
+  const [settings, answered] = await Promise.all([
+    supabase.from('learner_settings').select('word_kanji_cap').eq('user_id', userId).maybeSingle(),
+    supabase.from('exercise_logs').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('study_date', studyDate(new Date())).eq('source', 'lesson').in('stage_number', [5, 6]),
+  ])
+  if (settings.error) throw new Error(`Không đọc được learner_settings: ${settings.error.message}`)
+  if (answered.error) throw new Error(`Không đọc được exercise_logs: ${answered.error.message}`)
+  return { cap: settings.data?.word_kanji_cap ?? RULES_V9.defaults.wordKanjiCap, answeredToday: answered.count ?? 0 }
 }
 
 /** Khu Starred words: chỉ câu vòng học thêm, không giới hạn 3 câu như khi chèn vào phiên Learn. */
@@ -285,7 +304,7 @@ async function buildBossRound(supabase: Supabase, userId: string): Promise<BossR
   return { kind: 'boss', clientEventId: randomUUID(), words: mixed.words }
 }
 
-/** Vòng ghép ô dùng các từ đã học, ưu tiên từ đang ở Stage 5. */
+/** Vòng ghép ô dùng các từ đã học, ưu tiên từ đang ở Stage 3. */
 async function buildRoundForUser(
   supabase: Supabase,
   userId: string,
@@ -310,11 +329,11 @@ async function buildRoundForUser(
   const candidates = rows.flatMap((row) => {
     const word = byId.get(row.vocabulary_id)
     if (!word || excludedIds.has(row.vocabulary_id)) return []
-    const stage5Active = row.learner_stage_schedules.some((s) => s.stage_number === 5 && s.completed_at === null)
-    return [{ ...word, learnerVocabularyId: row.id, kanjiIntroSeen: row.kanji_intro_seen_at !== null, stage5Active }]
+    const stage3Active = row.learner_stage_schedules.some((s) => s.stage_number === 3 && s.completed_at === null)
+    return [{ ...word, learnerVocabularyId: row.id, kanjiIntroSeen: row.kanji_intro_seen_at !== null, stage3Active }]
   })
-  // Từ chưa có ở Stage 5 thì không bị trừ điểm, nên cần ít nhất một từ đang chạy Stage 5
-  if (!candidates.some((c) => c.stage5Active && dueIds.includes(c.learnerVocabularyId))) return null
+  // Từ chưa có ở Stage 3 thì không bị trừ điểm, nên cần ít nhất một từ đang chạy Stage 3
+  if (!candidates.some((c) => c.stage3Active && dueIds.includes(c.learnerVocabularyId))) return null
   return buildMatchRound(candidates, randomUUID)
 }
 
@@ -430,7 +449,7 @@ export async function submitStarAnswer(input: unknown): Promise<SubmitStageAnswe
   return { status: 'graded', outcome, answer: graded.answer, reading: graded.word.reading_kana, reveal: graded.reveal }
 }
 
-/** Vòng ghép ô: trừ điểm các từ bị ghép sai. Từ không chạy Stage 5 thì bỏ qua. */
+/** Vòng ghép ô: trừ điểm các từ bị ghép sai. Từ không chạy Stage 3 thì bỏ qua. */
 export async function submitMatchPenalties(input: unknown): Promise<{ status: 'saved' | 'invalid' }> {
   const penalties = parseMatchPenalties(input)
   if (!penalties) return { status: 'invalid' }
@@ -442,7 +461,7 @@ export async function submitMatchPenalties(input: unknown): Promise<{ status: 's
     .from('learner_stage_schedules')
     .select('id, learner_vocabulary_id')
     .eq('user_id', user.id)
-    .eq('stage_number', 5)
+    .eq('stage_number', 3)
     .is('completed_at', null)
     .in('learner_vocabulary_id', penalties.map((p) => p.learnerVocabularyId))
   if (error) throw new Error(`Không đọc được learner_stage_schedules: ${error.message}`)
@@ -455,7 +474,7 @@ export async function submitMatchPenalties(input: unknown): Promise<{ status: 's
   const { error: rpcError } = await supabase.rpc('apply_match_penalties', {
     p_schedule_ids: applicable.map((p) => scheduleOf.get(p.learnerVocabularyId)),
     p_client_event_ids: applicable.map((p) => p.clientEventId),
-    p_points: RULES_V4.matchRound.wrongPoints,
+    p_points: RULES_V9.matchRound.wrongPoints,
     p_study_date: studyDate(now),
     p_answered_at: now.toISOString(),
   })

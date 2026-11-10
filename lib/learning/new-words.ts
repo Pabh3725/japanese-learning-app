@@ -1,5 +1,5 @@
 // Giới hạn từ mới mỗi ngày do người học chỉnh trong Settings. Pure.
-import { RULES_V4 } from './rules'
+import { RULES_V9 } from './rules'
 
 export const MIN_NEW_PER_DAY = 1
 export const MAX_NEW_PER_DAY = 50
@@ -13,7 +13,7 @@ export function isValidNewPerDay(value: unknown): value is number {
 export function newPerDayOf(stored: number | null | undefined): number {
   // Tài khoản từng đặt trên mức mới thì hạ về mức tối đa, không rơi về mặc định
   if (Number.isInteger(stored) && (stored as number) > MAX_NEW_PER_DAY) return MAX_NEW_PER_DAY
-  return isValidNewPerDay(stored) ? stored : RULES_V4.defaults.newPerDay
+  return isValidNewPerDay(stored) ? stored : RULES_V9.defaults.newPerDay
 }
 
 /** Số từ mới đã gặp hôm nay. Từ đã đánh dấu là đã biết không tính vào chỉ tiêu trong ngày. */
@@ -33,10 +33,13 @@ export function remainingNewToday(limit: number, metToday: number): number {
 /** Các giới hạn khối lượng trong Settings. Khoảng cho phép: docs/PROJECT_SPEC.md §18.5. */
 export const STUDY_LIMITS = {
   stage_cap: { label: 'Stage questions per day', hint: 'Learn stops for the day at this number.', min: 20, max: 1000 },
-  review_cap: { label: 'Cards per day', hint: 'Extra cards move to the next day.', min: 10, max: 500 },
+  word_kanji_cap: { label: 'Kanji word questions per day', hint: 'Kanji words stop for the day at this number.', min: 10, max: 1000 },
+  review_cap: { label: 'Vocabulary cards per day', hint: 'Review · Vocabulary. Extra cards move to the next day.', min: 10, max: 500 },
+  word_kanji_review_cap: { label: 'Kanji word cards per day', hint: 'Review · Kanji words. Extra cards move to the next day.', min: 10, max: 500 },
   unlock_threshold: { label: 'Cards before pausing new words', hint: 'New words pause when this many cards are due.', min: 0, max: 500 },
   kanji_new_per_day: { label: 'New Kanji per day', hint: 'Counts Kanji already opened today. New ones pause when questions need the room.', min: 0, max: 50 },
-  kanji_cap: { label: 'Kanji questions per day', hint: 'The Kanji area stops for the day at this number.', min: 10, max: 500 },
+  kanji_cap: { label: 'Kanji learning questions per day', hint: 'Questions for Kanji you are still learning. New Kanji pause when they need the room.', min: 10, max: 500 },
+  kanji_review_cap: { label: 'Kanji cards per day', hint: 'Long-term Kanji cards, reviewed in the Kanji area.', min: 10, max: 500 },
 } as const
 
 export type StudyLimitKey = keyof typeof STUDY_LIMITS

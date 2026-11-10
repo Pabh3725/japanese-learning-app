@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Play } from 'lucide-react'
+import { ArrowLeft, Play } from 'lucide-react'
 import { actionButton } from '@/components/action-button'
-import { LearnTabs } from '@/components/learning/learn-tabs'
+import { LevelUpPrompt } from '@/components/learning/level-up-prompt'
 import { PageHeader } from '@/components/page-header'
 import { ProgressBar } from '@/components/progress-bar'
 import { getKanjiOverview } from '@/lib/dal/kanji'
@@ -13,8 +13,8 @@ export const metadata: Metadata = { title: 'Kanji · Nihongo' }
 
 const steps = [
   { step: '1', title: 'Meet', body: 'See the character, its Sino-Vietnamese reading, meaning, and On and Kun readings.' },
-  { step: '2', title: 'Learn', body: '12 questions over 4 sittings, from easy choices to typing readings from memory.' },
-  { step: '3', title: 'Remember', body: 'Long-term review. Questions come back further apart the better you remember.' },
+  { step: '2', title: 'Learn', body: '12 questions over 4 sittings: meaning and Sino-Vietnamese both ways, ending with typing from memory.' },
+  { step: '3', title: 'Remember', body: 'Two cards, meaning and Sino-Vietnamese, come back further apart the better you remember.' },
 ]
 
 export default async function KanjiPage() {
@@ -30,8 +30,12 @@ export default async function KanjiPage() {
 
   return (
     <>
-      <PageHeader eyebrow="学習" title="Learn" description="Learn each character on its own, separate from your vocabulary path." />
-      <LearnTabs active="kanji" />
+      <Link href="/learn" className="mb-4 inline-flex w-fit items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="size-4" aria-hidden="true" />
+        Back to Learn
+      </Link>
+      <PageHeader eyebrow="学習" title="Kanji" description="Learn each character on its own, separate from your vocabulary path." />
+      {overview.nextLevel !== null && <LevelUpPrompt skill="kanji" level={overview.level} next={overview.nextLevel} itemName="Kanji" />}
 
       <section aria-labelledby="kanji-today" className="rounded-3xl border border-primary/30 bg-card p-6 md:p-8">
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
@@ -41,11 +45,12 @@ export default async function KanjiPage() {
               {heading}
             </h2>
             <p className="mt-2 text-sm text-subtle">
-              {overview.dueReview} to review · {overview.dueLearning} learning · {overview.newToday} new Kanji
+              {overview.dueReview} {overview.dueReview === 1 ? 'card' : 'cards'} to review · {overview.dueLearning} learning · {overview.newToday} new Kanji
             </p>
             <p className="mt-1 text-sm text-muted-foreground tabular-nums">
-              New Kanji today: {overview.openedToday} of {overview.newPerDay} opened · {overview.answeredToday} of {overview.cap} questions answered
+              New Kanji today: {overview.openedToday} of {overview.newPerDay} opened · {overview.answeredToday} of {overview.cap} learning questions · {overview.reviewedToday} of {overview.reviewCap} cards
             </p>
+            {overview.reviewDeferred > 0 && <p className="mt-1 text-sm text-muted-foreground">{overview.reviewDeferred} more {overview.reviewDeferred === 1 ? 'card moves' : 'cards move'} to tomorrow.</p>}
             {pausedByLimit && <p className="mt-2 text-sm text-yellow">New Kanji are paused: today&apos;s questions need the room left under your limit.</p>}
             {!hasWork && overview.nextDueAt && <p className="mt-2 text-sm text-subtle">Next question at {formatVnDateTime(new Date(overview.nextDueAt))}.</p>}
           </div>
@@ -94,6 +99,10 @@ export default async function KanjiPage() {
           ))}
         </ol>
       </section>
+
+      <p className="mt-6 text-sm text-muted-foreground">
+        <Link href="/review/archive" className="underline underline-offset-2">Archived cards</Link>: Kanji cards you marked as learned.
+      </p>
 
       <p className="mt-8 text-xs text-muted-foreground">
         Kanji readings use data from{' '}

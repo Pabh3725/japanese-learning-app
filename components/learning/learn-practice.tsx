@@ -1,12 +1,13 @@
 'use client'
 
-// Phần câu hỏi của một phiên khu Learn: câu của Stage 2, 4, 5 đã trộn.
+// Phần câu hỏi của một phiên khu Learn: câu của Stage 2, 3, 5, 6 đã trộn.
 // Câu chọn hiện kết quả ngay và lưu ở nền; câu ghép và câu gõ chờ server chấm vì đáp án không có ở trình duyệt.
 import { useEffect, useRef, useState } from 'react'
 import { checkStageAnswerAction, submitMatchPenaltiesAction, submitStageAnswerAction, submitStarAnswerAction } from '@/app/learn/actions'
 import { WRONG_ANSWER_NOTE } from '@/components/learning/exercise-footer'
 import { KnownWordBar } from '@/components/learning/known-word-button'
 import { SessionComplete } from '@/components/learning/session-complete'
+import { TodaySummary } from '@/components/learning/today-summary'
 import { SessionHeader } from '@/components/learning/session-header'
 import { SpeakerButton, useJapaneseVoice } from '@/components/learning/speaker-button'
 import { AssemblyExercise, type AssemblyGrade } from '@/components/learning/steps/assembly-exercise'
@@ -21,7 +22,7 @@ import type { MatchPenalty } from '@/lib/exercise/match-round'
 import type { AssemblyQuestionData, ChoiceQuestionData, TypingQuestionData, WordReveal } from '@/lib/exercise/stage-questions'
 import type { StageQuestion } from '@/lib/dal/stage-session'
 import { levelUpOf, type LevelUp } from '@/lib/learn/level-up'
-import { RULES_V4 } from '@/lib/learning/rules'
+import { RULES_V9 } from '@/lib/learning/rules'
 import { shouldRelearn } from '@/lib/learning/stage'
 import type { ScoredStage } from '@/lib/learning/types'
 import { withRetry } from '@/lib/retry'
@@ -87,7 +88,6 @@ export function toRecallStep(q: TypingQuestionData & { clientEventId: string }, 
 
 function pointsNote(stage: ScoredStage, result: SubmitExerciseResponse['result']) {
   if (result?.completed) return `Stage ${stage} complete!`
-  if (result?.kanjiIntroReady) return 'New Kanji to meet! It will open in your next session.'
   if (result?.unlockedStage) return `Next stage unlocked! Stage ${stage} continues.`
   const delta = result?.delta
   if (delta === undefined) return undefined
@@ -112,9 +112,21 @@ interface LearnPracticeProps {
   sessionsLeft: number
   /** Phiên riêng (Starred words): kết thúc về đây thay vì tổng kết ngày. */
   finish?: { href: string; label: string }
+  /** Giữ kỹ năng khi sang phiên kế tiếp. */
+  skillQuery?: string
+  /** Học hỗn hợp: xong cụm câu thì sang cụm sau, không có màn kết thúc riêng. */
+  onDone?: () => void
 }
 
-export function LearnPractice({ questions: initialQuestions, sessionNumber, sessionsLeft, finish }: LearnPracticeProps) {
+/** Chờ lưu xong rồi mới báo xong cụm. */
+function FinishSegment({ pending, onDone }: { pending: number; onDone: () => void }) {
+  useEffect(() => {
+    if (pending === 0) onDone()
+  }, [pending])
+  return <p className="m-auto text-sm text-muted-foreground">Saving…</p>
+}
+
+export function LearnPractice({ questions: initialQuestions, sessionNumber, sessionsLeft, finish, skillQuery = '', onDone }: LearnPracticeProps) {
   const [questions, setQuestions] = useState(initialQuestions)
   const voice = useJapaneseVoice()
   const [index, setIndex] = useState(0)
@@ -158,6 +170,7 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
   const isRetry = index >= questions.length
 
   if (index >= queue.length) {
+    if (onDone) return <div className="flex min-h-dvh flex-col"><FinishSegment pending={pending} onDone={onDone} /></div>
     const correct = results.filter(Boolean).length
     const wrong = results.length - correct
     const accuracy = results.length > 0 ? Math.round((correct / results.length) * 100) : 0
@@ -172,10 +185,12 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
             { label: 'Wrong', value: String(wrong), tone: 'text-error' },
             { label: 'Accuracy', value: `${accuracy}%`, tone: 'text-cyan' },
           ]}
-          primary={hasNext ? { href: `/learn/session?n=${sessionNumber + 1}`, label: 'Next session' } : (finish ?? { href: '/learn/summary', label: "See today's summary" })}
+          primary={hasNext ? { href: `/learn/session?n=${sessionNumber + 1}${skillQuery}`, label: 'Next session' } : (finish ?? { href: '/learn', label: 'Back to Learn' })}
           busy={!hasNext && pending > 0}
-          secondary={hasNext ? { href: '/learn', label: 'Take a break' } : { href: '/learn', label: 'Back to Learn' }}
-        />
+          secondary={hasNext ? { href: '/learn', label: 'Take a break' } : { href: '/', label: 'Back to Home' }}
+        >
+          <TodaySummary ready={pending === 0} />
+        </SessionComplete>
       </div>
     )
   }
@@ -306,12 +321,12 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
     setRelearn(null)
   }
 
-  const stageLabel = q.kind === 'match' ? 'Stage 5' : q.kind === 'boss' ? 'Boss round' : q.starSessionId ? 'Starred word' : `Stage ${q.stage}`
+  const stageLabel = q.kind === 'match' ? 'Stage 3' : q.kind === 'boss' ? 'Boss round' : q.starSessionId ? 'Starred word' : `Stage ${q.stage}`
   // Cùng một câu hỏi lại nên cần key khác, để màn hình bắt đầu mới
   const bodyKey = `${q.clientEventId}${isRetry ? '-retry' : ''}`
   let body: React.ReactNode
   if (q.kind === 'boss') {
-    body = <SpeedMatchingGame key={q.clientEventId} words={q.words} mode="mixed" seconds={RULES_V4.bossRound.seconds} onBossDone={next} />
+    body = <SpeedMatchingGame key={q.clientEventId} words={q.words} mode="mixed" seconds={RULES_V9.bossRound.seconds} onBossDone={next} />
   } else if (q.kind === 'match') {
     body = <MatchRoundExercise key={q.clientEventId} round={q} onDone={finishMatch} />
   } else if (q.kind === 'choice') {

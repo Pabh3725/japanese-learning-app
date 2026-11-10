@@ -15,12 +15,13 @@ export function ExercisePanel({ question, stage, children, controls, footer, cla
     <div className={cn('flex flex-1 flex-col animate-in fade-in slide-in-from-bottom-2 duration-200', className)}>
       <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4">
         {(stage || question) && (
-          <div className="pt-6 text-center md:pt-10">
-            {stage && <p className="text-xs font-medium tracking-wider text-primary uppercase">{stage}</p>}
-            {question && <h1 className="mt-2 text-balance text-lg font-medium text-subtle">{question}</h1>}
+          <div className="pt-3 text-center md:pt-4">
+            {stage && <p className="text-[11px] font-medium tracking-wider text-primary uppercase">{stage}</p>}
+            {question && <h1 className="mt-1 text-balance text-base font-medium text-subtle">{question}</h1>}
           </div>
         )}
-        <div className="flex flex-1 items-center justify-center py-8 md:py-12">{children}</div>
+        {/* Nội dung đặt gần đầu trang thay vì giữa màn hình, để không bị thấp trên màn hình cao */}
+        <div className="flex flex-1 items-start justify-center pt-4 pb-6 md:pt-8 md:pb-10">{children}</div>
         {controls && <div className="pb-6">{controls}</div>}
       </div>
       <div className="sticky bottom-0">{footer}</div>

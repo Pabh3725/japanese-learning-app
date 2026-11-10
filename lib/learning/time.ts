@@ -1,10 +1,10 @@
 // "Ngày học" theo giờ Việt Nam. Hàm nhận `now` làm tham số, KHÔNG tự đọc đồng hồ,
 // để test truyền được mọi thời điểm (vd. 23:59, 00:01).
 
-import { RULES_V4 } from './rules'
+import { RULES_V9 } from './rules'
 import type { StudyDate } from './types'
 
-const OFFSET_MS = RULES_V4.utcOffsetMinutes * 60_000
+const OFFSET_MS = RULES_V9.utcOffsetMinutes * 60_000
 
 /** Ngày học (giờ VN) của một thời điểm, dạng 'YYYY-MM-DD'. */
 export function studyDate(now: Date): StudyDate {

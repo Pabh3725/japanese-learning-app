@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { seededRng } from '../../exercise/questions'
+import { inLevel, nextLevel } from '../levels'
 import { mixQuestions, newWordsBlockedBy, pathLevels, sessionsFor, shouldAddBossRound } from '../session'
 
 describe('sessionsFor', () => {
@@ -81,5 +82,20 @@ describe('pathLevels', () => {
   })
   it('cấp không có từ thì bỏ qua', () => {
     expect(pathLevels(rows.slice(0, 2), new Set(), new Set()).map((l) => l.level)).toEqual(['N5'])
+  })
+})
+
+describe('Cấp theo từng kỹ năng', () => {
+  it('chỉ lấy mục trong cấp đang học; chưa có cấp coi là khó nhất', () => {
+    expect(inLevel(5, 5)).toBe(true)
+    expect(inLevel(4, 5)).toBe(false)
+    expect(inLevel(5, 4)).toBe(true)
+    expect(inLevel(null, 5)).toBe(false)
+    expect(inLevel(null, 1)).toBe(true)
+  })
+  it('cấp kế tiếp là cấp gần nhất còn có mục', () => {
+    expect(nextLevel(5, [5, 4, 3, 1, null])).toBe(4)
+    expect(nextLevel(3, [5, 4, 3, 1])).toBe(1)
+    expect(nextLevel(4, [5, 4])).toBeNull()
   })
 })

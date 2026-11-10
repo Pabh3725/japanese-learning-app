@@ -52,8 +52,8 @@ begin
     insert into public.vocabularies (code, sort_order, expression, reading_kana, meaning_vi, is_kana_only, jlpt_level)
     values ('test-gd4-2', 999991, 'てすとよん', 'てすとよん', 'từ thử 2', true, 5) returning id into v2;
 
-    insert into public.learner_vocabulary (user_id, vocabulary_id, current_stage) values (ua, v1, 5) returning id into lv;
-    insert into public.learner_vocabulary (user_id, vocabulary_id, current_stage) values (ua, v2, 5) returning id into lv2;
+    insert into public.learner_vocabulary (user_id, vocabulary_id, current_stage) values (ua, v1, 3) returning id into lv;
+    insert into public.learner_vocabulary (user_id, vocabulary_id, current_stage) values (ua, v2, 3) returning id into lv2;
     insert into public.review_cards (user_id, learner_vocabulary_id, card_type, due_at, stability, difficulty, state, reps, card_points)
     values (ua, lv, 'vocab.meaning_kana', fixed, 12.5, 5.5, 2, 4, 28) returning id into card;
     insert into public.learner_stage_schedules (user_id, learner_vocabulary_id, stage_number, due_at, stage_points)
@@ -150,11 +150,11 @@ begin
     t := t || 'SYNC-01 B không xóa được sao của A'::text;
     r := r || pg_temp.pass(exists (select 1 from public.learner_vocabulary_stars where user_id = ua));
 
-    -- ---------- INT-01: hoàn tất Stage qua hàm thật, テレビ 1 → 2 → 5 ----------
+    -- ---------- INT-01: hoàn tất Stage qua hàm thật, テレビ 1 → 2 → 3 ----------
     insert into public.learner_stage_schedules (user_id, learner_vocabulary_id, stage_number, due_at, stage_points)
     values (ua, lv2, 2, fixed, 9) returning id into sch;
     insert into public.learner_stage_schedules (user_id, learner_vocabulary_id, stage_number, due_at, stage_points)
-    values (ua, lv2, 5, fixed, 9) returning id into sch2;
+    values (ua, lv2, 3, fixed, 9) returning id into sch2;
 
     perform pg_temp.act_as(ua);
     res := public.submit_stage_exercise(
@@ -164,12 +164,11 @@ begin
       p_stage_points => 10, p_stage_points_today => 1::smallint, p_points_date => today,
       p_state => 2::smallint, p_due_at => fixed, p_stability => 1, p_difficulty => 5, p_scheduled_days => 2,
       p_learning_steps => 0, p_reps => 1, p_lapses => 0, p_last_review_at => now(),
-      p_unlocked_stage => null, p_open_schedule => false, p_completed => true, p_required_stages => array[2, 5]::smallint[],
-      p_new_card_types => array['vocab.meaning_kana']::public.card_type[], p_new_cards_due_at => fixed);
+      p_unlocked_stage => null, p_open_schedule => false, p_completed => true, p_required_stages => array[2, 3]::smallint[]);
     execute 'reset role';
-    t := t || 'INT-01 Hoàn tất Stage 2 tạo Card nghĩa–Kana, từ chưa xong'::text;
+    t := t || 'INT-01 Hoàn tất Stage 2 chưa tạo Card (V9), từ chưa xong'::text;
     r := r || pg_temp.pass(
-      (res->>'cards_created')::int = 1 and (res->>'word_completed')::boolean = false
+      (res->>'cards_created')::int = 0 and (res->>'word_completed')::boolean = false
       and (select learning_status = 'learning' from public.learner_vocabulary where id = lv2), res::text);
 
     perform pg_temp.act_as(ua);
@@ -180,11 +179,12 @@ begin
       p_stage_points => 10, p_stage_points_today => 1::smallint, p_points_date => today,
       p_state => 2::smallint, p_due_at => fixed, p_stability => 1, p_difficulty => 5, p_scheduled_days => 2,
       p_learning_steps => 0, p_reps => 1, p_lapses => 0, p_last_review_at => now(),
-      p_unlocked_stage => null, p_open_schedule => false, p_completed => true, p_required_stages => array[2, 5]::smallint[]);
+      p_unlocked_stage => null, p_open_schedule => false, p_completed => true, p_required_stages => array[2, 3]::smallint[],
+      p_new_card_types => array['vocab.kana']::public.card_type[], p_new_cards_due_at => fixed);
     execute 'reset role';
-    t := t || 'INT-01 Hoàn tất Stage 5 thì từ chỉ Kana xong lộ trình, không có Card mới'::text;
+    t := t || 'INT-01 Hoàn tất Stage 3 thì từ chỉ Kana xong lộ trình, có Card Kana'::text;
     r := r || pg_temp.pass(
-      (res->>'word_completed')::boolean = true and (res->>'cards_created')::int = 0
+      (res->>'word_completed')::boolean = true and (res->>'cards_created')::int = 1
       and (select learning_status = 'initial_complete' from public.learner_vocabulary where id = lv2)
       and (select count(*) = 1 from public.review_cards where learner_vocabulary_id = lv2), res::text);
 
@@ -202,7 +202,7 @@ begin
     r := r || pg_temp.pass(
       res->>'status' = 'saved'
       and (select completed_at is null and stage_points = 7 from public.learner_stage_schedules where id = sch2)
-      and (select learning_status = 'learning' and stage5_completed_at is null and current_stage = 5 from public.learner_vocabulary where id = lv2), res::text);
+      and (select learning_status = 'learning' and stage5_completed_at is null and current_stage = 3 from public.learner_vocabulary where id = lv2), res::text);
 
     perform pg_temp.act_as(ua);
     res := public.submit_stage_exercise(
@@ -213,8 +213,8 @@ begin
       p_stage_points => 10, p_stage_points_today => 1::smallint, p_points_date => today,
       p_state => 2::smallint, p_due_at => fixed, p_stability => 1, p_difficulty => 5, p_scheduled_days => 2,
       p_learning_steps => 0, p_reps => 2, p_lapses => 0, p_last_review_at => now(),
-      p_unlocked_stage => null, p_open_schedule => false, p_completed => true, p_required_stages => array[2, 5]::smallint[],
-      p_new_card_types => array['vocab.meaning_kana']::public.card_type[], p_new_cards_due_at => fixed);
+      p_unlocked_stage => null, p_open_schedule => false, p_completed => true, p_required_stages => array[2, 3]::smallint[],
+      p_new_card_types => array['vocab.kana']::public.card_type[], p_new_cards_due_at => fixed);
     execute 'reset role';
     t := t || 'Học lại Stage: hoàn tất lại không tạo Card trùng, từ xong lộ trình lại'::text;
     r := r || pg_temp.pass(

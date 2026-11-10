@@ -2,17 +2,33 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
-import { relearnCardAction, relearnStageAction } from '@/app/learn/actions'
+import { relearnCardAction, relearnStageAction, setKanjiOptinAction } from '@/app/learn/actions'
 import { StarButton, StarNote, StarredWordsProvider } from '@/components/learning/star-button'
 import { KnownToggle } from '@/components/library/known-toggle'
 import { RelearnButton } from '@/components/library/relearn-button'
 import { SpeakerButton } from '@/components/learning/speaker-button'
-import { getWordDetail } from '@/lib/dal/word-detail'
+import { getWordDetail, type WordDetail } from '@/lib/dal/word-detail'
 import { CARD_LABELS } from '@/lib/learning/card-labels'
 import { relearnStagePoints } from '@/lib/learning/stage'
 import { formatVnDateTime } from '@/lib/learning/time'
 
 export const metadata: Metadata = { title: 'Word · Nihongo' }
+
+type KanjiPolicyInfo = WordDetail['kanjiPolicy']
+
+/** Chính sách Kanji của từ (V9 §6a). */
+function policyNote(p: KanjiPolicyInfo): string {
+  if (p.policy === 'KANJI_OPTIONAL') return p.optedIn ? 'Usually written in kana. You chose to learn its Kanji too.' : 'Usually written in kana, so learning its Kanji is optional.'
+  if (p.targetLevel !== null) return `You learn this word in Kanji at N${p.targetLevel}.`
+  return ''
+}
+
+/** Vì sao Stage 4 của từ chưa mở. */
+function kanjiOpensNote(p: KanjiPolicyInfo, stage3Done: boolean): string {
+  if (p.wait === 'optional') return 'Its Kanji stages are optional. Choose “Learn its Kanji” above to add them.'
+  if (p.wait === 'next_level') return `Its Kanji stages open when you move Kanji words up to N${p.targetLevel}.`
+  return stage3Done ? 'Its Kanji stages are ready in Learn.' : 'Its Kanji stages open after Stage 3.'
+}
 
 export default async function WordDetailPage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params
@@ -50,6 +66,15 @@ export default async function WordDetailPage({ params }: { params: Promise<{ cod
       {word.kanji.length > 0 && (
         <section aria-labelledby="kanji-title" className="rounded-3xl border border-border bg-card p-6">
           <h2 id="kanji-title" className="font-semibold">Kanji in this word</h2>
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm text-subtle">{policyNote(word.kanjiPolicy)}</p>
+            {word.kanjiPolicy.policy === 'KANJI_OPTIONAL' && !word.progress?.stages.some((s) => s.stage === 5) && (
+              <RelearnButton
+                label={word.kanjiPolicy.optedIn ? 'Skip its Kanji' : 'Learn its Kanji'}
+                action={setKanjiOptinAction.bind(null, word.id, !word.kanjiPolicy.optedIn)}
+              />
+            )}
+          </div>
           <ul className="mt-3 flex flex-col divide-y divide-border">
             {word.kanji.map((k) => (
               <li key={k.character} className="flex items-baseline gap-3 py-3">
@@ -68,19 +93,22 @@ export default async function WordDetailPage({ params }: { params: Promise<{ cod
         {!word.progress && !word.known && <p className="mt-2 text-sm text-muted-foreground">You haven&apos;t met this word yet. It will come up in lesson order.</p>}
         {word.progress && (
           <>
-            <p className="mt-2 text-sm text-subtle">{word.progress.completed ? 'Finished the first learning round.' : `Currently at Stage ${word.progress.currentStage}.`}</p>
+            <p className="mt-2 text-sm text-subtle">{word.progress.completed ? 'Vocabulary finished.' : `Vocabulary: Stage ${word.progress.currentStage}.`}</p>
+            {!word.isKanaOnly && !word.progress.stages.some((s) => s.stage === 5) && (
+              <p className="mt-2 text-sm text-muted-foreground">{kanjiOpensNote(word.kanjiPolicy, word.progress.stages.some((s) => s.stage === 3 && s.completed))}</p>
+            )}
             {word.progress.stages.length > 0 && (
               <ul className="mt-3 flex flex-col divide-y divide-border">
                 {word.progress.stages.map((s) => (
                   <li key={s.stage} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
-                    <span>Stage {s.stage}</span>
+                    <span>{s.stage === 5 || s.stage === 6 ? 'Kanji word' : 'Vocabulary'} · Stage {s.stage}</span>
                     <span className="text-muted-foreground tabular-nums">
                       {s.points} points · {s.completed ? 'complete' : `next ${formatVnDateTime(new Date(s.dueAt))}`}
                     </span>
                     {s.completed && !word.known && (
                       <RelearnButton
                         label="Learn again"
-                        confirm={`Reopen Stage ${s.stage}? Points drop to ${relearnStagePoints(s.stage, word.isKanaOnly)}, and its questions return to Learn. Your cards stay.`}
+                        confirm={`Reopen Stage ${s.stage}? Points drop to ${relearnStagePoints(s.stage)}, and its questions return to Learn. Your cards stay.`}
                         action={relearnStageAction.bind(null, s.id)}
                       />
                     )}
@@ -96,9 +124,9 @@ export default async function WordDetailPage({ params }: { params: Promise<{ cod
                     <li key={c.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
                       <span>{CARD_LABELS[c.type]}</span>
                       <span className="text-muted-foreground tabular-nums">
-                        {c.points} points · {c.retired ? 'retired' : word.known || (c.type === 'vocab.star_recall' && !word.starred) ? 'paused' : `next ${formatVnDateTime(new Date(c.dueAt))}`}
+                        {c.archived ? 'archived' : word.known || (c.type === 'vocab.star_recall' && !word.starred) ? 'paused' : `next ${formatVnDateTime(new Date(c.dueAt))}`}
                       </span>
-                      {!word.known && (c.type !== 'vocab.star_recall' || word.starred) && <RelearnButton label="Review now" action={relearnCardAction.bind(null, c.id)} />}
+                      {!word.known && (c.type !== 'vocab.star_recall' || word.starred) && <RelearnButton label={c.archived ? 'Restore and review now' : 'Review now'} action={relearnCardAction.bind(null, c.id)} />}
                     </li>
                   ))}
                 </ul>

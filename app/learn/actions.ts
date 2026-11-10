@@ -1,7 +1,10 @@
 'use server'
 
-// Server Function cho các câu Stage 2, 4, 5. Mỏng: mọi logic nằm ở lib/dal/stage-session.ts.
+// Server Function cho các câu Stage 2, 3, 5, 6. Mỏng: mọi logic nằm ở lib/dal/stage-session.ts.
 import { markWordsKnown, unmarkWordsKnown } from '@/lib/dal/known-words'
+import { getDaySummary, type DaySummary } from '@/lib/dal/progress'
+import { raiseSkillLevel } from '@/lib/dal/skill-levels'
+import { setKanjiOptin, type KanjiOptinResponse } from '@/lib/dal/word-kanji'
 import { relearnCard, relearnStage, restartStarRound, setWordStarred, type RelearnResponse } from '@/lib/dal/star-relearn'
 import {
   borrowNewWords,
@@ -29,8 +32,16 @@ export async function restartStarRoundAction(): Promise<{ status: 'saved' }> {
   return restartStarRound()
 }
 
+export async function raiseSkillLevelAction(skill: unknown, level: unknown): Promise<{ status: 'saved' | 'invalid' }> {
+  return raiseSkillLevel(skill, level)
+}
+
 export async function setWordStarredAction(vocabularyId: unknown, starred: unknown): Promise<{ status: 'saved' | 'invalid' }> {
   return setWordStarred(vocabularyId, starred)
+}
+
+export async function setKanjiOptinAction(vocabularyId: unknown, on: boolean): Promise<KanjiOptinResponse> {
+  return setKanjiOptin(vocabularyId, on === true)
 }
 
 export async function relearnCardAction(cardId: unknown): Promise<RelearnResponse> {
@@ -39,6 +50,11 @@ export async function relearnCardAction(cardId: unknown): Promise<RelearnRespons
 
 export async function relearnStageAction(scheduleId: unknown): Promise<RelearnResponse> {
   return relearnStage(scheduleId)
+}
+
+/** Khối "Hôm nay" ở màn kết thúc phiên Learn. */
+export async function getDaySummaryAction(): Promise<DaySummary> {
+  return getDaySummary()
 }
 
 export async function borrowNewWordsAction(requested: unknown): Promise<{ status: 'saved' | 'blocked' | 'invalid' }> {

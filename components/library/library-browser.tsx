@@ -17,8 +17,11 @@ type Tab = 'vocab' | 'kanji'
 /** Hiển thị từng đợt để trang nhẹ trên điện thoại (912 từ). */
 const PAGE_SIZE = 60
 
+/** Nhánh Từ vựng Kana có 3 Stage; nhánh Từ vựng Kanji xem ở trang chi tiết từ. */
+const VOCAB_STAGE_COUNT = 3
+
 function progressStage(p: VocabProgress): number {
-  if (p.kind === 'complete') return 5
+  if (p.kind === 'complete') return VOCAB_STAGE_COUNT
   if (p.kind === 'learning') return p.stage
   return 0
 }
@@ -52,8 +55,8 @@ function StageDots({ progress }: { progress: VocabProgress }) {
   return (
     <span className="flex items-center gap-2">
       <span className="text-xs text-muted-foreground">{label}</span>
-      <span className="flex gap-1" role="img" aria-label={`${label}, ${filled} of 5 stages`}>
-        {Array.from({ length: 5 }, (_, i) => (
+      <span className="flex gap-1" role="img" aria-label={`${label}, ${filled} of ${VOCAB_STAGE_COUNT} stages`}>
+        {Array.from({ length: VOCAB_STAGE_COUNT }, (_, i) => (
           <span
             key={i}
             className={cn(

@@ -5,12 +5,14 @@ import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { readDailyLimits } from '@/lib/dal/daily-limits'
+import { readSkillLevels } from '@/lib/dal/skill-levels'
+import { inLevel } from '@/lib/learn/levels'
 import { ensureStarCard, isWordStarred } from '@/lib/dal/star-relearn'
 import { countMetToday, newPerDayOf, newWordsForToday, remainingNewToday } from '@/lib/learning/new-words'
 import { nextStudyDayStart } from '@/lib/learning/time'
 import { INTRO_WORDS_PER_SESSION, isVocabularyId, pickNewWords, stageAfterIntro, toIntroWord, type IntroVocabRow, type IntroWord } from '@/lib/intro/words'
 
-const VOCAB_COLUMNS = 'id, reading_kana, romaji, meaning_vi, emoji, jlpt_level'
+const VOCAB_COLUMNS = 'id, reading_kana, romaji, meaning_vi, han_viet, emoji, jlpt_level'
 
 /** Data API trả tối đa 1000 dòng mỗi lần; số từ đã vượt mức này nên bảng từ vựng phải đọc từng trang. */
 const MAX_ROWS = 1000
@@ -47,7 +49,7 @@ export async function getIntroData(): Promise<IntroData> {
   const supabase = await createClient()
 
   const startOfToday = new Date(nextStudyDayStart(new Date()).getTime() - DAY_MS).toISOString()
-  const [vocab, started, excluded, limits] = await Promise.all([
+  const [allVocab, started, excluded, limits, levels] = await Promise.all([
     readAllVocabulary(supabase),
     supabase.from('learner_vocabulary').select('vocabulary_id, created_at').eq('user_id', user.id).range(0, MAX_ROWS - 1),
     supabase
@@ -57,7 +59,10 @@ export async function getIntroData(): Promise<IntroData> {
       .not('excluded_at', 'is', null)
       .range(0, MAX_ROWS - 1),
     readDailyLimits(supabase, user.id),
+    readSkillLevels(supabase, user.id),
   ])
+  // Chỉ lấy từ mới trong cấp đang học; hết từ của cấp thì app hỏi rồi mới mở cấp sau
+  const vocab = allVocab.filter((row) => inLevel(typeof row.jlpt_level === 'number' ? row.jlpt_level : null, levels.vocabulary))
 
   if (started.error) throw new Error(`Không đọc được learner_vocabulary: ${started.error.message}`)
   if (excluded.error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${excluded.error.message}`)
@@ -105,7 +110,7 @@ export async function completeWordIntro(vocabularyId: unknown): Promise<Complete
     {
       user_id: user.id,
       vocabulary_id: vocabularyId,
-      current_stage: stageAfterIntro(data.is_kana_only),
+      current_stage: stageAfterIntro(),
     },
     { onConflict: 'user_id,vocabulary_id', ignoreDuplicates: true },
   )

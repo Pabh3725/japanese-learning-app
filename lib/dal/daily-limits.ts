@@ -1,7 +1,7 @@
 // SES-01 — Số liệu trong ngày của Learn: chụp D, S lần đầu trong ngày học, giới hạn, số từ mượn. Server-only.
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
-import { RULES_V4 } from '@/lib/learning/rules'
+import { RULES_V9 } from '@/lib/learning/rules'
 import { addStudyDays, studyDate } from '@/lib/learning/time'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
@@ -13,7 +13,7 @@ export interface DailyLimits {
   stageCap: number
   reviewCap: number
   unlockThreshold: number
-  /** D: Card đến hạn, chụp lần đầu trong ngày. */
+  /** D: Card đến hạn (Từ vựng, Từ vựng Kanji, Kanji riêng lẻ; không tính Card sao), chụp lần đầu trong ngày. */
   cardsDueToday: number
   /** S: câu Stage đến hẹn, chụp lần đầu trong ngày. */
   stageDueToday: number
@@ -31,12 +31,37 @@ async function countDue(supabase: Supabase, table: 'review_cards' | 'learner_sta
   let total = 0
   for (let from = 0; ; from += PAGE) {
     let query = supabase.from(table).select('id, learner_vocabulary!inner(vocabulary_id)').eq('user_id', userId).is(filterColumn, null).lte('due_at', now)
-    // Card riêng của từ có sao không được làm dừng từ mới
-    if (table === 'review_cards') query = query.neq('card_type', 'vocab.star_recall')
+    // Card riêng của từ có sao và Card đã lưu trữ không làm dừng từ mới
+    if (table === 'review_cards') query = query.neq('card_type', 'vocab.star_recall').is('archived_at', null)
+    // S chỉ tính kỹ năng Từ vựng; Từ Kanji có trần riêng
+    else query = query.in('stage_number', [2, 3])
     const { data, error } = await query.order('id').range(from, from + PAGE - 1)
     if (error) throw new Error(`Không đọc được ${table}: ${error.message}`)
     const rows = (data ?? []) as unknown as { learner_vocabulary: { vocabulary_id: string } }[]
     total += rows.filter((r) => !excludedIds.has(r.learner_vocabulary.vocabulary_id)).length
+    if (rows.length < PAGE) return total
+  }
+}
+
+/** Card Kanji riêng lẻ đến hạn (V9 Q4: tính vào ngưỡng chặn từ mới), bỏ chữ đã đánh dấu là đã biết và Card đã lưu trữ. */
+async function countKanjiCardsDue(supabase: Supabase, userId: string): Promise<number> {
+  const now = new Date().toISOString()
+  const { data: known, error: knownError } = await supabase.from('learner_kanji_exclusions').select('kanji_id').eq('user_id', userId).range(0, PAGE - 1)
+  if (knownError) throw new Error(`Không đọc được learner_kanji_exclusions: ${knownError.message}`)
+  const knownIds = new Set(known?.map((r) => r.kanji_id))
+  let total = 0
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase
+      .from('learner_kanji_cards')
+      .select('id, learner_kanji!inner(kanji_id)')
+      .eq('user_id', userId)
+      .is('archived_at', null)
+      .lte('due_at', now)
+      .order('id')
+      .range(from, from + PAGE - 1)
+    if (error) throw new Error(`Không đọc được learner_kanji_cards: ${error.message}`)
+    const rows = (data ?? []) as unknown as { learner_kanji: { kanji_id: string } }[]
+    total += rows.filter((r) => !knownIds.has(r.learner_kanji.kanji_id)).length
     if (rows.length < PAGE) return total
   }
 }
@@ -60,10 +85,12 @@ async function todayPlan(supabase: Supabase, userId: string, today: string) {
     .range(0, PAGE - 1)
   if (excludedError) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${excludedError.message}`)
   const excludedIds = new Set(excluded?.map((r) => r.vocabulary_id))
-  const [dueSnapshot, stageSnapshot] = await Promise.all([
+  const [vocabCardsDue, kanjiCardsDue, stageSnapshot] = await Promise.all([
     countDue(supabase, 'review_cards', userId, excludedIds),
+    countKanjiCardsDue(supabase, userId),
     countDue(supabase, 'learner_stage_schedules', userId, excludedIds),
   ])
+  const dueSnapshot = vocabCardsDue + kanjiCardsDue
   // Hai request đồng thời: dòng đến trước được giữ, số chụp không đổi trong ngày
   const { error: insertError } = await supabase
     .from('learner_daily_plans')
@@ -78,12 +105,12 @@ export async function readDailyLimits(supabase: Supabase, userId: string): Promi
     supabase.from('learner_settings').select('daily_new_limit, stage_cap, review_cap, unlock_threshold').eq('user_id', userId).maybeSingle(),
     todayPlan(supabase, userId, today),
     supabase.from('learner_daily_plans').select('borrowed_for_next').eq('user_id', userId).eq('study_date', addStudyDays(today, -1)).maybeSingle(),
-    supabase.from('exercise_logs').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('study_date', today).eq('source', 'lesson'),
+    supabase.from('exercise_logs').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('study_date', today).eq('source', 'lesson').in('stage_number', [2, 3]),
   ])
   if (settings.error) throw new Error(`Không đọc được learner_settings: ${settings.error.message}`)
   if (yesterday.error) throw new Error(`Không đọc được learner_daily_plans: ${yesterday.error.message}`)
   if (answered.error) throw new Error(`Không đọc được exercise_logs: ${answered.error.message}`)
-  const { defaults } = RULES_V4
+  const { defaults } = RULES_V9
   return {
     newPerDay: settings.data?.daily_new_limit ?? defaults.newPerDay,
     stageCap: settings.data?.stage_cap ?? defaults.stageCap,

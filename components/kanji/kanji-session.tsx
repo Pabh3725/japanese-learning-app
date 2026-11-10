@@ -6,17 +6,20 @@ import { useRouter } from 'next/navigation'
 import { checkKanjiAnswerAction, openKanjiAction, submitKanjiAnswerAction } from '@/app/learn/kanji/actions'
 import { KanjiCard } from '@/components/kanji/kanji-card'
 import { KanjiKnownBar } from '@/components/kanji/kanji-known-bar'
+import { ArchiveCardBar } from '@/components/review/archive-card-bar'
 import { ContinueFooter, WRONG_ANSWER_NOTE } from '@/components/learning/exercise-footer'
 import { ExercisePanel } from '@/components/learning/exercise-panel'
 import { SessionComplete } from '@/components/learning/session-complete'
+import { TodaySummary } from '@/components/learning/today-summary'
 import { SessionHeader } from '@/components/learning/session-header'
 import type { AssemblyGrade } from '@/components/learning/steps/assembly-exercise'
 import { ChoiceExercise } from '@/components/learning/steps/choice-exercise'
+import { SelfCheckExercise } from '@/components/learning/steps/self-check-exercise'
 import { RecallExercise } from '@/components/learning/steps/recall-exercise'
 import type { KanjiIntroItem, KanjiSessionData, KanjiSessionQuestion } from '@/lib/dal/kanji'
 import type { WordReveal } from '@/lib/exercise/stage-questions'
-import type { KanjiReveal } from '@/lib/kanji/questions'
-import { RULES_V4 } from '@/lib/learning/rules'
+import { REMEMBERED, type KanjiReveal } from '@/lib/kanji/questions'
+import { RULES_V9 } from '@/lib/learning/rules'
 import { formatVnDateTime } from '@/lib/learning/time'
 import { withRetry } from '@/lib/retry'
 import { speak } from '@/lib/speech'
@@ -90,7 +93,15 @@ function IntroCluster({ items: initialItems }: { items: KanjiIntroItem[] }) {
   )
 }
 
-function Practice({ questions: initialQuestions }: { questions: KanjiSessionQuestion[] }) {
+/** Chờ lưu xong rồi mới báo xong cụm. */
+function FinishSegment({ pending, onDone }: { pending: number; onDone: () => void }) {
+  useEffect(() => {
+    if (pending === 0) onDone()
+  }, [pending, onDone])
+  return <p className="m-auto text-sm text-muted-foreground">Saving…</p>
+}
+
+export function KanjiPractice({ questions: initialQuestions, onDone }: { questions: KanjiSessionQuestion[]; onDone?: () => void }) {
   const [questions, setQuestions] = useState(initialQuestions)
   const [index, setIndex] = useState(0)
   const [results, setResults] = useState<boolean[]>([])
@@ -123,6 +134,7 @@ function Practice({ questions: initialQuestions }: { questions: KanjiSessionQues
   }
 
   if (index >= queue.length) {
+    if (onDone) return <div className="flex min-h-dvh flex-col"><FinishSegment pending={pending} onDone={onDone} /></div>
     const correct = results.filter(Boolean).length
     const accuracy = results.length > 0 ? Math.round((correct / results.length) * 100) : 0
     return (
@@ -138,7 +150,9 @@ function Practice({ questions: initialQuestions }: { questions: KanjiSessionQues
           primary={{ href: '/learn/kanji', label: 'Back to Kanji' }}
           secondary={{ href: '/', label: 'Back to Home' }}
           busy={pending > 0}
-        />
+        >
+          <TodaySummary ready={pending === 0} />
+        </SessionComplete>
       </div>
     )
   }
@@ -150,7 +164,7 @@ function Practice({ questions: initialQuestions }: { questions: KanjiSessionQues
     setIndex((i) => i + 1)
     if (correct || isRetry) return
     setRetries((list) => [...list, q])
-    if (q.wrongStreak + 1 >= RULES_V4.relearnAfterWrong) setRelearn(q.reveal)
+    if (q.wrongStreak + 1 >= RULES_V9.relearnAfterWrong) setRelearn(q.reveal)
   }
 
   /** Bỏ mọi câu còn lại của chữ này. Câu đang hiện cũng bị bỏ nên câu kế tiếp tự hiện ra. */
@@ -159,11 +173,17 @@ function Practice({ questions: initialQuestions }: { questions: KanjiSessionQues
     setRetries((list) => list.filter((item) => item.kanjiId !== kanjiId))
   }
 
+  /** Card vừa lưu trữ ("Đã học xong"): chỉ bỏ câu của đúng Card đó. */
+  const removeCard = (cardId: string) => {
+    setQuestions((list) => list.filter((item, i) => i < index || item.cardId !== cardId))
+    setRetries((list) => list.filter((item) => item.cardId !== cardId))
+  }
+
   const answerChoice = (current: ChoiceQ) => (chosen: string) => {
     speak(current.speak)
     if (isRetry) return
     setResults((list) => [...list, chosen === current.answer])
-    const payload = { learnerKanjiId: current.learnerKanjiId, clientEventId: current.clientEventId, exercise: current.exercise, answer: chosen, responseMs: responseMs(), wordId: current.wordId }
+    const payload = { learnerKanjiId: current.learnerKanjiId, cardId: current.cardId, clientEventId: current.clientEventId, exercise: current.exercise, answer: chosen, responseMs: responseMs(), wordId: current.wordId }
     setPending((n) => n + 1)
     saveQueue.current = saveQueue.current
       // Mã câu giữ nguyên nên gửi lại không bị tính hai lần
@@ -180,7 +200,7 @@ function Practice({ questions: initialQuestions }: { questions: KanjiSessionQues
   }
 
   const gradeTyping = (current: TypingQ) => async (typed: string): Promise<AssemblyGrade> => {
-    const payload = { learnerKanjiId: current.learnerKanjiId, clientEventId: current.clientEventId, exercise: current.exercise, answer: typed, responseMs: responseMs() }
+    const payload = { learnerKanjiId: current.learnerKanjiId, cardId: current.cardId, clientEventId: current.clientEventId, exercise: current.exercise, answer: typed, responseMs: responseMs() }
     try {
       await saveQueue.current
       const res = await (isRetry ? checkKanjiAnswerAction(payload) : submitKanjiAnswerAction(payload))
@@ -202,7 +222,7 @@ function Practice({ questions: initialQuestions }: { questions: KanjiSessionQues
     }
   }
 
-  const stage = q.phase === 'review' ? 'Long-term review' : 'Learning'
+  const stage = q.cardType === 'kanji.meaning' ? 'Review · Meaning card' : q.cardType === 'kanji.hanviet' ? 'Review · Sino-Vietnamese card' : 'Learning'
   let body: React.ReactNode
   if (q.kind === 'choice') {
     const step: ChoiceStep = {
@@ -217,6 +237,23 @@ function Practice({ questions: initialQuestions }: { questions: KanjiSessionQues
       explanation: isRetry ? RETRY_NOTE : (notes[q.clientEventId] ?? ''),
     }
     body = <ChoiceExercise key={key} step={step} onAnswer={answerChoice(q)} instant wrongNote={WRONG_ANSWER_NOTE} reveal={toReveal(q.reveal)} onComplete={afterAnswer} />
+  } else if (q.kind === 'self') {
+    const saveSelf = async (remembered: boolean): Promise<string | null> => {
+      if (isRetry) return null
+      try {
+        await saveQueue.current
+        const res = await withRetry(
+          () => submitKanjiAnswerAction({ learnerKanjiId: q.learnerKanjiId, cardId: q.cardId, clientEventId: q.clientEventId, exercise: q.exercise, answer: remembered ? REMEMBERED : 'forgot', responseMs: responseMs() }),
+          (r) => r.status === 'conflict',
+        )
+        if (res.status !== 'graded') return SAVE_ERROR
+        setResults((list) => [...list, remembered])
+        return null
+      } catch {
+        return SAVE_ERROR
+      }
+    }
+    body = <SelfCheckExercise key={key} stage={stage} question={q.question} prompt={q.prompt} answer={q.answer} answerKind={q.exercise === 'meaning_self' ? 'text' : 'jp'} onResult={saveSelf} onComplete={afterAnswer} />
   } else {
     const step: RecallStep = {
       id: key,
@@ -243,6 +280,7 @@ function Practice({ questions: initialQuestions }: { questions: KanjiSessionQues
         total={queue.length}
       />
       <KanjiKnownBar kanjiId={q.kanjiId} onKnown={removeKanji} />
+      <ArchiveCardBar kind="kanji" cardId={isRetry ? null : (q.cardId ?? null)} onArchived={removeCard} />
       {warning && <p role="alert" className="mx-auto mt-3 w-full max-w-2xl px-4 text-sm text-error">{warning}</p>}
       {body}
     </div>
@@ -251,7 +289,7 @@ function Practice({ questions: initialQuestions }: { questions: KanjiSessionQues
 
 export function KanjiSession({ data }: { data: KanjiSessionData }) {
   if (data.intros.length > 0) return <IntroCluster items={data.intros} />
-  if (data.questions.length > 0) return <Practice questions={data.questions} />
+  if (data.questions.length > 0) return <KanjiPractice questions={data.questions} />
   const subtitle = data.capReached
     ? "You've reached today's Kanji limit. The rest will come up tomorrow."
     : data.nextDueAt

@@ -46,10 +46,6 @@ function MatchTile({
   )
 }
 
-function pointsLabel(points: number) {
-  return points > 0 ? `+${points}` : String(points)
-}
-
 interface SpeedMatchingGameProps {
   words: SpeedWord[]
   mode: SpeedMode
@@ -69,15 +65,12 @@ export function SpeedMatchingGame({ words, mode, seconds, onBossDone, onChangeMo
   const [combo, setCombo] = useState(0)
   const [bestCombo, setBestCombo] = useState(0)
   const [mistakes, setMistakes] = useState(0)
-  const [cardPoints, setCardPoints] = useState(0)
-  const [pending, setPending] = useState(0)
+  const [, setPending] = useState(0)
   const [warning, setWarning] = useState<string | null>(null)
   const [timeLeft, setTimeLeft] = useState(seconds)
   const [game, setGame] = useState(0)
   const flashTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
   const sessionId = useRef<string | null>(null)
-  // Mỗi từ chỉ bị trừ một lần trong một bàn, để bấm nhầm liên tiếp không mất nhiều điểm
-  const penalized = useRef(new Set<string>())
   const lastPick = useRef(0)
   // Lưu tuần tự để hai lượt của cùng một Card không ghi đè nhau
   const saveQueue = useRef<Promise<unknown>>(Promise.resolve())
@@ -115,20 +108,14 @@ export function SpeedMatchingGame({ words, mode, seconds, onBossDone, onChangeMo
       mode,
       wordId,
       meaningId,
-      noPenalty: [...penalized.current],
       responseMs,
       boss,
-    }
-    if (wordId !== meaningId) {
-      penalized.current.add(wordId)
-      penalized.current.add(meaningId)
     }
     setPending((n) => n + 1)
     saveQueue.current = saveQueue.current
       // Mã lượt giữ nguyên nên gửi lại không bị tính hai lần
-      .then(() => withRetry(() => submitSpeedPairAction(payload), (res) => res.status === 'conflict'))
+      .then(() => withRetry(() => submitSpeedPairAction(payload)))
       .then((res) => {
-        setCardPoints((p) => p + res.cardPoints)
         if (res.status !== 'saved') setWarning(SAVE_WARNING)
       })
       .catch(() => setWarning(SAVE_WARNING))
@@ -157,7 +144,6 @@ export function SpeedMatchingGame({ words, mode, seconds, onBossDone, onChangeMo
         if (nowCleared.size === board.tiles.length) {
           setBoard(nextBoard(words, board, seed))
           setCleared(new Set())
-          penalized.current = new Set()
         } else {
           setCleared(nowCleared)
         }
@@ -181,24 +167,21 @@ export function SpeedMatchingGame({ words, mode, seconds, onBossDone, onChangeMo
     setCombo(0)
     setBestCombo(0)
     setMistakes(0)
-    setCardPoints(0)
     setWarning(null)
     setTimeLeft(seconds)
     setGame((g) => g + 1)
     sessionId.current = null
-    penalized.current = new Set()
     lastPick.current = Date.now()
   }
 
   if (over) {
     const accuracy = score + mistakes ? Math.round((score / (score + mistakes)) * 100) : 0
-    const points = pending > 0 ? 'Saving…' : `Review cards ${pointsLabel(cardPoints)} points.`
     if (boss) {
       return (
         <ExercisePanel
           stage="Boss round"
           question={`${score} ${score === 1 ? 'pair' : 'pairs'} matched!`}
-          footer={<ContinueFooter label="Continue" onClick={onBossDone} hint={warning ?? points} />}
+          footer={<ContinueFooter label="Continue" onClick={onBossDone} hint={warning ?? undefined} />}
         >
           <p className="text-subtle">{accuracy}% accuracy · Best combo ×{bestCombo}</p>
         </ExercisePanel>
@@ -207,11 +190,11 @@ export function SpeedMatchingGame({ words, mode, seconds, onBossDone, onChangeMo
     return (
       <SessionComplete
         title={`${score} ${score === 1 ? 'pair' : 'pairs'} matched!`}
-        subtitle={warning ?? `Best combo ×${bestCombo}. ${points}`}
+        subtitle={warning ?? `Best combo ×${bestCombo}.`}
         stats={[
           { label: 'Pairs', value: String(score), tone: 'text-cyan' },
           { label: 'Accuracy', value: `${accuracy}%`, tone: 'text-success' },
-          { label: 'Card points', value: pointsLabel(cardPoints), tone: 'text-yellow' },
+          { label: 'Combo', value: `×${bestCombo}`, tone: 'text-yellow' },
         ]}
         primary={{ href: '/practice', label: 'Back to Arena' }}
         secondary={{ href: '/', label: 'Home' }}

@@ -9,13 +9,12 @@ import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { randomUUID } from 'node:crypto'
 import { loadPools } from '@/lib/dal/stage-session'
-import { buildReviewQuestion, chooseReviewExercise, reviewExercises } from '@/lib/exercise/review-questions'
+import { buildReviewQuestion, chooseReviewExercise, gradeReviewAnswer, reviewExercises, type ReviewAnswerInput, type ReviewQuestionData } from '@/lib/exercise/review-questions'
 import { gradeStageAnswer, withHint, wordReveal, type QuestionData, type StageWord, type WordReveal } from '@/lib/exercise/stage-questions'
-import { EXERCISES, RULES_V4 } from '@/lib/learning/rules'
-import type { ReviewAnswer } from '@/lib/learning/scoring'
+import { EXERCISES, RULES_V9 } from '@/lib/learning/rules'
 import { nextStudyDayStart, studyDate } from '@/lib/learning/time'
 import type { CardType, ExerciseCode, Outcome } from '@/lib/learning/types'
-import { createScheduler, type ReviewCard } from '@/lib/srs/scheduler'
+import { createScheduler, type ReviewAnswer, type ReviewCard } from '@/lib/srs/scheduler'
 import { isWordStarred, readStarredIds } from '@/lib/dal/star-relearn'
 import {
   parseSubmitReviewResult,
@@ -29,7 +28,7 @@ const scheduler = createScheduler() // production: fuzz bật
 
 const CARD_COLUMNS =
   'id, card_type, state, due_at, stability, difficulty, scheduled_days, learning_steps, reps, lapses, ' +
-  'last_review_at, card_points, retired_at, practice_points_today, practice_points_date, version, ' +
+  'last_review_at, card_points, retired_at, archived_at, practice_points_today, practice_points_date, version, ' +
   'learner_vocabulary!inner(vocabulary_id, vocabularies!inner(is_kana_only))'
 
 export interface SubmitReviewRequest {
@@ -49,6 +48,7 @@ export interface SubmitReviewResponse {
 
 type CardQueryRow = ReviewCardRow & {
   learner_vocabulary: { vocabulary_id: string; vocabularies: { is_kana_only: boolean } }
+  archived_at: string | null
 }
 
 export async function submitReview(req: SubmitReviewRequest): Promise<SubmitReviewResponse> {
@@ -77,12 +77,10 @@ export async function submitReview(req: SubmitReviewRequest): Promise<SubmitRevi
 
   // Card riêng của từ đã bỏ sao thì tạm dừng
   const paused = row.card_type === STAR_CARD && !(await isWordStarred(supabase, user.id, row.learner_vocabulary.vocabulary_id))
-  const card = rowToReviewCard(row, {
-    isKanaOnly: row.learner_vocabulary.vocabularies.is_kana_only,
-    excluded: exclusion !== null || paused,
-  })
+  const card = rowToReviewCard(row, { paused: exclusion !== null || paused })
   if (!card) throw new Error(`Card ${req.cardId} sai dạng (thiếu card_type?)`)
-  if (card.points.status !== 'active') return { status: 'not_active' }
+  // Card đã lưu trữ ("Đã học xong") không còn được ôn (R13)
+  if (card.status !== 'active' || row.archived_at !== null) return { status: 'not_active' }
 
   // 3. Tính lịch + điểm. Giờ ôn và ngày học là của SERVER, không lấy từ trình duyệt (SRS-04).
   const now = new Date()
@@ -130,20 +128,42 @@ type DueCardRow = {
   }
 }
 
-async function readReviewCap(supabase: Awaited<ReturnType<typeof createClient>>, userId: string): Promise<number> {
-  const { data, error } = await supabase.from('learner_settings').select('review_cap').eq('user_id', userId).maybeSingle()
-  if (error) throw new Error(`Không đọc được learner_settings: ${error.message}`)
-  return data?.review_cap ?? RULES_V4.defaults.reviewCap
+/** V9 §9.4: Review tách 2 mục, mỗi mục một trần. Kanji riêng lẻ ôn trong khu Kanji. */
+export type ReviewArea = 'kana' | 'kanji'
+export const REVIEW_AREAS: readonly ReviewArea[] = ['kana', 'kanji']
+export const AREA_CARD_TYPES: Record<ReviewArea, readonly CardType[]> = {
+  kana: ['vocab.kana', 'vocab.star_recall'],
+  kanji: ['vocab.kanji'],
+}
+const areaOf = (type: CardType): ReviewArea => (type === 'vocab.kanji' ? 'kanji' : 'kana')
+
+export function isReviewArea(value: unknown): value is ReviewArea {
+  return value === 'kana' || value === 'kanji'
 }
 
-async function countReviewedToday(supabase: Awaited<ReturnType<typeof createClient>>, userId: string): Promise<number> {
-  const { count, error } = await supabase
+async function readReviewCaps(supabase: Awaited<ReturnType<typeof createClient>>, userId: string): Promise<Record<ReviewArea, number>> {
+  const { data, error } = await supabase.from('learner_settings').select('review_cap, word_kanji_review_cap').eq('user_id', userId).maybeSingle()
+  if (error) throw new Error(`Không đọc được learner_settings: ${error.message}`)
+  return {
+    kana: data?.review_cap ?? RULES_V9.defaults.reviewCap,
+    kanji: data?.word_kanji_review_cap ?? RULES_V9.defaults.wordKanjiReviewCap,
+  }
+}
+
+/** Số Card khác nhau đã ôn hôm nay của từng mục. Card Again quay lại trong ngày không tính thêm (R7). */
+async function countReviewedToday(supabase: Awaited<ReturnType<typeof createClient>>, userId: string): Promise<Record<ReviewArea, number>> {
+  const { data, error } = await supabase
     .from('review_logs')
-    .select('id', { count: 'exact', head: true })
+    .select('review_card_id, review_cards!inner(card_type)')
     .eq('user_id', userId)
     .eq('study_date', studyDate(new Date()))
+    .range(0, PAGE * 5 - 1)
   if (error) throw new Error(`Không đọc được review_logs: ${error.message}`)
-  return count ?? 0
+  const seen: Record<ReviewArea, Set<string>> = { kana: new Set(), kanji: new Set() }
+  for (const row of (data ?? []) as unknown as { review_card_id: string; review_cards: { card_type: CardType } }[]) {
+    seen[areaOf(row.review_cards.card_type)].add(row.review_card_id)
+  }
+  return { kana: seen.kana.size, kanji: seen.kanji.size }
 }
 
 async function readExcludedIds(supabase: Awaited<ReturnType<typeof createClient>>, userId: string): Promise<Set<string>> {
@@ -157,8 +177,21 @@ async function readExcludedIds(supabase: Awaited<ReturnType<typeof createClient>
   return new Set(data?.map((r) => r.vocabulary_id))
 }
 
+export interface ReviewAreaOverview {
+  /** Số card còn được ôn hôm nay, sau khi áp trần của mục. */
+  dueNow: number
+  deferred: number
+  reviewedToday: number
+  cap: number
+  dueTomorrow: number
+  dueIn3Days: number
+  dueThisWeek: number
+}
+
 export interface ReviewOverview {
-  /** Số card còn được ôn hôm nay, sau khi áp trần mỗi ngày. */
+  /** Từng mục của tab Review. */
+  areas: Record<ReviewArea, ReviewAreaOverview>
+  /** Tổng hai mục: số card còn được ôn hôm nay, sau khi áp trần mỗi mục. */
   dueNow: number
   /** Card đến hạn nhưng vượt trần hôm nay, dời sang hôm sau. */
   deferred: number
@@ -172,8 +205,8 @@ export interface ReviewOverview {
 export async function getReviewOverview(): Promise<ReviewOverview> {
   const user = await requireUser()
   const supabase = await createClient()
-  const [cap, reviewedToday, excludedIds, starred] = await Promise.all([
-    readReviewCap(supabase, user.id),
+  const [caps, reviewedToday, excludedIds, starred] = await Promise.all([
+    readReviewCaps(supabase, user.id),
     countReviewedToday(supabase, user.id),
     readExcludedIds(supabase, user.id),
     readStarredIds(supabase, user.id),
@@ -188,6 +221,7 @@ export async function getReviewOverview(): Promise<ReviewOverview> {
       .select('card_type, due_at, learner_vocabulary!inner(vocabulary_id)')
       .eq('user_id', user.id)
       .is('retired_at', null)
+      .is('archived_at', null)
       .order('id')
       .range(from, from + PAGE - 1)
     if (error) throw new Error(`Không đọc được review_cards: ${error.message}`)
@@ -198,32 +232,41 @@ export async function getReviewOverview(): Promise<ReviewOverview> {
   const active = rows.filter((r) => isCardActive(r.card_type, r.learner_vocabulary.vocabulary_id, excludedIds, starredIds))
   const now = Date.now()
   const startOfTomorrow = nextStudyDayStart(new Date()).getTime()
-  const before = (ms: number) => active.filter((r) => Date.parse(r.due_at) < ms).length
-  const due = active.filter((r) => Date.parse(r.due_at) <= now).length
-  const dueNow = Math.min(due, Math.max(0, cap - reviewedToday))
 
-  const byType: ReviewOverview['byType'] = {
-    'vocab.meaning_kana': 0,
-    'vocab.kana_hanviet': 0,
-    'vocab.meaning_kanji': 0,
-    'vocab.kanji_meaning_hanviet': 0,
-    'vocab.meaning_hanviet': 0,
-    'vocab.star_recall': 0,
+  const areaOverview = (area: ReviewArea): ReviewAreaOverview => {
+    const own = active.filter((r) => areaOf(r.card_type) === area)
+    const before = (ms: number) => own.filter((r) => Date.parse(r.due_at) < ms).length
+    const due = own.filter((r) => Date.parse(r.due_at) <= now).length
+    const dueNow = Math.min(due, Math.max(0, caps[area] - reviewedToday[area]))
+    return {
+      dueNow,
+      deferred: due - dueNow,
+      reviewedToday: reviewedToday[area],
+      cap: caps[area],
+      dueTomorrow: before(startOfTomorrow + DAY_MS) - before(startOfTomorrow),
+      dueIn3Days: before(startOfTomorrow + 3 * DAY_MS) - before(startOfTomorrow),
+      dueThisWeek: before(startOfTomorrow + 7 * DAY_MS) - before(startOfTomorrow),
+    }
   }
+  const areas = { kana: areaOverview('kana'), kanji: areaOverview('kanji') }
+  const sum = (key: keyof ReviewAreaOverview) => areas.kana[key] + areas.kanji[key]
+
+  const byType: ReviewOverview['byType'] = { 'vocab.kana': 0, 'vocab.kanji': 0, 'vocab.star_recall': 0 }
   for (const row of active) byType[row.card_type]++
 
   return {
-    dueNow,
-    deferred: due - dueNow,
-    reviewedToday,
-    dueTomorrow: before(startOfTomorrow + DAY_MS) - before(startOfTomorrow),
-    dueIn3Days: before(startOfTomorrow + 3 * DAY_MS) - before(startOfTomorrow),
-    dueThisWeek: before(startOfTomorrow + 7 * DAY_MS) - before(startOfTomorrow),
+    areas,
+    dueNow: sum('dueNow'),
+    deferred: sum('deferred'),
+    reviewedToday: sum('reviewedToday'),
+    dueTomorrow: sum('dueTomorrow'),
+    dueIn3Days: sum('dueIn3Days'),
+    dueThisWeek: sum('dueThisWeek'),
     byType,
   }
 }
 
-export type ReviewQuestion = QuestionData & {
+export type ReviewQuestion = ReviewQuestionData & {
   cardId: string
   vocabularyId: string
   /** Mã cho lần nộp câu này, cấp ở server. */
@@ -241,17 +284,17 @@ export interface ReviewSessionData {
   starredIds: string[]
 }
 
-/** Card quá hạn lâu nhất trước, không vượt trần mỗi ngày. */
-export async function getReviewSession(): Promise<ReviewSessionData> {
+/** Một phiên của một mục Review: Card quá hạn lâu nhất trước, không vượt trần của mục. */
+export async function getReviewSession(area: ReviewArea = 'kana'): Promise<ReviewSessionData> {
   const user = await requireUser()
   const supabase = await createClient()
-  const [cap, reviewedToday, excludedIds, starredIds] = await Promise.all([
-    readReviewCap(supabase, user.id),
+  const [caps, reviewedToday, excludedIds, starredIds] = await Promise.all([
+    readReviewCaps(supabase, user.id),
     countReviewedToday(supabase, user.id),
     readExcludedIds(supabase, user.id),
     readStarredIds(supabase, user.id),
   ])
-  const remaining = Math.max(0, cap - reviewedToday)
+  const remaining = Math.max(0, caps[area] - reviewedToday[area])
   if (remaining === 0) return { questions: [], capReached: true, cardsLeft: 0, starredIds }
 
   const { data, error } = await supabase
@@ -259,6 +302,8 @@ export async function getReviewSession(): Promise<ReviewSessionData> {
     .select(`id, card_type, due_at, learner_vocabulary!inner(vocabulary_id, current_stage, kanji_intro_seen_at, vocabularies!inner(${WORD_COLUMNS}))`)
     .eq('user_id', user.id)
     .is('retired_at', null)
+    .is('archived_at', null)
+    .in('card_type', [...AREA_CARD_TYPES[area]])
     .lte('due_at', new Date().toISOString())
     .order('due_at')
     .range(0, PAGE - 1)
@@ -273,31 +318,25 @@ export async function getReviewSession(): Promise<ReviewSessionData> {
   if (cards.length === 0) return { questions: [], capReached: false, cardsLeft: 0, starredIds }
   const cardsLeft = Math.min(due.length, remaining) - cards.length
 
-  const [logs, pools, started] = await Promise.all([
-    supabase
-      .from('review_logs')
-      .select('review_card_id, exercise_type')
-      .eq('user_id', user.id)
-      .in('review_card_id', cards.map((c) => c.id))
-      .order('reviewed_at', { ascending: false })
-      .range(0, PAGE - 1),
-    loadPools(supabase),
-    supabase.from('learner_vocabulary').select('vocabulary_id').eq('user_id', user.id).range(0, PAGE - 1),
-  ])
-  if (logs.error) throw new Error(`Không đọc được review_logs: ${logs.error.message}`)
-  if (started.error) throw new Error(`Không đọc được learner_vocabulary: ${started.error.message}`)
-  const poolsWithLearned = { ...pools, learnedWordIds: new Set(started.data?.map((r) => r.vocabulary_id)) }
+  const { data: logRows, error: logsError } = await supabase
+    .from('review_logs')
+    .select('review_card_id, exercise_type')
+    .eq('user_id', user.id)
+    .in('review_card_id', cards.map((c) => c.id))
+    .order('reviewed_at', { ascending: false })
+    .range(0, PAGE - 1)
+  if (logsError) throw new Error(`Không đọc được review_logs: ${logsError.message}`)
+  const logs = { data: logRows }
 
   const questions = cards.map((card): ReviewQuestion => {
     const lv = card.learner_vocabulary
     const word = lv.vocabularies
     const last = logs.data?.find((l) => l.review_card_id === card.id)?.exercise_type ?? null
-    const known = { currentStage: lv.current_stage, kanjiIntroSeen: lv.kanji_intro_seen_at !== null }
-    const exercise = chooseReviewExercise(card.card_type, word, known, last)
-    const question = buildReviewQuestion(card.card_type, word, exercise, poolsWithLearned)
+    const exercise = chooseReviewExercise(card.card_type, last)
+    const question = buildReviewQuestion(word, exercise)
     return {
       ...question,
-      ...(question.kind === 'choice' ? { reveal: wordReveal(word, known) } : {}),
+      reveal: wordReveal(word, { currentStage: lv.current_stage, kanjiIntroSeen: card.card_type === 'vocab.kanji' }),
       cardId: card.id,
       vocabularyId: lv.vocabulary_id,
       clientEventId: randomUUID(),
@@ -308,28 +347,25 @@ export async function getReviewSession(): Promise<ReviewSessionData> {
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-interface ReviewAnswerRequest {
+interface ReviewAnswerRequest extends ReviewAnswerInput {
   cardId: string
   clientEventId: string
   exercise: ExerciseCode
-  answer: string | string[]
   responseMs: number
-  usedHint?: boolean
 }
+
+const shortText = (value: unknown) => value === undefined || (typeof value === 'string' && value.length <= 300)
 
 function parseReviewAnswer(input: unknown): ReviewAnswerRequest | null {
   if (typeof input !== 'object' || input === null) return null
   const v = input as Record<string, unknown>
-  const answerOk =
-    (typeof v.answer === 'string' && v.answer.length > 0 && v.answer.length <= 300) ||
-    (Array.isArray(v.answer) && v.answer.length >= 1 && v.answer.length <= 40 && v.answer.every((p) => typeof p === 'string' && p.length >= 1 && p.length <= 40))
   const ok =
     typeof v.cardId === 'string' && UUID.test(v.cardId) &&
     typeof v.clientEventId === 'string' && UUID.test(v.clientEventId) &&
     typeof v.exercise === 'string' && Object.hasOwn(EXERCISES, v.exercise) &&
-    answerOk &&
-    typeof v.responseMs === 'number' && Number.isFinite(v.responseMs) && v.responseMs >= 0 &&
-    (v.usedHint === undefined || typeof v.usedHint === 'boolean')
+    shortText(v.answer) && shortText(v.reading) && shortText(v.hanViet) &&
+    (v.remembered === undefined || typeof v.remembered === 'boolean') &&
+    typeof v.responseMs === 'number' && Number.isFinite(v.responseMs) && v.responseMs >= 0
   if (!ok) return null
   return v as unknown as ReviewAnswerRequest
 }
@@ -338,7 +374,7 @@ export type SubmitReviewAnswerResponse =
   | { status: 'graded'; outcome: Outcome; answer: string; reading: string; reveal: WordReveal }
   | { status: 'invalid' | 'not_found' | 'not_active' | 'conflict' }
 
-/** Server chấm câu ôn rồi mới tính rating và lịch, không tin kết quả từ trình duyệt. */
+/** Server chấm câu ôn rồi mới tính rating và lịch, không tin kết quả từ trình duyệt. Câu tự chấm dựa vào người học. */
 export async function submitReviewAnswer(input: unknown): Promise<SubmitReviewAnswerResponse> {
   const req = parseReviewAnswer(input)
   if (!req) return { status: 'invalid' }
@@ -356,13 +392,9 @@ export async function submitReviewAnswer(input: unknown): Promise<SubmitReviewAn
 
   const card = data as unknown as Pick<DueCardRow, 'card_type' | 'learner_vocabulary'>
   const lv = card.learner_vocabulary
-  // Câu nghe trên máy không có giọng Nhật đổi sang meaning_to_kana, dạng này cũng thuộc card nghĩa–Kana
-  if (!reviewExercises(card.card_type, lv.vocabularies, { currentStage: lv.current_stage, kanjiIntroSeen: lv.kanji_intro_seen_at !== null }).includes(req.exercise)) return { status: 'invalid' }
+  if (!reviewExercises(card.card_type).includes(req.exercise)) return { status: 'invalid' }
 
-  const graded = gradeStageAnswer(lv.vocabularies, req.exercise, req.answer)
-  const { answer } = graded
-  // Đúng nhờ gợi ý quy ra Hard
-  const outcome = withHint(graded.outcome, req.usedHint)
+  const { outcome, answer } = gradeReviewAnswer(lv.vocabularies, req.exercise, req)
   const saved = await submitReview({
     cardId: req.cardId,
     clientEventId: req.clientEventId,
@@ -374,7 +406,7 @@ export async function submitReviewAnswer(input: unknown): Promise<SubmitReviewAn
       outcome,
       answer,
       reading: lv.vocabularies.reading_kana,
-      reveal: wordReveal(lv.vocabularies, { currentStage: lv.current_stage, kanjiIntroSeen: lv.kanji_intro_seen_at !== null }),
+      reveal: wordReveal(lv.vocabularies, { currentStage: lv.current_stage, kanjiIntroSeen: card.card_type === 'vocab.kanji' }),
     }
   }
   return { status: saved.status }

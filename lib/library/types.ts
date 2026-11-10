@@ -3,7 +3,8 @@
 /** Tiến độ một từ của người đang đăng nhập. */
 export type VocabProgress =
   | { kind: 'not_started' }
-  | { kind: 'learning'; stage: 1 | 2 | 3 | 4 | 5 }
+  /** Stage của nhánh Từ vựng Kana (1–3). */
+  | { kind: 'learning'; stage: 1 | 2 | 3 }
   | { kind: 'complete' }
 
 export interface VocabListItem {

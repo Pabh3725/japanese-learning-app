@@ -9,7 +9,7 @@ export const INTRO_WORDS_PER_SESSION = 10
 
 /**
  * Thứ thẻ Stage 1 được phép hiện. Cố ý KHÔNG có `expression` và `han_viet`:
- * Kanji và Hán Việt để đến Stage 3, nên không gửi xuống trình duyệt.
+ * Kanji để đến Stage 4, nên không gửi xuống trình duyệt.
  */
 export interface IntroWord {
   id: string
@@ -18,6 +18,8 @@ export interface IntroWord {
   /** null khi chưa có dữ liệu: thẻ ẩn dòng này. */
   romaji: string | null
   meaning: string
+  /** Chú thích làm quen dưới nghĩa. */
+  hanViet: string | null
   emoji: string | null
   jlpt: string
 }
@@ -29,6 +31,7 @@ export interface IntroVocabRow {
   meaning_vi: unknown
   emoji?: unknown
   jlpt_level: unknown
+  han_viet?: unknown
 }
 
 function isNonEmptyString(v: unknown): v is string {
@@ -53,6 +56,7 @@ export function toIntroWord(row: IntroVocabRow): IntroWord | null {
     reading: row.reading_kana,
     romaji: isNonEmptyString(row.romaji) ? row.romaji : null,
     meaning: row.meaning_vi,
+    hanViet: isNonEmptyString(row.han_viet) ? row.han_viet : null,
     emoji: isNonEmptyString(row.emoji) ? row.emoji : null,
     jlpt: `N${level}`,
   }
@@ -78,8 +82,8 @@ export function pickNewWords<T extends { id: unknown }>(
 }
 
 /** Stage của từ ngay sau khi xem xong thẻ Stage 1. Luật nằm ở engine (R1), không viết lại ở đây. */
-export function stageAfterIntro(isKanaOnly: boolean): Stage {
-  return completeIntro(1, isKanaOnly).openedStage
+export function stageAfterIntro(): Stage {
+  return completeIntro(1).openedStage
 }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i

@@ -1,6 +1,3 @@
-import { RULES_V4 } from './learning/rules'
-import type { CardType } from './learning/types'
-
 function hashString(value: string) {
   let hash = 2166136261
   for (let i = 0; i < value.length; i++) {
@@ -38,39 +35,18 @@ export const MIN_SPEED_WORDS = PAIRS_PER_BOARD
 /** Số từ gửi xuống mỗi chế độ, đủ cho một lượt chơi rất nhanh. */
 const WORDS_PER_MODE = 100
 
-/** Hỗn hợp: Kana hoặc Kanji tùy từ đã học tới đâu. Còn lại là luyện đúng một loại Card. */
-export type SpeedMode = 'mixed' | Exclude<CardType, 'vocab.star_recall'>
-
-export const SPEED_MODES: readonly SpeedMode[] = [
-  'mixed',
-  'vocab.meaning_kana',
-  'vocab.meaning_kanji',
-  'vocab.kana_hanviet',
-  'vocab.meaning_hanviet',
-  'vocab.kanji_meaning_hanviet',
-]
+/** Hỗn hợp: Kana hoặc Kanji tùy từ đã học tới đâu. Còn lại là luyện đúng một mặt của từ. */
+export const SPEED_MODES = ['mixed', 'kana', 'kanji', 'hanviet'] as const
+export type SpeedMode = (typeof SPEED_MODES)[number]
 
 export function isSpeedMode(value: unknown): value is SpeedMode {
   return SPEED_MODES.includes(value as SpeedMode)
 }
 
-/** Card nhận điểm của một từ trong chế độ này. */
-export function cardTypeFor(mode: SpeedMode, showsKanji: boolean): CardType {
-  if (mode !== 'mixed') return mode
-  return showsKanji ? 'vocab.meaning_kanji' : 'vocab.meaning_kana'
-}
+const SKILL_OF: Record<SpeedMode, 'meaning' | 'kana' | 'kanji' | 'han_viet'> = { mixed: 'meaning', kana: 'kana', kanji: 'kanji', hanviet: 'han_viet' }
 
-const SKILL_OF: Record<CardType, 'kana' | 'kanji' | 'han_viet'> = {
-  'vocab.meaning_kana': 'kana',
-  'vocab.meaning_kanji': 'kanji',
-  'vocab.kana_hanviet': 'han_viet',
-  'vocab.meaning_hanviet': 'han_viet',
-  'vocab.star_recall': 'kana',
-  'vocab.kanji_meaning_hanviet': 'kanji',
-}
-
-export function skillOf(type: CardType) {
-  return SKILL_OF[type]
+export function skillOf(mode: SpeedMode) {
+  return SKILL_OF[mode]
 }
 
 export interface SpeedWord {
@@ -106,13 +82,8 @@ export interface SpeedWordSource {
   hanViet: string | null
   isKanaOnly: boolean
   kanjiSeen: boolean
-  cards: {
-    type: CardType
-    retired: boolean
-    lastReviewAt: string | null
-    practiceDate: string | null
-    practiceToday: number
-  }[]
+  /** Lần ôn gần nhất của Card nào đó, null nếu chưa ôn lần nào. */
+  lastReviewAt: string | null
 }
 
 export interface SpeedModeData {
@@ -123,48 +94,25 @@ export interface SpeedModeData {
 }
 
 function sidesFor(source: SpeedWordSource, mode: SpeedMode, showsKanji: boolean): Pick<SpeedWord, 'word' | 'meaning' | 'wordIsJapanese'> | null {
-  const hanViet = source.hanViet
   switch (mode) {
     case 'mixed':
       return { word: showsKanji ? source.expression : source.kana, meaning: source.meaning, wordIsJapanese: true }
-    case 'vocab.meaning_kana':
+    case 'kana':
       return { word: source.kana, meaning: source.meaning, wordIsJapanese: true }
-    case 'vocab.meaning_kanji':
-      return { word: source.expression, meaning: source.meaning, wordIsJapanese: true }
-    case 'vocab.kana_hanviet':
-      return hanViet ? { word: source.kana, meaning: hanViet, wordIsJapanese: true } : null
-    case 'vocab.meaning_hanviet':
-      return hanViet ? { word: hanViet, meaning: source.meaning, wordIsJapanese: false } : null
-    case 'vocab.kanji_meaning_hanviet':
-      return hanViet ? { word: source.expression, meaning: `${source.meaning} · ${hanViet}`, wordIsJapanese: true } : null
+    case 'kanji':
+      return showsKanji ? { word: source.expression, meaning: source.meaning, wordIsJapanese: true } : null
+    case 'hanviet':
+      return source.hanViet ? { word: source.hanViet, meaning: source.meaning, wordIsJapanese: false } : null
   }
 }
 
-/**
- * Từ của một chế độ, theo thứ tự ra bàn: Card giàn giáo chưa bỏ trước, trong đó Card lâu chưa ôn nhất trước
- * (chưa ôn lần nào coi như lâu nhất). Card đã chạm trần điểm hôm nay xuống sau vì chơi tiếp không được thêm điểm;
- * từ không có Card xuống cuối, và chỉ chế độ Hỗn hợp mới có.
- */
-export function wordsForMode(sources: readonly SpeedWordSource[], mode: SpeedMode, today: string, capPerDay: number): SpeedModeData {
+/** Từ của một chế độ, theo thứ tự ra bàn: từ lâu chưa ôn nhất trước, chưa ôn lần nào coi như lâu nhất. */
+export function wordsForMode(sources: readonly SpeedWordSource[], mode: SpeedMode): SpeedModeData {
   const ranked = sources.flatMap((source) => {
-    const showsKanji = source.kanjiSeen && !source.isKanaOnly
-    const usesKanji = mode === 'vocab.meaning_kanji' || mode === 'vocab.kanji_meaning_hanviet'
-    if (usesKanji && !showsKanji) return []
-    const sides = sidesFor(source, mode, showsKanji)
-    if (!sides) return []
-    const type = cardTypeFor(mode, showsKanji)
-    const card = source.cards.find((c) => c.type === type && !c.retired)
-    if (!card && mode !== 'mixed') return []
-    const capped = card !== undefined && card.practiceDate === today && card.practiceToday >= capPerDay
-    // Card giàn giáo gần như chỉ đạt mốc bỏ nhờ practice (fsrs-notes F1), nên ra trước
-    const scaffold = card !== undefined && !(type === 'vocab.meaning_kana' && source.isKanaOnly) && RULES_V4.retireAt[type] !== undefined
-    return [{
-      word: { id: source.id, ...sides },
-      rank: !card ? 3 : capped ? 2 : scaffold ? 0 : 1,
-      lastReview: card?.lastReviewAt ?? '',
-    }]
+    const sides = sidesFor(source, mode, source.kanjiSeen && !source.isKanaOnly)
+    return sides ? [{ word: { id: source.id, ...sides }, lastReview: source.lastReviewAt ?? '' }] : []
   })
-  ranked.sort((a, b) => a.rank - b.rank || a.lastReview.localeCompare(b.lastReview))
+  ranked.sort((a, b) => a.lastReview.localeCompare(b.lastReview))
   const words = uniqueSpeedWords(ranked.map((r) => r.word))
   return { mode, total: words.length, words: words.slice(0, WORDS_PER_MODE) }
 }

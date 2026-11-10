@@ -11,7 +11,7 @@ type StarWord = { is_kana_only: boolean; han_viet: string | null }
 /** Các câu của một vòng, từ dễ tới khó, chỉ dùng những gì từ này đã được giới thiệu. */
 export function starRoundExercises(word: StarWord, known: WordKnowledge): ExerciseCode[] {
   const list: ExerciseCode[] = ['meaning_to_kana', 'kana_assembly']
-  if (!word.is_kana_only && word.han_viet && known.currentStage >= 4) list.push('hanviet_from_kana')
+  if (!word.is_kana_only && word.han_viet && known.currentStage >= 3) list.push('hanviet_from_kana')
   if (!word.is_kana_only && known.kanjiIntroSeen) list.push('kanji_assembly')
   list.push('kana_free_recall')
   return list.slice(0, ROUND_SIZE)

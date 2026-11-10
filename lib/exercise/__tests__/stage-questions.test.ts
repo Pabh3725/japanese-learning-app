@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { EXERCISES } from '../../learning/rules'
+import { REQUIRED_SKILLS, EXERCISES } from '../../learning/rules'
 import { allowedExercises } from '../../learning/stage'
 import type { ExerciseCode, ScoredStage } from '../../learning/types'
 import { convertAtCaret, isHanVietAnswerCorrect, isKanaAnswerCorrect, romajiToKanaInput } from '../answer-normalize'
@@ -228,38 +228,31 @@ describe('chooseStageExercise — đi theo bước, ưu tiên phần còn thiế
     expect(pick(2, ['kana_to_meaning', 'meaning_to_kana'], 4)).toEqual(new Set(['kana_assembly']))
   })
 
-  it('Stage 2 đủ dạng: phần lớn ghép, khoảng 1/5 trắc nghiệm', () => {
-    const all: ExerciseCode[] = ['kana_to_meaning', 'meaning_to_kana', 'kana_assembly']
-    const picks = Array.from({ length: 2000 }, (_, s) => chooseStageExercise(GAKKOU, 2, all, 6, seededRng(s + 1)))
-    const share = picks.filter((c) => c === 'kana_assembly').length / picks.length
-    expect(share).toBeGreaterThan(0.72)
-    expect(share).toBeLessThan(0.88)
+
+  it('Stage 5 dưới 3 điểm: chỉ trắc nghiệm Hán Việt không có Kanji', () => {
+    expect(pick(5, [], 0)).toEqual(new Set(['hanviet_from_kana']))
+    expect(pick(5, ['hanviet_from_kana'], 2)).toEqual(new Set(['hanviet_from_kana']))
   })
 
-  it('Stage 4 dưới 3 điểm: chỉ trắc nghiệm Hán Việt không có Kanji', () => {
-    expect(pick(4, [], 0)).toEqual(new Set(['hanviet_from_kana']))
-    expect(pick(4, ['hanviet_from_kana'], 2)).toEqual(new Set(['hanviet_from_kana']))
-  })
-
-  it('Stage 4 từ 3 đến 6 điểm: các dạng của bước 2, chưa ghép Kanji', () => {
+  it('Stage 5 từ 3 đến 6 điểm: các dạng của bước 2, chưa ghép Kanji', () => {
     const step2 = new Set(['hanviet_assembly', 'kanji_char_meaning', 'kanji_recognition', 'hanviet_recognition'])
-    expect(pick(4, ['hanviet_from_kana'], 3)).toEqual(step2)
-    expect(pick(4, ['hanviet_from_kana', ...step2] as ExerciseCode[], 6)).toEqual(step2)
+    expect(pick(5, ['hanviet_from_kana'], 3)).toEqual(step2)
+    expect(pick(5, ['hanviet_from_kana', ...step2] as ExerciseCode[], 6)).toEqual(step2)
   })
 
-  it('Stage 4 bước 3 đủ dạng: phần lớn ghép, khoảng 1 trong 10 câu là câu nghe', () => {
+  it('Stage 5 bước 3 đủ dạng: phần lớn ghép, khoảng 1 trong 10 câu là câu nghe', () => {
     const all: ExerciseCode[] = ['hanviet_from_kana', 'hanviet_assembly', 'kanji_recognition', 'hanviet_recognition', 'kanji_char_meaning', 'kanji_assembly']
-    const picks = Array.from({ length: 4000 }, (_, s) => chooseStageExercise(GAKKOU, 4, all, 8, seededRng(s + 1)))
+    const picks = Array.from({ length: 4000 }, (_, s) => chooseStageExercise(GAKKOU, 5, all, 8, seededRng(s + 1)))
     const share = (test: (c: ExerciseCode) => boolean) => picks.filter(test).length / picks.length
     expect(share((c) => c === 'kanji_assembly' || c === 'hanviet_assembly')).toBeGreaterThan(0.72)
     expect(share((c) => c === 'listening_kanji')).toBeGreaterThan(0.06)
     expect(share((c) => c === 'listening_kanji')).toBeLessThan(0.14)
   })
 
-  it('Stage 4 từ 7 điểm: thiếu dạng trước thì hỏi trước, đủ rồi mới ghép Kanji; câu nghe không bắt buộc', () => {
-    expect(pick(4, ['hanviet_from_kana', 'hanviet_assembly', 'kanji_recognition', 'hanviet_recognition'], 7)).toEqual(new Set(['kanji_char_meaning']))
+  it('Stage 5 từ 7 điểm: thiếu dạng trước thì hỏi trước, đủ rồi mới ghép Kanji; câu nghe không bắt buộc', () => {
+    expect(pick(5, ['hanviet_from_kana', 'hanviet_assembly', 'kanji_recognition', 'hanviet_recognition'], 7)).toEqual(new Set(['kanji_char_meaning']))
     const allButKanji: ExerciseCode[] = ['hanviet_from_kana', 'hanviet_assembly', 'kanji_recognition', 'hanviet_recognition', 'kanji_char_meaning']
-    expect(pick(4, allButKanji, 7)).toEqual(new Set(['kanji_assembly']))
+    expect(pick(5, allButKanji, 7)).toEqual(new Set(['kanji_assembly']))
   })
 
   it('Stage 2: đủ rồi thì có cả câu nghe', () => {
@@ -269,46 +262,37 @@ describe('chooseStageExercise — đi theo bước, ưu tiên phần còn thiế
     expect(seen).toContain('listening')
   })
 
-  it('Stage 5: chọn dạng của kỹ năng còn thiếu', () => {
-    const earned: ExerciseCode[] = ['meaning_assembly', 'kana_free_recall', 'kanji_assembly_nohint']
-    for (let seed = 1; seed < 20; seed++) {
-      expect(EXERCISES[chooseStageExercise(GAKKOU, 5, earned, 0, seededRng(seed))].skill).toBe('S4')
-    }
-  })
 
-  it('テレビ: Stage 5 không có bài Kanji, Hán Việt', () => {
-    const skills = new Set(usableExercises(TEREBI, 5).map((code) => EXERCISES[code].skill))
+  it('テレビ: Stage 3 không có bài Kanji, Hán Việt', () => {
+    const skills = new Set(usableExercises(TEREBI, 3).map((code) => EXERCISES[code].skill))
     expect(skills).toEqual(new Set(['S1', 'S2']))
   })
 
   it('nghĩa phức tạp: không ghép nghĩa, vẫn chọn 1/6 để đạt kỹ năng Nghĩa', () => {
     const complex = words.find((w) => meaningPieces(w.meaning_vi) === null)!
-    expect(usableExercises(complex, 5)).not.toContain('meaning_assembly')
-    expect(usableExercises(complex, 5)).toContain('meaning_recognition_6')
+    expect(usableExercises(complex, 3)).not.toContain('meaning_assembly')
+    expect(usableExercises(complex, 3)).toContain('meaning_recognition_6')
   })
 
   it('nghĩa đơn giản: ghép nghĩa, không còn chọn 1/6', () => {
-    expect(usableExercises(GAKKOU, 5)).toContain('meaning_assembly')
-    expect(usableExercises(GAKKOU, 5)).not.toContain('meaning_recognition_6')
+    expect(usableExercises(GAKKOU, 3)).toContain('meaning_assembly')
+    expect(usableExercises(GAKKOU, 3)).not.toContain('meaning_recognition_6')
   })
 
-  it('không còn chọn Kanji 1/6; kỹ năng Kanji đạt qua ghép', () => {
-    expect(usableExercises(GAKKOU, 5)).not.toContain('kanji_recognition_6')
-    expect(usableExercises(GAKKOU, 5)).toContain('kanji_assembly_nohint')
-  })
 
-  it('toàn bộ data: mọi từ đều có dạng bài cho mọi kỹ năng bắt buộc ở Stage 5', () => {
-    for (const w of words) {
-      const skills = new Set(usableExercises(w, 5).map((code) => EXERCISES[code].skill))
-      for (const skill of w.is_kana_only ? ['S1', 'S2'] : ['S1', 'S2', 'S3', 'S4']) {
-        expect(skills.has(skill as never), `${w.expression} ${skill}`).toBe(true)
-      }
+  it('toàn bộ data: mọi từ đều có dạng bài cho mọi kỹ năng bắt buộc ở Stage 3, từ có Kanji ở cả Stage 6', () => {
+    for (const word of words) {
+      const skills3 = new Set(usableExercises(word, 3).map((code) => EXERCISES[code].skill))
+      for (const skill of REQUIRED_SKILLS[3]) expect(skills3.has(skill), `${word.reading_kana} ${skill}`).toBe(true)
+      if (word.is_kana_only) continue
+      const skills6 = new Set(usableExercises(word, 6).map((code) => EXERCISES[code].skill))
+      for (const skill of REQUIRED_SKILLS[6]) expect(skills6.has(skill), `${word.expression} ${skill}`).toBe(true)
     }
   })
 })
 
 describe('Câu hỏi và chấm trên toàn bộ data', () => {
-  const stagesOf = (w: StageWord): ScoredStage[] => (w.is_kana_only ? [2, 5] : [2, 4, 5])
+  const stagesOf = (w: StageWord): ScoredStage[] => (w.is_kana_only ? [2, 3] : [2, 3, 5, 6])
 
   it('mọi từ × mọi dạng dùng được: dựng được câu, đáp án đúng được chấm đúng, câu sai bị chấm sai', () => {
     let seed = 1
@@ -328,7 +312,7 @@ describe('Câu hỏi và chấm trên toàn bộ data', () => {
     let seed = 1
     for (const word of words.slice(0, 300)) {
       for (const exercise of ['kana_to_meaning', 'meaning_recognition_6', 'meaning_to_kana', 'listening'] as const) {
-        if (!allowedExercises(exercise === 'meaning_recognition_6' ? 5 : 2, word.is_kana_only).includes(exercise)) continue
+        if (!allowedExercises(exercise === 'meaning_recognition_6' ? 5 : 2).includes(exercise)) continue
         const q = buildStageQuestion(word, exercise, pools, seededRng(seed++)) as ChoiceQuestionData
         expect(new Set(q.options).size).toBe(q.options.length)
         expect(q.options).toContain(q.answer)
@@ -368,7 +352,7 @@ describe('Câu hỏi và chấm trên toàn bộ data', () => {
     expect(q.answer).toBe('がっこう')
   })
 
-  it('Stage 3–5 của 学校 không làm lộ đáp án trong đề kana', () => {
+  it('Stage 3–6 của 学校 không làm lộ đáp án trong đề kana', () => {
     const q = buildStageQuestion(GAKKOU, 'kana_to_meaning', pools, seededRng(1))
     expect(q.prompt.hint).toBeUndefined()
   })
@@ -460,7 +444,7 @@ describe('Câu ghép không cho biết số ô', () => {
   })
 })
 
-describe('Dạng bài mới của Stage 4', () => {
+describe('Dạng bài mới của Stage 5', () => {
   it('trắc nghiệm Hán Việt ở bước 1 không để lộ Kanji', () => {
     const q = buildStageQuestion(GAKKOU, 'hanviet_from_kana', pools, seededRng(1)) as ChoiceQuestionData
     expect(q.answer).toBe(GAKKOU.han_viet)
@@ -514,7 +498,7 @@ describe('parseStageAnswerRequest — không tin trình duyệt', () => {
   const ok = {
     learnerVocabularyId: '11111111-1111-4111-8111-111111111111',
     clientEventId: '22222222-2222-4222-8222-222222222222',
-    stage: 4,
+    stage: 5,
     exercise: 'kanji_assembly',
     answer: ['学', '校'],
   }
@@ -522,7 +506,7 @@ describe('parseStageAnswerRequest — không tin trình duyệt', () => {
     expect(parseStageAnswerRequest({ ...ok, responseMs: 12.4, points: 99 })).toEqual({ ...ok, responseMs: 12 })
   })
   it.each([
-    ['stage không tính điểm', { stage: 3 }],
+    ['stage không tính điểm', { stage: 4 }],
     ['dạng bài lạ', { exercise: 'x' }],
     ['câu trả lời rỗng', { answer: '' }],
     ['mảng rỗng', { answer: [] }],

@@ -5,7 +5,7 @@
 import { EXERCISES } from '../learning/rules'
 import {
   allowedExercises,
-  requiredScoredStages,
+  VOCABULARY_STAGES,
   type StageAttempt,
   type StageAttemptResult,
   type StageState,
@@ -22,7 +22,7 @@ import type { Schedule, ScheduleState } from '../srs/scheduler'
 /** Những gì trình duyệt được phép gửi. Điểm, stage, card… server tự tính. */
 export interface SubmitExerciseRequest {
   learnerVocabularyId: string
-  /** Stage của câu này: một dạng bài có thể thuộc nhiều stage (kana_to_meaning ở Stage 2 và 4). */
+  /** Stage của câu này: một dạng bài có thể thuộc nhiều stage (hanviet_from_kana ở Stage 2 và 5). */
   stage: ScoredStage
   /** Mã riêng cho MỖI lần bấm (crypto.randomUUID()). Gửi lại → cùng mã. */
   clientEventId: string
@@ -35,7 +35,7 @@ export interface SubmitExerciseRequest {
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const OUTCOMES: readonly Outcome[] = ['correct', 'hint', 'wrong']
-const SCORED_STAGES: readonly number[] = [2, 4, 5]
+const SCORED_STAGES: readonly number[] = [2, 3, 5, 6]
 
 /** Dữ liệu lạ / thiếu / sai kiểu → null. */
 export function parseSubmitExerciseRequest(input: unknown): SubmitExerciseRequest | null {
@@ -90,7 +90,6 @@ export interface StageScheduleRow {
 
 /** Phần StageState không nằm trong dòng lịch — suy ra từ nhật ký. */
 export interface StageContext {
-  isKanaOnly: boolean
   earned: readonly ExerciseCode[]
   lastSeq: number | null
   lastSeqDate: StudyDate | null
@@ -100,7 +99,6 @@ export interface StageContext {
 export function rowToStageState(row: StageScheduleRow, ctx: StageContext): StageState | null {
   if (!SCORED_STAGES.includes(row.stage_number)) return null
   return {
-    isKanaOnly: ctx.isKanaOnly,
     stage: row.stage_number as ScoredStage,
     points: row.stage_points,
     plusToday: row.stage_points_today,
@@ -152,7 +150,7 @@ export function deriveLastSeq(seqs: readonly (number | null)[], today: StudyDate
 
 /** Dạng bài này có hợp lệ với stage của từ không. */
 export function canAnswer(state: StageState, exercise: ExerciseCode): boolean {
-  return allowedExercises(state.stage, state.isKanaOnly).includes(exercise)
+  return allowedExercises(state.stage).includes(exercise)
 }
 
 // ---------------------------------------------------------------------------
@@ -209,12 +207,12 @@ export function toSubmitStageExerciseParams({
     p_reps: schedule.reps,
     p_lapses: schedule.lapses,
     p_last_review_at: schedule.lastReviewAt?.toISOString() ?? null,
-    // mở stage sau: Stage 3 chỉ có xem nên không có lịch, chỉ Stage 5 cần tạo lịch ở đây
+    // mở stage sau: Stage 3 và 6 cần tạo lịch ở đây
     p_unlocked_stage: result.unlockedStage,
-    p_open_schedule: result.unlockedStage === 5,
+    p_open_schedule: result.unlockedStage === 3 || result.unlockedStage === 6,
     // hoàn tất stage
     p_completed: result.completed,
-    p_required_stages: requiredScoredStages(s.isKanaOnly),
+    p_required_stages: [...VOCABULARY_STAGES],
     // card mới — hạn đầu: 00:00 (giờ VN) ngày học hôm sau (R5)
     p_new_card_types: result.cardsCreated,
     p_new_cards_due_at: hasCards ? firstDueAt(attempt.now).toISOString() : null,

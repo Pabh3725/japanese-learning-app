@@ -1,14 +1,13 @@
-// SRS-02 — Bộ tính lịch ôn. Ghép 2 nửa của một card:
-//   - nửa LỊCH: ts-fsrs tính lần ôn tới (state, due, stability, difficulty…)
-//   - nửa ĐIỂM: luật Projap ở lib/learning (điểm card, bỏ card giàn giáo)
+// SRS-02 — Bộ tính lịch ôn: ts-fsrs tính lần ôn tới, tối đa 90 ngày. Không có Easy.
 // Pure: không đọc/ghi database, không tự đọc đồng hồ — `now` luôn được truyền vào.
 // Ghi xuống database là việc của SRS-03.
 
 import { createEmptyCard, fsrs, generatorParameters, Rating as FsrsRating, type Card, type Grade } from 'ts-fsrs'
-import { applyReviewToCard, firstDueAt, newCardState, type CardPointsState } from '../learning/cards'
-import type { ReviewAnswer } from '../learning/scoring'
+import { firstDueAt } from '../learning/cards'
+import { RULES_V9 } from '../learning/rules'
+import { ratingOf } from '../learning/scoring'
 import { cardsToCreate } from '../learning/stage'
-import type { CardType, Rating, Stage } from '../learning/types'
+import type { CardStatus, CardType, ExerciseCode, Outcome, Rating, Stage } from '../learning/types'
 
 /** Trạng thái FSRS. Số khớp cột review_cards.state (0 New, 1 Learning, 2 Review, 3 Relearning). */
 export type ScheduleState = 0 | 1 | 2 | 3
@@ -28,17 +27,23 @@ export interface Schedule {
 }
 
 export interface ReviewCard {
-  points: CardPointsState
+  type: CardType
+  status: CardStatus
   schedule: Schedule
+}
+
+export interface ReviewAnswer {
+  outcome: Outcome
+  exercise: ExerciseCode | string
+  /** Thời gian từ lúc câu hiện ra tới lúc nộp. */
+  responseMs: number
 }
 
 /** Nhật ký một lần ôn — SRS-03 ghi vào review_logs. */
 export interface ReviewLogEntry {
   rating: Rating
-  /** 1 Again, 2 Hard, 3 Good, 4 Easy — khớp cột review_logs.rating. */
-  ratingNumber: 1 | 2 | 3 | 4
-  cardPointsDelta: number
-  retiredNow: boolean
+  /** 1 Again, 2 Hard, 3 Good — khớp cột review_logs.rating. */
+  ratingNumber: 1 | 2 | 3
   stateBefore: ScheduleState
   dueBefore: Date
   stateAfter: ScheduleState
@@ -63,49 +68,48 @@ export const RATING_TO_FSRS: Record<Rating, Grade> = {
   Again: FsrsRating.Again,
   Hard: FsrsRating.Hard,
   Good: FsrsRating.Good,
-  Easy: FsrsRating.Easy,
 }
 
-const RATING_NUMBER: Record<Rating, ReviewLogEntry['ratingNumber']> = { Again: 1, Hard: 2, Good: 3, Easy: 4 }
+const RATING_NUMBER: Record<Rating, ReviewLogEntry['ratingNumber']> = { Again: 1, Hard: 2, Good: 3 }
+const DAY_MS = 86_400_000
+
+/** ts-fsrs không áp maximum_interval khi card từ Learning sang Review, nên chặn lại ở đây. */
+export function capInterval(schedule: Schedule, now: Date, maxDays: number): Schedule {
+  if (schedule.scheduledDays <= maxDays) return schedule
+  return { ...schedule, scheduledDays: maxDays, due: new Date(now.getTime() + maxDays * DAY_MS) }
+}
 
 export function createScheduler({ enableFuzz = true }: SchedulerOptions = {}) {
-  const f = fsrs(generatorParameters({ enable_fuzz: enableFuzz }))
+  const maxDays = RULES_V9.reviewSchedule.maximumIntervalDays
+  const f = fsrs(generatorParameters({ enable_fuzz: enableFuzz, maximum_interval: maxDays }))
 
   /** R5 — Card mới khi một từ vừa qua `stage`. Hạn đầu tiên: 00:00 (giờ VN) ngày học hôm sau. */
-  function createCardsForStage(stage: Stage, isKanaOnly: boolean, now: Date): ReviewCard[] {
-    return cardsToCreate(stage, isKanaOnly).map((type) => newCard(type, isKanaOnly, now))
+  function createCardsForStage(stage: Stage, now: Date): ReviewCard[] {
+    return cardsToCreate(stage).map((type) => newCard(type, now))
   }
 
-  function newCard(type: CardType, isKanaOnly: boolean, now: Date): ReviewCard {
-    const empty = createEmptyCard(now)
-    return {
-      points: newCardState(type, isKanaOnly),
-      schedule: { ...fromFsrs(empty), due: firstDueAt(now), lastReviewAt: null },
-    }
+  function newCard(type: CardType, now: Date): ReviewCard {
+    return { type, status: 'active', schedule: { ...fromFsrs(createEmptyCard(now)), due: firstDueAt(now), lastReviewAt: null } }
   }
 
-  /** Một lần ôn: chấm → rating + điểm (ENG-02) → lịch mới (ts-fsrs) → xét bỏ card. */
+  /** Một lần ôn: kết quả → rating → lịch mới (ts-fsrs). */
   function reviewCard(card: ReviewCard, answer: ReviewAnswer, now: Date): ReviewResult {
-    if (card.points.status !== 'active') {
-      // Card đã bỏ / tạm dừng không được đưa vào bài học → gặp ở đây là có bug chỗ khác.
-      throw new Error(`Cannot review a ${card.points.status} card (${card.points.type})`)
+    if (card.status !== 'active') {
+      // Card tạm dừng không được đưa vào bài học → gặp ở đây là có bug ở tầng trên
+      throw new Error(`Cannot review a ${card.status} card (${card.type})`)
     }
     const last = card.schedule.lastReviewAt
     if (last && now.getTime() < last.getTime()) {
       throw new Error('Review time is earlier than the previous review')
     }
-
-    const pointsResult = applyReviewToCard(card.points, answer)
-    const { card: next } = f.next(toFsrs(card.schedule), now, RATING_TO_FSRS[pointsResult.rating])
-    const schedule = fromFsrs(next)
-
+    const rating = ratingOf(answer.outcome)
+    const { card: next } = f.next(toFsrs(card.schedule), now, RATING_TO_FSRS[rating])
+    const schedule = capInterval(fromFsrs(next), now, maxDays)
     return {
-      card: { points: pointsResult.card, schedule },
+      card: { ...card, schedule },
       log: {
-        rating: pointsResult.rating,
-        ratingNumber: RATING_NUMBER[pointsResult.rating],
-        cardPointsDelta: pointsResult.delta,
-        retiredNow: pointsResult.retiredNow,
+        rating,
+        ratingNumber: RATING_NUMBER[rating],
         stateBefore: card.schedule.state,
         dueBefore: card.schedule.due,
         stateAfter: schedule.state,

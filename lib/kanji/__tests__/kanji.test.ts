@@ -1,12 +1,13 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { RULES_V4 } from '../../learning/rules'
+import { RULES_V9 } from '../../learning/rules'
 import { newLongTermSchedule, reviewLongTermSchedule } from '../schedule'
 import { buildKanjiQuestion, gradeKanjiAnswer, plainHanViet, showReading, type KanjiRow } from '../questions'
 import {
   applyLearningAnswer,
-  chooseReviewExercise,
+  chooseCardExercise,
+  KANJI_CARD_EXERCISES,
   kanjiLoadAdvice,
   KANJI_EXERCISES,
   newKanjiToday,
@@ -39,7 +40,7 @@ function runLearning(wrongAt = -1, hasWord = false) {
   for (let d = 1; d < 40; d++) {
     if (due.getTime() > vn(d, 30).getTime()) continue
     sittings++
-    for (const exercise of planSitting(state.points, state.counts, RULES_V4.kanji.questionsPerSitting, hasWord, seeded(d))) {
+    for (const exercise of planSitting(state.points, state.counts, RULES_V9.kanji.questionsPerSitting, hasWord, seeded(d))) {
       const outcome = total === wrongAt ? 'wrong' : 'correct'
       const result = applyLearningAnswer(state, exercise, outcome, vn(d, total))
       state = result.state
@@ -60,21 +61,21 @@ describe('12 điểm trong 4 buổi', () => {
     expect(state.points).toBe(12)
   })
 
-  it('đi từ dễ tới khó: buổi 1 chọn, buổi 2 chọn chữ và âm, buổi 3 gõ', () => {
+  it('đi từ dễ tới khó: buổi 1 chọn nghĩa và Hán Việt, buổi 2 chọn chữ (hoặc âm), buổi 3 có gõ Hán Việt', () => {
     const { asked } = runLearning()
     expect(asked.slice(0, 3).every((e) => e === 'kanji_to_meaning' || e === 'kanji_to_hanviet')).toBe(true)
-    expect(asked.slice(3, 6).every((e) => e === 'pick_kanji' || e === 'kanji_reading')).toBe(true)
-    expect(new Set(asked.slice(6, 8))).toEqual(new Set(['hanviet_typing', 'reading_typing']))
+    expect(asked.slice(3, 6).every((e) => e === 'pick_kanji' || e === 'hanviet_to_kanji' || e === 'kanji_reading')).toBe(true)
+    expect(asked.slice(6, 9)).toContain('hanviet_typing')
   })
 
-  it('đủ mặt: nghĩa, Hán Việt, âm mỗi mặt đúng ít nhất 2 lần, gõ Hán Việt và gõ âm ít nhất 1 lần', () => {
+  it('V9 đủ 4 hướng: chữ→nghĩa, nghĩa→chữ, chữ→Hán Việt, Hán Việt→chữ mỗi hướng ≥ 2, gõ Hán Việt ≥ 1; On/Kun không bắt buộc', () => {
     for (const hasWord of [false, true]) {
       const { state: { counts } } = runLearning(-1, hasWord)
       expect((counts.kanji_to_meaning ?? 0) + (counts.word_meaning ?? 0)).toBeGreaterThanOrEqual(2)
+      expect(counts.pick_kanji ?? 0).toBeGreaterThanOrEqual(2)
       expect((counts.kanji_to_hanviet ?? 0) + (counts.hanviet_typing ?? 0)).toBeGreaterThanOrEqual(2)
-      expect((counts.kanji_reading ?? 0) + (counts.reading_typing ?? 0)).toBeGreaterThanOrEqual(2)
+      expect(counts.hanviet_to_kanji ?? 0).toBeGreaterThanOrEqual(2)
       expect(counts.hanviet_typing).toBeGreaterThanOrEqual(1)
-      expect(counts.reading_typing).toBeGreaterThanOrEqual(1)
     }
   })
 
@@ -90,10 +91,11 @@ describe('12 điểm trong 4 buổi', () => {
   })
 
   it('đủ 12 điểm mà thiếu mặt hoặc thiếu 3 câu đúng liên tiếp thì chưa hoàn tất', () => {
-    const counts = { kanji_to_meaning: 2, kanji_to_hanviet: 1, hanviet_typing: 1, kanji_reading: 1, reading_typing: 1 }
+    const counts = { kanji_to_meaning: 2, pick_kanji: 1, kanji_to_hanviet: 1, hanviet_typing: 1, hanviet_to_kanji: 2 }
     const base = { ...fresh, points: 11, pointsDate: '2026-11-02', correctStreak: 2 }
-    expect(applyLearningAnswer({ ...base, counts: { ...counts, reading_typing: 0 } }, 'pick_kanji', 'correct', vn(3)).completed).toBe(false)
+    expect(applyLearningAnswer({ ...base, counts: { ...counts, hanviet_to_kanji: 1 } }, 'pick_kanji', 'correct', vn(3)).completed).toBe(false)
     expect(applyLearningAnswer({ ...base, counts, correctStreak: 0 }, 'pick_kanji', 'correct', vn(3)).completed).toBe(false)
+    // Không cần câu On/Kun nào
     expect(applyLearningAnswer({ ...base, counts }, 'pick_kanji', 'correct', vn(3)).completed).toBe(true)
   })
 
@@ -133,10 +135,19 @@ describe('Ôn dài hạn', () => {
     expect(schedule.scheduledDays).toBeLessThan(before)
   })
 
-  it('không lặp dạng lần trước, không hỏi từ khi chưa có từ', () => {
+  it('2 Card: mỗi Card luân phiên 2 dạng của nó, không lặp dạng lần trước, tối đa 90 ngày', () => {
+    expect(KANJI_CARD_EXERCISES).toEqual({ 'kanji.meaning': ['meaning_self', 'pick_kanji'], 'kanji.hanviet': ['hanviet_typing', 'hanviet_to_kanji'] })
     for (let s = 1; s < 40; s++) {
-      expect(chooseReviewExercise('hanviet_typing', false, seeded(s))).not.toBe('hanviet_typing')
-      expect(chooseReviewExercise(null, false, seeded(s))).not.toBe('word_meaning')
+      expect(chooseCardExercise('kanji.hanviet', 'hanviet_typing', seeded(s))).toBe('hanviet_to_kanji')
+      expect(chooseCardExercise('kanji.meaning', 'pick_kanji', seeded(s))).toBe('meaning_self')
+      expect(KANJI_CARD_EXERCISES['kanji.meaning']).toContain(chooseCardExercise('kanji.meaning', null, seeded(s)))
+    }
+    let schedule = newLongTermSchedule(vn(5))
+    let now = schedule.due
+    for (let i = 0; i < 8; i++) {
+      schedule = reviewLongTermSchedule(schedule, 'correct', now, false)
+      expect(schedule.scheduledDays).toBeLessThanOrEqual(90)
+      now = schedule.due
     }
   })
 })
@@ -187,7 +198,7 @@ describe('Trên toàn bộ chữ trong data', () => {
   it('mọi dạng: đủ 4 đáp án, đáp án đúng chấm đúng, đáp án nhiễu không bao giờ được chấm đúng', () => {
     let seed = 1
     for (const kanji of all) {
-      for (const exercise of KANJI_EXERCISES.filter((e) => e !== 'word_meaning')) {
+      for (const exercise of KANJI_EXERCISES.filter((e) => e !== 'word_meaning' && e !== 'kanji_write')) {
         const q = buildKanjiQuestion(kanji, exercise, all, null, seeded(seed++))
         if (q.kind !== 'choice') continue
         expect(new Set(q.options).size, `${kanji.character} ${exercise}`).toBe(4)
@@ -195,6 +206,22 @@ describe('Trên toàn bộ chữ trong data', () => {
         expect(gradeKanjiAnswer(kanji, exercise, q.answer).outcome, `${kanji.character} ${exercise}`).toBe('correct')
         for (const option of q.options.filter((o) => o !== q.answer)) {
           expect(gradeKanjiAnswer(kanji, exercise, option).outcome, `${kanji.character} ${exercise} ${option}`).toBe('wrong')
+        }
+      }
+    }
+  })
+
+  it('ôn Card: chọn chữ trong 6, không có chữ nhiễu trùng Hán Việt hoặc trùng nghĩa với chữ đúng', () => {
+    let seed = 1
+    for (const kanji of all) {
+      for (const exercise of ['pick_kanji', 'hanviet_to_kanji'] as const) {
+        const q = buildKanjiQuestion(kanji, exercise, all, null, seeded(seed++), 6)
+        if (q.kind !== 'choice') throw new Error('phải là câu chọn')
+        expect(new Set(q.options).size, `${kanji.character} ${exercise}`).toBe(6)
+        for (const option of q.options.filter((o) => o !== q.answer)) {
+          const other = all.find((k) => k.character === option)!
+          if (exercise === 'hanviet_to_kanji') expect(plainHanViet(other.han_viet), `${kanji.character} ${option}`).not.toBe(plainHanViet(kanji.han_viet))
+          else expect(other.meaning_vi, `${kanji.character} ${option}`).not.toBe(kanji.meaning_vi)
         }
       }
     }
@@ -226,6 +253,8 @@ describe('Trên toàn bộ chữ trong data', () => {
     expect(gradeKanjiAnswer(kanji, 'hanviet_typing', 'hoc').outcome).toBe('correct')
     expect(gradeKanjiAnswer(kanji, 'hanviet_typing', 'HỌC').outcome).toBe('correct')
     expect(gradeKanjiAnswer(kanji, 'hanviet_typing', 'sinh').outcome).toBe('wrong')
+    expect(gradeKanjiAnswer(kanji, 'kanji_write', 'remembered').outcome).toBe('correct')
+    expect(gradeKanjiAnswer(kanji, 'kanji_write', 'forgot').outcome).toBe('wrong')
     expect(showReading('ひと.つ')).toBe('ひとつ')
   })
 
