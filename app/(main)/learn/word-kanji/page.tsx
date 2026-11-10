@@ -32,7 +32,7 @@ export default async function WordKanjiPage() {
                   ? `${overview.waiting} new ${overview.waiting === 1 ? 'word' : 'words'}`
                   : 'All caught up'}
             </h2>
-            <p className="mt-2 text-sm text-subtle">{overview.waiting} words ready · {overview.waitingForLevel} waiting for the next level</p>
+            <p className="mt-2 text-sm text-subtle">{overview.waiting} words ready · {overview.waitingForLevel} waiting for the next level{overview.optional > 0 ? ` · ${overview.optional} optional` : ''}</p>
             <p className="mt-1 text-sm text-muted-foreground tabular-nums">{overview.answeredToday} of {overview.cap} questions answered today</p>
           </div>
           {hasWork && (
@@ -52,6 +52,13 @@ export default async function WordKanjiPage() {
         <ProgressBar value={overview.completed} max={overview.total} tone="pink" label="Kanji words learned" />
         <p className="mt-2 text-sm text-muted-foreground">{overview.inProgress} still learning</p>
       </section>
+
+      <p className="mt-8 text-xs text-muted-foreground">
+        Which words are usually written in kana comes from{' '}
+        <a href="https://www.edrdg.org/wiki/index.php/JMdict-EDICT_Dictionary_Project" target="_blank" rel="noreferrer" className="underline underline-offset-2">JMdict</a>{' '}
+        by the Electronic Dictionary Research and Development Group, under{' '}
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer" className="underline underline-offset-2">CC BY-SA 4.0</a>.
+      </p>
     </>
   )
 }

@@ -1,6 +1,6 @@
 # ENG-01 — Luật học (Learning Rules) `RULES_V9`
 
-> Trạng thái: **Đã chốt thiết kế V9** (chủ dự án duyệt 2026-11-10), gói 1 của nâng cấp V9 (xem `docs/upgrade-v9-audit.md`). Gói 2 (R1, R4, R5 cho Card Kana, R9: 6 Stage) đã có trong code trên nhánh `feature/v9-stages`, migration `20261110000001_v9_six_stages.sql`; điều kiện cấp của Stage 4 tạm dùng cấp JLPT của từ cho tới gói 3. Các gói 3–7 chưa làm. Bản V8 (`RULES_V4`) còn trong lịch sử git. Mục còn ghi PROPOSED là chi tiết kỹ thuật người viết đề xuất, được phép chỉnh khi code và test, nhưng phải báo lại.
+> Trạng thái: **Đã chốt thiết kế V9** (chủ dự án duyệt 2026-11-10), gói 1 của nâng cấp V9 (xem `docs/upgrade-v9-audit.md`). Gói 2 (R1, R4, R5 cho Card Kana, R9: 6 Stage) đã có trong code trên nhánh `feature/v9-stages`, migration `20261110000001_v9_six_stages.sql`. Gói 3 (§6a chính sách Kanji của từ) đã có trên nhánh `feature/v9-kanji-policy`: `pnpm policy:propose` tạo `data/n5/kanji_policy.csv` và `docs/kanji-policy-review.md`, migration `20261111000001`–`000002`, nút "Học dạng Kanji", server kiểm tra trong `open_word_kanji`. Cấp chữ: N5 của file gốc giữ nguyên, các chữ khác theo danh sách Waller (`pnpm policy:levels`). Các gói 4–7 chưa làm. Bản V8 (`RULES_V4`) còn trong lịch sử git. Mục còn ghi PROPOSED là chi tiết kỹ thuật người viết đề xuất, được phép chỉnh khi code và test, nhưng phải báo lại.
 >
 > Ngày: 2026-11-10. Cơ sở: lộ trình v2 (`PROJECT_SPEC.md` §18.5b, §18.6, code trên `feature/path-v2`) và yêu cầu nâng cấp V9.
 >
@@ -110,9 +110,11 @@ Cooldown của AIS (R11) là chuyện **khi nào hỏi**; R3 là chuyện **có 
 
 - Script đề xuất nhãn (CONFIRMED 2026-11-10, phần luật cụ thể PROPOSED):
   - Từ không có Kanji → `KANA_ONLY`.
-  - JMdict ghi "thường viết bằng Kana" (`uk`) cho nghĩa đang dùng → `KANJI_OPTIONAL`.
-  - Mọi chữ của từ thuộc danh sách Kanji cấp của từ → `KANJI_CORE`, cùng cấp.
-  - Có chữ thuộc cấp cao hơn (N4 hoặc khó hơn) → `KANJI_DEFERRED`, cấp = cấp khó nhất trong N5–N4; vượt N4 → `KANJI_OPTIONAL`.
+  - Mọi chữ của từ thuộc cấp của từ hoặc dễ hơn → `KANJI_CORE`, cùng cấp.
+  - Có chữ thuộc cấp khó hơn → `KANJI_DEFERRED`, cấp đích = cấp của chữ khó nhất, kể cả N3–N1. — CONFIRMED (2026-11-10)
+  - Không có trong JMdict (thường là cụm câu như お名前は) → `KANJI_CORE` ở cấp của cụm. — CONFIRMED (2026-11-10)
+  - JMdict ghi "thường viết bằng Kana" (`uk`) **không** còn đưa từ vào `KANJI_OPTIONAL`; chỉ hạ độ tin cậy để người duyệt xem. Từ có Kanji đều phải học dạng Kanji. `KANJI_OPTIONAL` chỉ còn khi người duyệt tự gắn. — CONFIRMED (2026-11-10)
+  - Cấp chữ: chữ N5 trong file gốc giữ nguyên; chữ khác theo danh sách Jonathan Waller (`pnpm policy:levels`, nguồn kanji-data); Waller thiếu cấp thì giữ cấp cũ. — CONFIRMED (2026-11-10)
   - Mỗi đề xuất ghi nguồn, lý do và độ tin cậy (`high`, `medium`, `low`).
 - Chủ dự án duyệt. Nhãn đã duyệt có cờ `locked`; chạy lại script không ghi đè, chỉ báo chỗ lệch. — CONFIRMED
 - Người học lên cấp N4: từ đã xong Stage 3 ở N5 mở thêm Stage 4–6, không mất tiến độ Stage 1–3. — CONFIRMED (yêu cầu V9)

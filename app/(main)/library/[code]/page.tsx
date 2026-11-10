@@ -2,17 +2,33 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
-import { relearnCardAction, relearnStageAction } from '@/app/learn/actions'
+import { relearnCardAction, relearnStageAction, setKanjiOptinAction } from '@/app/learn/actions'
 import { StarButton, StarNote, StarredWordsProvider } from '@/components/learning/star-button'
 import { KnownToggle } from '@/components/library/known-toggle'
 import { RelearnButton } from '@/components/library/relearn-button'
 import { SpeakerButton } from '@/components/learning/speaker-button'
-import { getWordDetail } from '@/lib/dal/word-detail'
+import { getWordDetail, type WordDetail } from '@/lib/dal/word-detail'
 import { CARD_LABELS } from '@/lib/learning/card-labels'
 import { relearnStagePoints } from '@/lib/learning/stage'
 import { formatVnDateTime } from '@/lib/learning/time'
 
 export const metadata: Metadata = { title: 'Word · Nihongo' }
+
+type KanjiPolicyInfo = WordDetail['kanjiPolicy']
+
+/** Chính sách Kanji của từ (V9 §6a). */
+function policyNote(p: KanjiPolicyInfo): string {
+  if (p.policy === 'KANJI_OPTIONAL') return p.optedIn ? 'Usually written in kana. You chose to learn its Kanji too.' : 'Usually written in kana, so learning its Kanji is optional.'
+  if (p.targetLevel !== null) return `You learn this word in Kanji at N${p.targetLevel}.`
+  return ''
+}
+
+/** Vì sao Stage 4 của từ chưa mở. */
+function kanjiOpensNote(p: KanjiPolicyInfo, stage3Done: boolean): string {
+  if (p.wait === 'optional') return 'Its Kanji stages are optional. Choose “Learn its Kanji” above to add them.'
+  if (p.wait === 'next_level') return `Its Kanji stages open when you move Kanji words up to N${p.targetLevel}.`
+  return stage3Done ? 'Its Kanji stages are ready in Learn.' : 'Its Kanji stages open after Stage 3.'
+}
 
 export default async function WordDetailPage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params
@@ -50,6 +66,15 @@ export default async function WordDetailPage({ params }: { params: Promise<{ cod
       {word.kanji.length > 0 && (
         <section aria-labelledby="kanji-title" className="rounded-3xl border border-border bg-card p-6">
           <h2 id="kanji-title" className="font-semibold">Kanji in this word</h2>
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm text-subtle">{policyNote(word.kanjiPolicy)}</p>
+            {word.kanjiPolicy.policy === 'KANJI_OPTIONAL' && !word.progress?.stages.some((s) => s.stage === 5) && (
+              <RelearnButton
+                label={word.kanjiPolicy.optedIn ? 'Skip its Kanji' : 'Learn its Kanji'}
+                action={setKanjiOptinAction.bind(null, word.id, !word.kanjiPolicy.optedIn)}
+              />
+            )}
+          </div>
           <ul className="mt-3 flex flex-col divide-y divide-border">
             {word.kanji.map((k) => (
               <li key={k.character} className="flex items-baseline gap-3 py-3">
@@ -70,7 +95,7 @@ export default async function WordDetailPage({ params }: { params: Promise<{ cod
           <>
             <p className="mt-2 text-sm text-subtle">{word.progress.completed ? 'Vocabulary finished.' : `Vocabulary: Stage ${word.progress.currentStage}.`}</p>
             {!word.isKanaOnly && !word.progress.stages.some((s) => s.stage === 5) && (
-              <p className="mt-2 text-sm text-muted-foreground">Its Kanji word opens after Stage 2, once you&apos;ve learned every Kanji in it.</p>
+              <p className="mt-2 text-sm text-muted-foreground">{kanjiOpensNote(word.kanjiPolicy, word.progress.stages.some((s) => s.stage === 3 && s.completed))}</p>
             )}
             {word.progress.stages.length > 0 && (
               <ul className="mt-3 flex flex-col divide-y divide-border">

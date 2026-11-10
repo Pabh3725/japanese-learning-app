@@ -7,7 +7,7 @@
 //   SUPABASE_SECRET_KEY        secret key (sb_secret_...) — KHÔNG có prefix NEXT_PUBLIC_
 //                              (tên cũ SUPABASE_SERVICE_ROLE_KEY vẫn đọc được)
 
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { runSeed, type SeedDb } from './run'
 
@@ -21,7 +21,12 @@ async function main() {
   if (unknown.length) throw new Error(`Không hiểu tham số: ${unknown.join(' ')}. Dùng --dry-run hoặc --check.`)
 
   const read = (name: string) => ({ name, text: readFileSync(join(DATA_DIR, name), 'utf8') })
-  const files = { kanji: read('kanji.csv'), vocabularies: read('vocabularies.csv') }
+  const files = {
+    kanji: read('kanji.csv'),
+    vocabularies: read('vocabularies.csv'),
+    // V9 gói 3: chính sách Kanji của từ, do pnpm policy:propose tạo rồi chủ dự án duyệt
+    ...(existsSync(join(DATA_DIR, 'kanji_policy.csv')) ? { policy: read('kanji_policy.csv') } : {}),
+  }
 
   let db: SeedDb | null = null
   if (!check) {

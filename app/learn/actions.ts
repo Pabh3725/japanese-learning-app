@@ -3,6 +3,7 @@
 // Server Function cho các câu Stage 2, 3, 5, 6. Mỏng: mọi logic nằm ở lib/dal/stage-session.ts.
 import { markWordsKnown, unmarkWordsKnown } from '@/lib/dal/known-words'
 import { raiseSkillLevel } from '@/lib/dal/skill-levels'
+import { setKanjiOptin, type KanjiOptinResponse } from '@/lib/dal/word-kanji'
 import { relearnCard, relearnStage, restartStarRound, setWordStarred, type RelearnResponse } from '@/lib/dal/star-relearn'
 import {
   borrowNewWords,
@@ -36,6 +37,10 @@ export async function raiseSkillLevelAction(skill: unknown, level: unknown): Pro
 
 export async function setWordStarredAction(vocabularyId: unknown, starred: unknown): Promise<{ status: 'saved' | 'invalid' }> {
   return setWordStarred(vocabularyId, starred)
+}
+
+export async function setKanjiOptinAction(vocabularyId: unknown, on: boolean): Promise<KanjiOptinResponse> {
+  return setKanjiOptin(vocabularyId, on === true)
 }
 
 export async function relearnCardAction(cardId: unknown): Promise<RelearnResponse> {

@@ -2,6 +2,8 @@
 // Hàm thuần: nhận nội dung file, trả kết quả. Không đọc file, không gọi DB,
 // không đọc giờ hệ thống → test được độc lập.
 
+import { policyIssues } from '../policy/classify'
+import { parsePolicyFile } from '../policy/policy-file'
 import { parseCsv } from './csv'
 import {
   KANJI_COLUMNS,
@@ -35,6 +37,8 @@ export interface ValidationResult {
   hasEmojiColumn: boolean
   /** Có cột lesson trong vocabularies.csv không. */
   hasLessonColumn: boolean
+  /** Có file kanji_policy.csv không. Không có thì seed không đụng chính sách Kanji trong DB. */
+  hasPolicy: boolean
   errors: Issue[]
   /** Báo cáo, không chặn seed. */
   warnings: Issue[]
@@ -43,6 +47,8 @@ export interface ValidationResult {
 export interface SeedFiles {
   kanji: { name: string; text: string }
   vocabularies: { name: string; text: string }
+  /** data/n5/kanji_policy.csv (V9 gói 3), tuỳ chọn. */
+  policy?: { name: string; text: string }
 }
 
 // ---------------------------------------------------------------------------
@@ -225,17 +231,57 @@ export function validateAll(files: SeedFiles): ValidationResult {
     }
   }
 
+  // 5. Chính sách Kanji của từ: mỗi từ đúng một dòng, nhãn hợp với từ
+  const policyOf = files.policy ? validatePolicy(files.policy, vocab.rows, errors) : null
+
   errors.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line)
 
   return {
     kanji: withStudyOrder(kanji.rows.map((r) => r.row), vocab.rows.map((r) => r.row)),
-    vocabularies: vocab.rows.map((r) => r.row),
+    vocabularies: vocab.rows.map(({ row }) => {
+      if (!policyOf) return row
+      const p = policyOf.get(row.code)
+      return { ...row, kanji_policy: p?.policy ?? null, kanji_target_level: p?.targetLevel ?? null }
+    }),
     links,
     hasEmojiColumn: vocab.header.includes('emoji'),
     hasLessonColumn: vocab.header.includes('lesson'),
+    hasPolicy: policyOf !== null,
     errors,
     warnings,
   }
+}
+
+function validatePolicy(
+  file: { name: string; text: string },
+  vocabRows: { line: number; row: VocabRow }[],
+  errors: Issue[],
+): Map<string, { policy: string; targetLevel: number | null }> {
+  const parsed = parsePolicyFile(file.text)
+  for (const e of parsed.errors) errors.push({ file: file.name, line: e.line, message: e.message })
+  const words = new Map(vocabRows.map(({ row }) => [row.code, row]))
+  const out = new Map<string, { policy: string; targetLevel: number | null }>()
+  parsed.rows.forEach((row, i) => {
+    const line = i + 2
+    const word = words.get(row.code)
+    if (!word) {
+      errors.push({ file: file.name, line, column: 'code', message: `${row.code} không có trong vocabularies.csv` })
+      return
+    }
+    if (out.has(row.code)) {
+      errors.push({ file: file.name, line, column: 'code', message: `${row.code} có hai dòng` })
+      return
+    }
+    for (const message of policyIssues(row, { isKanaOnly: word.is_kana_only, wordLevel: word.jlpt_level })) {
+      errors.push({ file: file.name, line, column: 'policy', message: `${row.expression}: ${message}` })
+    }
+    out.set(row.code, { policy: row.policy, targetLevel: row.targetLevel })
+  })
+  const missing = [...words.keys()].filter((code) => !out.has(code))
+  if (missing.length > 0 && parsed.errors.length === 0) {
+    errors.push({ file: file.name, line: 1, message: `Thiếu ${missing.length} từ: ${missing.slice(0, 10).join(', ')}. Chạy pnpm policy:propose.` })
+  }
+  return out
 }
 
 export function formatIssue(i: Issue): string {
