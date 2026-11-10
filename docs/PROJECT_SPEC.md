@@ -1478,8 +1478,8 @@ Chủ dự án chốt ngày 2026-11-10. Luật đầy đủ: `docs/learning-rule
 - **6 Stage, hai nhánh:** Từ vựng Kana 1 → 2 → 3 (Stage 3 củng cố nghĩa và Kana); Từ vựng Kanji 4 (thẻ) → 5 → 6 (Stage 6 củng cố Kanji và Hán Việt). Giữ mọi mốc điểm. Stage 4 mở khi xong Stage 3 và chính sách Kanji của từ yêu cầu ở cấp hiện tại; không cần học xong chữ thành phần.
 - **Chính sách Kanji của từ:** `KANA_ONLY`, `KANJI_CORE`, `KANJI_DEFERRED`, `KANJI_OPTIONAL`; script đề xuất, chủ dự án duyệt, nhãn đã duyệt không bị ghi đè. Từ `KANJI_OPTIONAL` có nút "Học dạng Kanji".
 - **Learn chung:** bài 50 câu (20–100), nhiều bài mỗi ngày, ngân sách 200 câu/ngày cho cả 3 nhóm (không tính câu kiểm tra nhanh) và trần phụ Kanji; câu do AIS xếp; chọn được một nhóm. Bỏ Học hỗn hợp cụm 5 câu.
-- **Card:** Card Kana tạo khi xong Stage 3; Card Kanji khi xong Stage 6; Kanji riêng lẻ có 2 Card (mặt chữ ↔ nghĩa, Hán Việt). Review chung có bộ lọc; "chọn Kanji trong 6" là câu trắc nghiệm duy nhất trong Review.
-- **Kanji riêng lẻ:** giữ 12 câu trong 4 buổi; On/Kun không bắt buộc; thêm bộ thủ, thành phần, nét viết, mẹo ghi nhớ có duyệt, các dạng bài ghép thành phần, phân biệt chữ gần giống, ghép cặp, tô nét.
+- **Card:** Card Kana tạo khi xong Stage 3; Card Kanji khi xong Stage 6; Kanji riêng lẻ có 2 Card (mặt chữ ↔ nghĩa, Hán Việt). **Review không gộp:** tab Review có 2 mục riêng (Từ vựng Kana, Từ vựng Kanji), Kanji riêng lẻ ôn trong khu Kanji; mỗi loại có trần riêng. "Chọn Kanji trong 6" là câu trắc nghiệm duy nhất trong phần ôn dài hạn.
+- **Kanji riêng lẻ:** giữ 12 câu trong 4 buổi; On/Kun không bắt buộc; thêm bộ thủ, thành phần, hoạt hình thứ tự nét (chỉ xem, không chấm), các dạng bài ghép thành phần, phân biệt chữ gần giống (script đề xuất, chủ dự án duyệt), ghép cặp. Không có mẹo ghi nhớ. Cấp chữ theo danh sách Jonathan Waller; từ "thường viết Kana" theo JMdict.
 - **Archive:** nút "Đã học xong" lưu trữ riêng một Card, có kho lưu trữ, khôi phục giữ tiến độ hoặc học lại từ đầu.
 - **Prod:** tiến độ từ vựng thử nghiệm bị xóa khi lên V9 (chủ dự án chọn 2026-11-10).
 

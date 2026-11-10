@@ -16,10 +16,10 @@
 | R4 | Mốc mở/hoàn tất | Giữ số điểm; Stage 4 cần Stage 3 hoàn tất và chính sách Kanji |
 | R5 | Tạo Card | Card Kana tạo ở Stage 3; thêm 2 Card Kanji riêng lẻ |
 | R6 | Điểm Card và bỏ Card giàn giáo (V8); đã bỏ ở v2 | Không có điểm Card. Vòng đời Card: `active`, `suspended`, `archived`, `retired` (chỉ còn để đọc lịch sử V8) |
-| R7 | Dựng Learn và Review mỗi ngày | Learn chung: bài 50 câu, ngân sách 200 câu/ngày, trần phụ Kanji; Review chung có bộ lọc |
+| R7 | Dựng Learn và Review mỗi ngày | Learn chung: bài 50 câu, ngân sách 200 câu/ngày, trần phụ Kanji. Review **không** gộp: Từ vựng Kana và Từ vựng Kanji là 2 mục riêng, Kanji riêng lẻ ôn trong khu Kanji; mỗi loại có trần riêng |
 | R8 | Loại/khôi phục từ | Giữ nguyên; tách biệt với `archived` |
 | R9 | Lịch Stage 2/4/5/6 tối đa 2 ngày | Lịch Stage 2/3/5/6 tối đa 2 ngày |
-| R10 | Khu Kanji riêng | Kanji riêng lẻ: Học trong Learn, ôn trong Review bằng 2 Card |
+| R10 | Khu Kanji riêng | Kanji riêng lẻ: Học trong Learn, ôn dài hạn trong khu Kanji bằng 2 Card |
 | R11 | — | Adaptive Interleaving Scheduler (AIS) |
 | R12 | — | Kanji Visual Learning |
 | R13 | — | Card Archive |
@@ -130,8 +130,8 @@ Cooldown của AIS (R11) là chuyện **khi nào hỏi**; R3 là chuyện **có 
 
 - Card Kana tạo ở Stage 3, không ở Stage 2, để Stage 3 và Review không cùng luyện S1/S2 một lúc. — CONFIRMED (2026-11-10)
 - Kanji → Kana được kiểm tra trong `vocab.kanji`; Hán Việt bắt buộc nằm trong `vocab.kanji` và `kanji.hanviet`. — CONFIRMED
-- Kanji riêng lẻ tách 2 Card, nên sai Hán Việt không làm hỏng lịch của mặt chữ–nghĩa. Viết và tô nét chỉ là bài luyện, không có lịch. — CONFIRMED (2026-11-10)
-- **Ngoại lệ:** câu "chọn Kanji trong 6" của 2 Card Kanji riêng lẻ là câu trắc nghiệm duy nhất trong Review, vì nhận mặt chữ từ nghĩa hoặc Hán Việt mà không chọn thì chỉ còn cách viết. — CONFIRMED (2026-11-10)
+- Kanji riêng lẻ tách 2 Card, nên sai Hán Việt không làm hỏng lịch của mặt chữ–nghĩa. Hai Card này ôn trong khu Kanji, không vào tab Review. Viết là bài luyện không có lịch; nét viết chỉ có hoạt hình để xem. — CONFIRMED (2026-11-10)
+- **Ngoại lệ:** câu "chọn Kanji trong 6" của 2 Card Kanji riêng lẻ là câu trắc nghiệm duy nhất trong phần ôn dài hạn, vì nhận mặt chữ từ nghĩa hoặc Hán Việt mà không chọn thì chỉ còn cách viết. — CONFIRMED (2026-11-10)
 - Card mới đến hạn lần đầu lúc 00:00 ngày học hôm sau; tạo Card idempotent (một Card mỗi loại mỗi từ hoặc chữ). — CONFIRMED
 - Card `vocab.kana` đã tạo ở Stage 2 trên dev (theo v2) được giữ nguyên lịch và log; không tạo thêm Card khi từ đó xong Stage 3. — PROPOSED
 
@@ -147,7 +147,7 @@ Cooldown của AIS (R11) là chuyện **khi nào hỏi**; R3 là chuyện **có 
 - Không có điểm Card, không bỏ Card theo điểm, không gộp Card. — CONFIRMED (v2)
 - Một Card có thể vừa `suspended` vừa `archived`; Card chỉ vào Review khi không có trạng thái nào. — PROPOSED
 
-## 9. R7 — Learn chung và Review chung
+## 9. R7 — Learn chung, Review tách riêng
 
 ### 9.1 Bài Learn — CONFIRMED (yêu cầu V9), chi tiết PROPOSED
 
@@ -169,12 +169,20 @@ Cooldown của AIS (R11) là chuyện **khi nào hỏi**; R3 là chuyện **có 
 
 Bài kết thúc sớm khi AIS không còn câu hợp lệ (§14.5). Màn kết thúc ghi "Đã hết câu cho hôm nay: 37/50" và lý do (đã hết câu đến hẹn, đã dùng hết từ mới, chạm ngân sách). Không tạo câu lặp để lấp đủ số.
 
-### 9.4 Review chung — CONFIRMED (yêu cầu V9)
+### 9.4 Review tách riêng — CONFIRMED (2026-11-10, thay "Review chung" của yêu cầu V9)
 
-- Một hàng đợi gồm `vocab.kana`, `vocab.kanji`, `kanji.meaning`, `kanji.hanviet`, rồi `vocab.star_recall`.
-- Bộ lọc: Tất cả (mặc định), Từ vựng Kana, Từ vựng Kanji, Kanji riêng lẻ.
-- Quá hạn lâu nhất trước; `review_cap` (120) đếm số Card khác nhau đã ôn hôm nay ở mọi bộ lọc; Card Again quay lại trong ngày không tính thêm. Giữ R7 V8 bước 9.
-- Card cũ không bị tạo lại khi chuyển sang Review chung.
+Chỉ Learn mới gộp 3 nhóm. Phần ôn dài hạn tách riêng từng loại, không có nút trộn:
+
+| Loại | Ở đâu | Card | Trần mặc định (PROPOSED) |
+| --- | --- | --- | --- |
+| Từ vựng Kana | Tab Review, mục 1 | `vocab.kana`, rồi `vocab.star_recall` | 120 |
+| Từ vựng Kanji | Tab Review, mục 2 | `vocab.kanji` | 60 |
+| Kanji riêng lẻ | Khu Kanji trong Learn | `kanji.meaning`, `kanji.hanviet` | 60 |
+
+- Mỗi loại có trần riêng trong Settings, đếm số Card khác nhau đã ôn hôm nay của loại đó; loại này dồn không chiếm chỗ loại kia. — CONFIRMED (2026-11-10)
+- Trong mỗi loại: quá hạn lâu nhất trước; Card Again quay lại trong ngày không tính thêm vào trần. Giữ R7 V8 bước 9.
+- Câu ôn dài hạn của Kanji riêng lẻ không tính vào ngân sách Learn 200 câu (đó là câu Review của khu Kanji).
+- Card cũ không bị tạo lại khi đổi giao diện.
 
 ## 10. R8 — Loại và khôi phục từ
 
@@ -187,11 +195,12 @@ Mỗi từ × Stage 2, 3, 5, 6 có một lịch `ts-fsrs`, tối đa 2 ngày, kh
 ## 12. R10 — Kanji riêng lẻ
 
 - Thứ tự chữ mới, cấp, thẻ "đã biết", quá tải: giữ §18.6. — CONFIRMED
-- Thẻ giới thiệu: mặt chữ, nghĩa, Hán Việt, bộ thủ, thành phần và vị trí, mẹo ghi nhớ đã duyệt, nét viết, từ liên quan (R12).
+- Thẻ giới thiệu: mặt chữ, nghĩa, Hán Việt, bộ thủ, thành phần và vị trí, hoạt hình thứ tự nét, từ liên quan (R12). **Không có mẹo ghi nhớ.** — CONFIRMED (2026-11-10)
+- Cấp N5/N4… của chữ lấy theo danh sách JLPT của Jonathan Waller (tanos.co.uk) sau khi xác minh điều kiện sử dụng, thay cấp JLPT cũ trước 2010 của KANJIDIC2. Đây là danh sách bên thứ ba, không phải danh sách chính thức. Đổi cấp sẽ đổi thứ tự học (`study_order`). — CONFIRMED (2026-11-10)
 - **Giai đoạn Học:** 12 câu trong 4 buổi (ngày 1, 2, 3, 5), mỗi buổi 3 câu, đúng +1 (tối đa +3/ngày), gợi ý 0, sai −2, không dưới 0. — CONFIRMED (giữ)
 - **Hoàn tất Học:** 12 điểm; mỗi hướng (Kanji → nghĩa, nghĩa → Kanji, Kanji → Hán Việt, Hán Việt → Kanji) đúng ít nhất 2 lần, trong đó gõ Hán Việt ít nhất 1 lần; 3 câu gần nhất đúng. — Bỏ On/Kun bắt buộc: CONFIRMED (2026-11-10); số lần mỗi hướng: PROPOSED
 - Câu On/Kun vẫn có thể xuất hiện, tính điểm nhưng không thuộc điều kiện hoàn tất. — CONFIRMED (2026-11-10)
-- Hoàn tất Học thì tạo `kanji.meaning` và `kanji.hanviet`, chép trạng thái lịch Học hiện tại sang cả hai. Khu ôn dài hạn trong khu Kanji bị thay bằng Review chung. — PROPOSED
+- Hoàn tất Học thì tạo `kanji.meaning` và `kanji.hanviet`, chép trạng thái lịch hiện tại sang cả hai; hai Card ôn ngay trong khu Kanji, thay lịch ôn dài hạn duy nhất của v2. — CONFIRMED (2026-11-10: ôn trong khu Kanji); cách chép lịch: PROPOSED
 - Khi Stage 4–6 giải thích cách đọc của từ, chỉ hiện ánh xạ On/Kun từng chữ khi dữ liệu có sẵn ánh xạ đó (ví dụ từ JMdict furigana). Không tự suy cách đọc của từ từ âm từng chữ. — CONFIRMED (yêu cầu V9)
 
 ## 13. R12 — Kanji Visual Learning — CONFIRMED (danh sách dạng bài), chi tiết PROPOSED
@@ -201,15 +210,15 @@ Mỗi từ × Stage 2, 3, 5, 6 có một lịch `ts-fsrs`, tối đa 2 ngày, kh
 | A | Kanji → nghĩa; nghĩa → chọn Kanji | `KANJI_PRACTICE` | Luôn có |
 | B | Kanji → chọn hoặc gõ Hán Việt | `KANJI_PRACTICE` | Luôn có |
 | C | Ghép thành phần theo vị trí (亻 + 木 → 休) | Hỗ trợ | Chỉ khi dữ liệu cấu tạo được duyệt |
-| E | Phân biệt chữ gần giống (日 / 目), có giải thích sau câu | `KANJI_PRACTICE` (tính vào hướng nghĩa → Kanji) | Chỉ khi cặp gần giống được duyệt |
+| E | Phân biệt chữ gần giống (日 / 目), có giải thích sau câu | `KANJI_PRACTICE` (tính vào hướng nghĩa → Kanji) | Cặp do script đề xuất (thành phần và số nét giống nhau, từ KanjiVG), lời giải thích soạn sẵn; chỉ cặp chủ dự án duyệt mới được hỏi — CONFIRMED (2026-11-10) |
 | F | Ghép cặp Kanji ↔ nghĩa hoặc Hán Việt | Hỗ trợ | Ít nhất 4 chữ đã giới thiệu |
-| G | Tô nét theo mẫu | Hỗ trợ | Có dữ liệu nét KanjiVG |
+| G | Xem hoạt hình thứ tự nét, tự viết ra giấy | Không phải câu hỏi: không chấm, không tính vào số câu | Có dữ liệu nét KanjiVG — CONFIRMED (2026-11-10) |
 
 - **Không** làm dạng D (điền thành phần còn thiếu). — CONFIRMED
 - Chấm Hán Việt khi gõ: bỏ khác biệt hoa/thường và khoảng trắng; dấu tiếng Việt phải đúng, nhưng chấp nhận cả hai kiểu đặt dấu (hoà/hòa). — PROPOSED
-- Chấm tô nét: so từng nét với mẫu về thứ tự, hướng, điểm đầu, điểm cuối, có ngưỡng sai số. Đây không phải nhận dạng chữ viết tay; giao diện ghi rõ. — PROPOSED
-- Phân biệt các loại thông tin: **bộ thủ** (bộ thủ chính thức theo từ điển, từ KANJIDIC2), **thành phần** (các phần cấu tạo, từ KanjiVG), **mẹo ghi nhớ** (do AI đề xuất hoặc người viết, có nhãn), **nguồn gốc chữ** (chỉ hiện khi có nguồn đáng tin; hiện chưa có nên ẩn). — CONFIRMED (yêu cầu V9)
-- Dữ liệu do AI đề xuất (mẹo, giải thích, mẹo phân biệt) có trạng thái `pending` tới khi được duyệt; chỉ dữ liệu `approved` hiện cho người học; chạy lại không ghi đè dữ liệu đã duyệt. AI không được tạo dữ liệu cấu tạo chữ. — CONFIRMED (yêu cầu V9)
+- Không chấm nét viết: app không nhận dạng chữ viết tay, dạng G chỉ để xem. — CONFIRMED (2026-11-10)
+- Phân biệt các loại thông tin: **bộ thủ** (bộ thủ chính thức theo từ điển, từ KANJIDIC2), **thành phần** (các phần cấu tạo, từ KanjiVG), **mẹo ghi nhớ** (không làm ở V9 — CONFIRMED 2026-11-10), **nguồn gốc chữ** (chỉ hiện khi có nguồn đáng tin; hiện chưa có nên ẩn). — CONFIRMED (yêu cầu V9)
+- Dữ liệu do AI đề xuất (hiện chỉ có lời giải thích cho cặp chữ gần giống) có trạng thái `pending` tới khi được duyệt; chỉ dữ liệu `approved` hiện cho người học; chạy lại không ghi đè dữ liệu đã duyệt. AI không được tạo dữ liệu cấu tạo chữ. — CONFIRMED (yêu cầu V9)
 
 ## 14. R11 — Adaptive Interleaving Scheduler (AIS) — PROPOSED
 
@@ -312,7 +321,11 @@ export const RULES_V9 = {
     overloadFrom: 10, learningShareOfCap: 0.7,
   },
   relearn: { pointsToComplete: 3 },
-  defaults: { newPerDay: 5, learnCap: 200, kanjiCap: 100, kanjiNewPerDay: 10, reviewCap: 120, unlockThreshold: 80 },
+  defaults: {
+    newPerDay: 5, learnCap: 200, kanjiCap: 100, kanjiNewPerDay: 10, unlockThreshold: 80,
+    // Trần ôn riêng từng loại (số mặc định PROPOSED)
+    reviewCaps: { vocabKana: 120, vocabKanji: 60, kanji: 60 },
+  },
   bossRound: { everyQuestions: 25, minWordsToday: 6, seconds: 30 },
   borrow: { maxDaysAhead: 1 },
 } as const
@@ -353,10 +366,16 @@ Card `vocab.kanji` của 学校 đang có stability 46, đến hạn 20/12. Ngư
 
 | # | Câu hỏi | Đề xuất |
 | --- | --- | --- |
-| Q1 | Review cho phép "chọn Kanji trong 6" ở Card Kanji riêng lẻ? | **Chốt: có**, ngoại lệ duy nhất (§7) |
+| Q1 | Phần ôn Card Kanji riêng lẻ cho phép "chọn Kanji trong 6"? | **Chốt: có**, ngoại lệ duy nhất (§7) |
 | Q2 | Câu `MICRO_PRACTICE` có tính vào ngân sách 200 câu? | **Chốt: không** (2026-11-10) |
 | Q3 | `KANJI_OPTIONAL` có cho người học tự bật? | **Chốt: có**, nút ở trang chi tiết từ |
 | Q4 | Card đến hạn của Kanji riêng lẻ có tính vào ngưỡng chặn từ mới? | **Chốt: có** |
 | Q5 | Bài Learn có cho chọn chỉ một nhóm? | **Chốt: có** |
 | Q6 | Giữ nút Học hỗn hợp cụm 5 câu của v2? | **Chốt: bỏ**, AIS thay thế |
+| Q8 | Review gộp hay tách? | **Chốt: tách** — Từ vựng Kana, Từ vựng Kanji ở tab Review; Kanji ôn trong khu Kanji; trần riêng (2026-11-10) |
+| Q9 | Mẹo ghi nhớ? | **Chốt: không làm** |
+| Q10 | Tô nét? | **Chốt: chỉ xem hoạt hình**, không chấm |
+| Q11 | Chữ gần giống? | **Chốt: script đề xuất, chủ dự án duyệt** |
+| Q12 | Cấp chữ Kanji? | **Chốt: danh sách Jonathan Waller** |
+| Q13 | JMdict để biết từ thường viết Kana? | **Chốt: dùng**, ghi nguồn EDRDG |
 | Q7 | Câu `MICRO_PRACTICE` có tính vào số câu của bài? | **Chốt: có** |

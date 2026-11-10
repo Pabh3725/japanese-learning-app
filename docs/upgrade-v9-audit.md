@@ -65,7 +65,7 @@ Yêu cầu nâng cấp được viết dựa trên **V8**. Nhưng code hiện c�
 
 - Hán Việt và nghĩa tiếng Việt của chữ: đang lấy từ file seed hiện có. Chưa có nguồn mở có giấy phép rõ ràng để đối chiếu tự động; giữ cơ chế người rà (`docs/kanji-review.md`).
 - CC BY-SA yêu cầu ghi nguồn, và dữ liệu phái sinh phải giữ cùng giấy phép.
-- Dạng bài tô nét (G): chấm theo hướng, điểm đầu và điểm cuối từng nét so với mẫu KanjiVG. Đây **không** phải nhận dạng chữ viết tay tự do; giao diện phải ghi rõ giới hạn này.
+- Dạng G: chỉ xem hoạt hình thứ tự nét từ KanjiVG, không chấm (chủ dự án chọn 2026-11-10).
 
 ## 5. Đề xuất chia việc (PROPOSED)
 
@@ -74,9 +74,9 @@ Mỗi gói là một nhánh `feature/*`, merge theo thứ tự:
 1. **V9-RULES** — Learning Rules V9 (R1–R13 + bảng ánh xạ), config có version, dọn tài liệu cũ. Chỉ tài liệu.
 2. **V9-STAGE** — Đánh số 6 Stage, điều kiện mở nhánh Kanji, thời điểm tạo Card, migration V8 → V9 và v2 → V9 (chạy lại an toàn, có rollback), test.
 3. **V9-POLICY** — Bảng chính sách Kanji theo từ/cấp, nguồn, độ tin cậy, khóa thủ công; script đề xuất tự động; danh sách cho người duyệt.
-4. **V9-REVIEW** — Review chung (từ vựng Kana, từ vựng Kanji, Kanji riêng lẻ), bộ lọc, Archive và kho lưu trữ, khôi phục hai kiểu, sự kiện reset.
+4. **V9-REVIEW** — Review tách riêng (2 mục từ vựng ở tab Review, 2 Card Kanji ôn trong khu Kanji), trần riêng từng loại, Archive và kho lưu trữ, khôi phục hai kiểu, sự kiện reset.
 5. **V9-AIS** — Bài 50 câu, ngân sách Learn, AIS, lưu và tiếp tục phiên, test mô phỏng 20/50/100 câu.
-6. **V9-KANJI-DATA** — Nhập bộ thủ, thành phần, vị trí, nét từ KanjiVG/KANJIDIC2; mẹo ghi nhớ do AI đề xuất ở trạng thái chờ duyệt.
+6. **V9-KANJI-DATA** — Nhập bộ thủ, thành phần, vị trí, nét từ KanjiVG/KANJIDIC2; cặp chữ gần giống do script đề xuất chờ duyệt; cấp chữ theo danh sách Waller. Không có mẹo ghi nhớ.
 7. **V9-KANJI-UI** — Thẻ giới thiệu mới, dạng bài A, B, C, E, F, G; tách 2 Card cho mỗi chữ.
 
 Gói 2 phải xong trước 4 và 5; gói 6 trước 7. Gói 3 làm song song với 2.
@@ -88,7 +88,10 @@ Gói 2 phải xong trước 4 và 5; gói 6 trước 7. Gói 3 làm song song v�
 3. Learn dùng một ngân sách chung 200 câu cho 3 nhóm, có trần phụ cho Kanji riêng lẻ.
 4. Card Kana tạo khi xong Stage 3.
 5. Phân loại Kanji: script tự đề xuất, chủ dự án duyệt; nhãn đã duyệt không bị ghi đè.
-6. Kanji riêng lẻ có 2 Card trong Review chung (mặt chữ ↔ nghĩa, Hán Việt); viết và tô nét chỉ là bài luyện.
+6. Kanji riêng lẻ có 2 Card (mặt chữ ↔ nghĩa, Hán Việt); viết chỉ là bài luyện.
+9. **Review không gộp** (thay quyết định trước): Từ vựng Kana và Từ vựng Kanji là 2 mục ở tab Review; Kanji riêng lẻ ôn trong khu Kanji; trần ôn riêng từng loại.
+10. Không có mẹo ghi nhớ. Tô nét chỉ xem hoạt hình, không chấm. Cặp chữ gần giống: script đề xuất, chủ dự án duyệt.
+11. Cấp chữ Kanji theo danh sách Jonathan Waller; dùng JMdict để biết từ thường viết Kana (ghi nguồn EDRDG).
 7. Giai đoạn Học Kanji giữ 12 câu trong 4 buổi; On/Kun không còn bắt buộc.
 8. Làm từng gói, duyệt từng gói; gói đầu là Learning Rules V9 (`docs/learning-rules.md`, đã chốt 2026-11-10).
 
