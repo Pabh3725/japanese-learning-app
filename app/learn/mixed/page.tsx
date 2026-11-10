@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
 import { StarredWordsProvider } from '@/components/learning/star-button'
 import { MixedSession, type MixedSegment } from '@/components/learning/mixed-session'
 import { getKanjiSession } from '@/lib/dal/kanji'
@@ -15,7 +16,12 @@ function chunks<T>(items: readonly T[]): T[][] {
 }
 
 export default async function MixedPage() {
-  const [vocabulary, wordKanji, kanji] = await Promise.all([getLearnSession(true, 'vocabulary'), getLearnSession(true, 'word_kanji'), getKanjiSession()])
+  const [vocabulary, wordKanji, kanji] = await Promise.all([getLearnSession(false, 'vocabulary'), getLearnSession(false, 'word_kanji'), getKanjiSession()])
+  // Nút Learn: thẻ giới thiệu (từ mới, chữ mới, thẻ Kanji của từ) chưa xen được vào phiên trộn, nên làm trước ở phiên của nhóm đó.
+  // Gói 5 (AIS) sẽ xen thẻ giới thiệu thẳng vào phiên trộn.
+  if (vocabulary.intros.length > 0) redirect('/learn/session')
+  if (kanji.intros.length > 0) redirect('/learn/kanji/session')
+  if (wordKanji.intros.length > 0) redirect('/learn/session?skill=word_kanji')
   // Vòng ghép cuối phiên phải đứng sau mọi câu của từ đó, nên chỉ lấy câu thường cho phiên hỗn hợp
   const plain = (list: typeof vocabulary.questions) => list.filter((q) => q.kind !== 'match' && q.kind !== 'boss')
   const groups: MixedSegment[][] = [

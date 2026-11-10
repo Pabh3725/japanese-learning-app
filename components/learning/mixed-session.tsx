@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { KanjiPractice } from '@/components/kanji/kanji-session'
 import { LearnPractice } from '@/components/learning/learn-practice'
 import { SessionComplete } from '@/components/learning/session-complete'
+import { TodaySummary } from '@/components/learning/today-summary'
 import type { KanjiSessionQuestion } from '@/lib/dal/kanji'
 import type { StageQuestion } from '@/lib/dal/stage-session'
 
@@ -24,7 +25,9 @@ export function MixedSession({ segments }: { segments: MixedSegment[] }) {
           stats={[]}
           primary={{ href: '/learn', label: 'Back to Learn' }}
           secondary={{ href: '/', label: 'Back to Home' }}
-        />
+        >
+          <TodaySummary />
+        </SessionComplete>
       </div>
     )
   }

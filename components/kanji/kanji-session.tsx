@@ -10,6 +10,7 @@ import { ArchiveCardBar } from '@/components/review/archive-card-bar'
 import { ContinueFooter, WRONG_ANSWER_NOTE } from '@/components/learning/exercise-footer'
 import { ExercisePanel } from '@/components/learning/exercise-panel'
 import { SessionComplete } from '@/components/learning/session-complete'
+import { TodaySummary } from '@/components/learning/today-summary'
 import { SessionHeader } from '@/components/learning/session-header'
 import type { AssemblyGrade } from '@/components/learning/steps/assembly-exercise'
 import { ChoiceExercise } from '@/components/learning/steps/choice-exercise'
@@ -149,7 +150,9 @@ export function KanjiPractice({ questions: initialQuestions, onDone }: { questio
           primary={{ href: '/learn/kanji', label: 'Back to Kanji' }}
           secondary={{ href: '/', label: 'Back to Home' }}
           busy={pending > 0}
-        />
+        >
+          <TodaySummary ready={pending === 0} />
+        </SessionComplete>
       </div>
     )
   }

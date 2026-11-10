@@ -1,4 +1,4 @@
-// UI-01, FUN-01 — Số liệu thật cho Progress, thanh bên và tổng kết ngày, đọc từ nhật ký. Server-only.
+// UI-01, FUN-01 — Số liệu thật cho Progress, thanh bên và khối tổng kết hôm nay ở màn kết thúc phiên, đọc từ nhật ký. Server-only.
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'

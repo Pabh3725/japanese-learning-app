@@ -7,6 +7,7 @@ import { checkStageAnswerAction, submitMatchPenaltiesAction, submitStageAnswerAc
 import { WRONG_ANSWER_NOTE } from '@/components/learning/exercise-footer'
 import { KnownWordBar } from '@/components/learning/known-word-button'
 import { SessionComplete } from '@/components/learning/session-complete'
+import { TodaySummary } from '@/components/learning/today-summary'
 import { SessionHeader } from '@/components/learning/session-header'
 import { SpeakerButton, useJapaneseVoice } from '@/components/learning/speaker-button'
 import { AssemblyExercise, type AssemblyGrade } from '@/components/learning/steps/assembly-exercise'
@@ -184,10 +185,12 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
             { label: 'Wrong', value: String(wrong), tone: 'text-error' },
             { label: 'Accuracy', value: `${accuracy}%`, tone: 'text-cyan' },
           ]}
-          primary={hasNext ? { href: `/learn/session?n=${sessionNumber + 1}${skillQuery}`, label: 'Next session' } : (finish ?? { href: '/learn/summary', label: "See today's summary" })}
+          primary={hasNext ? { href: `/learn/session?n=${sessionNumber + 1}${skillQuery}`, label: 'Next session' } : (finish ?? { href: '/learn', label: 'Back to Learn' })}
           busy={!hasNext && pending > 0}
-          secondary={hasNext ? { href: '/learn', label: 'Take a break' } : { href: '/learn', label: 'Back to Learn' }}
-        />
+          secondary={hasNext ? { href: '/learn', label: 'Take a break' } : { href: '/', label: 'Back to Home' }}
+        >
+          <TodaySummary ready={pending === 0} />
+        </SessionComplete>
       </div>
     )
   }

@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Play } from 'lucide-react'
+import { ArrowLeft, Play } from 'lucide-react'
 import { actionButton } from '@/components/action-button'
-import { LearnTabs } from '@/components/learning/learn-tabs'
 import { LevelUpPrompt } from '@/components/learning/level-up-prompt'
 import { PageHeader } from '@/components/page-header'
 import { ProgressBar } from '@/components/progress-bar'
@@ -17,8 +16,11 @@ export default async function WordKanjiPage() {
 
   return (
     <>
-      <PageHeader eyebrow="学習" title="Learn" description="Remember how each word is written. A word opens once you know its Kana and have learned its Kanji." />
-      <LearnTabs active="word_kanji" />
+      <Link href="/learn" className="mb-4 inline-flex w-fit items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="size-4" aria-hidden="true" />
+        Back to Learn
+      </Link>
+      <PageHeader eyebrow="学習" title="Kanji words" description="Remember how each word is written. A word opens after Stage 3, at the level where its Kanji is learned." />
       {overview.nextLevel !== null && <LevelUpPrompt skill="word_kanji" level={overview.level} next={overview.nextLevel} itemName="Kanji words" />}
 
       <section aria-labelledby="word-kanji-today" className="rounded-3xl border border-primary/30 bg-card p-6 md:p-8">

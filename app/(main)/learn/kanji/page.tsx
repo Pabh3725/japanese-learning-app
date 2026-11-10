@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Play } from 'lucide-react'
+import { ArrowLeft, Play } from 'lucide-react'
 import { actionButton } from '@/components/action-button'
-import { LearnTabs } from '@/components/learning/learn-tabs'
 import { LevelUpPrompt } from '@/components/learning/level-up-prompt'
 import { PageHeader } from '@/components/page-header'
 import { ProgressBar } from '@/components/progress-bar'
@@ -14,8 +13,8 @@ export const metadata: Metadata = { title: 'Kanji · Nihongo' }
 
 const steps = [
   { step: '1', title: 'Meet', body: 'See the character, its Sino-Vietnamese reading, meaning, and On and Kun readings.' },
-  { step: '2', title: 'Learn', body: '12 questions over 4 sittings, from easy choices to typing readings from memory.' },
-  { step: '3', title: 'Remember', body: 'Long-term review. Questions come back further apart the better you remember.' },
+  { step: '2', title: 'Learn', body: '12 questions over 4 sittings: meaning and Sino-Vietnamese both ways, ending with typing from memory.' },
+  { step: '3', title: 'Remember', body: 'Two cards, meaning and Sino-Vietnamese, come back further apart the better you remember.' },
 ]
 
 export default async function KanjiPage() {
@@ -31,8 +30,11 @@ export default async function KanjiPage() {
 
   return (
     <>
-      <PageHeader eyebrow="学習" title="Learn" description="Learn each character on its own, separate from your vocabulary path." />
-      <LearnTabs active="kanji" />
+      <Link href="/learn" className="mb-4 inline-flex w-fit items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="size-4" aria-hidden="true" />
+        Back to Learn
+      </Link>
+      <PageHeader eyebrow="学習" title="Kanji" description="Learn each character on its own, separate from your vocabulary path." />
       {overview.nextLevel !== null && <LevelUpPrompt skill="kanji" level={overview.level} next={overview.nextLevel} itemName="Kanji" />}
 
       <section aria-labelledby="kanji-today" className="rounded-3xl border border-primary/30 bg-card p-6 md:p-8">
