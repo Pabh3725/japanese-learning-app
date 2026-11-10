@@ -126,20 +126,42 @@ type DueCardRow = {
   }
 }
 
-async function readReviewCap(supabase: Awaited<ReturnType<typeof createClient>>, userId: string): Promise<number> {
-  const { data, error } = await supabase.from('learner_settings').select('review_cap').eq('user_id', userId).maybeSingle()
-  if (error) throw new Error(`Không đọc được learner_settings: ${error.message}`)
-  return data?.review_cap ?? RULES_V9.defaults.reviewCap
+/** V9 §9.4: Review tách 2 mục, mỗi mục một trần. Kanji riêng lẻ ôn trong khu Kanji. */
+export type ReviewArea = 'kana' | 'kanji'
+export const REVIEW_AREAS: readonly ReviewArea[] = ['kana', 'kanji']
+export const AREA_CARD_TYPES: Record<ReviewArea, readonly CardType[]> = {
+  kana: ['vocab.kana', 'vocab.star_recall'],
+  kanji: ['vocab.kanji'],
+}
+const areaOf = (type: CardType): ReviewArea => (type === 'vocab.kanji' ? 'kanji' : 'kana')
+
+export function isReviewArea(value: unknown): value is ReviewArea {
+  return value === 'kana' || value === 'kanji'
 }
 
-async function countReviewedToday(supabase: Awaited<ReturnType<typeof createClient>>, userId: string): Promise<number> {
-  const { count, error } = await supabase
+async function readReviewCaps(supabase: Awaited<ReturnType<typeof createClient>>, userId: string): Promise<Record<ReviewArea, number>> {
+  const { data, error } = await supabase.from('learner_settings').select('review_cap, word_kanji_review_cap').eq('user_id', userId).maybeSingle()
+  if (error) throw new Error(`Không đọc được learner_settings: ${error.message}`)
+  return {
+    kana: data?.review_cap ?? RULES_V9.defaults.reviewCap,
+    kanji: data?.word_kanji_review_cap ?? RULES_V9.defaults.wordKanjiReviewCap,
+  }
+}
+
+/** Số Card khác nhau đã ôn hôm nay của từng mục. Card Again quay lại trong ngày không tính thêm (R7). */
+async function countReviewedToday(supabase: Awaited<ReturnType<typeof createClient>>, userId: string): Promise<Record<ReviewArea, number>> {
+  const { data, error } = await supabase
     .from('review_logs')
-    .select('id', { count: 'exact', head: true })
+    .select('review_card_id, review_cards!inner(card_type)')
     .eq('user_id', userId)
     .eq('study_date', studyDate(new Date()))
+    .range(0, PAGE * 5 - 1)
   if (error) throw new Error(`Không đọc được review_logs: ${error.message}`)
-  return count ?? 0
+  const seen: Record<ReviewArea, Set<string>> = { kana: new Set(), kanji: new Set() }
+  for (const row of (data ?? []) as unknown as { review_card_id: string; review_cards: { card_type: CardType } }[]) {
+    seen[areaOf(row.review_cards.card_type)].add(row.review_card_id)
+  }
+  return { kana: seen.kana.size, kanji: seen.kanji.size }
 }
 
 async function readExcludedIds(supabase: Awaited<ReturnType<typeof createClient>>, userId: string): Promise<Set<string>> {
@@ -153,8 +175,21 @@ async function readExcludedIds(supabase: Awaited<ReturnType<typeof createClient>
   return new Set(data?.map((r) => r.vocabulary_id))
 }
 
+export interface ReviewAreaOverview {
+  /** Số card còn được ôn hôm nay, sau khi áp trần của mục. */
+  dueNow: number
+  deferred: number
+  reviewedToday: number
+  cap: number
+  dueTomorrow: number
+  dueIn3Days: number
+  dueThisWeek: number
+}
+
 export interface ReviewOverview {
-  /** Số card còn được ôn hôm nay, sau khi áp trần mỗi ngày. */
+  /** Từng mục của tab Review. */
+  areas: Record<ReviewArea, ReviewAreaOverview>
+  /** Tổng hai mục: số card còn được ôn hôm nay, sau khi áp trần mỗi mục. */
   dueNow: number
   /** Card đến hạn nhưng vượt trần hôm nay, dời sang hôm sau. */
   deferred: number
@@ -168,8 +203,8 @@ export interface ReviewOverview {
 export async function getReviewOverview(): Promise<ReviewOverview> {
   const user = await requireUser()
   const supabase = await createClient()
-  const [cap, reviewedToday, excludedIds, starred] = await Promise.all([
-    readReviewCap(supabase, user.id),
+  const [caps, reviewedToday, excludedIds, starred] = await Promise.all([
+    readReviewCaps(supabase, user.id),
     countReviewedToday(supabase, user.id),
     readExcludedIds(supabase, user.id),
     readStarredIds(supabase, user.id),
@@ -194,20 +229,36 @@ export async function getReviewOverview(): Promise<ReviewOverview> {
   const active = rows.filter((r) => isCardActive(r.card_type, r.learner_vocabulary.vocabulary_id, excludedIds, starredIds))
   const now = Date.now()
   const startOfTomorrow = nextStudyDayStart(new Date()).getTime()
-  const before = (ms: number) => active.filter((r) => Date.parse(r.due_at) < ms).length
-  const due = active.filter((r) => Date.parse(r.due_at) <= now).length
-  const dueNow = Math.min(due, Math.max(0, cap - reviewedToday))
+
+  const areaOverview = (area: ReviewArea): ReviewAreaOverview => {
+    const own = active.filter((r) => areaOf(r.card_type) === area)
+    const before = (ms: number) => own.filter((r) => Date.parse(r.due_at) < ms).length
+    const due = own.filter((r) => Date.parse(r.due_at) <= now).length
+    const dueNow = Math.min(due, Math.max(0, caps[area] - reviewedToday[area]))
+    return {
+      dueNow,
+      deferred: due - dueNow,
+      reviewedToday: reviewedToday[area],
+      cap: caps[area],
+      dueTomorrow: before(startOfTomorrow + DAY_MS) - before(startOfTomorrow),
+      dueIn3Days: before(startOfTomorrow + 3 * DAY_MS) - before(startOfTomorrow),
+      dueThisWeek: before(startOfTomorrow + 7 * DAY_MS) - before(startOfTomorrow),
+    }
+  }
+  const areas = { kana: areaOverview('kana'), kanji: areaOverview('kanji') }
+  const sum = (key: keyof ReviewAreaOverview) => areas.kana[key] + areas.kanji[key]
 
   const byType: ReviewOverview['byType'] = { 'vocab.kana': 0, 'vocab.kanji': 0, 'vocab.star_recall': 0 }
   for (const row of active) byType[row.card_type]++
 
   return {
-    dueNow,
-    deferred: due - dueNow,
-    reviewedToday,
-    dueTomorrow: before(startOfTomorrow + DAY_MS) - before(startOfTomorrow),
-    dueIn3Days: before(startOfTomorrow + 3 * DAY_MS) - before(startOfTomorrow),
-    dueThisWeek: before(startOfTomorrow + 7 * DAY_MS) - before(startOfTomorrow),
+    areas,
+    dueNow: sum('dueNow'),
+    deferred: sum('deferred'),
+    reviewedToday: sum('reviewedToday'),
+    dueTomorrow: sum('dueTomorrow'),
+    dueIn3Days: sum('dueIn3Days'),
+    dueThisWeek: sum('dueThisWeek'),
     byType,
   }
 }
@@ -230,17 +281,17 @@ export interface ReviewSessionData {
   starredIds: string[]
 }
 
-/** Card quá hạn lâu nhất trước, không vượt trần mỗi ngày. */
-export async function getReviewSession(): Promise<ReviewSessionData> {
+/** Một phiên của một mục Review: Card quá hạn lâu nhất trước, không vượt trần của mục. */
+export async function getReviewSession(area: ReviewArea = 'kana'): Promise<ReviewSessionData> {
   const user = await requireUser()
   const supabase = await createClient()
-  const [cap, reviewedToday, excludedIds, starredIds] = await Promise.all([
-    readReviewCap(supabase, user.id),
+  const [caps, reviewedToday, excludedIds, starredIds] = await Promise.all([
+    readReviewCaps(supabase, user.id),
     countReviewedToday(supabase, user.id),
     readExcludedIds(supabase, user.id),
     readStarredIds(supabase, user.id),
   ])
-  const remaining = Math.max(0, cap - reviewedToday)
+  const remaining = Math.max(0, caps[area] - reviewedToday[area])
   if (remaining === 0) return { questions: [], capReached: true, cardsLeft: 0, starredIds }
 
   const { data, error } = await supabase
@@ -248,6 +299,7 @@ export async function getReviewSession(): Promise<ReviewSessionData> {
     .select(`id, card_type, due_at, learner_vocabulary!inner(vocabulary_id, current_stage, kanji_intro_seen_at, vocabularies!inner(${WORD_COLUMNS}))`)
     .eq('user_id', user.id)
     .is('retired_at', null)
+    .in('card_type', [...AREA_CARD_TYPES[area]])
     .lte('due_at', new Date().toISOString())
     .order('due_at')
     .range(0, PAGE - 1)

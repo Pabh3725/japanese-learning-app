@@ -173,7 +173,7 @@ export function KanjiPractice({ questions: initialQuestions, onDone }: { questio
     speak(current.speak)
     if (isRetry) return
     setResults((list) => [...list, chosen === current.answer])
-    const payload = { learnerKanjiId: current.learnerKanjiId, clientEventId: current.clientEventId, exercise: current.exercise, answer: chosen, responseMs: responseMs(), wordId: current.wordId }
+    const payload = { learnerKanjiId: current.learnerKanjiId, cardId: current.cardId, clientEventId: current.clientEventId, exercise: current.exercise, answer: chosen, responseMs: responseMs(), wordId: current.wordId }
     setPending((n) => n + 1)
     saveQueue.current = saveQueue.current
       // Mã câu giữ nguyên nên gửi lại không bị tính hai lần
@@ -190,7 +190,7 @@ export function KanjiPractice({ questions: initialQuestions, onDone }: { questio
   }
 
   const gradeTyping = (current: TypingQ) => async (typed: string): Promise<AssemblyGrade> => {
-    const payload = { learnerKanjiId: current.learnerKanjiId, clientEventId: current.clientEventId, exercise: current.exercise, answer: typed, responseMs: responseMs() }
+    const payload = { learnerKanjiId: current.learnerKanjiId, cardId: current.cardId, clientEventId: current.clientEventId, exercise: current.exercise, answer: typed, responseMs: responseMs() }
     try {
       await saveQueue.current
       const res = await (isRetry ? checkKanjiAnswerAction(payload) : submitKanjiAnswerAction(payload))
@@ -212,7 +212,7 @@ export function KanjiPractice({ questions: initialQuestions, onDone }: { questio
     }
   }
 
-  const stage = q.phase === 'review' ? 'Long-term review' : 'Learning'
+  const stage = q.cardType === 'kanji.meaning' ? 'Review · Meaning card' : q.cardType === 'kanji.hanviet' ? 'Review · Sino-Vietnamese card' : 'Learning'
   let body: React.ReactNode
   if (q.kind === 'choice') {
     const step: ChoiceStep = {
@@ -233,7 +233,7 @@ export function KanjiPractice({ questions: initialQuestions, onDone }: { questio
       try {
         await saveQueue.current
         const res = await withRetry(
-          () => submitKanjiAnswerAction({ learnerKanjiId: q.learnerKanjiId, clientEventId: q.clientEventId, exercise: q.exercise, answer: remembered ? REMEMBERED : 'forgot', responseMs: responseMs() }),
+          () => submitKanjiAnswerAction({ learnerKanjiId: q.learnerKanjiId, cardId: q.cardId, clientEventId: q.clientEventId, exercise: q.exercise, answer: remembered ? REMEMBERED : 'forgot', responseMs: responseMs() }),
           (r) => r.status === 'conflict',
         )
         if (res.status !== 'graded') return SAVE_ERROR
@@ -243,7 +243,7 @@ export function KanjiPractice({ questions: initialQuestions, onDone }: { questio
         return SAVE_ERROR
       }
     }
-    body = <SelfCheckExercise key={key} stage={stage} question={q.question} prompt={q.prompt} answer={q.answer} onResult={saveSelf} onComplete={afterAnswer} />
+    body = <SelfCheckExercise key={key} stage={stage} question={q.question} prompt={q.prompt} answer={q.answer} answerKind={q.exercise === 'meaning_self' ? 'text' : 'jp'} onResult={saveSelf} onComplete={afterAnswer} />
   } else {
     const step: RecallStep = {
       id: key,

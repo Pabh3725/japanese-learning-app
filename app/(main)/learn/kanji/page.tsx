@@ -43,11 +43,12 @@ export default async function KanjiPage() {
               {heading}
             </h2>
             <p className="mt-2 text-sm text-subtle">
-              {overview.dueReview} to review · {overview.dueLearning} learning · {overview.newToday} new Kanji
+              {overview.dueReview} {overview.dueReview === 1 ? 'card' : 'cards'} to review · {overview.dueLearning} learning · {overview.newToday} new Kanji
             </p>
             <p className="mt-1 text-sm text-muted-foreground tabular-nums">
-              New Kanji today: {overview.openedToday} of {overview.newPerDay} opened · {overview.answeredToday} of {overview.cap} questions answered
+              New Kanji today: {overview.openedToday} of {overview.newPerDay} opened · {overview.answeredToday} of {overview.cap} learning questions · {overview.reviewedToday} of {overview.reviewCap} cards
             </p>
+            {overview.reviewDeferred > 0 && <p className="mt-1 text-sm text-muted-foreground">{overview.reviewDeferred} more {overview.reviewDeferred === 1 ? 'card moves' : 'cards move'} to tomorrow.</p>}
             {pausedByLimit && <p className="mt-2 text-sm text-yellow">New Kanji are paused: today&apos;s questions need the room left under your limit.</p>}
             {!hasWork && overview.nextDueAt && <p className="mt-2 text-sm text-subtle">Next question at {formatVnDateTime(new Date(overview.nextDueAt))}.</p>}
           </div>

@@ -87,8 +87,8 @@ const sharesMeaning = (a: KanjiRow, b: KanjiRow) => {
 }
 const sharesHanViet = (a: KanjiRow, b: KanjiRow) => plainHanViet(a.han_viet) === plainHanViet(b.han_viet)
 
-function distinct(values: readonly string[], exclude: ReadonlySet<string>, rng: Rng): string[] {
-  return shuffled([...new Set(values)].filter((value) => !exclude.has(value)), rng).slice(0, OPTIONS - 1)
+function distinct(values: readonly string[], exclude: ReadonlySet<string>, rng: Rng, options = OPTIONS): string[] {
+  return shuffled([...new Set(values)].filter((value) => !exclude.has(value)), rng).slice(0, options - 1)
 }
 
 function readingsOf(kanji: KanjiRow): string[] {
@@ -105,7 +105,8 @@ export function revealOf(kanji: KanjiRow): KanjiReveal {
   }
 }
 
-export function buildKanjiQuestion(kanji: KanjiRow, exercise: KanjiExercise, pool: readonly KanjiRow[], word: KanjiWordOption | null = null, rng: Rng = Math.random): KanjiQuestionData {
+/** `options`: số lựa chọn của câu trắc nghiệm (4 khi Học, 6 khi ôn Card). */
+export function buildKanjiQuestion(kanji: KanjiRow, exercise: KanjiExercise, pool: readonly KanjiRow[], word: KanjiWordOption | null = null, rng: Rng = Math.random, options = OPTIONS): KanjiQuestionData {
   const others = pool.filter((other) => other.id !== kanji.id)
   const speak = readingsOf(kanji)[0] ?? ''
   const base = { exercise, speak, reveal: revealOf(kanji) }
@@ -130,10 +131,15 @@ export function buildKanjiQuestion(kanji: KanjiRow, exercise: KanjiExercise, poo
       return choice('What is its Sino-Vietnamese reading?', character, kanji.han_viet, wrong, 'meaning')
     }
     case 'pick_kanji': {
-      const fromMeaning = rng() < 0.5
-      const wrong = distinct(others.filter((o) => !sharesMeaning(kanji, o) && !sharesHanViet(kanji, o)).map((o) => o.character), new Set([kanji.character]), rng)
-      return choice('Which Kanji is this?', { display: fromMeaning ? kanji.meaning_vi : kanji.han_viet, kind: 'meaning' }, kanji.character, wrong, 'vocab')
+      const wrong = distinct(others.filter((o) => !sharesMeaning(kanji, o)).map((o) => o.character), new Set([kanji.character]), rng, options)
+      return choice('Which Kanji means this?', { display: kanji.meaning_vi, kind: 'meaning' }, kanji.character, wrong, 'vocab')
     }
+    case 'hanviet_to_kanji': {
+      const wrong = distinct(others.filter((o) => !sharesHanViet(kanji, o)).map((o) => o.character), new Set([kanji.character]), rng, options)
+      return choice('Which Kanji has this Sino-Vietnamese reading?', { display: kanji.han_viet, kind: 'meaning' }, kanji.character, wrong, 'vocab')
+    }
+    case 'meaning_self':
+      return { ...base, kind: 'self', question: 'What does this Kanji mean? Think, then check', prompt: character, answer: kanji.meaning_vi }
     case 'kanji_reading': {
       const useOn = kanji.onyomi.length > 0 && (kanji.kunyomi.length === 0 || rng() < 0.5)
       const own = (useOn ? kanji.onyomi : kanji.kunyomi).map(showReading)
@@ -182,7 +188,10 @@ export function gradeKanjiAnswer(kanji: KanjiRow, exercise: KanjiExercise, answe
     case 'kanji_to_hanviet':
       return { outcome: answer === kanji.han_viet ? 'correct' : 'wrong', answer: kanji.han_viet }
     case 'pick_kanji':
+    case 'hanviet_to_kanji':
       return { outcome: answer === kanji.character ? 'correct' : 'wrong', answer: kanji.character }
+    case 'meaning_self':
+      return { outcome: answer === REMEMBERED ? 'correct' : 'wrong', answer: kanji.meaning_vi }
     case 'kanji_reading': {
       const readings = readingsOf(kanji)
       return { outcome: readings.includes(answer) ? 'correct' : 'wrong', answer: readings.join('、') }

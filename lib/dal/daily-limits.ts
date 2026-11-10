@@ -13,7 +13,7 @@ export interface DailyLimits {
   stageCap: number
   reviewCap: number
   unlockThreshold: number
-  /** D: Card đến hạn, chụp lần đầu trong ngày. */
+  /** D: Card đến hạn (Từ vựng, Từ vựng Kanji, Kanji riêng lẻ; không tính Card sao), chụp lần đầu trong ngày. */
   cardsDueToday: number
   /** S: câu Stage đến hẹn, chụp lần đầu trong ngày. */
   stageDueToday: number
@@ -43,6 +43,29 @@ async function countDue(supabase: Supabase, table: 'review_cards' | 'learner_sta
   }
 }
 
+/** Card Kanji riêng lẻ đến hạn (V9 Q4: tính vào ngưỡng chặn từ mới), bỏ chữ đã đánh dấu là đã biết và Card đã lưu trữ. */
+async function countKanjiCardsDue(supabase: Supabase, userId: string): Promise<number> {
+  const now = new Date().toISOString()
+  const { data: known, error: knownError } = await supabase.from('learner_kanji_exclusions').select('kanji_id').eq('user_id', userId).range(0, PAGE - 1)
+  if (knownError) throw new Error(`Không đọc được learner_kanji_exclusions: ${knownError.message}`)
+  const knownIds = new Set(known?.map((r) => r.kanji_id))
+  let total = 0
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase
+      .from('learner_kanji_cards')
+      .select('id, learner_kanji!inner(kanji_id)')
+      .eq('user_id', userId)
+      .is('archived_at', null)
+      .lte('due_at', now)
+      .order('id')
+      .range(from, from + PAGE - 1)
+    if (error) throw new Error(`Không đọc được learner_kanji_cards: ${error.message}`)
+    const rows = (data ?? []) as unknown as { learner_kanji: { kanji_id: string } }[]
+    total += rows.filter((r) => !knownIds.has(r.learner_kanji.kanji_id)).length
+    if (rows.length < PAGE) return total
+  }
+}
+
 /** Dòng kế hoạch của hôm nay. Lần đọc đầu trong ngày thì chụp D và S; các lần sau giữ nguyên. */
 async function todayPlan(supabase: Supabase, userId: string, today: string) {
   const { data, error } = await supabase
@@ -62,10 +85,12 @@ async function todayPlan(supabase: Supabase, userId: string, today: string) {
     .range(0, PAGE - 1)
   if (excludedError) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${excludedError.message}`)
   const excludedIds = new Set(excluded?.map((r) => r.vocabulary_id))
-  const [dueSnapshot, stageSnapshot] = await Promise.all([
+  const [vocabCardsDue, kanjiCardsDue, stageSnapshot] = await Promise.all([
     countDue(supabase, 'review_cards', userId, excludedIds),
+    countKanjiCardsDue(supabase, userId),
     countDue(supabase, 'learner_stage_schedules', userId, excludedIds),
   ])
+  const dueSnapshot = vocabCardsDue + kanjiCardsDue
   // Hai request đồng thời: dòng đến trước được giữ, số chụp không đổi trong ngày
   const { error: insertError } = await supabase
     .from('learner_daily_plans')

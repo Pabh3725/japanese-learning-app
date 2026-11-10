@@ -60,7 +60,7 @@ export const RULES_V9 = {
   },
   /** Học lại Stage: còn thiếu từng này điểm so với mốc hoàn tất. */
   relearn: { pointsToComplete: 3 },
-  defaults: { newPerDay: 5, stageCap: 200, reviewCap: 120, unlockThreshold: 80, kanjiNewPerDay: 10, kanjiCap: 100, wordKanjiCap: 100 },
+  defaults: { newPerDay: 5, stageCap: 200, reviewCap: 120, unlockThreshold: 80, kanjiNewPerDay: 10, kanjiCap: 100, wordKanjiCap: 100, wordKanjiReviewCap: 60, kanjiReviewCap: 60 },
   borrow: { maxDaysAhead: 1 },
 } as const
 

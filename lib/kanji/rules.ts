@@ -1,4 +1,4 @@
-// Khu Kanji: giới thiệu → học 12 câu trong 4 buổi → ôn FSRS dài hạn. Pure. Luật: docs/PROJECT_SPEC.md §18.6.
+// Khu Kanji: giới thiệu → học 12 câu trong 4 buổi → 2 Card ôn dài hạn. Pure. Luật: docs/learning-rules.md §12 (RULES_V9 R10).
 import { RULES_V9 } from '../learning/rules'
 import { nextStudyDayStart, studyDate } from '../learning/time'
 import type { Outcome, StudyDate } from '../learning/types'
@@ -6,12 +6,17 @@ import type { Outcome, StudyDate } from '../learning/types'
 export const KANJI_EXERCISES = [
   'kanji_to_meaning',
   'kanji_to_hanviet',
+  /** Nghĩa → chọn chữ. */
   'pick_kanji',
+  /** Hán Việt → chọn chữ. */
+  'hanviet_to_kanji',
   'kanji_reading',
   'hanviet_typing',
   'reading_typing',
   'word_meaning',
   'kanji_write',
+  /** Card kanji.meaning: nhìn chữ → nhớ nghĩa, lật thẻ rồi tự chấm. */
+  'meaning_self',
 ] as const
 export type KanjiExercise = (typeof KANJI_EXERCISES)[number]
 
@@ -36,9 +41,11 @@ const DAY_MS = 86_400_000
 const REQUIRED_PER_FACET = 2
 
 const count = (counts: KanjiCounts, code: KanjiExercise) => counts[code] ?? 0
+// V9: bốn hướng bắt buộc. On/Kun vẫn có thể được hỏi nhưng không thuộc điều kiện hoàn tất.
 const meaningDone = (c: KanjiCounts) => count(c, 'kanji_to_meaning') + count(c, 'word_meaning')
+const toKanjiFromMeaningDone = (c: KanjiCounts) => count(c, 'pick_kanji')
 const hanVietDone = (c: KanjiCounts) => count(c, 'kanji_to_hanviet') + count(c, 'hanviet_typing')
-const readingDone = (c: KanjiCounts) => count(c, 'kanji_reading') + count(c, 'reading_typing')
+const toKanjiFromHanVietDone = (c: KanjiCounts) => count(c, 'hanviet_to_kanji')
 
 function leastDone(list: readonly KanjiExercise[], counts: KanjiCounts, rng: Rng): KanjiExercise {
   const lowest = Math.min(...list.map((code) => count(counts, code)))
@@ -50,14 +57,15 @@ function leastDone(list: readonly KanjiExercise[], counts: KanjiCounts, rng: Rng
 export function chooseLearningExercise(points: number, counts: KanjiCounts, hasWord: boolean, rng: Rng = Math.random): KanjiExercise {
   const { middleFrom, recallFrom } = RULES_V9.kanji
   if (points < middleFrom) return leastDone(['kanji_to_meaning', 'kanji_to_hanviet'], counts, rng)
-  if (points < recallFrom) return leastDone(['pick_kanji', 'kanji_reading'], counts, rng)
+  if (points < recallFrom) return leastDone(['pick_kanji', 'hanviet_to_kanji', 'kanji_reading'], counts, rng)
 
   const needs: KanjiExercise[] = []
   if (count(counts, 'hanviet_typing') === 0 || hanVietDone(counts) < REQUIRED_PER_FACET) needs.push('hanviet_typing')
-  if (count(counts, 'reading_typing') === 0 || readingDone(counts) < REQUIRED_PER_FACET) needs.push('reading_typing')
+  if (toKanjiFromMeaningDone(counts) < REQUIRED_PER_FACET) needs.push('pick_kanji')
+  if (toKanjiFromHanVietDone(counts) < REQUIRED_PER_FACET) needs.push('hanviet_to_kanji')
   if (meaningDone(counts) < REQUIRED_PER_FACET) needs.push(hasWord ? 'word_meaning' : 'kanji_to_meaning')
   if (needs.length > 0) return leastDone(needs, counts, rng)
-  return leastDone(['hanviet_typing', 'reading_typing', hasWord ? 'word_meaning' : 'kanji_to_meaning', 'pick_kanji', 'kanji_reading'], counts, rng)
+  return leastDone(['hanviet_typing', hasWord ? 'word_meaning' : 'kanji_to_meaning', 'pick_kanji', 'hanviet_to_kanji', 'reading_typing'], counts, rng)
 }
 
 /** Các câu của một buổi, tính như thể trả lời đúng để dạng bài tăng dần trong buổi. */
@@ -72,11 +80,24 @@ export function planSitting(points: number, counts: KanjiCounts, questions: numb
   return plan
 }
 
-/** Ôn dài hạn: chỉ gõ và viết rồi tự chấm, không lặp dạng lần trước. */
-export function chooseReviewExercise(last: string | null, rng: Rng = Math.random): KanjiExercise {
-  const list = (['hanviet_typing', 'reading_typing', 'kanji_write'] as const).filter((code) => code !== last)
-  return list[Math.floor(rng() * list.length)]
+export const KANJI_CARD_TYPES = ['kanji.meaning', 'kanji.hanviet'] as const
+export type KanjiCardType = (typeof KANJI_CARD_TYPES)[number]
+
+/** Dạng bài của từng Card khi ôn dài hạn. Chọn chữ trong 6 là câu trắc nghiệm duy nhất được phép khi ôn (R5). */
+export const KANJI_CARD_EXERCISES: Record<KanjiCardType, readonly KanjiExercise[]> = {
+  'kanji.meaning': ['meaning_self', 'pick_kanji'],
+  'kanji.hanviet': ['hanviet_typing', 'hanviet_to_kanji'],
 }
+
+/** Ôn dài hạn: luân phiên hai dạng của Card, không lặp dạng lần trước. */
+export function chooseCardExercise(cardType: KanjiCardType, last: string | null, rng: Rng = Math.random): KanjiExercise {
+  const list = KANJI_CARD_EXERCISES[cardType]
+  const fresh = list.filter((code) => code !== last)
+  return fresh[Math.floor(rng() * fresh.length)] ?? list[0]
+}
+
+/** Số lựa chọn của câu trắc nghiệm khi ôn Card. */
+export const CARD_CHOICE_OPTIONS = 6
 
 export function canCompleteLearning(state: Pick<KanjiLearningState, 'points' | 'counts' | 'correctStreak'>): boolean {
   const c = state.counts
@@ -84,10 +105,10 @@ export function canCompleteLearning(state: Pick<KanjiLearningState, 'points' | '
     state.points >= RULES_V9.kanji.completeAt &&
     state.correctStreak >= RULES_V9.completion.correctStreak &&
     meaningDone(c) >= REQUIRED_PER_FACET &&
+    toKanjiFromMeaningDone(c) >= REQUIRED_PER_FACET &&
     hanVietDone(c) >= REQUIRED_PER_FACET &&
-    readingDone(c) >= REQUIRED_PER_FACET &&
-    count(c, 'hanviet_typing') >= 1 &&
-    count(c, 'reading_typing') >= 1
+    toKanjiFromHanVietDone(c) >= REQUIRED_PER_FACET &&
+    count(c, 'hanviet_typing') >= 1
   )
 }
 
