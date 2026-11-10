@@ -140,7 +140,7 @@ export function MatchRoundExercise({ round, onDone }: MatchRoundExerciseProps) {
 
   return (
     <ExercisePanel
-      stage="Stage 5 · Matching round"
+      stage="Stage 3 · Matching round"
       question={TITLES[round.pairType]}
       footer={
         <ContinueFooter

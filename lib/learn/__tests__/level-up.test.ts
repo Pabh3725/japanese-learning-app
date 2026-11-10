@@ -17,6 +17,6 @@ describe('levelUpOf', () => {
     })
   })
   it('vừa hoàn tất vừa mở thì ưu tiên hoàn tất', () => {
-    expect(levelUpOf(4, { completed: true, unlockedStage: 5, cardsCreated: [] }, reveal)?.title).toBe('Stage 4 complete!')
+    expect(levelUpOf(5, { completed: true, unlockedStage: 6, cardsCreated: [] }, reveal)?.title).toBe('Stage 5 complete!')
   })
 })

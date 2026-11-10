@@ -69,14 +69,14 @@ export default async function WordDetailPage({ params }: { params: Promise<{ cod
         {word.progress && (
           <>
             <p className="mt-2 text-sm text-subtle">{word.progress.completed ? 'Vocabulary finished.' : `Vocabulary: Stage ${word.progress.currentStage}.`}</p>
-            {!word.isKanaOnly && !word.progress.stages.some((s) => s.stage === 4) && (
+            {!word.isKanaOnly && !word.progress.stages.some((s) => s.stage === 5) && (
               <p className="mt-2 text-sm text-muted-foreground">Its Kanji word opens after Stage 2, once you&apos;ve learned every Kanji in it.</p>
             )}
             {word.progress.stages.length > 0 && (
               <ul className="mt-3 flex flex-col divide-y divide-border">
                 {word.progress.stages.map((s) => (
                   <li key={s.stage} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
-                    <span>{s.stage === 4 || s.stage === 6 ? 'Kanji word' : 'Vocabulary'} · Stage {s.stage}</span>
+                    <span>{s.stage === 5 || s.stage === 6 ? 'Kanji word' : 'Vocabulary'} · Stage {s.stage}</span>
                     <span className="text-muted-foreground tabular-nums">
                       {s.points} points · {s.completed ? 'complete' : `next ${formatVnDateTime(new Date(s.dueAt))}`}
                     </span>

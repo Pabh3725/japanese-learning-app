@@ -1,5 +1,5 @@
 // Giới hạn từ mới mỗi ngày do người học chỉnh trong Settings. Pure.
-import { RULES_V4 } from './rules'
+import { RULES_V9 } from './rules'
 
 export const MIN_NEW_PER_DAY = 1
 export const MAX_NEW_PER_DAY = 50
@@ -13,7 +13,7 @@ export function isValidNewPerDay(value: unknown): value is number {
 export function newPerDayOf(stored: number | null | undefined): number {
   // Tài khoản từng đặt trên mức mới thì hạ về mức tối đa, không rơi về mặc định
   if (Number.isInteger(stored) && (stored as number) > MAX_NEW_PER_DAY) return MAX_NEW_PER_DAY
-  return isValidNewPerDay(stored) ? stored : RULES_V4.defaults.newPerDay
+  return isValidNewPerDay(stored) ? stored : RULES_V9.defaults.newPerDay
 }
 
 /** Số từ mới đã gặp hôm nay. Từ đã đánh dấu là đã biết không tính vào chỉ tiêu trong ngày. */

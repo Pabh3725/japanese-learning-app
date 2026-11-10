@@ -31,13 +31,13 @@ describe('VD1 — giãn cách chặn spam (R3)', () => {
 })
 
 describe('VD2 — đủ điểm nhưng thiếu dạng bắt buộc; mở stage sau khác hoàn tất (R4)', () => {
-  it('thiếu ghép Kana thì chưa mở; đủ rồi mở Stage 5, Stage 2 chạy tiếp tới 10 điểm mới tạo card', () => {
+  it('thiếu ghép Kana thì chưa mở; đủ rồi mở Stage 3, Stage 2 chạy tiếp tới 10 điểm, không tạo Card (V9: Card Kana ở Stage 3)', () => {
     const now = vn('2026-11-01 20:00')
     const s = word({ stage: 2, points: 5, earned: ['kana_to_meaning', 'meaning_to_kana'] })
     expect(s.unlockedNext).toBe(false)
 
     const r = applyStageAttempt(s, { exercise: 'kana_assembly', outcome: 'correct', seq: 1, now })
-    expect(r.unlockedStage).toBe(5)
+    expect(r.unlockedStage).toBe(3)
     expect(r.state.unlockedNext).toBe(true)
     expect(r.state.points).toBe(6) // điểm giữ nguyên, không về 0
     expect(r.completed).toBe(false)
@@ -47,14 +47,14 @@ describe('VD2 — đủ điểm nhưng thiếu dạng bắt buộc; mở stage s
     expect(done.unlockedStage).toBe(null) // chỉ mở một lần
     expect(done.state.points).toBe(10)
     expect(done.completed).toBe(true)
-    expect(done.cardsCreated).toEqual(['vocab.kana'])
+    expect(done.cardsCreated).toEqual([])
   })
 })
 
 describe('VD3 — trần 3 điểm cộng mỗi ngày (R3)', () => {
   it('chạm trần thì đúng không cộng, sai vẫn trừ; sang ngày mới được cộng lại', () => {
     let s: StageState = word({
-      stage: 4,
+      stage: 5,
       points: 3,
       plusToday: 3,
       plusDate: DAY1,

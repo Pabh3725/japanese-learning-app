@@ -50,7 +50,7 @@ export function WordKanjiIntroExercise({ word, saving, error, onComplete }: Word
 
   return (
     <ExercisePanel
-      stage="Stage 3 · Kanji"
+      stage="Stage 4 · Kanji"
       question={part ? `Kanji ${screen} of ${word.parts.length}` : 'This is how the word is written'}
       footer={
         <ContinueFooter

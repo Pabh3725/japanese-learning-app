@@ -27,7 +27,7 @@ import {
   type KanjiLoadAdvice,
 } from '@/lib/kanji/rules'
 import { newLongTermSchedule, reviewLongTermSchedule } from '@/lib/kanji/schedule'
-import { RULES_V4 } from '@/lib/learning/rules'
+import { RULES_V9 } from '@/lib/learning/rules'
 import { nextStudyDayStart, studyDate } from '@/lib/learning/time'
 import type { Outcome } from '@/lib/learning/types'
 import type { Schedule, ScheduleState } from '@/lib/srs/scheduler'
@@ -109,8 +109,8 @@ async function readToday(supabase: Supabase, userId: string, learners: readonly 
   ])
   if (settings.error) throw new Error(`Không đọc được learner_settings: ${settings.error.message}`)
   if (answered.error) throw new Error(`Không đọc được kanji_logs: ${answered.error.message}`)
-  const newPerDay = settings.data?.kanji_new_per_day ?? RULES_V4.defaults.kanjiNewPerDay
-  const cap = settings.data?.kanji_cap ?? RULES_V4.defaults.kanjiCap
+  const newPerDay = settings.data?.kanji_new_per_day ?? RULES_V9.defaults.kanjiNewPerDay
+  const cap = settings.data?.kanji_cap ?? RULES_V9.defaults.kanjiCap
   const answeredToday = answered.data?.length ?? 0
   const answeredBy = new Map<string, number>()
   for (const log of answered.data ?? []) answeredBy.set(log.learner_kanji_id, (answeredBy.get(log.learner_kanji_id) ?? 0) + 1)
@@ -118,7 +118,7 @@ async function readToday(supabase: Supabase, userId: string, learners: readonly 
   const startOfToday = nextStudyDayStart(now).getTime() - DAY_MS
   const openedToday = learners.filter((r) => Date.parse(r.created_at) >= startOfToday).length
   const due = learners.filter((r) => Date.parse(r.due_at) <= now.getTime())
-  const { questionsPerSitting } = RULES_V4.kanji
+  const { questionsPerSitting } = RULES_V9.kanji
   const leftInSitting = (r: LearnerRow) => Math.max(1, questionsPerSitting - (answeredBy.get(r.id) ?? 0))
   const dueQuestions = due.reduce((sum, r) => sum + (r.phase === 'review' ? 1 : leftInSitting(r)), 0)
   const room = Math.max(0, cap - answeredToday)
@@ -467,7 +467,7 @@ export async function submitKanjiAnswer(input: unknown): Promise<SubmitKanjiResp
       const answeredToday = history.filter((l) => l.study_date === today).length + 1
       const sittingsDone = new Set([...history.map((l) => l.study_date), today]).size
       // Chưa đủ câu của buổi này thì vẫn đến hạn; đủ rồi thì hẹn buổi kế tiếp
-      const next = answeredToday >= RULES_V4.kanji.questionsPerSitting ? nextSittingAt(now, sittingsDone) : { due: new Date(row.due_at), days: 0 }
+      const next = answeredToday >= RULES_V9.kanji.questionsPerSitting ? nextSittingAt(now, sittingsDone) : { due: new Date(row.due_at), days: 0 }
       schedule = { ...scheduleOf(row), due: next.due, scheduledDays: next.days, reps: row.reps + 1, lastReviewAt: now }
     }
   } else {

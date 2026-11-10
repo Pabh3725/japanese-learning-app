@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { readSkillLevels } from '@/lib/dal/skill-levels'
 import { inLevel, nextLevel } from '@/lib/learn/levels'
-import { RULES_V4 } from '@/lib/learning/rules'
+import { RULES_V9 } from '@/lib/learning/rules'
 import { studyDate } from '@/lib/learning/time'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
@@ -39,17 +39,6 @@ type WordRow = {
     vocabulary_kanji: { position: number; kanji_id: string; kanji: { character: string; han_viet: string; meaning_vi: string } }[]
   }
   learner_stage_schedules: { stage_number: number; completed_at: string | null }[]
-}
-
-/** Chữ đã xong giai đoạn Học, hoặc đã đánh dấu là đã biết. */
-async function readLearnedKanji(supabase: Supabase, userId: string): Promise<Set<string>> {
-  const [learned, known] = await Promise.all([
-    supabase.from('learner_kanji').select('kanji_id').eq('user_id', userId).eq('phase', 'review').range(0, PAGE - 1),
-    supabase.from('learner_kanji_exclusions').select('kanji_id').eq('user_id', userId).range(0, PAGE - 1),
-  ])
-  if (learned.error) throw new Error(`Không đọc được learner_kanji: ${learned.error.message}`)
-  if (known.error) throw new Error(`Không đọc được learner_kanji_exclusions: ${known.error.message}`)
-  return new Set([...(learned.data ?? []), ...(known.data ?? [])].map((r) => r.kanji_id))
 }
 
 async function readWords(supabase: Supabase, userId: string): Promise<WordRow[]> {
@@ -96,20 +85,21 @@ function toIntro(row: WordRow): KanjiIntroWord {
   }
 }
 
-const doneStage2 = (row: WordRow) => row.learner_stage_schedules.some((s) => s.stage_number === 2 && s.completed_at !== null)
-const opened = (row: WordRow) => row.learner_stage_schedules.some((s) => s.stage_number === 4)
+// V9: Từ vựng Kanji mở khi từ đã xong Stage 3 và nằm trong cấp đang học. Không cần học xong chữ thành phần.
+// Gói 3 thay điều kiện cấp bằng chính sách Kanji của từ.
+const doneStage3 = (row: WordRow) => row.learner_stage_schedules.some((s) => s.stage_number === 3 && s.completed_at !== null)
+const opened = (row: WordRow) => row.learner_stage_schedules.some((s) => s.stage_number === 5)
 
 /** Từ đủ điều kiện mở trong cấp đang học, theo thứ tự lộ trình. */
 export async function readEligibleWords(supabase: Supabase, userId: string): Promise<KanjiIntroWord[]> {
-  const [rows, learned, excluded, levels] = await Promise.all([
+  const [rows, excluded, levels] = await Promise.all([
     readWords(supabase, userId),
-    readLearnedKanji(supabase, userId),
     readExcluded(supabase, userId),
     readSkillLevels(supabase, userId),
   ])
   return rows
-    .filter((row) => !excluded.has(row.vocabulary_id) && !opened(row) && doneStage2(row) && inLevel(row.vocabularies.jlpt_level, levels.word_kanji))
-    .filter((row) => row.vocabularies.vocabulary_kanji.length > 0 && row.vocabularies.vocabulary_kanji.every((link) => learned.has(link.kanji_id)))
+    .filter((row) => !excluded.has(row.vocabulary_id) && !opened(row) && doneStage3(row) && inLevel(row.vocabularies.jlpt_level, levels.word_kanji))
+    .filter((row) => row.vocabularies.vocabulary_kanji.length > 0)
     .sort((a, b) => a.vocabularies.sort_order - b.vocabularies.sort_order)
     .map(toIntro)
 }
@@ -120,8 +110,8 @@ export interface WordKanjiOverview {
   waiting: number
   completed: number
   inProgress: number
-  /** Từ đã xong Stage 2 nhưng còn chờ học chữ. */
-  waitingForKanji: number
+  /** Từ đã xong Stage 3 nhưng thuộc cấp chưa mở. */
+  waitingForLevel: number
   total: number
   cap: number
   answeredToday: number
@@ -134,19 +124,18 @@ export async function getWordKanjiOverview(): Promise<WordKanjiOverview> {
   const user = await requireUser()
   const supabase = await createClient()
   const now = new Date()
-  const [rows, learned, excluded, levels, settings, answered, totals, due] = await Promise.all([
+  const [rows, excluded, levels, settings, answered, totals, due] = await Promise.all([
     readWords(supabase, user.id),
-    readLearnedKanji(supabase, user.id),
     readExcluded(supabase, user.id),
     readSkillLevels(supabase, user.id),
     supabase.from('learner_settings').select('word_kanji_cap').eq('user_id', user.id).maybeSingle(),
-    supabase.from('exercise_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('study_date', studyDate(now)).eq('source', 'lesson').in('stage_number', [4, 6]),
+    supabase.from('exercise_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('study_date', studyDate(now)).eq('source', 'lesson').in('stage_number', [5, 6]),
     supabase.from('vocabularies').select('id, jlpt_level').eq('is_kana_only', false).range(0, 1999),
     supabase
       .from('learner_stage_schedules')
       .select('learner_vocabulary!inner(vocabulary_id)')
       .eq('user_id', user.id)
-      .in('stage_number', [4, 6])
+      .in('stage_number', [5, 6])
       .is('completed_at', null)
       .lte('due_at', now.toISOString())
       .range(0, PAGE - 1),
@@ -157,14 +146,14 @@ export async function getWordKanjiOverview(): Promise<WordKanjiOverview> {
   if (due.error) throw new Error(`Không đọc được learner_stage_schedules: ${due.error.message}`)
 
   const active = rows.filter((row) => !excluded.has(row.vocabulary_id))
-  const cap = settings.data?.word_kanji_cap ?? RULES_V4.defaults.wordKanjiCap
+  const cap = settings.data?.word_kanji_cap ?? RULES_V9.defaults.wordKanjiCap
   const answeredToday = answered.count ?? 0
   const dueCount = ((due.data ?? []) as unknown as { learner_vocabulary: { vocabulary_id: string } }[]).filter((r) => !excluded.has(r.learner_vocabulary.vocabulary_id)).length
-  const allLearned = (row: WordRow) => row.vocabularies.vocabulary_kanji.every((link) => learned.has(link.kanji_id))
+  const hasKanji = (row: WordRow) => row.vocabularies.vocabulary_kanji.length > 0
   const level = levels.word_kanji
-  const eligible = active.filter((row) => !opened(row) && doneStage2(row) && allLearned(row) && inLevel(row.vocabularies.jlpt_level, level))
-  const waitingForKanji = active.filter((row) => !opened(row) && doneStage2(row) && !allLearned(row)).length
-  // Học xong từ mới của cấp: mọi từ của cấp đã mở, hoặc còn chờ chữ ở cấp sau
+  const eligible = active.filter((row) => !opened(row) && doneStage3(row) && hasKanji(row) && inLevel(row.vocabularies.jlpt_level, level))
+  const waitingForLevel = active.filter((row) => !opened(row) && doneStage3(row) && hasKanji(row) && !inLevel(row.vocabularies.jlpt_level, level)).length
+  // Học xong từ mới của cấp: mọi từ của cấp đã mở
   const levelWords = (totals.data ?? []).filter((v) => v.jlpt_level === level)
   const openedIds = new Set(active.filter(opened).map((row) => row.vocabulary_id))
   const levelDone = levelWords.length > 0 && levelWords.every((v) => openedIds.has(v.id) || excluded.has(v.id))
@@ -173,7 +162,7 @@ export async function getWordKanjiOverview(): Promise<WordKanjiOverview> {
     waiting: eligible.length,
     completed: active.filter((row) => row.learner_stage_schedules.some((s) => s.stage_number === 6 && s.completed_at !== null)).length,
     inProgress: active.filter((row) => opened(row) && !row.learner_stage_schedules.some((s) => s.stage_number === 6 && s.completed_at !== null)).length,
-    waitingForKanji,
+    waitingForLevel,
     total: (totals.data ?? []).filter((v) => !excluded.has(v.id)).length,
     cap,
     answeredToday,
@@ -183,10 +172,11 @@ export async function getWordKanjiOverview(): Promise<WordKanjiOverview> {
 }
 
 export interface OpenWordKanjiResponse {
-  status: 'saved' | 'invalid' | 'not_found'
+  /** not_ready: từ chưa xong Stage 3. */
+  status: 'saved' | 'invalid' | 'not_found' | 'not_ready'
 }
 
-/** Xem xong thẻ Kanji của từ: mở Stage 4. Gọi lại nhiều lần cũng chỉ áp dụng một lần. */
+/** Xem xong thẻ Stage 4 của từ: mở Stage 5. Gọi lại nhiều lần cũng chỉ áp dụng một lần. */
 export async function openWordKanji(learnerVocabularyId: unknown): Promise<OpenWordKanjiResponse> {
   if (typeof learnerVocabularyId !== 'string' || !UUID.test(learnerVocabularyId)) return { status: 'invalid' }
   await requireUser()

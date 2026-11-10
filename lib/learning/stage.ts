@@ -6,7 +6,7 @@ import {
   EXERCISES,
   REQUIRED_EXERCISES,
   REQUIRED_SKILLS,
-  RULES_V4,
+  RULES_V9,
   STAGE_EXERCISES,
 } from './rules'
 import { scoreExercise } from './scoring'
@@ -23,7 +23,7 @@ export interface StageState {
   plusDate: StudyDate | null
   /** Dạng bài đã từng được +1 ở stage này. */
   earned: readonly ExerciseCode[]
-  /** Đã mở stage sau (Stage 5 không có stage sau nên luôn false). Không bao giờ đóng lại. */
+  /** Đã mở stage sau (Stage 3 và 6 không có stage sau nên luôn false). Không bao giờ đóng lại. */
   unlockedNext: boolean
   /** Số thứ tự (trong ngày, trong khu Learn) của câu gần nhất thuộc từ này, ở bất kỳ stage nào. */
   lastSeq: number | null
@@ -46,25 +46,25 @@ export function newStageState(stage: ScoredStage): StageState {
   }
 }
 
-/** R1 — Stage kế tiếp. Từ vựng: 1 → 2 → 5. Từ Kanji: 3 → 4 → 6. */
+/** R1 — Stage kế tiếp. Từ vựng Kana: 1 → 2 → 3. Từ vựng Kanji: 4 → 5 → 6. */
 export function nextStage(stage: Stage): Stage | 'complete' {
   switch (stage) {
     case 1:
       return 2
     case 2:
-      return 5
-    case 3:
-      return 4
+      return 3
     case 4:
-      return 6
+      return 5
     case 5:
+      return 6
+    case 3:
     case 6:
       return 'complete'
   }
 }
 
 /** Các stage phải hoàn tất thì từ hoàn thành kỹ năng Từ vựng. Từ Kanji tính tiến độ riêng. */
-export const VOCABULARY_STAGES: readonly ScoredStage[] = [2, 5]
+export const VOCABULARY_STAGES: readonly ScoredStage[] = [2, 3]
 
 /** R5 — Card tạo ra khi hoàn tất `stage`. */
 export function cardsToCreate(stage: Stage): CardType[] {
@@ -73,7 +73,7 @@ export function cardsToCreate(stage: Stage): CardType[] {
 
 /** Điểm cần để hoàn tất stage. */
 export function completeAt(stage: ScoredStage): number {
-  return RULES_V4.stageThresholds[stage].completeAt
+  return RULES_V9.stageThresholds[stage].completeAt
 }
 
 /**
@@ -82,28 +82,28 @@ export function completeAt(stage: ScoredStage): number {
  */
 export function isSpaced(state: Pick<StageState, 'lastSeq' | 'lastSeqDate'>, seq: number, today: StudyDate): boolean {
   if (state.lastSeq === null || state.lastSeqDate !== today) return true
-  return seq - state.lastSeq - 1 >= RULES_V4.spacing.minGap
+  return seq - state.lastSeq - 1 >= RULES_V9.spacing.minGap
 }
 
 function hasRequiredEarned({ stage, earned }: StageState): boolean {
-  if (stage === 5 || stage === 6) {
+  if (stage === 3 || stage === 6) {
     const skills = new Set(earned.map((code) => EXERCISES[code].skill))
     return REQUIRED_SKILLS[stage].every((s) => skills.has(s))
   }
   return REQUIRED_EXERCISES[stage].every((code) => earned.includes(code))
 }
 
-/** R4 — Đủ điều kiện mở stage sau chưa. Stage 5 và 6 không có stage sau. */
+/** R4 — Đủ điều kiện mở stage sau chưa. Stage 3 và 6 không có stage sau. */
 export function canUnlockNext(state: StageState): boolean {
-  if (state.stage === 5 || state.stage === 6) return false
-  return state.points >= RULES_V4.stageThresholds[state.stage].unlockNextAt && hasRequiredEarned(state)
+  if (state.stage === 3 || state.stage === 6) return false
+  return state.points >= RULES_V9.stageThresholds[state.stage].unlockNextAt && hasRequiredEarned(state)
 }
 
-/** R4 — Đủ điều kiện hoàn tất stage chưa. Stage 2, 4 phải mở stage sau trước. */
+/** R4 — Đủ điều kiện hoàn tất stage chưa. Stage 2, 5 phải mở stage sau trước. */
 export function canComplete(state: StageState): boolean {
   if (state.points < completeAt(state.stage)) return false
-  if (state.correctStreak < RULES_V4.completion.correctStreak) return false
-  return state.stage === 5 || state.stage === 6 ? hasRequiredEarned(state) : state.unlockedNext
+  if (state.correctStreak < RULES_V9.completion.correctStreak) return false
+  return state.stage === 3 || state.stage === 6 ? hasRequiredEarned(state) : state.unlockedNext
 }
 
 export interface StageAttempt {
@@ -120,7 +120,7 @@ export interface StageAttemptResult {
   delta: number
   /** Câu thỏa giãn cách và không bị trần chặn (cột `counted`). */
   counted: boolean
-  /** Stage vừa được mở nhờ câu này (có thể là Stage 3, chỉ có xem). */
+  /** Stage vừa được mở nhờ câu này. */
   unlockedStage: Stage | null
   /** Stage này vừa hoàn tất. */
   completed: boolean
@@ -134,7 +134,7 @@ export function allowedExercises(stage: ScoredStage): readonly ExerciseCode[] {
 
 /** Học lại Stage: điểm sau khi mở lại, để đúng thêm vài câu là hoàn tất lại. */
 export function relearnStagePoints(stage: ScoredStage): number {
-  return Math.max(0, completeAt(stage) - RULES_V4.relearn.pointsToComplete)
+  return Math.max(0, completeAt(stage) - RULES_V9.relearn.pointsToComplete)
 }
 
 /** R3 + R4 + R5 — Áp một câu học vào trạng thái của từ ở stage này. */
@@ -153,7 +153,7 @@ export function applyStageAttempt(state: StageState, attempt: StageAttempt): Sta
   let counted = false
   if (spaced) {
     if (raw > 0) {
-      const underCap = plusToday < RULES_V4.stagePoints.maxPositivePerStagePerDay
+      const underCap = plusToday < RULES_V9.stagePoints.maxPositivePerStagePerDay
       delta = underCap ? raw : 0
       counted = underCap
     } else {
@@ -190,18 +190,18 @@ export function applyStageAttempt(state: StageState, attempt: StageAttempt): Sta
   }
 }
 
-/** Stage 1 và 3: xem xong là qua, mở stage kế tiếp ngay. Không tạo Card. */
-export function completeIntro(stage: 1 | 3): { openedStage: Stage } {
+/** Stage 1 và 4: xem xong là qua, mở stage kế tiếp ngay. Không tạo Card. */
+export function completeIntro(stage: 1 | 4): { openedStage: Stage } {
   return { openedStage: nextStage(stage) as Stage }
 }
 
-/** Bước hiện tại của từ trong một stage. Stage 5 không chia bước. */
+/** Bước hiện tại của từ trong một stage. Stage 3 và 6 không chia bước. */
 export type StageStep = 'choice' | 'mixed' | 'assembly'
 
 export function stageStep(stage: ScoredStage, points: number): StageStep {
-  if (stage === 2) return points < RULES_V4.stageSteps[2].assemblyFrom ? 'choice' : 'assembly'
-  if (stage === 4) {
-    const { mixedFrom, assemblyFrom } = RULES_V4.stageSteps[4]
+  if (stage === 2) return points < RULES_V9.stageSteps[2].assemblyFrom ? 'choice' : 'assembly'
+  if (stage === 5) {
+    const { mixedFrom, assemblyFrom } = RULES_V9.stageSteps[5]
     if (points < mixedFrom) return 'choice'
     return points < assemblyFrom ? 'mixed' : 'assembly'
   }
@@ -210,7 +210,7 @@ export function stageStep(stage: ScoredStage, points: number): StageStep {
 
 /** Đã sai liên tiếp đủ số câu để hiện lại thẻ giới thiệu chưa. */
 export function shouldRelearn(wrongStreak: number): boolean {
-  return wrongStreak >= RULES_V4.relearnAfterWrong
+  return wrongStreak >= RULES_V9.relearnAfterWrong
 }
 
 /** Số câu cùng kết quả liên tiếp ở đầu danh sách, câu mới nhất đứng đầu. */

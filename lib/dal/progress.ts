@@ -135,7 +135,7 @@ export async function getDaySummary(): Promise<DaySummary> {
       .range(from, from + PAGE - 1)
     if (error) throw new Error(`Không đọc được exercise_logs: ${error.message}`)
     for (const log of data ?? []) {
-      const skill = log.stage_number === 4 || log.stage_number === 6 ? wordKanji : vocabulary
+      const skill = log.stage_number === 5 || log.stage_number === 6 ? wordKanji : vocabulary
       skill.answered += 1
       if (log.outcome !== 'wrong') skill.correct += 1
       skill.points += log.points
@@ -158,7 +158,7 @@ export async function getDaySummary(): Promise<DaySummary> {
   ])
   if (stages.error) throw new Error(`Không đọc được learner_stage_schedules: ${stages.error.message}`)
   if (learned.error) throw new Error(`Không đọc được learner_kanji: ${learned.error.message}`)
-  for (const row of stages.data ?? []) (row.stage_number === 4 || row.stage_number === 6 ? wordKanji : vocabulary).completed += 1
+  for (const row of stages.data ?? []) (row.stage_number === 5 || row.stage_number === 6 ? wordKanji : vocabulary).completed += 1
   kanji.completed = learned.count ?? 0
 
   return { vocabulary, wordKanji, kanji, answered: vocabulary.answered + wordKanji.answered + kanji.answered }

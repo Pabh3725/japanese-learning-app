@@ -16,7 +16,7 @@ export interface LearnOverview {
   /** Số từ mới còn học được hôm nay: theo giới hạn trong Settings và số từ còn lại. */
   newToday: number
   /** Số câu đang đến hẹn của từng Stage. */
-  due: { 2: number; 5: number }
+  due: { 2: number; 3: number }
   /** Cấp từ vựng đang học. */
   level: number
   /** Cấp sau có thể mở khi đã mở hết từ của cấp này; null nếu chưa tới lúc. */
@@ -46,7 +46,7 @@ export interface LearnOverview {
 }
 
 type DueRow = {
-  stage_number: 2 | 5
+  stage_number: 2 | 3
   stage_points: number
   learner_vocabulary: { vocabulary_id: string; kanji_intro_seen_at: string | null }
 }
@@ -101,7 +101,7 @@ export async function getLearnOverview(): Promise<LearnOverview> {
       .from('learner_stage_schedules')
       .select('stage_number, stage_points, learner_vocabulary!inner(vocabulary_id, learning_status, kanji_intro_seen_at)')
       .eq('user_id', user.id)
-      .in('stage_number', [2, 5])
+      .in('stage_number', [2, 3])
       .is('completed_at', null)
       .lte('due_at', now)
       .order('id')
@@ -117,9 +117,9 @@ export async function getLearnOverview(): Promise<LearnOverview> {
   // Từ đã biết không còn trong lộ trình
   const count = (total.count ?? 0) - excludedIds.size
 
-  const due = { 2: 0, 5: 0 }
+  const due = { 2: 0, 3: 0 }
   for (const row of dueRows) {
-    if (!excludedIds.has(row.learner_vocabulary.vocabulary_id)) due[row.stage_number as 2 | 5]++
+    if (!excludedIds.has(row.learner_vocabulary.vocabulary_id)) due[row.stage_number as 2 | 3]++
   }
   const completed = active.filter((r) => r.learning_status === 'initial_complete').length
 
@@ -130,7 +130,7 @@ export async function getLearnOverview(): Promise<LearnOverview> {
   // Chỉ tính từ của cấp đang học; hết từ thì app hỏi rồi mới mở cấp sau
   const left = inLevelWords.filter((r) => !startedIds2.has(r.id)).length
 
-  const dueTotal = due[2] + due[5]
+  const dueTotal = due[2] + due[3]
   const block = newWordsBlockedBy({
     cardsDue: limits.cardsDueToday,
     unlockThreshold: limits.unlockThreshold,

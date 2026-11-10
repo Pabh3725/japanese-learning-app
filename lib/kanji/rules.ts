@@ -1,5 +1,5 @@
 // Khu Kanji: giới thiệu → học 12 câu trong 4 buổi → ôn FSRS dài hạn. Pure. Luật: docs/PROJECT_SPEC.md §18.6.
-import { RULES_V4 } from '../learning/rules'
+import { RULES_V9 } from '../learning/rules'
 import { nextStudyDayStart, studyDate } from '../learning/time'
 import type { Outcome, StudyDate } from '../learning/types'
 
@@ -48,7 +48,7 @@ function leastDone(list: readonly KanjiExercise[], counts: KanjiCounts, rng: Rng
 
 /** Đi từ dễ tới khó theo điểm. Bước cuối ưu tiên mặt còn thiếu để đủ điều kiện hoàn tất. */
 export function chooseLearningExercise(points: number, counts: KanjiCounts, hasWord: boolean, rng: Rng = Math.random): KanjiExercise {
-  const { middleFrom, recallFrom } = RULES_V4.kanji
+  const { middleFrom, recallFrom } = RULES_V9.kanji
   if (points < middleFrom) return leastDone(['kanji_to_meaning', 'kanji_to_hanviet'], counts, rng)
   if (points < recallFrom) return leastDone(['pick_kanji', 'kanji_reading'], counts, rng)
 
@@ -81,8 +81,8 @@ export function chooseReviewExercise(last: string | null, rng: Rng = Math.random
 export function canCompleteLearning(state: Pick<KanjiLearningState, 'points' | 'counts' | 'correctStreak'>): boolean {
   const c = state.counts
   return (
-    state.points >= RULES_V4.kanji.completeAt &&
-    state.correctStreak >= RULES_V4.completion.correctStreak &&
+    state.points >= RULES_V9.kanji.completeAt &&
+    state.correctStreak >= RULES_V9.completion.correctStreak &&
     meaningDone(c) >= REQUIRED_PER_FACET &&
     hanVietDone(c) >= REQUIRED_PER_FACET &&
     readingDone(c) >= REQUIRED_PER_FACET &&
@@ -101,7 +101,7 @@ export interface KanjiLearningResult {
 export function applyLearningAnswer(state: KanjiLearningState, exercise: KanjiExercise, outcome: Outcome, now: Date): KanjiLearningResult {
   const today = studyDate(now)
   const plusToday = state.pointsDate === today ? state.pointsToday : 0
-  const { maxPositivePerDay, wrong } = RULES_V4.kanji
+  const { maxPositivePerDay, wrong } = RULES_V9.kanji
   const raw = outcome === 'correct' ? 1 : outcome === 'wrong' ? wrong : 0
   const gain = raw > 0 && plusToday >= maxPositivePerDay ? 0 : raw
   const points = Math.max(0, state.points + gain)
@@ -117,7 +117,7 @@ export function applyLearningAnswer(state: KanjiLearningState, exercise: KanjiEx
 
 /** Buổi kế tiếp bắt đầu 00:00 giờ VN. Lịch khi đúng hết: ngày 1, 2, 3, 5; học thêm thì mỗi ngày một buổi. */
 export function nextSittingAt(now: Date, sittingsDone: number): { due: Date; days: number } {
-  const days = RULES_V4.kanji.sittingGaps[sittingsDone - 1] ?? 1
+  const days = RULES_V9.kanji.sittingGaps[sittingsDone - 1] ?? 1
   return { due: new Date(nextStudyDayStart(now).getTime() + (days - 1) * DAY_MS), days }
 }
 
@@ -137,7 +137,7 @@ export interface KanjiDailyInput {
 
 /** Số chữ mới còn mở được: ôn và học trước, mỗi chữ mới cần chỗ cho cả buổi đầu trong trần. */
 export function newKanjiToday({ newPerDay, cap, answeredToday, openedToday, dueQuestions, notOpened }: KanjiDailyInput): number {
-  const room = Math.floor((cap - answeredToday - dueQuestions) / RULES_V4.kanji.questionsPerSitting)
+  const room = Math.floor((cap - answeredToday - dueQuestions) / RULES_V9.kanji.questionsPerSitting)
   return Math.max(0, Math.min(newPerDay - openedToday, notOpened, room))
 }
 
@@ -151,7 +151,7 @@ export interface KanjiLoadAdvice {
 
 /** Quá tải khi câu đến hạn vượt phần còn lại của trần từ 10 câu trở lên. */
 export function kanjiLoadAdvice({ dueQuestions, room, cap, newPerDay }: { dueQuestions: number; room: number; cap: number; newPerDay: number }): KanjiLoadAdvice | null {
-  const { overloadFrom, learningShareOfCap, completeAt } = RULES_V4.kanji
+  const { overloadFrom, learningShareOfCap, completeAt } = RULES_V9.kanji
   const over = dueQuestions - room
   if (over < overloadFrom) return null
   const fits = Math.max(1, Math.floor((cap * learningShareOfCap) / completeAt))

@@ -11,7 +11,7 @@ import { randomUUID } from 'node:crypto'
 import { loadPools } from '@/lib/dal/stage-session'
 import { buildReviewQuestion, chooseReviewExercise, gradeReviewAnswer, reviewExercises, type ReviewAnswerInput, type ReviewQuestionData } from '@/lib/exercise/review-questions'
 import { gradeStageAnswer, withHint, wordReveal, type QuestionData, type StageWord, type WordReveal } from '@/lib/exercise/stage-questions'
-import { EXERCISES, RULES_V4 } from '@/lib/learning/rules'
+import { EXERCISES, RULES_V9 } from '@/lib/learning/rules'
 import { nextStudyDayStart, studyDate } from '@/lib/learning/time'
 import type { CardType, ExerciseCode, Outcome } from '@/lib/learning/types'
 import { createScheduler, type ReviewAnswer, type ReviewCard } from '@/lib/srs/scheduler'
@@ -129,7 +129,7 @@ type DueCardRow = {
 async function readReviewCap(supabase: Awaited<ReturnType<typeof createClient>>, userId: string): Promise<number> {
   const { data, error } = await supabase.from('learner_settings').select('review_cap').eq('user_id', userId).maybeSingle()
   if (error) throw new Error(`Không đọc được learner_settings: ${error.message}`)
-  return data?.review_cap ?? RULES_V4.defaults.reviewCap
+  return data?.review_cap ?? RULES_V9.defaults.reviewCap
 }
 
 async function countReviewedToday(supabase: Awaited<ReturnType<typeof createClient>>, userId: string): Promise<number> {

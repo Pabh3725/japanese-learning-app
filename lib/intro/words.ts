@@ -9,7 +9,7 @@ export const INTRO_WORDS_PER_SESSION = 10
 
 /**
  * Thứ thẻ Stage 1 được phép hiện. Cố ý KHÔNG có `expression` và `han_viet`:
- * Kanji và Hán Việt để đến Stage 3, nên không gửi xuống trình duyệt.
+ * Kanji để đến Stage 4, nên không gửi xuống trình duyệt.
  */
 export interface IntroWord {
   id: string

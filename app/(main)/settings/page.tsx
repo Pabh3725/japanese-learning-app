@@ -6,14 +6,14 @@ import { getKanjiOverview } from '@/lib/dal/kanji'
 import { getLearnOverview } from '@/lib/dal/learn-overview'
 import { getReviewOverview } from '@/lib/dal/review'
 import { getNewPerDay, getStudyLimits } from '@/lib/dal/settings'
-import { RULES_V4 } from '@/lib/learning/rules'
+import { RULES_V9 } from '@/lib/learning/rules'
 
 /** Ước lượng thời gian mỗi câu hoặc thẻ. */
 const SECONDS_PER_ITEM = 15
 
 export default async function SettingsPage() {
   const [user, newPerDay, limits, learn, review, kanji] = await Promise.all([requireUser(), getNewPerDay(), getStudyLimits(), getLearnOverview(), getReviewOverview(), getKanjiOverview()])
-  const minutes = Math.ceil(((learn.questionsToday + learn.newToday + review.dueNow + kanji.questionsToday + kanji.newToday * RULES_V4.kanji.questionsPerSitting) * SECONDS_PER_ITEM) / 60)
+  const minutes = Math.ceil(((learn.questionsToday + learn.newToday + review.dueNow + kanji.questionsToday + kanji.newToday * RULES_V9.kanji.questionsPerSitting) * SECONDS_PER_ITEM) / 60)
   const daysToFinish = newPerDay > 0 ? Math.ceil(learn.wordsLeft / newPerDay) : null
 
   return (
@@ -22,7 +22,7 @@ export default async function SettingsPage() {
       <section aria-labelledby="estimate-title" className="mb-6 max-w-2xl rounded-3xl border border-border bg-card p-6">
         <h2 id="estimate-title" className="font-semibold">With your current settings</h2>
         <ul className="mt-3 flex flex-col gap-2 text-sm text-subtle">
-          <li>About {minutes} {minutes === 1 ? 'minute' : 'minutes'} of study left today ({learn.questionsToday} questions, {review.dueNow} cards, {kanji.questionsToday + kanji.newToday * RULES_V4.kanji.questionsPerSitting} Kanji questions).</li>
+          <li>About {minutes} {minutes === 1 ? 'minute' : 'minutes'} of study left today ({learn.questionsToday} questions, {review.dueNow} cards, {kanji.questionsToday + kanji.newToday * RULES_V9.kanji.questionsPerSitting} Kanji questions).</li>
           <li>
             {learn.block
               ? 'No more new words today: too many items are due.'

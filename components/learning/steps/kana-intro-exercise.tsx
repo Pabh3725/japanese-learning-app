@@ -21,7 +21,7 @@ interface KanaIntroExerciseProps {
   speaker?: React.ReactNode
 }
 
-/** Stage 1: chỉ kana, romaji, nghĩa. Kanji và Hán Việt để đến Stage 3. */
+/** Stage 1: chỉ kana, romaji, nghĩa. Kanji để đến Stage 4. */
 export function KanaIntroExercise({ word, saving, error, onComplete, speaker }: KanaIntroExerciseProps) {
   return (
     <ExercisePanel

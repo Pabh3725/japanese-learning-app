@@ -1,10 +1,10 @@
-// RULES_V4 — mọi con số của luật học nằm ở đây, không hard-code chỗ khác.
+// RULES_V9 — mọi con số của luật học nằm ở đây, không hard-code chỗ khác.
 // Nguồn: docs/learning-rules.md §12. Đổi luật = đổi file này + tăng version.
 
 import type { CardType, ExerciseCode, ExerciseKind, ScoredStage, Skill, Stage } from './types'
 
-export const RULES_V4 = {
-  version: 4,
+export const RULES_V9 = {
+  version: 9,
   timezone: 'Asia/Ho_Chi_Minh',
   /** Việt Nam không có giờ mùa hè nên dùng độ lệch cố định UTC+7. */
   utcOffsetMinutes: 7 * 60,
@@ -21,22 +21,22 @@ export const RULES_V4 = {
   /** V8: mỗi stage có mốc riêng. Mở stage sau ≠ hoàn tất; stage chạy tiếp tới khi hoàn tất. */
   stageThresholds: {
     2: { unlockNextAt: 6, completeAt: 10 },
-    4: { unlockNextAt: 10, completeAt: 15 },
-    5: { completeAt: 10 },
+    3: { completeAt: 10 },
+    5: { unlockNextAt: 10, completeAt: 15 },
     6: { completeAt: 10 },
   },
   /** Các bước trong một stage, đi từ dễ tới khó theo điểm. Tụt dưới mốc thì quay lại bước trước. */
   stageSteps: {
     2: { assemblyFrom: 4, hanVietShare: 0.15 },
-    4: { mixedFrom: 3, assemblyFrom: 7 },
+    5: { mixedFrom: 3, assemblyFrom: 7 },
     /** Khi đã có đủ dạng bắt buộc, tỷ lệ câu trắc nghiệm trong bước ghép. */
     choiceShareInAssembly: 0.2,
-    /** Stage 4: trong các câu trắc nghiệm ở bước ghép, tỷ lệ câu nghe chọn Kanji. */
+    /** Stage 5: trong các câu trắc nghiệm ở bước ghép, tỷ lệ câu nghe chọn Kanji. */
     listeningShareOfChoice: 0.5,
   },
   /** Lịch FSRS của Stage. Không giới hạn thì đúng mọi câu phải hơn 35 năm mới đạt 10 điểm. */
   stageSchedule: { maximumIntervalDays: 2 },
-  /** Vòng ghép ô ở Stage 5: đúng không cộng, ghép sai trừ một lần mỗi từ mỗi vòng. */
+  /** Vòng ghép ô ở Stage 3: đúng không cộng, ghép sai trừ một lần mỗi từ mỗi vòng. */
   matchRound: { wrongPoints: -1 },
   /** Chỉ đếm câu trong khu Learn. Câu Review và câu vòng boss không tính. */
   spacing: { minGap: 4 },
@@ -89,31 +89,31 @@ export const EXERCISES: Record<ExerciseCode, { kind: ExerciseKind; skill: Skill 
 
 /** Dạng bài được phép xuất hiện ở mỗi Stage tính điểm. */
 export const STAGE_EXERCISES: Record<ScoredStage, readonly ExerciseCode[]> = {
-  // Từ vựng. Câu Hán Việt chỉ hỏi nhẹ, không bắt buộc.
+  // Từ vựng Kana. Câu Hán Việt chỉ hỏi nhẹ, không bắt buộc.
   2: ['kana_to_meaning', 'meaning_to_kana', 'kana_assembly', 'listening', 'hanviet_from_kana'],
-  5: ['meaning_assembly', 'meaning_recognition_6', 'kana_free_recall'],
-  // Từ Kanji
-  4: ['hanviet_from_kana', 'kanji_char_meaning', 'listening_kanji', 'kanji_recognition', 'kanji_assembly', 'hanviet_recognition', 'hanviet_assembly'],
+  3: ['meaning_assembly', 'meaning_recognition_6', 'kana_free_recall'],
+  // Từ vựng Kanji
+  5: ['hanviet_from_kana', 'kanji_char_meaning', 'listening_kanji', 'kanji_recognition', 'kanji_assembly', 'hanviet_recognition', 'hanviet_assembly'],
   6: ['kanji_assembly_nohint', 'kanji_recognition_6', 'hanviet_free_recall', 'hanviet_recognition', 'hanviet_assembly'],
 }
 
-/** Yêu cầu bắt buộc để mở stage sau ở Stage 2 và 4 (mỗi dạng ≥ 1 lần được +1). */
-export const REQUIRED_EXERCISES: Record<2 | 4, readonly ExerciseCode[]> = {
+/** Yêu cầu bắt buộc để mở stage sau ở Stage 2 và 5 (mỗi dạng ≥ 1 lần được +1). */
+export const REQUIRED_EXERCISES: Record<2 | 5, readonly ExerciseCode[]> = {
   2: ['kana_to_meaning', 'meaning_to_kana', 'kana_assembly'],
-  4: ['hanviet_from_kana', 'kanji_recognition', 'hanviet_recognition', 'kanji_char_meaning', 'hanviet_assembly', 'kanji_assembly'],
+  5: ['hanviet_from_kana', 'kanji_recognition', 'hanviet_recognition', 'kanji_char_meaning', 'hanviet_assembly', 'kanji_assembly'],
 }
 
-/** Stage 5 và 6 yêu cầu theo Skill. */
-export const REQUIRED_SKILLS: Record<5 | 6, readonly Skill[]> = {
-  5: ['S1', 'S2'],
+/** Stage 3 và 6 yêu cầu theo Skill. */
+export const REQUIRED_SKILLS: Record<3 | 6, readonly Skill[]> = {
+  3: ['S1', 'S2'],
   6: ['S3', 'S4'],
 }
 
-/** Card được tạo khi hoàn tất mỗi Stage. Mỗi từ tối đa 2 Card. */
+/** Card được tạo khi hoàn tất mỗi Stage. Mỗi từ tối đa 2 Card. Card Kana tạo ở Stage 3 để không ôn trùng lúc Stage 3 còn luyện. */
 export const CARDS_ON_PASS: Record<Stage, readonly CardType[]> = {
   1: [],
-  2: ['vocab.kana'],
-  3: [],
+  2: [],
+  3: ['vocab.kana'],
   4: [],
   5: [],
   6: ['vocab.kanji'],

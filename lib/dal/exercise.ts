@@ -8,7 +8,7 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
-import { RULES_V4 } from '@/lib/learning/rules'
+import { RULES_V9 } from '@/lib/learning/rules'
 import { applyStageAttempt, trailingCount, type StageAttemptResult } from '@/lib/learning/stage'
 import type { Outcome } from '@/lib/learning/types'
 import { studyDate } from '@/lib/learning/time'
@@ -91,7 +91,7 @@ export async function submitExercise(input: unknown): Promise<SubmitExerciseResp
       .eq('stage_number', req.stage)
       .eq('source', 'lesson')
       .order('answered_at', { ascending: false })
-      .limit(RULES_V4.completion.correctStreak),
+      .limit(RULES_V9.completion.correctStreak),
   ])
   if (schedule_.error) throw new Error(`Không đọc được learner_stage_schedules: ${schedule_.error.message}`)
   if (earnedLogs.error) throw new Error(`Không đọc được exercise_logs: ${earnedLogs.error.message}`)

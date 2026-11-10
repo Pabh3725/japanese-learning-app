@@ -1,4 +1,4 @@
-// Vòng ghép ô ở Stage 5. Pure. Vòng này chỉ để ôn vui: đúng không cộng điểm, ghép sai thì từ ở cột trái bị trừ điểm
+// Vòng ghép ô ở Stage 3. Pure. Vòng này chỉ để ôn vui: đúng không cộng điểm, ghép sai thì từ ở cột trái bị trừ điểm
 // một lần mỗi vòng. Không đổi lịch, không tính giãn cách, không đạt kỹ năng bắt buộc.
 
 import type { Rng } from './questions'
@@ -15,8 +15,8 @@ export interface MatchCandidate extends StageWord {
   learnerVocabularyId: string
   /** Đã xem thẻ Giới thiệu Hán tự. */
   kanjiIntroSeen: boolean
-  /** Đang chạy Stage 5: được ưu tiên và là từ duy nhất bị trừ điểm. */
-  stage5Active: boolean
+  /** Đang chạy Stage 3: được ưu tiên và là từ duy nhất bị trừ điểm. */
+  stage3Active: boolean
 }
 
 export interface MatchPair {
@@ -62,7 +62,7 @@ function sidesOf(word: MatchCandidate, type: MatchPairType): [string, string] | 
 }
 
 /**
- * Dựng một vòng: chọn ngẫu nhiên kiểu cặp dùng được, ưu tiên từ đang ở Stage 5.
+ * Dựng một vòng: chọn ngẫu nhiên kiểu cặp dùng được, ưu tiên từ đang ở Stage 3.
  * Không có hai ô cùng chữ, để mỗi ô chỉ có đúng một đáp án. Trả null nếu không đủ 6 cặp.
  */
 export function buildMatchRound(
@@ -70,7 +70,7 @@ export function buildMatchRound(
   newId: () => string,
   rng: Rng = Math.random,
 ): MatchRoundData | null {
-  const ordered = shuffle(candidates, rng).sort((a, b) => Number(b.stage5Active) - Number(a.stage5Active))
+  const ordered = shuffle(candidates, rng).sort((a, b) => Number(b.stage3Active) - Number(a.stage3Active))
   for (const pairType of shuffle(PAIR_TYPES, rng)) {
     const lefts = new Set<string>()
     const rights = new Set<string>()

@@ -22,7 +22,7 @@ import type { Schedule, ScheduleState } from '../srs/scheduler'
 /** Những gì trình duyệt được phép gửi. Điểm, stage, card… server tự tính. */
 export interface SubmitExerciseRequest {
   learnerVocabularyId: string
-  /** Stage của câu này: một dạng bài có thể thuộc nhiều stage (kana_to_meaning ở Stage 2 và 4). */
+  /** Stage của câu này: một dạng bài có thể thuộc nhiều stage (hanviet_from_kana ở Stage 2 và 5). */
   stage: ScoredStage
   /** Mã riêng cho MỖI lần bấm (crypto.randomUUID()). Gửi lại → cùng mã. */
   clientEventId: string
@@ -35,7 +35,7 @@ export interface SubmitExerciseRequest {
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const OUTCOMES: readonly Outcome[] = ['correct', 'hint', 'wrong']
-const SCORED_STAGES: readonly number[] = [2, 4, 5, 6]
+const SCORED_STAGES: readonly number[] = [2, 3, 5, 6]
 
 /** Dữ liệu lạ / thiếu / sai kiểu → null. */
 export function parseSubmitExerciseRequest(input: unknown): SubmitExerciseRequest | null {
@@ -207,9 +207,9 @@ export function toSubmitStageExerciseParams({
     p_reps: schedule.reps,
     p_lapses: schedule.lapses,
     p_last_review_at: schedule.lastReviewAt?.toISOString() ?? null,
-    // mở stage sau: Stage 5 và 6 cần tạo lịch ở đây
+    // mở stage sau: Stage 3 và 6 cần tạo lịch ở đây
     p_unlocked_stage: result.unlockedStage,
-    p_open_schedule: result.unlockedStage === 5 || result.unlockedStage === 6,
+    p_open_schedule: result.unlockedStage === 3 || result.unlockedStage === 6,
     // hoàn tất stage
     p_completed: result.completed,
     p_required_stages: [...VOCABULARY_STAGES],

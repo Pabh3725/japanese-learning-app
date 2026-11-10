@@ -55,10 +55,10 @@ begin
 
     -- ---------- Bảng: ràng buộc ----------
     begin
-      insert into public.learner_stage_schedules (user_id, learner_vocabulary_id, stage_number) values (u1, lv, 3);
-      t := t || 'T02 Không có lịch cho Stage 3'::text; r := r || 'FAIL'::text;
+      insert into public.learner_stage_schedules (user_id, learner_vocabulary_id, stage_number) values (u1, lv, 4);
+      t := t || 'T02 Không có lịch cho Stage 4 (chỉ xem)'::text; r := r || 'FAIL'::text;
     exception when check_violation then
-      t := t || 'T02 Không có lịch cho Stage 3'::text; r := r || 'PASS'::text;
+      t := t || 'T02 Không có lịch cho Stage 4 (chỉ xem)'::text; r := r || 'PASS'::text;
     end;
 
     begin
@@ -89,7 +89,7 @@ begin
         p_points_date => '2026-11-05', p_state => 2::smallint, p_due_at => '2026-11-06 20:00+07',
         p_stability => 2.5, p_difficulty => 3, p_scheduled_days => 1, p_learning_steps => 0, p_reps => 1,
         p_lapses => 0, p_last_review_at => '2026-11-05 20:00+07', p_unlocked_stage => null::smallint,
-        p_open_schedule => false, p_completed => false, p_required_stages => '{2,4,5}',
+        p_open_schedule => false, p_completed => false, p_required_stages => '{2,3}',
         p_new_card_types => '{}', p_new_cards_due_at => null);
     select stage_points, version, scheduled_days into pts, ver, n from public.learner_stage_schedules where id = s2;
     t := t || 'T05 Lưu điểm và lịch vào đúng stage'::text;
@@ -108,7 +108,7 @@ begin
         p_points_date => '2026-11-05', p_state => 2::smallint, p_due_at => '2026-11-06 20:00+07',
         p_stability => 2.5, p_difficulty => 3, p_scheduled_days => 1, p_learning_steps => 0, p_reps => 1,
         p_lapses => 0, p_last_review_at => '2026-11-05 20:00+07', p_unlocked_stage => null::smallint,
-        p_open_schedule => false, p_completed => false, p_required_stages => '{2,4,5}',
+        p_open_schedule => false, p_completed => false, p_required_stages => '{2,3}',
         p_new_card_types => '{}', p_new_cards_due_at => null);
     select stage_points into pts from public.learner_stage_schedules where id = s2;
     t := t || 'T07 Gửi trùng: không ghi lại'::text;
@@ -123,7 +123,7 @@ begin
         p_points_date => '2026-11-05', p_state => 2::smallint, p_due_at => '2026-11-06 20:00+07',
         p_stability => 2.5, p_difficulty => 3, p_scheduled_days => 1, p_learning_steps => 0, p_reps => 1,
         p_lapses => 0, p_last_review_at => '2026-11-05 20:00+07', p_unlocked_stage => null::smallint,
-        p_open_schedule => false, p_completed => false, p_required_stages => '{2,4,5}',
+        p_open_schedule => false, p_completed => false, p_required_stages => '{2,3}',
         p_new_card_types => '{}', p_new_cards_due_at => null);
     select stage_points into pts from public.learner_stage_schedules where id = s2;
     t := t || 'T08 Version cũ: không ghi đè'::text;
@@ -139,7 +139,7 @@ begin
         p_points_date => '2026-11-05', p_state => 2::smallint, p_due_at => '2026-11-06 20:00+07',
         p_stability => 2.5, p_difficulty => 3, p_scheduled_days => 7, p_learning_steps => 0, p_reps => 1,
         p_lapses => 0, p_last_review_at => '2026-11-05 20:00+07', p_unlocked_stage => null::smallint,
-        p_open_schedule => false, p_completed => false, p_required_stages => '{2,4,5}',
+        p_open_schedule => false, p_completed => false, p_required_stages => '{2,3}',
         p_new_card_types => '{}', p_new_cards_due_at => null);
       t := t || 'T09 Hàm từ chối lịch vượt 2 ngày'::text; r := r || 'FAIL'::text;
     exception when others then
@@ -147,7 +147,7 @@ begin
       r := r || (case when sqlstate = '22023' then 'PASS' else 'FAIL — ' || sqlstate end);
     end;
 
-    -- ---------- Mở Stage 5, Stage 2 vẫn chạy ----------
+    -- ---------- Mở Stage 3, Stage 2 vẫn chạy ----------
     res := public.submit_stage_exercise(
         p_schedule_id => s2, p_client_event_id => gen_random_uuid(), p_expected_version => 1,
         p_answered_at => '2026-11-05 20:00+07', p_exercise_type => 'kana_to_meaning', p_outcome => 'correct',
@@ -155,20 +155,20 @@ begin
         p_response_time_ms => 1000, p_stage_points => 5, p_stage_points_today => 1::smallint,
         p_points_date => '2026-11-05', p_state => 2::smallint, p_due_at => '2026-11-06 20:00+07',
         p_stability => 2.5, p_difficulty => 3, p_scheduled_days => 1, p_learning_steps => 0, p_reps => 1,
-        p_lapses => 0, p_last_review_at => '2026-11-05 20:00+07', p_unlocked_stage => 5::smallint,
-        p_open_schedule => true, p_completed => false, p_required_stages => '{2,5}',
+        p_lapses => 0, p_last_review_at => '2026-11-05 20:00+07', p_unlocked_stage => 3::smallint,
+        p_open_schedule => true, p_completed => false, p_required_stages => '{2,3}',
         p_new_card_types => '{}', p_new_cards_due_at => null);
-    select id into s5 from public.learner_stage_schedules where learner_vocabulary_id = lv and stage_number = 5;
+    select id into s5 from public.learner_stage_schedules where learner_vocabulary_id = lv and stage_number = 3;
     select current_stage into stg from public.learner_vocabulary where id = lv;
     select count(*) into n from public.learner_stage_schedules where id = s2 and unlocked_next_at is not null and completed_at is null;
-    t := t || 'T10 Mở Stage 5: có lịch mới, current_stage = 5, Stage 2 vẫn chạy'::text;
-    r := r || (case when s5 is not null and stg = 5 and n = 1 then 'PASS' else 'FAIL — ' || res::text end);
+    t := t || 'T10 Mở Stage 3: có lịch mới, current_stage = 3, Stage 2 vẫn chạy'::text;
+    r := r || (case when s5 is not null and stg = 3 and n = 1 then 'PASS' else 'FAIL — ' || res::text end);
 
     select count(*) into n from public.review_cards where learner_vocabulary_id = lv;
     t := t || 'T11 Chưa hoàn tất thì chưa có card'::text;
     r := r || (case when n = 0 then 'PASS' else 'FAIL — ' || n end);
 
-    -- ---------- Hoàn tất Stage 2: có card, từ chưa xong ----------
+    -- ---------- Hoàn tất Stage 2: V9 chưa có Card, từ chưa xong ----------
     res := public.submit_stage_exercise(
         p_schedule_id => s2, p_client_event_id => gen_random_uuid(), p_expected_version => 2,
         p_answered_at => '2026-11-05 20:00+07', p_exercise_type => 'kana_to_meaning', p_outcome => 'correct',
@@ -177,12 +177,12 @@ begin
         p_points_date => '2026-11-05', p_state => 2::smallint, p_due_at => '2026-11-06 20:00+07',
         p_stability => 2.5, p_difficulty => 3, p_scheduled_days => 1, p_learning_steps => 0, p_reps => 1,
         p_lapses => 0, p_last_review_at => '2026-11-05 20:00+07', p_unlocked_stage => null::smallint,
-        p_open_schedule => false, p_completed => true, p_required_stages => '{2,5}',
-        p_new_card_types => '{vocab.meaning_kana}', p_new_cards_due_at => '2026-11-06 00:00+07');
-    select count(*) into n from public.review_cards where learner_vocabulary_id = lv and card_type = 'vocab.meaning_kana';
+        p_open_schedule => false, p_completed => true, p_required_stages => '{2,3}',
+        p_new_card_types => '{}', p_new_cards_due_at => null);
+    select count(*) into n from public.review_cards where learner_vocabulary_id = lv;
     select learning_status into st from public.learner_vocabulary where id = lv;
-    t := t || 'T12 Hoàn tất Stage 2: tạo card, từ vẫn đang học'::text;
-    r := r || (case when n = 1 and st = 'learning' and (res->>'word_completed')::boolean = false then 'PASS' else 'FAIL — ' || res::text end);
+    t := t || 'T12 Hoàn tất Stage 2: chưa có Card (V9 tạo ở Stage 3), từ vẫn đang học'::text;
+    r := r || (case when n = 0 and st = 'learning' and (res->>'word_completed')::boolean = false then 'PASS' else 'FAIL — ' || res::text end);
 
     res := public.submit_stage_exercise(
         p_schedule_id => s2, p_client_event_id => gen_random_uuid(), p_expected_version => 3,
@@ -192,12 +192,12 @@ begin
         p_points_date => '2026-11-05', p_state => 2::smallint, p_due_at => '2026-11-06 20:00+07',
         p_stability => 2.5, p_difficulty => 3, p_scheduled_days => 1, p_learning_steps => 0, p_reps => 1,
         p_lapses => 0, p_last_review_at => '2026-11-05 20:00+07', p_unlocked_stage => null::smallint,
-        p_open_schedule => false, p_completed => false, p_required_stages => '{2,5}',
+        p_open_schedule => false, p_completed => false, p_required_stages => '{2,3}',
         p_new_card_types => '{}', p_new_cards_due_at => null);
     t := t || 'T13 Stage đã hoàn tất không nhận câu mới'::text;
     r := r || (case when res->>'status' = 'stage_changed' then 'PASS' else 'FAIL — ' || res::text end);
 
-    -- ---------- Hoàn tất Stage 5: từ hoàn thành ----------
+    -- ---------- Hoàn tất Stage 3: có Card Kana, từ hoàn thành ----------
     res := public.submit_stage_exercise(
         p_schedule_id => s5, p_client_event_id => gen_random_uuid(), p_expected_version => 0,
         p_answered_at => '2026-11-05 20:00+07', p_exercise_type => 'kana_to_meaning', p_outcome => 'correct',
@@ -206,11 +206,12 @@ begin
         p_points_date => '2026-11-05', p_state => 2::smallint, p_due_at => '2026-11-06 20:00+07',
         p_stability => 2.5, p_difficulty => 3, p_scheduled_days => 1, p_learning_steps => 0, p_reps => 1,
         p_lapses => 0, p_last_review_at => '2026-11-05 20:00+07', p_unlocked_stage => null::smallint,
-        p_open_schedule => false, p_completed => true, p_required_stages => '{2,5}',
-        p_new_card_types => '{}', p_new_cards_due_at => null);
+        p_open_schedule => false, p_completed => true, p_required_stages => '{2,3}',
+        p_new_card_types => '{vocab.kana}', p_new_cards_due_at => '2026-11-06 00:00+07');
     select learning_status into st from public.learner_vocabulary where id = lv;
-    t := t || 'T14 Mọi stage bắt buộc xong: từ hoàn thành'::text;
-    r := r || (case when st = 'initial_complete' and (res->>'word_completed')::boolean then 'PASS' else 'FAIL — ' || res::text end);
+    select count(*) into n from public.review_cards where learner_vocabulary_id = lv and card_type = 'vocab.kana';
+    t := t || 'T14 Stage 2 và 3 xong: từ hoàn thành nhánh Kana, có Card Kana'::text;
+    r := r || (case when n = 1 and st = 'initial_complete' and (res->>'word_completed')::boolean then 'PASS' else 'FAIL — ' || res::text end);
 
     -- ---------- RLS: không đụng được dữ liệu người khác ----------
     select count(*) into n from public.learner_stage_schedules where learner_vocabulary_id = lv2;
@@ -218,7 +219,7 @@ begin
     r := r || (case when n = 0 then 'PASS' else 'FAIL — ' || n end);
 
     begin
-      insert into public.learner_stage_schedules (user_id, learner_vocabulary_id, stage_number) values (u1, lv2, 4);
+      insert into public.learner_stage_schedules (user_id, learner_vocabulary_id, stage_number) values (u1, lv2, 3);
       t := t || 'T16 Không gắn lịch vào từ của người khác'::text; r := r || 'FAIL'::text;
     exception when insufficient_privilege then
       t := t || 'T16 Không gắn lịch vào từ của người khác'::text; r := r || 'PASS'::text;
@@ -249,7 +250,7 @@ begin
 
     -- ---------- Chuyển dữ liệu cũ ----------
     select count(*) into n from public.learner_vocabulary lvx
-     where lvx.learning_status = 'learning' and lvx.current_stage in (2, 4, 5)
+     where lvx.learning_status = 'learning' and lvx.current_stage in (2, 3)
        and not exists (select 1 from public.learner_stage_schedules s
                         where s.learner_vocabulary_id = lvx.id and s.stage_number = lvx.current_stage);
     t := t || 'T20 Mọi từ đang học đều có lịch ở stage hiện tại'::text;

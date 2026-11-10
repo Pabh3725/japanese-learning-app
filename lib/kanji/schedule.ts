@@ -1,12 +1,12 @@
 // Lịch ôn dài hạn của khu Kanji: FSRS mặc định, không có Easy. Giai đoạn Học dùng lịch Stage (tối đa 2 ngày).
 import { createEmptyCard, fsrs, generatorParameters, Rating } from 'ts-fsrs'
 import { firstDueAt } from '../learning/cards'
-import { RULES_V4 } from '../learning/rules'
+import { RULES_V9 } from '../learning/rules'
 import type { Outcome } from '../learning/types'
 import { capInterval, fromFsrs, toFsrs, type Schedule } from '../srs/scheduler'
 import { kanjiRating } from './rules'
 
-const maxDays = RULES_V4.reviewSchedule.maximumIntervalDays
+const maxDays = RULES_V9.reviewSchedule.maximumIntervalDays
 const withFuzz = fsrs(generatorParameters({ enable_fuzz: true, maximum_interval: maxDays }))
 const noFuzz = fsrs(generatorParameters({ enable_fuzz: false, maximum_interval: maxDays }))
 const GRADE = { Again: Rating.Again, Hard: Rating.Hard, Good: Rating.Good } as const

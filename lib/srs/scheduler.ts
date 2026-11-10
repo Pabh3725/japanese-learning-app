@@ -4,7 +4,7 @@
 
 import { createEmptyCard, fsrs, generatorParameters, Rating as FsrsRating, type Card, type Grade } from 'ts-fsrs'
 import { firstDueAt } from '../learning/cards'
-import { RULES_V4 } from '../learning/rules'
+import { RULES_V9 } from '../learning/rules'
 import { ratingOf } from '../learning/scoring'
 import { cardsToCreate } from '../learning/stage'
 import type { CardStatus, CardType, ExerciseCode, Outcome, Rating, Stage } from '../learning/types'
@@ -80,7 +80,7 @@ export function capInterval(schedule: Schedule, now: Date, maxDays: number): Sch
 }
 
 export function createScheduler({ enableFuzz = true }: SchedulerOptions = {}) {
-  const maxDays = RULES_V4.reviewSchedule.maximumIntervalDays
+  const maxDays = RULES_V9.reviewSchedule.maximumIntervalDays
   const f = fsrs(generatorParameters({ enable_fuzz: enableFuzz, maximum_interval: maxDays }))
 
   /** R5 — Card mới khi một từ vừa qua `stage`. Hạn đầu tiên: 00:00 (giờ VN) ngày học hôm sau. */

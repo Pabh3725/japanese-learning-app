@@ -32,7 +32,7 @@ export default async function WordKanjiPage() {
                   ? `${overview.waiting} new ${overview.waiting === 1 ? 'word' : 'words'}`
                   : 'All caught up'}
             </h2>
-            <p className="mt-2 text-sm text-subtle">{overview.waiting} words ready · {overview.waitingForKanji} waiting for their Kanji</p>
+            <p className="mt-2 text-sm text-subtle">{overview.waiting} words ready · {overview.waitingForLevel} waiting for the next level</p>
             <p className="mt-1 text-sm text-muted-foreground tabular-nums">{overview.answeredToday} of {overview.cap} questions answered today</p>
           </div>
           {hasWork && (

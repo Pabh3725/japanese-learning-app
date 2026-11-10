@@ -75,21 +75,22 @@ describe('Điểm stage', () => {
   })
 
 
-  it('mốc riêng từng stage: Stage 2 mở ở 6, Stage 4 mở ở 10 và cần đủ 6 dạng', () => {
+  it('mốc riêng từng stage: Stage 2 mở ở 6, Stage 5 mở ở 10 và cần đủ 6 dạng', () => {
     const all2 = ['kana_to_meaning', 'meaning_to_kana', 'kana_assembly'] as const
     expect(canUnlockNext(word({ stage: 2, points: 5, earned: all2 }))).toBe(false)
     expect(canUnlockNext(word({ stage: 2, points: 6, earned: all2 }))).toBe(true)
-    const all4 = ['hanviet_from_kana', 'kanji_char_meaning', 'kanji_recognition', 'kanji_assembly', 'hanviet_recognition', 'hanviet_assembly'] as const
-    expect(canUnlockNext(word({ stage: 4, points: 9, earned: all4 }))).toBe(false)
-    expect(canUnlockNext(word({ stage: 4, points: 10, earned: all4 }))).toBe(true)
-    expect(canUnlockNext(word({ stage: 4, points: 10, earned: all4.slice(1) }))).toBe(false)
-    expect(canUnlockNext(word({ stage: 5, points: 99 }))).toBe(false)
+    const all5 = ['hanviet_from_kana', 'kanji_char_meaning', 'kanji_recognition', 'kanji_assembly', 'hanviet_recognition', 'hanviet_assembly'] as const
+    expect(canUnlockNext(word({ stage: 5, points: 9, earned: all5 }))).toBe(false)
+    expect(canUnlockNext(word({ stage: 5, points: 10, earned: all5 }))).toBe(true)
+    expect(canUnlockNext(word({ stage: 5, points: 10, earned: all5.slice(1) }))).toBe(false)
+    expect(canUnlockNext(word({ stage: 3, points: 99 }))).toBe(false)
+    expect(canUnlockNext(word({ stage: 6, points: 99 }))).toBe(false)
   })
 
-  it('mốc hoàn tất: Stage 4 là 15, các stage khác là 10, kể cả từ chỉ Kana', () => {
+  it('mốc hoàn tất: Stage 5 là 15, các stage khác là 10, kể cả từ chỉ Kana', () => {
     expect(completeAt(2)).toBe(10)
-    expect(completeAt(4)).toBe(15)
-    expect(completeAt(5)).toBe(10)
+    expect(completeAt(3)).toBe(10)
+    expect(completeAt(5)).toBe(15)
     expect(completeAt(6)).toBe(10)
   })
 
@@ -141,17 +142,20 @@ describe('Điểm stage', () => {
 describe('Học lại', () => {
   it('Học lại Stage: còn thiếu 3 điểm so với mốc hoàn tất', () => {
     expect(relearnStagePoints(2)).toBe(7)
-    expect(relearnStagePoints(4)).toBe(12)
+    expect(relearnStagePoints(3)).toBe(7)
+    expect(relearnStagePoints(5)).toBe(12)
     expect(relearnStagePoints(6)).toBe(7)
   })
 })
 
 describe('Hai lộ trình', () => {
-  it('Từ vựng 1 → 2 → 5, Từ Kanji 3 → 4 → 6; Stage 5, 6 cần đủ Skill riêng', () => {
+  it('Từ vựng Kana 1 → 2 → 3, Từ vựng Kanji 4 → 5 → 6; Stage 3, 6 cần đủ Skill riêng', () => {
     const now = new Date('2026-11-01T13:00:00Z')
-    const s5 = word({ stage: 5, points: 9, correctStreak: 2, earned: ['meaning_assembly'] })
+    const s5 = word({ stage: 3, points: 9, correctStreak: 2, earned: ['meaning_assembly'] })
     expect(applyStageAttempt(s5, { exercise: 'meaning_assembly', outcome: 'correct', seq: 1, now }).completed).toBe(false)
-    expect(applyStageAttempt(s5, { exercise: 'kana_free_recall', outcome: 'correct', seq: 1, now }).completed).toBe(true)
+    const kana = applyStageAttempt(s5, { exercise: 'kana_free_recall', outcome: 'correct', seq: 1, now })
+    expect(kana.completed).toBe(true)
+    expect(kana.cardsCreated).toEqual(['vocab.kana'])
     const s6 = word({ stage: 6, points: 9, correctStreak: 2, earned: ['kanji_assembly_nohint'] })
     expect(applyStageAttempt(s6, { exercise: 'kanji_recognition_6', outcome: 'correct', seq: 1, now }).completed).toBe(false)
     const done = applyStageAttempt(s6, { exercise: 'hanviet_free_recall', outcome: 'correct', seq: 1, now })
@@ -159,9 +163,9 @@ describe('Hai lộ trình', () => {
     expect(done.cardsCreated).toEqual(['vocab.kanji'])
   })
 
-  it('Stage 5 không còn câu Kanji và Hán Việt', () => {
+  it('Stage 3 không có câu Kanji và Hán Việt', () => {
     const now = new Date('2026-11-01T13:00:00Z')
-    expect(() => applyStageAttempt(word({ stage: 5 }), { exercise: 'kanji_assembly_nohint', outcome: 'correct', seq: 1, now })).toThrow()
-    expect(() => applyStageAttempt(word({ stage: 5 }), { exercise: 'hanviet_free_recall', outcome: 'correct', seq: 1, now })).toThrow()
+    expect(() => applyStageAttempt(word({ stage: 3 }), { exercise: 'kanji_assembly_nohint', outcome: 'correct', seq: 1, now })).toThrow()
+    expect(() => applyStageAttempt(word({ stage: 3 }), { exercise: 'hanviet_free_recall', outcome: 'correct', seq: 1, now })).toThrow()
   })
 })

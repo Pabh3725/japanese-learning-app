@@ -1,7 +1,7 @@
 // SES-01 — Số liệu trong ngày của Learn: chụp D, S lần đầu trong ngày học, giới hạn, số từ mượn. Server-only.
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
-import { RULES_V4 } from '@/lib/learning/rules'
+import { RULES_V9 } from '@/lib/learning/rules'
 import { addStudyDays, studyDate } from '@/lib/learning/time'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
@@ -34,7 +34,7 @@ async function countDue(supabase: Supabase, table: 'review_cards' | 'learner_sta
     // Card riêng của từ có sao không được làm dừng từ mới
     if (table === 'review_cards') query = query.neq('card_type', 'vocab.star_recall')
     // S chỉ tính kỹ năng Từ vựng; Từ Kanji có trần riêng
-    else query = query.in('stage_number', [2, 5])
+    else query = query.in('stage_number', [2, 3])
     const { data, error } = await query.order('id').range(from, from + PAGE - 1)
     if (error) throw new Error(`Không đọc được ${table}: ${error.message}`)
     const rows = (data ?? []) as unknown as { learner_vocabulary: { vocabulary_id: string } }[]
@@ -80,12 +80,12 @@ export async function readDailyLimits(supabase: Supabase, userId: string): Promi
     supabase.from('learner_settings').select('daily_new_limit, stage_cap, review_cap, unlock_threshold').eq('user_id', userId).maybeSingle(),
     todayPlan(supabase, userId, today),
     supabase.from('learner_daily_plans').select('borrowed_for_next').eq('user_id', userId).eq('study_date', addStudyDays(today, -1)).maybeSingle(),
-    supabase.from('exercise_logs').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('study_date', today).eq('source', 'lesson').in('stage_number', [2, 5]),
+    supabase.from('exercise_logs').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('study_date', today).eq('source', 'lesson').in('stage_number', [2, 3]),
   ])
   if (settings.error) throw new Error(`Không đọc được learner_settings: ${settings.error.message}`)
   if (yesterday.error) throw new Error(`Không đọc được learner_daily_plans: ${yesterday.error.message}`)
   if (answered.error) throw new Error(`Không đọc được exercise_logs: ${answered.error.message}`)
-  const { defaults } = RULES_V4
+  const { defaults } = RULES_V9
   return {
     newPerDay: settings.data?.daily_new_limit ?? defaults.newPerDay,
     stageCap: settings.data?.stage_cap ?? defaults.stageCap,

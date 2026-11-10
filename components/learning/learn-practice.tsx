@@ -1,6 +1,6 @@
 'use client'
 
-// Phần câu hỏi của một phiên khu Learn: câu của Stage 2, 4, 5 đã trộn.
+// Phần câu hỏi của một phiên khu Learn: câu của Stage 2, 3, 5, 6 đã trộn.
 // Câu chọn hiện kết quả ngay và lưu ở nền; câu ghép và câu gõ chờ server chấm vì đáp án không có ở trình duyệt.
 import { useEffect, useRef, useState } from 'react'
 import { checkStageAnswerAction, submitMatchPenaltiesAction, submitStageAnswerAction, submitStarAnswerAction } from '@/app/learn/actions'
@@ -21,7 +21,7 @@ import type { MatchPenalty } from '@/lib/exercise/match-round'
 import type { AssemblyQuestionData, ChoiceQuestionData, TypingQuestionData, WordReveal } from '@/lib/exercise/stage-questions'
 import type { StageQuestion } from '@/lib/dal/stage-session'
 import { levelUpOf, type LevelUp } from '@/lib/learn/level-up'
-import { RULES_V4 } from '@/lib/learning/rules'
+import { RULES_V9 } from '@/lib/learning/rules'
 import { shouldRelearn } from '@/lib/learning/stage'
 import type { ScoredStage } from '@/lib/learning/types'
 import { withRetry } from '@/lib/retry'
@@ -318,12 +318,12 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
     setRelearn(null)
   }
 
-  const stageLabel = q.kind === 'match' ? 'Stage 5' : q.kind === 'boss' ? 'Boss round' : q.starSessionId ? 'Starred word' : `Stage ${q.stage}`
+  const stageLabel = q.kind === 'match' ? 'Stage 3' : q.kind === 'boss' ? 'Boss round' : q.starSessionId ? 'Starred word' : `Stage ${q.stage}`
   // Cùng một câu hỏi lại nên cần key khác, để màn hình bắt đầu mới
   const bodyKey = `${q.clientEventId}${isRetry ? '-retry' : ''}`
   let body: React.ReactNode
   if (q.kind === 'boss') {
-    body = <SpeedMatchingGame key={q.clientEventId} words={q.words} mode="mixed" seconds={RULES_V4.bossRound.seconds} onBossDone={next} />
+    body = <SpeedMatchingGame key={q.clientEventId} words={q.words} mode="mixed" seconds={RULES_V9.bossRound.seconds} onBossDone={next} />
   } else if (q.kind === 'match') {
     body = <MatchRoundExercise key={q.clientEventId} round={q} onDone={finishMatch} />
   } else if (q.kind === 'choice') {

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { RULES_V4 } from '../../learning/rules'
+import { RULES_V9 } from '../../learning/rules'
 import { newLongTermSchedule, reviewLongTermSchedule } from '../schedule'
 import { buildKanjiQuestion, gradeKanjiAnswer, plainHanViet, showReading, type KanjiRow } from '../questions'
 import {
@@ -39,7 +39,7 @@ function runLearning(wrongAt = -1, hasWord = false) {
   for (let d = 1; d < 40; d++) {
     if (due.getTime() > vn(d, 30).getTime()) continue
     sittings++
-    for (const exercise of planSitting(state.points, state.counts, RULES_V4.kanji.questionsPerSitting, hasWord, seeded(d))) {
+    for (const exercise of planSitting(state.points, state.counts, RULES_V9.kanji.questionsPerSitting, hasWord, seeded(d))) {
       const outcome = total === wrongAt ? 'wrong' : 'correct'
       const result = applyLearningAnswer(state, exercise, outcome, vn(d, total))
       state = result.state

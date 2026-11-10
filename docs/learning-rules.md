@@ -1,6 +1,6 @@
 # ENG-01 — Luật học (Learning Rules) `RULES_V9`
 
-> Trạng thái: **Đã chốt thiết kế V9** (chủ dự án duyệt 2026-11-10), gói 1 của nâng cấp V9 (xem `docs/upgrade-v9-audit.md`). Chưa có trong code; các gói 2–7 triển khai. Bản V8 (`RULES_V4`) còn trong lịch sử git. Mục còn ghi PROPOSED là chi tiết kỹ thuật người viết đề xuất, được phép chỉnh khi code và test, nhưng phải báo lại.
+> Trạng thái: **Đã chốt thiết kế V9** (chủ dự án duyệt 2026-11-10), gói 1 của nâng cấp V9 (xem `docs/upgrade-v9-audit.md`). Gói 2 (R1, R4, R5 cho Card Kana, R9: 6 Stage) đã có trong code trên nhánh `feature/v9-stages`, migration `20261110000001_v9_six_stages.sql`; điều kiện cấp của Stage 4 tạm dùng cấp JLPT của từ cho tới gói 3. Các gói 3–7 chưa làm. Bản V8 (`RULES_V4`) còn trong lịch sử git. Mục còn ghi PROPOSED là chi tiết kỹ thuật người viết đề xuất, được phép chỉnh khi code và test, nhưng phải báo lại.
 >
 > Ngày: 2026-11-10. Cơ sở: lộ trình v2 (`PROJECT_SPEC.md` §18.5b, §18.6, code trên `feature/path-v2`) và yêu cầu nâng cấp V9.
 >

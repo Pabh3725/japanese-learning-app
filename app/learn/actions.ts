@@ -1,6 +1,6 @@
 'use server'
 
-// Server Function cho các câu Stage 2, 4, 5. Mỏng: mọi logic nằm ở lib/dal/stage-session.ts.
+// Server Function cho các câu Stage 2, 3, 5, 6. Mỏng: mọi logic nằm ở lib/dal/stage-session.ts.
 import { markWordsKnown, unmarkWordsKnown } from '@/lib/dal/known-words'
 import { raiseSkillLevel } from '@/lib/dal/skill-levels'
 import { relearnCard, relearnStage, restartStarRound, setWordStarred, type RelearnResponse } from '@/lib/dal/star-relearn'

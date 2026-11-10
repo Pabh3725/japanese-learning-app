@@ -47,7 +47,7 @@ export default async function DashboardPage() {
         <StudyHeroCard
           eyebrow="Kanji words"
           title={wordKanji.questionsToday > 0 ? `${wordKanji.questionsToday} ${wordKanji.questionsToday === 1 ? 'question' : 'questions'}` : wordKanji.waiting > 0 ? `${wordKanji.waiting} new ${wordKanji.waiting === 1 ? 'word' : 'words'}` : 'All caught up'}
-          subtitle={`${wordKanji.completed} of ${wordKanji.total} learned · ${wordKanji.waitingForKanji} waiting for their Kanji`}
+          subtitle={`${wordKanji.completed} of ${wordKanji.total} learned · ${wordKanji.waitingForLevel} waiting for the next level`}
           href={wordKanjiWork > 0 ? '/learn/session?skill=word_kanji' : '/learn/word-kanji'}
           cta={wordKanjiWork > 0 ? 'Start Kanji words' : 'Open Kanji words'}
         />

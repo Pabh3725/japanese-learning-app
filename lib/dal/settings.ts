@@ -3,7 +3,7 @@ import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { isValidNewPerDay, isValidStudyLimit, newPerDayOf, type StudyLimitKey } from '@/lib/learning/new-words'
-import { RULES_V4 } from '@/lib/learning/rules'
+import { RULES_V9 } from '@/lib/learning/rules'
 
 export async function getNewPerDay(): Promise<number> {
   const user = await requireUser()
@@ -33,7 +33,7 @@ export async function getStudyLimits(): Promise<Record<StudyLimitKey, number>> {
     .eq('user_id', user.id)
     .maybeSingle()
   if (error) throw new Error(`Không đọc được learner_settings: ${error.message}`)
-  const { defaults } = RULES_V4
+  const { defaults } = RULES_V9
   return {
     stage_cap: data?.stage_cap ?? defaults.stageCap,
     word_kanji_cap: data?.word_kanji_cap ?? defaults.wordKanjiCap,

@@ -1,5 +1,5 @@
 // SES-01, SES-02 — Chia phiên và trộn câu của khu Learn. Pure.
-import { RULES_V4 } from '../learning/rules'
+import { RULES_V9 } from '../learning/rules'
 import type { Rng } from '../exercise/questions'
 
 /** Mỗi phiên khoảng 5 phút. */
@@ -67,7 +67,7 @@ const MIX_ATTEMPTS = 30
 
 /** Một lần xếp: giữ gần thứ tự ưu tiên, nhưng chọn câu không vi phạm luật nếu có thể. */
 function arrange<T extends MixItem>(items: readonly T[], rng: Rng): T[] {
-  const gap = RULES_V4.spacing.minGap
+  const gap = RULES_V9.spacing.minGap
   // Xáo nhẹ để các phiên không lặp một nếp; câu ưu tiên vẫn nằm ở nửa đầu
   const left = items
     .map((item, i) => ({ item, order: i + rng() * 4 }))
@@ -90,7 +90,7 @@ function arrange<T extends MixItem>(items: readonly T[], rng: Rng): T[] {
 
 /** Điểm phạt: gần nhau quá làm câu mất điểm nên nặng hơn hẳn 2 câu cùng dạng liền nhau. */
 function violations(list: readonly MixItem[]): number {
-  const gap = RULES_V4.spacing.minGap
+  const gap = RULES_V9.spacing.minGap
   let total = 0
   list.forEach((item, i) => {
     if (i > 0 && list[i - 1].exercise === item.exercise) total += 1

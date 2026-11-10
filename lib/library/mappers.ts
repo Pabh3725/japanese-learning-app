@@ -26,8 +26,8 @@ export function toProgress(row: unknown): VocabProgress {
   const r = row as Record<string, unknown>
   if (r.learning_status === 'initial_complete') return { kind: 'complete' }
   const stage = r.current_stage
-  if (typeof stage === 'number' && Number.isInteger(stage) && stage >= 1 && stage <= 5) {
-    return { kind: 'learning', stage: stage as 1 | 2 | 3 | 4 | 5 }
+  if (typeof stage === 'number' && Number.isInteger(stage) && stage >= 1 && stage <= 3) {
+    return { kind: 'learning', stage: stage as 1 | 2 | 3 }
   }
   return { kind: 'not_started' }
 }

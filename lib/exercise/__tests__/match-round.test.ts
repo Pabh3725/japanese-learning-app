@@ -14,7 +14,7 @@ const word = (n: number, over: Partial<MatchCandidate> = {}): MatchCandidate => 
   han_viet: `HÁN ${n}`,
   is_kana_only: false,
   kanjiIntroSeen: true,
-  stage5Active: true,
+  stage3Active: true,
   ...over,
 })
 const ten = Array.from({ length: 10 }, (_, i) => word(i))
@@ -31,10 +31,10 @@ describe('buildMatchRound', () => {
     expect(types).toEqual(new Set(['kana_meaning', 'kanji_meaning', 'kanji_kana', 'kanji_hanviet']))
   })
 
-  it('ưu tiên từ đang chạy Stage 5', () => {
+  it('ưu tiên từ đang chạy Stage 3', () => {
     const mixed = [
       ...Array.from({ length: 6 }, (_, i) => word(i)),
-      ...Array.from({ length: 6 }, (_, i) => word(i + 10, { stage5Active: false })),
+      ...Array.from({ length: 6 }, (_, i) => word(i + 10, { stage3Active: false })),
     ]
     const round = buildMatchRound(mixed, newId, seededRng(2))!
     expect(round.pairs.every((p) => Number(p.learnerVocabularyId.slice(2)) < 6)).toBe(true)

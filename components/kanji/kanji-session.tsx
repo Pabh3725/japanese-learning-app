@@ -17,7 +17,7 @@ import { RecallExercise } from '@/components/learning/steps/recall-exercise'
 import type { KanjiIntroItem, KanjiSessionData, KanjiSessionQuestion } from '@/lib/dal/kanji'
 import type { WordReveal } from '@/lib/exercise/stage-questions'
 import { REMEMBERED, type KanjiReveal } from '@/lib/kanji/questions'
-import { RULES_V4 } from '@/lib/learning/rules'
+import { RULES_V9 } from '@/lib/learning/rules'
 import { formatVnDateTime } from '@/lib/learning/time'
 import { withRetry } from '@/lib/retry'
 import { speak } from '@/lib/speech'
@@ -160,7 +160,7 @@ export function KanjiPractice({ questions: initialQuestions, onDone }: { questio
     setIndex((i) => i + 1)
     if (correct || isRetry) return
     setRetries((list) => [...list, q])
-    if (q.wrongStreak + 1 >= RULES_V4.relearnAfterWrong) setRelearn(q.reveal)
+    if (q.wrongStreak + 1 >= RULES_V9.relearnAfterWrong) setRelearn(q.reveal)
   }
 
   /** Bỏ mọi câu còn lại của chữ này. Câu đang hiện cũng bị bỏ nên câu kế tiếp tự hiện ra. */

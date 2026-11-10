@@ -13,16 +13,17 @@ const s = createScheduler({ enableFuzz: false })
 const r2 = (n: number) => Math.round(n * 100) / 100
 
 describe('createScheduler', () => {
-  it('tạo Card theo stage: Stage 2 có Card Kana, Stage 6 có Card Kanji, còn lại không', () => {
+  it('tạo Card theo stage: Stage 3 có Card Kana, Stage 6 có Card Kanji, còn lại không', () => {
     const now = vn('2026-11-05 20:00')
-    expect(s.createCardsForStage(2, now).map((c) => c.type)).toEqual(['vocab.kana'])
+    expect(s.createCardsForStage(3, now).map((c) => c.type)).toEqual(['vocab.kana'])
+    expect(s.createCardsForStage(2, now)).toEqual([])
     expect(s.createCardsForStage(6, now).map((c) => c.type)).toEqual(['vocab.kanji'])
     expect(s.createCardsForStage(4, now)).toEqual([])
     expect(s.createCardsForStage(5, now)).toEqual([])
   })
 
   it('không ôn được Card đang tạm dừng', () => {
-    const [card] = s.createCardsForStage(2, vn('2026-11-05 20:00'))
+    const [card] = s.createCardsForStage(3, vn('2026-11-05 20:00'))
     expect(() => s.reviewCard({ ...card, status: 'suspended' }, { outcome: 'correct', exercise: 'kana_free_recall', responseMs: 1 }, card.schedule.due)).toThrow()
   })
 })
