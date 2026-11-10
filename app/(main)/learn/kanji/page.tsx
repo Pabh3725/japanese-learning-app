@@ -98,6 +98,10 @@ export default async function KanjiPage() {
         </ol>
       </section>
 
+      <p className="mt-6 text-sm text-muted-foreground">
+        <Link href="/review/archive" className="underline underline-offset-2">Archived cards</Link>: Kanji cards you marked as learned.
+      </p>
+
       <p className="mt-8 text-xs text-muted-foreground">
         Kanji readings use data from{' '}
         <a href="https://www.edrdg.org/wiki/index.php/KANJIDIC_Project" target="_blank" rel="noreferrer" className="underline underline-offset-2">KANJIDIC2</a>{' '}

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { submitReviewAnswerAction } from '@/app/review/actions'
 import { WRONG_ANSWER_NOTE } from '@/components/learning/exercise-footer'
 import { KnownWordBar } from '@/components/learning/known-word-button'
+import { ArchiveCardBar } from '@/components/review/archive-card-bar'
 import { SessionComplete } from '@/components/learning/session-complete'
 import { SessionHeader } from '@/components/learning/session-header'
 import type { AssemblyGrade } from '@/components/learning/steps/assembly-exercise'
@@ -139,6 +140,11 @@ export function ReviewSession({ questions: initialQuestions, capReached, cardsLe
     setQuestions((list) => list.filter((item, i) => i < index || item.vocabularyId !== vocabularyId))
   }
 
+  /** Card vừa lưu trữ: bỏ khỏi phiên, câu kế tiếp tự hiện ra. */
+  const removeCard = (cardId: string) => {
+    setQuestions((list) => list.filter((item, i) => i < index || item.cardId !== cardId))
+  }
+
   const label = 'Review'
   let body: React.ReactNode
   if (q.kind === 'typing') {
@@ -154,6 +160,7 @@ export function ReviewSession({ questions: initialQuestions, capReached, cardsLe
     <div className="flex min-h-dvh flex-col">
       <SessionHeader backHref="/review" label="Daily Review" sublabel={`${index + 1} / ${questions.length}`} current={index} total={questions.length} />
       <KnownWordBar vocabularyId={q.vocabularyId} onKnown={removeWord} />
+      <ArchiveCardBar kind="vocab" cardId={q.cardId} onArchived={removeCard} />
       {warning && <p role="alert" className="mx-auto mt-3 w-full max-w-2xl px-4 text-sm text-error">{warning}</p>}
       {body}
     </div>

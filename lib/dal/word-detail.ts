@@ -34,7 +34,8 @@ export interface WordDetail {
     currentStage: number
     completed: boolean
     stages: { id: string; stage: ScoredStage; points: number; dueAt: string; completed: boolean }[]
-    cards: { id: string; type: CardType; dueAt: string }[]
+    /** archived: người học đã bấm "Đã học xong" cho Card này (R13). */
+    cards: { id: string; type: CardType; dueAt: string; archived: boolean }[]
   } | null
 }
 
@@ -68,7 +69,7 @@ export async function getWordDetail(code: string): Promise<WordDetail | null> {
   const [learner, known, starred, levels, optin] = await Promise.all([
     supabase
       .from('learner_vocabulary')
-      .select('current_stage, learning_status, learner_stage_schedules(id, stage_number, stage_points, due_at, completed_at), review_cards(id, card_type, due_at)')
+      .select('current_stage, learning_status, learner_stage_schedules(id, stage_number, stage_points, due_at, completed_at), review_cards(id, card_type, due_at, archived_at)')
       .eq('user_id', user.id)
       .eq('vocabulary_id', word.id)
       .maybeSingle(),
@@ -87,7 +88,7 @@ export async function getWordDetail(code: string): Promise<WordDetail | null> {
     current_stage: number
     learning_status: string
     learner_stage_schedules: { id: string; stage_number: ScoredStage; stage_points: number; due_at: string; completed_at: string | null }[]
-    review_cards: { id: string; card_type: CardType; due_at: string }[]
+    review_cards: { id: string; card_type: CardType; due_at: string; archived_at: string | null }[]
   } | null
 
   const seen = new Set<string>()
@@ -116,7 +117,7 @@ export async function getWordDetail(code: string): Promise<WordDetail | null> {
       stages: lv.learner_stage_schedules
         .map((s) => ({ id: s.id, stage: s.stage_number, points: s.stage_points, dueAt: s.due_at, completed: s.completed_at !== null }))
         .sort((a, b) => a.stage - b.stage),
-      cards: lv.review_cards.map((c) => ({ id: c.id, type: c.card_type, dueAt: c.due_at })),
+      cards: lv.review_cards.map((c) => ({ id: c.id, type: c.card_type, dueAt: c.due_at, archived: c.archived_at !== null })),
     },
   }
 }

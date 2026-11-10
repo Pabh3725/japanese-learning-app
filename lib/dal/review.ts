@@ -28,7 +28,7 @@ const scheduler = createScheduler() // production: fuzz bật
 
 const CARD_COLUMNS =
   'id, card_type, state, due_at, stability, difficulty, scheduled_days, learning_steps, reps, lapses, ' +
-  'last_review_at, card_points, retired_at, practice_points_today, practice_points_date, version, ' +
+  'last_review_at, card_points, retired_at, archived_at, practice_points_today, practice_points_date, version, ' +
   'learner_vocabulary!inner(vocabulary_id, vocabularies!inner(is_kana_only))'
 
 export interface SubmitReviewRequest {
@@ -48,6 +48,7 @@ export interface SubmitReviewResponse {
 
 type CardQueryRow = ReviewCardRow & {
   learner_vocabulary: { vocabulary_id: string; vocabularies: { is_kana_only: boolean } }
+  archived_at: string | null
 }
 
 export async function submitReview(req: SubmitReviewRequest): Promise<SubmitReviewResponse> {
@@ -78,7 +79,8 @@ export async function submitReview(req: SubmitReviewRequest): Promise<SubmitRevi
   const paused = row.card_type === STAR_CARD && !(await isWordStarred(supabase, user.id, row.learner_vocabulary.vocabulary_id))
   const card = rowToReviewCard(row, { paused: exclusion !== null || paused })
   if (!card) throw new Error(`Card ${req.cardId} sai dạng (thiếu card_type?)`)
-  if (card.status !== 'active') return { status: 'not_active' }
+  // Card đã lưu trữ ("Đã học xong") không còn được ôn (R13)
+  if (card.status !== 'active' || row.archived_at !== null) return { status: 'not_active' }
 
   // 3. Tính lịch + điểm. Giờ ôn và ngày học là của SERVER, không lấy từ trình duyệt (SRS-04).
   const now = new Date()
@@ -219,6 +221,7 @@ export async function getReviewOverview(): Promise<ReviewOverview> {
       .select('card_type, due_at, learner_vocabulary!inner(vocabulary_id)')
       .eq('user_id', user.id)
       .is('retired_at', null)
+      .is('archived_at', null)
       .order('id')
       .range(from, from + PAGE - 1)
     if (error) throw new Error(`Không đọc được review_cards: ${error.message}`)
@@ -299,6 +302,7 @@ export async function getReviewSession(area: ReviewArea = 'kana'): Promise<Revie
     .select(`id, card_type, due_at, learner_vocabulary!inner(vocabulary_id, current_stage, kanji_intro_seen_at, vocabularies!inner(${WORD_COLUMNS}))`)
     .eq('user_id', user.id)
     .is('retired_at', null)
+    .is('archived_at', null)
     .in('card_type', [...AREA_CARD_TYPES[area]])
     .lte('due_at', new Date().toISOString())
     .order('due_at')

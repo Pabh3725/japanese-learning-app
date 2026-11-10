@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { checkKanjiAnswerAction, openKanjiAction, submitKanjiAnswerAction } from '@/app/learn/kanji/actions'
 import { KanjiCard } from '@/components/kanji/kanji-card'
 import { KanjiKnownBar } from '@/components/kanji/kanji-known-bar'
+import { ArchiveCardBar } from '@/components/review/archive-card-bar'
 import { ContinueFooter, WRONG_ANSWER_NOTE } from '@/components/learning/exercise-footer'
 import { ExercisePanel } from '@/components/learning/exercise-panel'
 import { SessionComplete } from '@/components/learning/session-complete'
@@ -169,6 +170,12 @@ export function KanjiPractice({ questions: initialQuestions, onDone }: { questio
     setRetries((list) => list.filter((item) => item.kanjiId !== kanjiId))
   }
 
+  /** Card vừa lưu trữ ("Đã học xong"): chỉ bỏ câu của đúng Card đó. */
+  const removeCard = (cardId: string) => {
+    setQuestions((list) => list.filter((item, i) => i < index || item.cardId !== cardId))
+    setRetries((list) => list.filter((item) => item.cardId !== cardId))
+  }
+
   const answerChoice = (current: ChoiceQ) => (chosen: string) => {
     speak(current.speak)
     if (isRetry) return
@@ -270,6 +277,7 @@ export function KanjiPractice({ questions: initialQuestions, onDone }: { questio
         total={queue.length}
       />
       <KanjiKnownBar kanjiId={q.kanjiId} onKnown={removeKanji} />
+      <ArchiveCardBar kind="kanji" cardId={isRetry ? null : (q.cardId ?? null)} onArchived={removeCard} />
       {warning && <p role="alert" className="mx-auto mt-3 w-full max-w-2xl px-4 text-sm text-error">{warning}</p>}
       {body}
     </div>

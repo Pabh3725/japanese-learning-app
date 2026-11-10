@@ -31,8 +31,8 @@ async function countDue(supabase: Supabase, table: 'review_cards' | 'learner_sta
   let total = 0
   for (let from = 0; ; from += PAGE) {
     let query = supabase.from(table).select('id, learner_vocabulary!inner(vocabulary_id)').eq('user_id', userId).is(filterColumn, null).lte('due_at', now)
-    // Card riêng của từ có sao không được làm dừng từ mới
-    if (table === 'review_cards') query = query.neq('card_type', 'vocab.star_recall')
+    // Card riêng của từ có sao và Card đã lưu trữ không làm dừng từ mới
+    if (table === 'review_cards') query = query.neq('card_type', 'vocab.star_recall').is('archived_at', null)
     // S chỉ tính kỹ năng Từ vựng; Từ Kanji có trần riêng
     else query = query.in('stage_number', [2, 3])
     const { data, error } = await query.order('id').range(from, from + PAGE - 1)

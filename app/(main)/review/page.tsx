@@ -69,7 +69,8 @@ export default async function ReviewPage() {
       </div>
 
       <p className="mt-6 text-sm text-muted-foreground">
-        <Link href="/learn/kanji" className="underline underline-offset-2">Go to Kanji</Link> to review your Kanji cards.
+        <Link href="/learn/kanji" className="underline underline-offset-2">Go to Kanji</Link> to review your Kanji cards ·{' '}
+        <Link href="/review/archive" className="underline underline-offset-2">Archived cards</Link>
       </p>
     </>
   )

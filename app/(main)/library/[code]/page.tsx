@@ -124,9 +124,9 @@ export default async function WordDetailPage({ params }: { params: Promise<{ cod
                     <li key={c.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
                       <span>{CARD_LABELS[c.type]}</span>
                       <span className="text-muted-foreground tabular-nums">
-                        {word.known || (c.type === 'vocab.star_recall' && !word.starred) ? 'paused' : `next ${formatVnDateTime(new Date(c.dueAt))}`}
+                        {c.archived ? 'archived' : word.known || (c.type === 'vocab.star_recall' && !word.starred) ? 'paused' : `next ${formatVnDateTime(new Date(c.dueAt))}`}
                       </span>
-                      {!word.known && (c.type !== 'vocab.star_recall' || word.starred) && <RelearnButton label="Review now" action={relearnCardAction.bind(null, c.id)} />}
+                      {!word.known && (c.type !== 'vocab.star_recall' || word.starred) && <RelearnButton label={c.archived ? 'Restore and review now' : 'Review now'} action={relearnCardAction.bind(null, c.id)} />}
                     </li>
                   ))}
                 </ul>
