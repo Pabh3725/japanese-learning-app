@@ -7,6 +7,7 @@ import { StudyHeroCard } from '@/components/dashboard/study-hero-card'
 import { requireUser } from '@/lib/dal/auth'
 import { getKanjiOverview } from '@/lib/dal/kanji'
 import { getLearnOverview } from '@/lib/dal/learn-overview'
+import { getWordKanjiOverview } from '@/lib/dal/word-kanji'
 import { getReviewOverview } from '@/lib/dal/review'
 
 const EXPLORE = [
@@ -17,19 +18,20 @@ const EXPLORE = [
 ]
 
 export default async function DashboardPage() {
-  const [user, learn, review, kanji] = await Promise.all([requireUser(), getLearnOverview(), getReviewOverview(), getKanjiOverview()])
+  const [user, learn, review, kanji, wordKanji] = await Promise.all([requireUser(), getLearnOverview(), getReviewOverview(), getKanjiOverview(), getWordKanjiOverview()])
   const cards = Object.values(review.byType).reduce((sum, n) => sum + n, 0)
   const learnWork = learn.questionsToday + learn.newToday
   const kanjiWork = kanji.questionsToday + kanji.newToday
+  const wordKanjiWork = wordKanji.questionsToday + wordKanji.waiting
   const reviewMinutes = Math.max(1, Math.ceil((review.dueNow * 15) / 60))
 
   return (
     <div className="flex flex-col gap-8">
       <Greeting name={user.username ?? 'there'} />
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         <StudyHeroCard
-          eyebrow="Learn"
+          eyebrow="Vocabulary"
           title={learnWork > 0 ? `${learn.sessions} ${learn.sessions === 1 ? 'session' : 'sessions'} today` : 'All caught up'}
           subtitle={learnWork > 0 ? `${learn.questionsToday} questions due · ${learn.newToday} new words` : 'Your next questions are scheduled. Come back later.'}
           href={learnWork > 0 ? '/learn/session' : undefined}
@@ -41,6 +43,13 @@ export default async function DashboardPage() {
           subtitle={review.dueNow > 0 ? `About ${reviewMinutes} ${reviewMinutes === 1 ? 'minute' : 'minutes'}` : `${review.dueTomorrow} due tomorrow`}
           href={review.dueNow > 0 ? '/review/session' : undefined}
           cta="Start review"
+        />
+        <StudyHeroCard
+          eyebrow="Kanji words"
+          title={wordKanji.questionsToday > 0 ? `${wordKanji.questionsToday} ${wordKanji.questionsToday === 1 ? 'question' : 'questions'}` : wordKanji.waiting > 0 ? `${wordKanji.waiting} new ${wordKanji.waiting === 1 ? 'word' : 'words'}` : 'All caught up'}
+          subtitle={`${wordKanji.completed} of ${wordKanji.total} learned · ${wordKanji.waitingForKanji} waiting for their Kanji`}
+          href={wordKanjiWork > 0 ? '/learn/session?skill=word_kanji' : '/learn/word-kanji'}
+          cta={wordKanjiWork > 0 ? 'Start Kanji words' : 'Open Kanji words'}
         />
         <StudyHeroCard
           eyebrow="Kanji"

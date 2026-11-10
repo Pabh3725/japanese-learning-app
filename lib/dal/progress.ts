@@ -99,45 +99,67 @@ export async function getProgressStats(): Promise<ProgressStats> {
   }
 }
 
-export interface DaySummary {
+export interface SkillSummary {
   answered: number
   correct: number
-  points: number
-  stagesCompleted: number
+  /** Số stage hoàn tất hôm nay; ở Kanji là số chữ xong giai đoạn Học. */
+  completed: number
 }
 
-/** Tổng kết Learn của hôm nay, lấy từ nhật ký nên vẫn đúng khi học nhiều phiên hoặc tải lại trang. */
+export interface DaySummary {
+  vocabulary: SkillSummary & { points: number }
+  wordKanji: SkillSummary & { points: number }
+  kanji: SkillSummary
+  answered: number
+}
+
+/** Tổng kết hôm nay của cả 3 mục, lấy từ nhật ký nên vẫn đúng khi học nhiều phiên hoặc tải lại trang. */
 export async function getDaySummary(): Promise<DaySummary> {
   const user = await requireUser()
   const supabase = await createClient()
   const now = new Date()
-  const summary: DaySummary = { answered: 0, correct: 0, points: 0, stagesCompleted: 0 }
+  const today = studyDate(now)
+  const dayStart = new Date(nextStudyDayStart(now).getTime() - 24 * 60 * 60 * 1000).toISOString()
+  const vocabulary = { answered: 0, correct: 0, completed: 0, points: 0 }
+  const wordKanji = { answered: 0, correct: 0, completed: 0, points: 0 }
+  const kanji = { answered: 0, correct: 0, completed: 0 }
 
   for (let from = 0; ; from += PAGE) {
     const { data, error } = await supabase
       .from('exercise_logs')
-      .select('outcome, points')
+      .select('outcome, points, stage_number')
       .eq('user_id', user.id)
-      .eq('study_date', studyDate(now))
+      .eq('study_date', today)
       .eq('source', 'lesson')
       .order('id')
       .range(from, from + PAGE - 1)
     if (error) throw new Error(`Không đọc được exercise_logs: ${error.message}`)
     for (const log of data ?? []) {
-      summary.answered += 1
-      if (log.outcome !== 'wrong') summary.correct += 1
-      summary.points += log.points
+      const skill = log.stage_number === 4 || log.stage_number === 6 ? wordKanji : vocabulary
+      skill.answered += 1
+      if (log.outcome !== 'wrong') skill.correct += 1
+      skill.points += log.points
+    }
+    if ((data?.length ?? 0) < PAGE) break
+  }
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase.from('kanji_logs').select('outcome').eq('user_id', user.id).eq('study_date', today).order('id').range(from, from + PAGE - 1)
+    if (error) throw new Error(`Không đọc được kanji_logs: ${error.message}`)
+    for (const log of data ?? []) {
+      kanji.answered += 1
+      if (log.outcome !== 'wrong') kanji.correct += 1
     }
     if ((data?.length ?? 0) < PAGE) break
   }
 
-  const dayStart = new Date(nextStudyDayStart(now).getTime() - 24 * 60 * 60 * 1000).toISOString()
-  const { count, error } = await supabase
-    .from('learner_stage_schedules')
-    .select('id', { count: 'exact', head: true })
-    .eq('user_id', user.id)
-    .gte('completed_at', dayStart)
-  if (error) throw new Error(`Không đọc được learner_stage_schedules: ${error.message}`)
-  summary.stagesCompleted = count ?? 0
-  return summary
+  const [stages, learned] = await Promise.all([
+    supabase.from('learner_stage_schedules').select('stage_number').eq('user_id', user.id).gte('completed_at', dayStart).range(0, PAGE - 1),
+    supabase.from('learner_kanji').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('completed_at', dayStart),
+  ])
+  if (stages.error) throw new Error(`Không đọc được learner_stage_schedules: ${stages.error.message}`)
+  if (learned.error) throw new Error(`Không đọc được learner_kanji: ${learned.error.message}`)
+  for (const row of stages.data ?? []) (row.stage_number === 4 || row.stage_number === 6 ? wordKanji : vocabulary).completed += 1
+  kanji.completed = learned.count ?? 0
+
+  return { vocabulary, wordKanji, kanji, answered: vocabulary.answered + wordKanji.answered + kanji.answered }
 }
