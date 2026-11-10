@@ -2,11 +2,13 @@
 
 > **Vai trò:** Single Source of Truth cho sản phẩm, learning system, kiến trúc và trạng thái dự án.
 >
-> **Phiên bản:** 3.0 — Learning System Design V8
+> **Phiên bản:** 4.0 — Learning System Design V9 (thiết kế đã chốt, đang triển khai)
 >
-> **Ngày:** 2026-11-05 (V7: 2026-10-31; V6: 2026-10-16)
+> **Ngày:** 2026-11-10 (V8: 2026-11-05; V7: 2026-10-31; V6: 2026-10-16)
 >
-> **Đọc §18 trước.** §18 là bản mô tả đầy đủ của Design V8. Mọi chỗ khác trong tài liệu mâu thuẫn với §18 thì §18 được ưu tiên. Các bảng lịch sử V7 được giữ để truy vết quyết định.
+> **Đọc §19 trước** (Design V9, luật đầy đủ ở `docs/learning-rules.md` `RULES_V9`). Phần nào V9 chưa triển khai thì code vẫn chạy theo §18.5b (v2).
+>
+> **§18:** §18 là bản mô tả đầy đủ của Design V8. Mọi chỗ khác trong tài liệu mâu thuẫn với §18 thì §18 được ưu tiên. Các bảng lịch sử V7 được giữ để truy vết quyết định.
 >
 > **Source đã kiểm tra:** repository `nihongo-app-design`, commit `afbd50d` (`chore: import original v0 UI`), branch hiện tại `docs/mvp-scope`.
 >
@@ -1440,6 +1442,7 @@ Mục tiêu thi JLPT. Stage học thật kỹ, Review thoải mái hơn. Tab Lea
 - **Card:** mỗi từ tối đa 2 Card. Card Kana tạo khi xong Stage 2: nghĩa → gõ Kana. Card Kanji tạo khi xong Stage 6: luân phiên nhìn Kanji → gõ Kana và Hán Việt (sai một ô là sai cả câu), và nhìn nghĩa → viết rồi tự chấm. Không có trắc nghiệm, ghép, nghe trong Review.
 - **Lịch Card:** sai Again, đúng Good, không có Easy, tối đa 90 ngày (đúng liên tục: 2, 11, 46, 90, 90…). Không còn điểm Card, không bỏ Card theo điểm, không gộp Card.
 - **Speed Matching:** chỉ ôn vui, không đổi điểm và lịch nào. Chế độ: Hỗn hợp, Kana, Kanji, Hán Việt.
+- **Tổng kết ngày (`/learn/summary`):** gồm cả Từ vựng, Từ Kanji và Kanji, lấy từ log. Home có khối riêng cho từng mục.
 - **Học hỗn hợp:** luân phiên cụm 5 câu đến hạn của từng mục. Từ mới và chữ mới bắt đầu ở mục của nó.
 
 ### 18.6 Khu Kanji — CONFIRMED (2026-11-07)
@@ -1467,6 +1470,18 @@ Mục **Kanji trong tab Learn** (`/learn/kanji`), bên cạnh mục Vocabulary. 
 - Sửa VOC-02 và VOC-03 để chọn câu theo lịch đến hẹn.
 - Tách Dashboard, Learn, Review; thêm khu Kanji. Xem `docs/learning-rules.md` (RULES_V3) và `docs/database.md` §9.
 - Dữ liệu đang có: dòng tiến độ hiện tại được chuyển sang lịch Stage, giữ điểm; card đã tạo được giữ.
+
+## 19. Design V9 (2026-11-10) — CONFIRMED, đang triển khai
+
+Chủ dự án chốt ngày 2026-11-10. Luật đầy đủ: `docs/learning-rules.md` (`RULES_V9`). Audit, quyết định và chia gói: `docs/upgrade-v9-audit.md`. Khi mâu thuẫn, §19 và `RULES_V9` được ưu tiên hơn §18.
+
+- **6 Stage, hai nhánh:** Từ vựng Kana 1 → 2 → 3 (Stage 3 củng cố nghĩa và Kana); Từ vựng Kanji 4 (thẻ) → 5 → 6 (Stage 6 củng cố Kanji và Hán Việt). Giữ mọi mốc điểm. Stage 4 mở khi xong Stage 3 và chính sách Kanji của từ yêu cầu ở cấp hiện tại; không cần học xong chữ thành phần.
+- **Chính sách Kanji của từ:** `KANA_ONLY`, `KANJI_CORE`, `KANJI_DEFERRED`, `KANJI_OPTIONAL`; script đề xuất, chủ dự án duyệt, nhãn đã duyệt không bị ghi đè. Từ `KANJI_OPTIONAL` có nút "Học dạng Kanji".
+- **Learn chung:** bài 50 câu (20–100), nhiều bài mỗi ngày, ngân sách 200 câu/ngày cho cả 3 nhóm (không tính câu kiểm tra nhanh) và trần phụ Kanji; câu do AIS xếp; chọn được một nhóm. Bỏ Học hỗn hợp cụm 5 câu.
+- **Card:** Card Kana tạo khi xong Stage 3; Card Kanji khi xong Stage 6; Kanji riêng lẻ có 2 Card (mặt chữ ↔ nghĩa, Hán Việt). Review chung có bộ lọc; "chọn Kanji trong 6" là câu trắc nghiệm duy nhất trong Review.
+- **Kanji riêng lẻ:** giữ 12 câu trong 4 buổi; On/Kun không bắt buộc; thêm bộ thủ, thành phần, nét viết, mẹo ghi nhớ có duyệt, các dạng bài ghép thành phần, phân biệt chữ gần giống, ghép cặp, tô nét.
+- **Archive:** nút "Đã học xong" lưu trữ riêng một Card, có kho lưu trữ, khôi phục giữ tiến độ hoặc học lại từ đầu.
+- **Prod:** tiến độ từ vựng thử nghiệm bị xóa khi lên V9 (chủ dự án chọn 2026-11-10).
 
 ---
 

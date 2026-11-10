@@ -1,366 +1,362 @@
-# ENG-01 — Luật học (Learning Rules) `RULES_V4`
+# ENG-01 — Luật học (Learning Rules) `RULES_V9`
 
-> Trạng thái: **Đã chốt thiết kế V8**. Stage đã có trong code (`lib/learning/` theo `RULES_V4`, SCH-01; các thay đổi V4 ở `PROJECT_SPEC.md` §18.3b); R7 làm ở SES-01, R10 ở KJ-02.
+> Trạng thái: **Đã chốt thiết kế V9** (chủ dự án duyệt 2026-11-10), gói 1 của nâng cấp V9 (xem `docs/upgrade-v9-audit.md`). Chưa có trong code; các gói 2–7 triển khai. Bản V8 (`RULES_V4`) còn trong lịch sử git. Mục còn ghi PROPOSED là chi tiết kỹ thuật người viết đề xuất, được phép chỉnh khi code và test, nhưng phải báo lại.
 >
-> Ngày: 2026-11-05 (bản V7: 2026-11-01)
+> Ngày: 2026-11-10. Cơ sở: lộ trình v2 (`PROJECT_SPEC.md` §18.5b, §18.6, code trên `feature/path-v2`) và yêu cầu nâng cấp V9.
 >
-> Nguồn quyết định: `docs/PROJECT_SPEC.md` Design V7 (§5, §6, §7). Tài liệu này là **đặc tả để code**: trả lời chính xác từng tình huống mà spec mô tả bằng lời. Khi mâu thuẫn, spec được ưu tiên và tài liệu này phải được sửa.
->
-> Mỗi luật (R1…R8) sẽ thành một pure function trong `lib/learning/` ở task ENG-02. Mỗi ví dụ ở §11 sẽ thành một unit test.
+> Nhãn: **CONFIRMED** — chủ dự án đã chốt (ghi ngày hoặc nguồn). **PROPOSED** — người viết đề xuất, chờ duyệt. Mọi con số nằm trong config `RULES_V9` (§17).
 
-## 1. Cách đọc
+## 1. Ánh xạ luật cũ sang mới
 
-- **CONFIRMED** — chủ dự án đã chốt (có ngày).
-- **PROPOSED** — người viết tài liệu đề xuất để lấp chi tiết; Người B review, chủ dự án duyệt.
-- Mọi con số mặc định nằm trong một config có version `RULES_V2` (§10), không hard-code rải rác.
+| Luật | V8 / v2 | V9 |
+| --- | --- | --- |
+| R1 | Luồng Stage 1→2→3→4→5 (V8); hai nhánh 1→2→5 và thẻ→4→6 (v2) | Hai nhánh 1→2→3 và 4→5→6 |
+| R2 | Chấm câu học, câu review, câu practice | Thêm loại câu `MICRO_PRACTICE` và câu Kanji |
+| R3 | Giãn cách ≥ 4 câu, trần +3/ngày | Giữ; định nghĩa lại cách đếm gap khi có câu `MICRO_PRACTICE` |
+| R4 | Mốc mở/hoàn tất | Giữ số điểm; Stage 4 cần Stage 3 hoàn tất và chính sách Kanji |
+| R5 | Tạo Card | Card Kana tạo ở Stage 3; thêm 2 Card Kanji riêng lẻ |
+| R6 | Điểm Card và bỏ Card giàn giáo (V8); đã bỏ ở v2 | Không có điểm Card. Vòng đời Card: `active`, `suspended`, `archived`, `retired` (chỉ còn để đọc lịch sử V8) |
+| R7 | Dựng Learn và Review mỗi ngày | Learn chung: bài 50 câu, ngân sách 200 câu/ngày, trần phụ Kanji; Review chung có bộ lọc |
+| R8 | Loại/khôi phục từ | Giữ nguyên; tách biệt với `archived` |
+| R9 | Lịch Stage 2/4/5/6 tối đa 2 ngày | Lịch Stage 2/3/5/6 tối đa 2 ngày |
+| R10 | Khu Kanji riêng | Kanji riêng lẻ: Học trong Learn, ôn trong Review bằng 2 Card |
+| R11 | — | Adaptive Interleaving Scheduler (AIS) |
+| R12 | — | Kanji Visual Learning |
+| R13 | — | Card Archive |
 
 ## 2. Định nghĩa
 
 | Thuật ngữ | Định nghĩa |
 | --- | --- |
-| **Ngày học** | Khoảng 00:00–24:00 theo giờ Việt Nam (`Asia/Ho_Chi_Minh`, UTC+7). Dữ liệu lưu UTC; mọi phép "hôm nay" quy về ngày học. — CONFIRMED |
-| **Câu** | Một câu hỏi người học trả lời trong Bài học hôm nay. Có hai loại: **câu học** (thuộc một Stage của một từ, ghi `learning_attempts`) và **câu review** (thuộc một card, ghi `review_logs`). Câu trong **vòng boss** và **Luyện tập** là câu practice, ghi `practice_logs`. |
-| **Câu của một từ** | Câu học của từ đó, hoặc câu review của bất kỳ card nào thuộc từ đó. |
-| **Kết quả chấm** | Một trong ba: `correct` (đúng, không dùng gợi ý), `hint` (đúng nhưng đã bấm gợi ý), `wrong` (sai). Server chấm, không tin kết quả do client gửi. |
-| **Khoảng xen (gap)** | Số câu **trong khu Learn** (không tính câu vòng boss và câu Review) được trả lời **giữa** câu hiện tại và câu trước đó của **cùng từ**, trong **cùng ngày học**, tính xuyên qua các phiên. — CONFIRMED (V8) |
-| **Câu được giãn cách** | Câu của một từ mà từ đó **chưa có câu nào hôm nay**, hoặc gap ≥ 4. — CONFIRMED |
-| **Điểm stage** | Điểm tích lũy của **một từ ở một Stage**. Có thể âm. Mỗi stage có điểm riêng và giữ điểm khi stage sau đã mở. — CONFIRMED (V8) |
-| **Điểm card** | Điểm tích lũy của một card, chỉ dùng để quyết định bỏ card giàn giáo. Có thể âm. — CONFIRMED |
-| **Điểm +1 trong ngày** | Số lần một từ được **cộng** điểm stage ở Stage hiện tại trong ngày học. |
-
-## 3. R1 — Luồng Stage
-
-| Loại từ | Đường đi |
-| --- | --- |
-| Có Kanji (`is_kana_only = false`) | 1 → 2 → 3 → 4 → 5 → hoàn thành vòng học ban đầu |
-| Chỉ Kana (Hiragana hoặc Katakana) | 1 → 2 → 5 → hoàn thành vòng học ban đầu |
-
-- Stage 1 và Stage 3: **xem xong là qua**, không có điểm. — CONFIRMED
-- Stage 2, 4, 5: mở stage sau và hoàn tất theo R4.
-- Một từ có thể đang chạy **nhiều stage cùng lúc**, ví dụ Stage 2 chưa đạt 10 điểm khi Stage 4 đã mở. — CONFIRMED (V8)
-- Stage đã mở không bao giờ đóng lại. — CONFIRMED
-
-## 4. R2 — Chấm một câu
-
-### 4.1 Câu học → điểm stage thô
-
-| Kết quả | Điểm thô |
-| --- | --- |
-| `correct` | +1 |
-| `hint` | 0 |
-| `wrong` | −2 (V4) |
-
-Điểm thô chưa chắc được cộng; R3 quyết định.
-
-Mỗi câu học còn cho ra **rating của lịch Stage** (R9): `wrong` = Again, `hint` = Hard, `correct` = Good. Không có Easy. — CONFIRMED (V8)
-
-### 4.2 Câu review → rating FSRS → điểm card
-
-| Kết quả | Rating | Điểm card |
-| --- | --- | --- |
-| `wrong` | Again | −1 |
-| `hint` | Hard | 0 |
-| `correct` | Good | +1 |
-| `correct` **và** không gợi ý **và** trả lời < 3 giây **và** dạng bài là **gõ hoặc ghép** | Easy | +2 |
-
-- Dạng **chọn** (trắc nghiệm, câu nghe) tối đa là Good. — CONFIRMED
-- Thời gian trả lời tính từ lúc câu hiện ra tới lúc bấm nộp, do server ghi nhận theo thời điểm nhận event. — PROPOSED
-
-### 4.3 Câu practice → điểm card
-
-| Kết quả | Điểm card thô |
-| --- | --- |
-| `wrong` | −1 |
-| `hint` | 0 |
-| `correct` | +1 |
-
-Practice **không** tạo rating và **không** đổi `due`. — CONFIRMED
-
-## 5. R3 — Điểm stage có được tính không
-
-Áp cho câu học ở Stage 2, 4, 5:
-
-1. Câu **không được giãn cách** → **0 điểm** (vẫn ghi log, `counted = false`).
-2. Câu được giãn cách, `wrong` → **−2** (V4). Không có trần cho điểm trừ. — CONFIRMED (4a, 5a)
-3. Câu được giãn cách, `hint` → 0.
-4. Câu được giãn cách, `correct`:
-   - nếu **điểm +1 trong ngày** của từ ở Stage này **< 3** → **+1**;
-   - ngược lại → **0** (`counted = false`). — CONFIRMED (5a)
-
-Hệ quả: sai liên tiếp trong vòng 4 câu chỉ bị trừ **một lần**; đúng liên tiếp trong vòng 4 câu chỉ được cộng **một lần**. — CONFIRMED (4a)
-
-## 6. R4 — Mở stage sau và hoàn tất stage
-
-Mốc riêng từng stage — CONFIRMED (V8, 2026-11-05):
-
-| Stage | Mở stage sau | Hoàn tất |
-| --- | --- | --- |
-| 2 | 6 điểm | 10 điểm |
-| 4 | 10 điểm | 15 điểm |
-| 5, từ có Kanji | Không có | 10 điểm |
-| 5, từ chỉ có Kana | Không có | 10 điểm |
-
-V4: hoàn tất cần thêm 3 câu gần nhất đúng liên tiếp.
-
-**Mở stage sau** ngay khi đạt mốc điểm **và** mọi **yêu cầu bắt buộc** của Stage đã có **ít nhất một lần được +1** (tính từ lúc vào Stage này, xuyên qua các ngày).
-
-**Hoàn tất stage** khi đã đạt mốc hoàn tất, đã mở stage sau (Stage 5: đã đủ yêu cầu Skill): dừng lịch, dừng bài tập của stage đó, chạy R5.
-
-**Hoàn thành từ** khi mọi stage tính điểm của từ đều hoàn tất.
-
-Điểm tụt xuống dưới mốc sau khi đã mở không đóng stage sau.
-
-| Stage | Yêu cầu bắt buộc |
-| --- | --- |
-| 2 | `kana_to_meaning`, `meaning_to_kana`, `kana_assembly` |
-| 4 | `kanji_recognition`, `kanji_assembly`, `hanviet_recognition`, `hanviet_assembly` |
-| 5 (có Kanji) | Skill S1, S2, S3, S4 — mỗi Skill có ít nhất một dạng bài của nó được +1 |
-| 5 (chỉ Kana) | Skill S1, S2 |
-
-Dạng bài thuộc Skill nào ở Stage 5:
-
-| Skill | Dạng bài Stage 5 |
-| --- | --- |
-| S1 Meaning | `meaning_assembly` (nghĩa đơn giản); `meaning_recognition_6` (nghĩa không ghép được) |
-| S2 Kana | `kana_free_recall` (gõ Romaji → Kana/Katakana) |
-| S3 Kanji | `kanji_assembly_nohint` (bỏ chọn 1/6, spec §18.3a) |
-| S4 Hán Việt | `hanviet_free_recall`, `hanviet_recognition`, `hanviet_assembly` |
-
-Khi mở stage sau: điểm stage hiện tại **giữ nguyên**, stage kế tiếp theo R1 có điểm 0 và lịch mới. — CONFIRMED (V8)
-
-## 7. R5 — Tạo card
-
-| Vừa hoàn tất | Tạo card |
-| --- | --- |
-| Stage 1 | — |
-| Stage 2 (10 điểm) | `vocab.meaning_kana` |
-| Stage 3 (xem xong) | `vocab.kana_hanviet` |
-| Stage 4 (15 điểm) | `vocab.meaning_kanji`, `vocab.kanji_meaning_hanviet` |
-| Stage 5 có Kanji (10 điểm) | `vocab.meaning_hanviet` |
-| Stage 5 chỉ Kana (10 điểm) | — (đã có `vocab.meaning_kana` từ Stage 2) |
-
-- Card mới: trạng thái FSRS `New`, điểm card 0, **đến hạn lần đầu lúc 00:00 ngày học hôm sau**. — CONFIRMED (6a)
-- Tạo card idempotent: hoàn tất Stage hai lần (ví dụ do submit trùng) không tạo card thứ hai. — PROPOSED
-
-### Dạng bài dùng để ôn từng card — CONFIRMED (REV-02, 2026-11-06)
-
-Xoay vòng, không lặp dạng của lần ôn trước. Card kana–Hán Việt có từ trước thẻ Giới thiệu Hán tự nên đề là Kana và nghĩa, không có Kanji.
-
-| Card | Dạng bài khi review |
-| --- | --- |
-| `vocab.meaning_kana` | Kana → chọn nghĩa; nghĩa → chọn Kana; ghép Kana; câu nghe; gõ Kana |
-| `vocab.kana_hanviet` | Kana → chọn Hán Việt; ghép Hán Việt; gõ Hán Việt |
-| `vocab.meaning_kanji` | nghĩa → chọn Kanji (1/6); ghép Kanji |
-| `vocab.kanji_meaning_hanviet` | Kanji → chọn nghĩa (1/6); Kanji → ghép nghĩa; Kanji → chọn/gõ Hán Việt |
-| `vocab.meaning_hanviet` | nghĩa → gõ Hán Việt; nghĩa → ghép Hán Việt; Hán Việt → chọn nghĩa |
-
-## 8. R6 — Điểm card và bỏ card giàn giáo
-
-- Review: cộng điểm theo §4.2, không giới hạn. — CONFIRMED
-- Practice: cộng theo §4.3; mỗi card được **tối đa +3 điểm từ practice mỗi ngày** (trần chỉ áp cho điểm cộng). — CONFIRMED (7a)
-- Điểm card có thể âm. — CONFIRMED (2a)
-- Bỏ card khi đạt mốc — CONFIRMED:
-
-| Card | Bỏ khi điểm card ≥ | Ngoại lệ |
-| --- | --- | --- |
-| `vocab.meaning_kana` | 30 | Từ chỉ có Kana: **không bao giờ bỏ** |
-| `vocab.kana_hanviet` | 40 | — |
-| 3 card còn lại | không bỏ | — |
-
-- Card bị bỏ: `status = retired`, không còn được lên lịch hay chọn cho practice; lịch sử giữ nguyên. — CONFIRMED
-- Câu practice ánh xạ vào card — CONFIRMED (2026-11-07): người chơi chọn loại Card khi vào game. Chế độ Hỗn hợp: ô Kana → `vocab.meaning_kana`, ô Kanji → `vocab.meaning_kanji`. Nếu card chưa tồn tại hoặc đã bỏ thì không đổi điểm. Ghép sai trừ card của cả 2 từ, mỗi từ tối đa 1 lần mỗi bàn. Từ có card lâu chưa ôn nhất ra bàn trước.
-
-## 9. R7 — Dựng Learn và Review mỗi ngày (V8)
-
-Settings mặc định — CONFIRMED (V8): `new_per_day = 5` (V4), `stage_cap = 200`, `review_cap = 120`, `unlock_threshold = 80`.
-
-1. **Chụp hai số** lúc dựng lần đầu trong ngày, cố định cả ngày: `D` = số card `active` có `due ≤ thời điểm đó`; `S` = số lịch Stage đang chạy có `due ≤ thời điểm đó`.
-2. **Review hôm nay** = `min(D, review_cap)` card, ưu tiên card quá hạn lâu nhất. Phần dư dời sang ngày sau.
-3. **Learn hôm nay:** câu Stage đến hẹn, tối đa `stage_cap` câu, ưu tiên quá hẹn lâu nhất. Phần dư dời sang ngày sau.
-4. **Từ mới:**
-   - nếu `D ≥ unlock_threshold` **hoặc** `S ≥ stage_cap` → **0 từ mới**;
-   - ngược lại → `new_per_day − số từ đã mượn trước cho hôm nay`, lấy theo `sort_order`, bỏ qua từ đã bị loại.
-5. **Hai khu độc lập:** không có chế độ trộn; làm khu nào trước cũng được; không có yêu cầu phải xong trong ngày.
-6. **Luật trộn hàng đợi trong Learn** — CONFIRMED: không có 2 câu liền nhau cùng dạng bài; hai câu của cùng một từ cách ≥ 4 câu; chèn vòng boss (Speed Matching 30 giây) khoảng mỗi 25 câu khi phiên có ≥ 6 từ.
-7. **Chia phiên:** khoảng **20 câu một phiên** (~5 phút). — PROPOSED, tinh chỉnh khi test
-8. **Học thêm** (sau khi xong Bài học hôm nay) — CONFIRMED:
-   - chỉ khi `D < unlock_threshold` và `S < stage_cap`;
-   - lấy từ tiếp theo theo `sort_order`, ghi là **mượn của ngày học kế tiếp**;
-   - tổng số từ mượn cho ngày kế tiếp ≤ `new_per_day` (chỉ mượn trước 1 ngày);
-   - **không** kéo review của ngày sau lên sớm.
-9. **Card Again trong ngày** — PROPOSED: nếu FSRS đặt lại card đến hạn trong cùng ngày (learning step), card quay lại hàng đợi hôm nay và **không** tính thêm vào `review_cap` (trần đếm số card khác nhau).
-
-## 10. R8 — Loại và khôi phục từ khỏi lộ trình
-
-| Trạng thái từ khi loại | Hiệu ứng | Khi khôi phục |
-| --- | --- | --- |
-| Chưa học (chưa vào Stage 1) | Lộ trình bỏ qua từ này | Trở lại đúng vị trí `sort_order`; sẽ được lấy khi tới lượt |
-| Đang học dở hoặc đã có card | Không vào hàng đợi; mọi card `suspended`; giữ nguyên Stage, điểm | Tiếp tục từ Stage cũ; card `active` lại, card quá hạn tính vào `D` của lần dựng tiếp theo |
-
-— CONFIRMED (B-a, 31/10); chi tiết cột "Khi khôi phục" PROPOSED.
-
-## 10a. R9 — Lịch của Stage (V8)
-
-- Mỗi từ × mỗi Stage tính điểm (2, 4, 5) có một lịch `ts-fsrs`, tham số `maximum_interval = 2` ngày. — CONFIRMED
-- Rating theo §4.1: Again / Hard / Good; không có Easy. — CONFIRMED
-- Lịch được tạo khi stage mở; câu đầu đến hẹn ngay. Dừng khi stage hoàn tất. — PROPOSED
-- Dạng bài xoay vòng, ưu tiên dạng bắt buộc chưa có điểm. — CONFIRMED
-- Không dùng chung lịch với Card. Card mới bắt đầu từ `New`. — CONFIRMED
-
-Chạy thật `ts-fsrs` với tham số mặc định, tắt fuzz, đúng mọi câu, áp trần +3/ngày:
-
-| Khoảng cách tối đa | Đạt 5 điểm | Đạt 10 điểm |
-| --- | --- | --- |
-| Không giới hạn | Ngày 59 | Ngày 12.782 |
-| 7 ngày | Ngày 16 | Ngày 51 |
-| 3 ngày | Ngày 8 | Ngày 23 |
-| **2 ngày (đã chọn)** | **Ngày 6** | **Ngày 16** |
-| 1 ngày | Ngày 4 | Ngày 9 |
-
-Các mốc đã chốt khi đúng mọi câu, tối đa 2 ngày: 6 điểm ngày 8, 8 điểm ngày 12. `ts-fsrs` 6.0.0 không áp `maximum_interval` ở bước chuyển Learning sang Review khi trả lời muộn, nên `lib/srs/stage-scheduler.ts` tự chặn.
-
-## 10b. R10 — Khu Kanji (V8)
-
-Độc lập với Stage và điểm của từ vựng. Spec §18.6.
-
-- Xem thẻ giới thiệu xong: tạo một lịch FSRS cho chữ, tham số mặc định, đến hạn lần đầu lúc 00:00 ngày học hôm sau. — PROPOSED
-- Rating: `wrong` = Again, `hint` = Hard, `correct` = Good. **Không có Easy.** — CONFIRMED
-- Mặc định `kanji_new_per_day = 5`, `kanji_cap = 50`. Câu đến hạn tính trước, chữ mới chiếm phần còn lại của trần. — PROPOSED
-- Chữ mới lấy theo thứ tự file data. — CONFIRMED
-- Đáp án nhiễu: không trùng nghĩa, không trùng âm Hán Việt, không trùng bất kỳ âm On/Kun nào của chữ đúng, để không có hai đáp án đúng. — CONFIRMED
-- Câu On/Kun: chấp nhận mọi âm của chữ. Chữ không có Kun (94 chữ) chỉ hỏi On. — CONFIRMED
-
-## 11. Ví dụ tính tay
-
-Quy ước: `#n` là thứ tự câu trong ngày học (đã bỏ câu vòng boss).
-
-> **V8:** mốc mở stage sau không còn dừng stage; stage chạy tiếp tới mốc hoàn tất mới tạo card; gap chỉ tính trong Learn. VD2, VD6 và VD9 đã cập nhật; VD1, VD3, VD4 vẫn đúng về cách cộng trừ điểm.
-
-### VD1 — Giãn cách chặn spam (R3)
-
-学校, Stage 2, điểm 2, hôm nay chưa được +1 lần nào. Câu trước của 学校 hôm nay là `#3`.
-
-| Câu | Kết quả | Gap | Tính? | Điểm stage |
-| --- | --- | --- | --- | --- |
-| `#10` Kana → nghĩa | correct | 6 | +1 | 3 |
-| `#12` nghĩa → Kana | correct | 1 | 0 (chưa giãn cách) | 3 |
-| `#17` Kana → nghĩa | correct | 4 | +1 | 4 |
-
-### VD2 — Đủ điểm nhưng thiếu dạng bắt buộc (R4)
-
-学校, Stage 2, điểm 6; đã có +1 từ `kana_to_meaning` và `meaning_to_kana`, **chưa** có từ `kana_assembly` → **chưa qua**. Câu ghép Kana được giãn cách, `correct`, chưa chạm trần → +1 → điểm 7, đủ 3 yêu cầu → **mở Stage 3**; Stage 2 vẫn chạy tiếp. Câu đúng tiếp theo đạt 8 điểm → hoàn tất, tạo `vocab.meaning_kana` (R5).
-
-### VD3 — Trần 3 điểm cộng mỗi ngày (R3)
-
-学校, Stage 4, điểm 3, hôm nay đã được +1 ba lần.
-
-| Câu | Kết quả | Kết quả tính |
-| --- | --- | --- |
-| giãn cách | correct | 0 (đã chạm trần) → điểm 3 |
-| giãn cách | wrong | −1 (điểm trừ không có trần) → điểm 2 |
-| ngày hôm sau, giãn cách | correct | +1 → điểm 3 |
-
-### VD4 — Điểm âm và sai liên tiếp (R3)
-
-これ, Stage 2, điểm 0. Câu trước của これ hôm nay là `#14`.
-
-| Câu | Kết quả | Gap | Tính? | Điểm stage |
-| --- | --- | --- | --- | --- |
-| `#20` | wrong | 5 | −1 | −1 |
-| `#22` | wrong | 1 | 0 | −1 |
-| `#27` | wrong | 4 | −1 | −2 |
-
-### VD5 — Qua Stage 3 bằng xem (R1, R5)
-
-学校 đang ở Stage 3. Ngày 01/11 lúc 21:00 người học xem xong thẻ giới thiệu 学校 = 学 (HỌC) + 校 (HIỆU) → **qua Stage 3**, sang Stage 4 với điểm 0 → tạo `vocab.kana_hanviet`, `New`, điểm card 0, **đến hạn 02/11 00:00** (giờ VN).
-
-### VD6 — テレビ đi trọn đường (R1, R4, R5, R6)
-
-1. Stage 1: xem xong → Stage 2.
-2. Stage 2: qua vài ngày, đạt 5 điểm, có +1 từ cả 3 dạng (mảnh ghép là Katakana テ・レ・ビ) → **mở Stage 5**, Stage 2 vẫn chạy. Đạt 8 điểm → hoàn tất Stage 2, tạo `vocab.meaning_kana`.
-3. Stage 5: yêu cầu S1 (ghép hoặc chọn nghĩa 1/6) và S2 (gõ `terebi` → テレビ); đạt 8 điểm → hoàn tất Stage 5. Khi cả Stage 2 và 5 đều hoàn tất → **hoàn thành vòng học ban đầu**, không tạo card mới.
-4. `vocab.meaning_kana` của テレビ **không bao giờ bị bỏ**, kể cả khi điểm card vượt 30.
-
-### VD7 — Rating khi review (R2)
-
-Card `vocab.meaning_kanji` của 学校:
-
-| Câu | Kết quả | Thời gian | Rating | Điểm card |
-| --- | --- | --- | --- | --- |
-| Chọn Kanji 1/6 | correct | 1,2 s | **Good** (trắc nghiệm không được Easy) | +1 |
-| Ghép 学 + 校 | correct | 2,1 s | **Easy** | +2 |
-| Ghép 学 + 校 | correct | 4,0 s | Good | +1 |
-| Ghép 学 + 校 | hint | 2,0 s | Hard | 0 |
-| Chọn Kanji 1/6 | wrong | — | Again | −1 |
-
-### VD8 — Bỏ card giàn giáo và trần practice (R6)
-
-Card `vocab.meaning_kana` của 学校 (từ có Kanji), điểm card 28; hôm nay practice đã cộng +2 cho card này.
-
-| Sự kiện | Điểm card |
-| --- | --- |
-| Speed Matching, cặp がっこう ↔ trường học, correct | +1 (lần cộng practice thứ 3 hôm nay) → 29 |
-| Speed Matching, correct lần nữa | 0 (chạm trần practice) → 29 |
-| Ngày hôm sau, review → Good | +1 → **30 → card bị bỏ** |
-
-### VD9 — Dựng bài học khi review dồn (R7)
-
-Settings mặc định (20 từ / 200 câu Stage / 120 card / ngưỡng 80).
-
-| `D` | `S` | Review hôm nay | Câu Stage hôm nay | Từ mới | Ghi chú |
-| --- | --- | --- | --- | --- | --- |
-| 150 | 50 | 120 | 50 | 0 | `D ≥ 80`; 30 card dời sang ngày sau |
-| 80 | 50 | 80 | 50 | 0 | `D ≥ 80` nên chặn từ mới |
-| 79 | 50 | 79 | 50 | 20 | |
-| 40 | 200 | 40 | 200 | 0 | `S ≥ 200` nên chặn từ mới |
-| 40 | 250 | 40 | 200 | 0 | 50 câu Stage dời sang ngày sau |
-
-### VD10 — Học thêm mượn quota (R7)
-
-| Ngày | `D` | Diễn biến | Từ mới |
+| **Ngày học** | 00:00–24:00 giờ Việt Nam (UTC+7). — CONFIRMED |
+| **Mục học (item)** | Đơn vị AIS điều phối: một từ × một Stage tính điểm (2, 3, 5, 6), hoặc một chữ Kanji đang ở giai đoạn Học. |
+| **Nhóm** | Ba nhóm của Learn: **Từ vựng Kana** (Stage 1–3), **Từ vựng Kanji** (Stage 4–6), **Kanji riêng lẻ**. Tiến độ, điều kiện mở, dạng bài và log của mỗi nhóm tách riêng. — CONFIRMED (yêu cầu V9) |
+| **Câu đếm gap** | Câu `STAGE_QUESTION` hoặc `KANJI_PRACTICE` đã trả lời trong Learn hôm nay. Câu `MICRO_PRACTICE`, vòng boss và Review không phải câu đếm gap. — PROPOSED |
+| **Mốc gần nhất của một từ** | Lần gần nhất từ đó xuất hiện trong **bất kỳ** câu Learn nào hôm nay, kể cả `MICRO_PRACTICE`. — PROPOSED |
+| **Gap** | Số câu đếm gap đã trả lời **sau** mốc gần nhất của cùng từ (hoặc cùng chữ), trong cùng ngày học, tính xuyên qua các bài. — PROPOSED, thay định nghĩa V8 |
+| **Kết quả chấm** | `correct`, `hint`, `wrong`. Server chấm. — CONFIRMED |
+
+**Vì sao gap tính như vậy:** câu `MICRO_PRACTICE` hỏi ngay sau thẻ giới thiệu, nên người học trả lời bằng trí nhớ vài giây. Nếu câu này không đặt lại mốc, câu Stage kế tiếp của cùng từ có thể được cộng điểm dù chỉ cách 1 câu. Nếu câu này được đếm vào gap, người học có thể "lấp" khoảng cách bằng câu dễ. Quy tắc trên chặn cả hai trường hợp, giữ đúng tinh thần R3.
+
+## 3. R1 — Luồng 6 Stage — CONFIRMED (yêu cầu V9, 2026-11-10)
+
+| Nhánh | Stage | Nội dung | Loại |
 | --- | --- | --- | --- |
-| 01/11 | 50 | Xong bài học: 50 review + 20 từ mới. Bấm "Học thêm" 5 từ → ghi mượn 5 cho 02/11 | 20 + 5 |
-| 02/11 | 60 | Quota còn 20 − 5 = 15 | 15 |
-| 02/11 | 60 | Muốn học thêm tiếp: chỉ được mượn của 03/11, tối đa 20 | ≤ 20 |
-| 03/11 (giả sử) | 85 | `D ≥ 80` → không mở từ mới. Những từ đã mượn và học từ hôm trước vẫn là từ đang học dở, vẫn được đưa vào | 0 |
+| A — Từ vựng Kana (mọi từ) | 1 | Giới thiệu Kana, nghĩa, phát âm, chú thích "Hán Việt: …" | Xem |
+| | 2 | Ghi nhớ Kana và nghĩa (dạng bài Stage 2 hiện có) | Tính điểm |
+| | 3 | Củng cố S1 Nghĩa và S2 Kana (dạng bài Stage 5 của v2) | Tính điểm |
+| B — Từ vựng Kanji (khi chính sách yêu cầu) | 4 | Giới thiệu dạng Kanji, Hán Việt, chữ thành phần, cách đọc On/Kun trong từ | Xem |
+| | 5 | Nhận diện và ghi nhớ từ viết bằng Kanji (dạng bài Stage 4 của v2) | Tính điểm |
+| | 6 | Củng cố S3 Kanji và S4 Hán Việt | Tính điểm |
 
-## 12. Config `RULES_V3`
+- Hán Việt là kỹ năng bắt buộc của nhánh B. — CONFIRMED
+- Một từ có thể chạy nhiều stage cùng lúc; stage đã mở không đóng lại. — CONFIRMED (V8)
+- Từ chưa cần học Kanji kết thúc vòng học ban đầu ở Stage 3; Card đã tạo vẫn ôn theo FSRS. — CONFIRMED
+- Từ Kana-only chỉ có nhánh A. — CONFIRMED
+
+Ánh xạ từ v2: Stage 5 → 3, Stage 3 (thẻ Kanji) → 4, Stage 4 → 5, Stage 6 giữ. Từ V8 trên prod: không chuyển, xóa tiến độ từ vựng. — CONFIRMED (2026-11-10)
+
+## 4. R2 — Loại câu và hiệu ứng — PROPOSED
+
+| Loại câu | Tính vào số câu của bài | Tính vào ngân sách Learn/ngày | Là câu đếm gap | Đổi điểm Stage | Đổi lịch |
+| --- | --- | --- | --- | --- | --- |
+| `INTRODUCTION` (thẻ giới thiệu) | Không | Không | Không, nhưng không đặt mốc | Không | Tạo lịch Stage kế tiếp khi xem xong |
+| `MICRO_PRACTICE` | Có (CONFIRMED 2026-11-10) | **Không** (CONFIRMED 2026-11-10) | Không, nhưng **đặt mốc** | Không | Không |
+| `STAGE_QUESTION` | Có | Có | Có | Có, theo R3 | Lịch Stage của chính mục đó |
+| `KANJI_PRACTICE` (câu giai đoạn Học Kanji, dạng A, B, E) | Có | Có, và tính vào trần phụ Kanji | Có | Điểm Học Kanji (R10) | Lịch Học của chữ |
+| Bài Kanji hỗ trợ (dạng C, F, G) | Có | Có, và tính vào trần phụ Kanji | Không | Không | Không |
+| Vòng boss Speed Matching | Không | Không | Không | Không | Không |
+| Câu Review | — | Không (tính vào trần Review) | Không | Không | Lịch Card của chính Card đó |
+
+- Mỗi lần trả lời đổi **nhiều nhất một** lịch nhớ. Server từ chối nếu một câu được gắn với hai lịch. — CONFIRMED (yêu cầu V9)
+- Kết quả → rating của lịch: `wrong` = Again, `hint` = Hard, `correct` = Good. Không có Easy ở mọi lịch. — CONFIRMED (v2)
+- Câu tự chấm (viết rồi tự chấm): "Nhớ" = Good, "Quên" = Again. — CONFIRMED (v2)
+
+## 5. R3 — Điểm Stage có được tính không
+
+Áp cho `STAGE_QUESTION`. Giữ nguyên V8, chỉ đổi định nghĩa gap (§2):
+
+1. Gap < 4 (và từ đã có mốc hôm nay) → 0 điểm, ghi log `counted = false`.
+2. `wrong` → −2, không có trần cho điểm trừ.
+3. `hint` → 0.
+4. `correct` → +1 nếu số lần được +1 hôm nay của từ ở stage này < 3; ngược lại 0.
+
+Cooldown của AIS (R11) là chuyện **khi nào hỏi**; R3 là chuyện **có cộng điểm không**. AIS cố tránh xếp câu Stage khi gap < 4, nhưng nếu buộc phải xếp, R3 vẫn quyết định điểm. — PROPOSED
+
+## 6. R4 — Mở và hoàn tất Stage — CONFIRMED (giữ số điểm V8/v2)
+
+| Stage | Mở tiếp | Hoàn tất |
+| --- | --- | --- |
+| 1 | Xem xong | Xem xong |
+| 2 | 6 điểm và đủ 3 dạng bắt buộc → mở Stage 3 | 10 điểm |
+| 3 | — | 10 điểm, đủ S1 và S2 |
+| 4 | Xem xong → mở Stage 5 | Xem xong |
+| 5 | 10 điểm và đủ dạng bắt buộc → mở Stage 6 | 15 điểm |
+| 6 | — | 10 điểm, đủ S3 và S4 |
+
+- Hoàn tất cần thêm 3 câu `STAGE_QUESTION` gần nhất của stage đúng liên tiếp. Câu `MICRO_PRACTICE` không nối và không làm mất chuỗi. — CONFIRMED (V4), phần `MICRO_PRACTICE` PROPOSED
+- Tối đa +3 điểm mỗi stage mỗi ngày. — CONFIRMED
+- **Stage 4 mở khi:** Stage 3 đã hoàn tất **và** chính sách Kanji của từ cho phép ở cấp hiện tại của người học (§6a). **Không** cần học xong chữ thành phần. — CONFIRMED (2026-11-10)
+- Sai 3 câu liên tiếp ở một stage: hiện lại thẻ giới thiệu. — CONFIRMED (V4)
+
+### 6a. Chính sách Kanji của từ
+
+| Nhãn | Ý nghĩa | Stage 4 mở khi |
+| --- | --- | --- |
+| `KANA_ONLY` | Từ không có dạng Kanji cần học | Không bao giờ |
+| `KANJI_CORE` | Học dạng Kanji ở cấp `kanji_target_level` | Cấp Từ vựng Kanji của người học đã mở tới `kanji_target_level` |
+| `KANJI_DEFERRED` | Có dạng Kanji, học ở cấp sau | Như `KANJI_CORE`, với `kanji_target_level` là cấp sau |
+| `KANJI_OPTIONAL` | Có dạng Kanji, không bắt buộc ở N5–N4 | Không tự mở. Người học tự bật bằng nút "Học dạng Kanji" ở trang chi tiết từ. — CONFIRMED (2026-11-10) |
+
+- Script đề xuất nhãn (CONFIRMED 2026-11-10, phần luật cụ thể PROPOSED):
+  - Từ không có Kanji → `KANA_ONLY`.
+  - JMdict ghi "thường viết bằng Kana" (`uk`) cho nghĩa đang dùng → `KANJI_OPTIONAL`.
+  - Mọi chữ của từ thuộc danh sách Kanji cấp của từ → `KANJI_CORE`, cùng cấp.
+  - Có chữ thuộc cấp cao hơn (N4 hoặc khó hơn) → `KANJI_DEFERRED`, cấp = cấp khó nhất trong N5–N4; vượt N4 → `KANJI_OPTIONAL`.
+  - Mỗi đề xuất ghi nguồn, lý do và độ tin cậy (`high`, `medium`, `low`).
+- Chủ dự án duyệt. Nhãn đã duyệt có cờ `locked`; chạy lại script không ghi đè, chỉ báo chỗ lệch. — CONFIRMED
+- Người học lên cấp N4: từ đã xong Stage 3 ở N5 mở thêm Stage 4–6, không mất tiến độ Stage 1–3. — CONFIRMED (yêu cầu V9)
+- **Không** coi mọi từ chứa Kanji N5 là bắt buộc ở N5; luật `uk` và độ tin cậy `low` đưa từ vào danh sách cần duyệt. — CONFIRMED (yêu cầu V9)
+
+## 7. R5 — Tạo Card
+
+| Vừa hoàn tất | Tạo Card | Dạng bài khi ôn |
+| --- | --- | --- |
+| Stage 3 | `vocab.kana` | Nghĩa → gõ Kana |
+| Stage 6 | `vocab.kanji` | Luân phiên: nhìn Kanji → gõ Kana và Hán Việt (sai một ô là sai câu); nhìn nghĩa → viết rồi tự chấm |
+| Giai đoạn Học Kanji riêng lẻ | `kanji.meaning` | Kanji → nghĩa (lật thẻ, tự chấm); nghĩa → chọn Kanji trong 6 |
+| Giai đoạn Học Kanji riêng lẻ | `kanji.hanviet` | Kanji → gõ Hán Việt; Hán Việt → chọn Kanji trong 6 |
+| (dấu sao) | `vocab.star_recall` | Giữ như v2 |
+
+- Card Kana tạo ở Stage 3, không ở Stage 2, để Stage 3 và Review không cùng luyện S1/S2 một lúc. — CONFIRMED (2026-11-10)
+- Kanji → Kana được kiểm tra trong `vocab.kanji`; Hán Việt bắt buộc nằm trong `vocab.kanji` và `kanji.hanviet`. — CONFIRMED
+- Kanji riêng lẻ tách 2 Card, nên sai Hán Việt không làm hỏng lịch của mặt chữ–nghĩa. Viết và tô nét chỉ là bài luyện, không có lịch. — CONFIRMED (2026-11-10)
+- **Ngoại lệ:** câu "chọn Kanji trong 6" của 2 Card Kanji riêng lẻ là câu trắc nghiệm duy nhất trong Review, vì nhận mặt chữ từ nghĩa hoặc Hán Việt mà không chọn thì chỉ còn cách viết. — CONFIRMED (2026-11-10)
+- Card mới đến hạn lần đầu lúc 00:00 ngày học hôm sau; tạo Card idempotent (một Card mỗi loại mỗi từ hoặc chữ). — CONFIRMED
+- Card `vocab.kana` đã tạo ở Stage 2 trên dev (theo v2) được giữ nguyên lịch và log; không tạo thêm Card khi từ đó xong Stage 3. — PROPOSED
+
+## 8. R6 — Vòng đời Card
+
+| Trạng thái | Nghĩa | Vào Review | Đổi khi |
+| --- | --- | --- | --- |
+| `active` | Đang ôn | Có, khi đến hạn | — |
+| `suspended` | Từ bị loại khỏi lộ trình (R8), hoặc Card sao khi bỏ sao | Không | Khôi phục từ hoặc đánh sao lại |
+| `archived` | Người học bấm "Đã học xong" cho riêng Card này (R13) | Không | Người học khôi phục |
+| `retired` | Card V8 bị bỏ theo điểm. V9 không tạo trạng thái này | Không | Không còn đường nào; chỉ để đọc lịch sử |
+
+- Không có điểm Card, không bỏ Card theo điểm, không gộp Card. — CONFIRMED (v2)
+- Một Card có thể vừa `suspended` vừa `archived`; Card chỉ vào Review khi không có trạng thái nào. — PROPOSED
+
+## 9. R7 — Learn chung và Review chung
+
+### 9.1 Bài Learn — CONFIRMED (yêu cầu V9), chi tiết PROPOSED
+
+- Một khu Learn, một nút bắt đầu bài. Bài gồm câu của cả 3 nhóm do AIS (R11) xếp. Người học có thể chọn chỉ một nhóm. Bỏ nút Học hỗn hợp cụm 5 câu của v2. — CONFIRMED (2026-11-10)
+- Số câu mỗi bài mặc định **50**, người học chọn 20–100. Chỉ tính câu có trả lời (§4), không tính thẻ giới thiệu.
+- Một ngày làm được nhiều bài.
+
+### 9.2 Ngân sách mỗi ngày — CONFIRMED (2026-11-10)
+
+- `learn_cap` = 200 câu/ngày, đếm câu Learn đã trả lời hôm nay ở cả 3 nhóm, trừ câu `MICRO_PRACTICE` (CONFIRMED 2026-11-10), lấy từ log (không lấy từ bộ đếm của bài). Mở bài mới không đặt lại bộ đếm.
+- `kanji_cap` = trần phụ cho câu Kanji riêng lẻ, mặc định 100, vẫn nằm trong `learn_cap`.
+- `stage_cap` và `word_kanji_cap` của v2 bị thay bằng `learn_cap`. — PROPOSED
+- Bắt đầu bài: số câu = `min(số chọn, learn_cap − đã trả lời hôm nay)`. Còn 0 thì không mở bài.
+- Từ mới và chữ mới chỉ chụp quota một lần mỗi ngày vào `learner_daily_plans`; bài sau không lấy lại quota đã dùng.
+- **Chặn từ mới** khi Card đến hạn đầu ngày ≥ `unlock_threshold` (đếm cả Card Kanji riêng lẻ) hoặc câu Stage đến hẹn đầu ngày ≥ `learn_cap`. Card Kanji riêng lẻ đến hạn cũng được đếm. — CONFIRMED (2026-11-10)
+- Câu chưa làm chuyển sang hôm sau, không phạt. — CONFIRMED
+
+### 9.3 Không đủ câu hợp lệ — PROPOSED
+
+Bài kết thúc sớm khi AIS không còn câu hợp lệ (§14.5). Màn kết thúc ghi "Đã hết câu cho hôm nay: 37/50" và lý do (đã hết câu đến hẹn, đã dùng hết từ mới, chạm ngân sách). Không tạo câu lặp để lấp đủ số.
+
+### 9.4 Review chung — CONFIRMED (yêu cầu V9)
+
+- Một hàng đợi gồm `vocab.kana`, `vocab.kanji`, `kanji.meaning`, `kanji.hanviet`, rồi `vocab.star_recall`.
+- Bộ lọc: Tất cả (mặc định), Từ vựng Kana, Từ vựng Kanji, Kanji riêng lẻ.
+- Quá hạn lâu nhất trước; `review_cap` (120) đếm số Card khác nhau đã ôn hôm nay ở mọi bộ lọc; Card Again quay lại trong ngày không tính thêm. Giữ R7 V8 bước 9.
+- Card cũ không bị tạo lại khi chuyển sang Review chung.
+
+## 10. R8 — Loại và khôi phục từ
+
+Giữ nguyên V8: loại từ thì Card của từ `suspended`, giữ Stage và điểm; khôi phục thì chạy tiếp. `archived` (R13) là thao tác trên **một Card**, không thay R8. — CONFIRMED
+
+## 11. R9 — Lịch của Stage
+
+Mỗi từ × Stage 2, 3, 5, 6 có một lịch `ts-fsrs`, tối đa 2 ngày, không Easy, bộ tính lịch tự chặn ở bước chuyển Learning → Review. Lịch tạo khi stage mở, dừng khi hoàn tất. — CONFIRMED (V8, đổi số stage)
+
+## 12. R10 — Kanji riêng lẻ
+
+- Thứ tự chữ mới, cấp, thẻ "đã biết", quá tải: giữ §18.6. — CONFIRMED
+- Thẻ giới thiệu: mặt chữ, nghĩa, Hán Việt, bộ thủ, thành phần và vị trí, mẹo ghi nhớ đã duyệt, nét viết, từ liên quan (R12).
+- **Giai đoạn Học:** 12 câu trong 4 buổi (ngày 1, 2, 3, 5), mỗi buổi 3 câu, đúng +1 (tối đa +3/ngày), gợi ý 0, sai −2, không dưới 0. — CONFIRMED (giữ)
+- **Hoàn tất Học:** 12 điểm; mỗi hướng (Kanji → nghĩa, nghĩa → Kanji, Kanji → Hán Việt, Hán Việt → Kanji) đúng ít nhất 2 lần, trong đó gõ Hán Việt ít nhất 1 lần; 3 câu gần nhất đúng. — Bỏ On/Kun bắt buộc: CONFIRMED (2026-11-10); số lần mỗi hướng: PROPOSED
+- Câu On/Kun vẫn có thể xuất hiện, tính điểm nhưng không thuộc điều kiện hoàn tất. — CONFIRMED (2026-11-10)
+- Hoàn tất Học thì tạo `kanji.meaning` và `kanji.hanviet`, chép trạng thái lịch Học hiện tại sang cả hai. Khu ôn dài hạn trong khu Kanji bị thay bằng Review chung. — PROPOSED
+- Khi Stage 4–6 giải thích cách đọc của từ, chỉ hiện ánh xạ On/Kun từng chữ khi dữ liệu có sẵn ánh xạ đó (ví dụ từ JMdict furigana). Không tự suy cách đọc của từ từ âm từng chữ. — CONFIRMED (yêu cầu V9)
+
+## 13. R12 — Kanji Visual Learning — CONFIRMED (danh sách dạng bài), chi tiết PROPOSED
+
+| Dạng | Bài | Loại câu | Điều kiện tạo |
+| --- | --- | --- | --- |
+| A | Kanji → nghĩa; nghĩa → chọn Kanji | `KANJI_PRACTICE` | Luôn có |
+| B | Kanji → chọn hoặc gõ Hán Việt | `KANJI_PRACTICE` | Luôn có |
+| C | Ghép thành phần theo vị trí (亻 + 木 → 休) | Hỗ trợ | Chỉ khi dữ liệu cấu tạo được duyệt |
+| E | Phân biệt chữ gần giống (日 / 目), có giải thích sau câu | `KANJI_PRACTICE` (tính vào hướng nghĩa → Kanji) | Chỉ khi cặp gần giống được duyệt |
+| F | Ghép cặp Kanji ↔ nghĩa hoặc Hán Việt | Hỗ trợ | Ít nhất 4 chữ đã giới thiệu |
+| G | Tô nét theo mẫu | Hỗ trợ | Có dữ liệu nét KanjiVG |
+
+- **Không** làm dạng D (điền thành phần còn thiếu). — CONFIRMED
+- Chấm Hán Việt khi gõ: bỏ khác biệt hoa/thường và khoảng trắng; dấu tiếng Việt phải đúng, nhưng chấp nhận cả hai kiểu đặt dấu (hoà/hòa). — PROPOSED
+- Chấm tô nét: so từng nét với mẫu về thứ tự, hướng, điểm đầu, điểm cuối, có ngưỡng sai số. Đây không phải nhận dạng chữ viết tay; giao diện ghi rõ. — PROPOSED
+- Phân biệt các loại thông tin: **bộ thủ** (bộ thủ chính thức theo từ điển, từ KANJIDIC2), **thành phần** (các phần cấu tạo, từ KanjiVG), **mẹo ghi nhớ** (do AI đề xuất hoặc người viết, có nhãn), **nguồn gốc chữ** (chỉ hiện khi có nguồn đáng tin; hiện chưa có nên ẩn). — CONFIRMED (yêu cầu V9)
+- Dữ liệu do AI đề xuất (mẹo, giải thích, mẹo phân biệt) có trạng thái `pending` tới khi được duyệt; chỉ dữ liệu `approved` hiện cho người học; chạy lại không ghi đè dữ liệu đã duyệt. AI không được tạo dữ liệu cấu tạo chữ. — CONFIRMED (yêu cầu V9)
+
+## 14. R11 — Adaptive Interleaving Scheduler (AIS) — PROPOSED
+
+AIS chỉ quyết định **thứ tự câu** trong bài Learn. Không thay lịch Stage, lịch Học Kanji hay FSRS.
+
+### 14.1 Dữ liệu
+
+- **Ứng viên:** mỗi mục học có câu hôm nay: mục đến hẹn theo lịch, mục mới, mục đang ở thang ngắn hạn.
+- **Thang ngắn hạn** của một mục vừa giới thiệu: `step` (0 → 3) và `readyAt` (số thứ tự câu đếm gap sớm nhất được hỏi lại).
+- **Trạng thái bài** (`learn_lessons.ais_state`, JSON): danh sách thang ngắn hạn, 2 dạng bài gần nhất, số câu theo nhóm, seed ngẫu nhiên, câu đang chờ trả lời.
+
+### 14.2 Luồng của một mục mới
+
+Giới thiệu → `MICRO_PRACTICE` ngay → xen 4–6 câu đếm gap → `STAGE_QUESTION` (gọi lại lần 1) → xen 8–12 câu → `STAGE_QUESTION` (gọi lại lần 2) → rời thang, theo lịch Stage.
+
+- **Sai** ở bất kỳ bước nào: hiện giải thích, xếp một `MICRO_PRACTICE` sau 2 câu, rồi quay lại bước gọi lại lần 1 (xen 4–6).
+- Một mục mới có tối đa 6 câu trong một bài (`maxPerItemPerLesson`), kể cả câu `MICRO_PRACTICE`.
+- Mục đến hẹn theo lịch (không mới) không đi thang; chỉ cần gap ≥ 4 để được xếp.
+
+### 14.3 Chọn câu tiếp theo
+
+1. **Lọc cứng:** bỏ mục chưa tới `readyAt`; bỏ mục có gap < 4 (trừ `MICRO_PRACTICE` của thang); bỏ dạng bài trùng câu ngay trước; bỏ mục đã chạm `maxPerItemPerLesson`; bỏ nhóm đã chạm trần phụ.
+2. **Chọn nhóm:** nhóm có thiếu hụt lớn nhất, với thiếu hụt = tỷ lệ mục tiêu × số câu đã trả lời − số câu của nhóm. Tỷ lệ mục tiêu tỷ lệ với số việc còn lại của nhóm lúc mở bài, mỗi nhóm có việc được ít nhất 15%.
+3. **Chấm ưu tiên** trong nhóm: thang ngắn hạn tới hạn +100; số ngày quá hẹn × 10 (tối đa 100); đến hẹn hôm nay +1.
+4. **Chọn có trọng số** trong 3 ứng viên cao nhất, xác suất tỷ lệ với điểm, dùng seed của bài (test lặp lại được).
+5. **Giới thiệu mục mới** khi đủ cả 4 điều kiện: còn quota từ mới hoặc chữ mới; ít hơn 2 mục đang ở thang ngắn hạn; đã qua ít nhất 5 câu từ lần giới thiệu trước; nếu còn mục cũ đến hẹn thì mục cũ chiếm ít nhất 40% số câu đã trả lời trong bài.
+
+### 14.4 Lưu và tiếp tục
+
+- Bài đang dở được lưu theo ngày; mở lại thì hiện đúng câu đang chờ, không xếp lại.
+- Mỗi câu trả lời có `client_event_id` duy nhất; gửi lại không tạo log và không tăng bộ đếm.
+- Sang ngày mới, bài cũ chuyển `abandoned`; mục trong thang ngắn hạn trở về lịch Stage.
+
+### 14.5 Khi hết câu hợp lệ
+
+1. Nới luật "không trùng dạng liền nhau" trước.
+2. Vẫn không có câu thì kết thúc bài sớm (§9.3). Không xếp câu có gap < 4 chỉ để đủ số.
+
+### 14.6 Kiểm thử
+
+Giả lập người học (đúng 90%, sai ngẫu nhiên theo seed) chạy bài 20, 50, 100 câu; nhiều bài trong một ngày; thoát giữa chừng rồi vào lại; hết câu hợp lệ. Kiểm tra: không vượt `learn_cap` và `kanji_cap`; không có câu Stage nào được cộng điểm khi gap < 4; mỗi mục mới có `MICRO_PRACTICE` ngay sau giới thiệu và gọi lại trong 4–6 câu; không 2 câu liền cùng dạng (trừ khi đã nới); mục cũ không bị bỏ đói.
+
+## 15. R13 — Card Archive — CONFIRMED (yêu cầu V9), chi tiết PROPOSED
+
+- Nút **Đã học xong** trên mỗi Card trong Review, có Undo. Chỉ lưu trữ Card đó: không lưu trữ cả từ, không đổi Card khác, không đổi Kanji thành phần, không xóa dữ liệu.
+- Card `archived` không vào Review và hàng đợi FSRS; Learn và Practice vẫn dùng được từ đó. Practice không đổi FSRS nên không thể mở lại Card.
+- Lưu trữ ghi một sự kiện `archive` kèm ảnh chụp trạng thái FSRS lúc đó.
+- **Kho lưu trữ:** tên từ hoặc chữ, loại Card, thời gian lưu trữ, trạng thái FSRS trước khi lưu trữ, nút khôi phục; tìm kiếm và lọc theo loại Card.
+- **Khôi phục — Giữ tiến độ (mặc định):** bỏ `archived`, giữ lịch sử, stability, difficulty, `due_at`. Card quá hạn thì vào Review như Card quá hạn bình thường.
+- **Khôi phục — Học lại từ đầu:** có xác nhận. Đặt riêng Card đó về `New`, đến hạn ngay; giữ log; không đổi Stage hay Card khác; ghi sự kiện `restore_reset` kèm trạng thái trước khi đặt lại.
+- **Học lại Card** (đã có ở trang chi tiết từ) trên Card đang `archived`: khôi phục giữ tiến độ rồi cho đến hạn ngay.
+
+## 16. Bảng dạng bài theo Stage (đánh số V9)
+
+| Stage | Dạng bài (mã giữ như code hiện tại) |
+| --- | --- |
+| 2 | `kana_to_meaning`, `meaning_to_kana`, `kana_assembly`, `listening`, `hanviet_from_kana` (hỏi nhẹ 15%) |
+| 3 | `meaning_assembly`, `meaning_recognition_6`, `kana_free_recall` |
+| 5 | `hanviet_from_kana`, `kanji_char_meaning`, `listening_kanji`, `kanji_recognition`, `kanji_assembly`, `hanviet_recognition`, `hanviet_assembly` |
+| 6 | `kanji_assembly_nohint`, `kanji_recognition_6`, `hanviet_free_recall`, `hanviet_recognition`, `hanviet_assembly` |
+
+Dạng bắt buộc để mở stage sau: Stage 2 như v2; Stage 5 như Stage 4 của v2.
+
+## 17. Config `RULES_V9`
 
 ```ts
-// Hình dạng đề xuất cho lib/learning/rules.ts (SCH-01)
-export const RULES_V3 = {
-  version: 3,
+export const RULES_V9 = {
+  version: 9,
   timezone: 'Asia/Ho_Chi_Minh',
-  stagePoints: { correct: 1, hint: 0, wrong: -1, maxPositivePerStagePerDay: 3 },
+  stagePoints: { correct: 1, hint: 0, wrong: -2, maxPositivePerStagePerDay: 3 },
+  completion: { correctStreak: 3 },
+  relearnAfterWrong: 3,
   stageThresholds: {
-    2: { unlockNextAt: 5, completeAt: 8 },
-    4: { unlockNextAt: 6, completeAt: 10 },
-    5: { completeAt: { withKanji: 10, kanaOnly: 8 } },
+    2: { unlockNextAt: 6, completeAt: 10 },
+    3: { completeAt: 10 },
+    5: { unlockNextAt: 10, completeAt: 15 },
+    6: { completeAt: 10 },
   },
+  requiredSkills: { 3: ['S1', 'S2'], 6: ['S3', 'S4'] },
   stageSchedule: { maximumIntervalDays: 2 },
-  spacing: { minGap: 4 }, // chỉ đếm trong Learn, không tính câu Review và câu vòng boss
-  review: { easyMaxMs: 3000, easyExerciseKinds: ['typing', 'assembly'] },
-  cardPoints: {
-    review: { again: -1, hard: 0, good: 1, easy: 2 },
-    practice: { wrong: -1, hint: 0, correct: 1, maxPositivePerCardPerDay: 3 },
-    retireAt: { 'vocab.meaning_kana': 30, 'vocab.kana_hanviet': 40 },
-    neverRetireMeaningKanaForKanaOnly: true,
+  reviewSchedule: { maximumIntervalDays: 90 },
+  spacing: { minGap: 4 },
+  lesson: { defaultQuestions: 50, minQuestions: 20, maxQuestions: 100 },
+  ais: {
+    immediateCheck: true,
+    firstRecallGap: [4, 6],
+    secondRecallGap: [8, 12],
+    wrongRecheckAfter: 2,
+    maxPerItemPerLesson: 6,
+    maxItemsInLadder: 2,
+    introduceEvery: 5,
+    minDueShare: 0.4,
+    minGroupShare: 0.15,
+    topK: 3,
+    priority: { ladderDue: 100, perOverdueDay: 10, maxOverdue: 100, dueToday: 1 },
   },
-  newCardFirstDue: 'next_study_day_start',
-  defaults: { newPerDay: 20, stageCap: 200, reviewCap: 120, unlockThreshold: 80, kanjiNewPerDay: 5, kanjiCap: 50 },
-  kanji: { ratings: ['Again', 'Hard', 'Good'] },
-  session: { questionsPerSession: 20 },          // PROPOSED
+  kanji: {
+    completeAt: 12, maxPositivePerDay: 3, wrong: -2, questionsPerSitting: 3,
+    sittingGaps: [1, 1, 2], perDirectionCorrect: 2, typedHanVietCorrect: 1,
+    overloadFrom: 10, learningShareOfCap: 0.7,
+  },
+  relearn: { pointsToComplete: 3 },
+  defaults: { newPerDay: 5, learnCap: 200, kanjiCap: 100, kanjiNewPerDay: 10, reviewCap: 120, unlockThreshold: 80 },
   bossRound: { everyQuestions: 25, minWordsToday: 6, seconds: 30 },
   borrow: { maxDaysAhead: 1 },
 } as const
 ```
 
-## 13. Câu hỏi còn mở
+## 18. Ví dụ tính tay
 
-| # | Câu hỏi | Đề xuất hiện tại |
+### VD1 — Mục mới 学校 trong bài 50 câu (R11, R3)
+
+Câu đếm gap đánh số `#n`; `m` là câu `MICRO_PRACTICE`.
+
+| Thứ tự | Câu | Gap của 学校 | Điểm Stage 2 |
+| --- | --- | --- | --- |
+| — | Thẻ Stage 1 của 学校 | — | — |
+| m | `kana_to_meaning` 学校, đúng | Đặt mốc | 0 (không tính) |
+| #1–#4 | Câu của mục khác | — | — |
+| #5 | `meaning_to_kana` 学校, đúng | 4 | +1 |
+| #6–#14 | Câu khác (9 câu) | — | — |
+| #15 | `kana_assembly` 学校, sai | 9 | −2; xếp `m` sau 2 câu |
+| #16–#17 | Câu khác | — | — |
+| m | `kana_to_meaning` 学校, đúng | Đặt mốc | 0 |
+| #18–#21 | Câu khác | — | — |
+| #22 | `kana_assembly` 学校, đúng | 4 | +1 |
+
+### VD2 — Ngân sách qua nhiều bài (R7)
+
+`learn_cap` 200, chỉ đếm câu không phải `MICRO_PRACTICE`. Bài 1 trả lời 50 câu, bài 2 trả lời 50, bài 3 thoát ở câu 30. Bài 4 mở tối đa `min(50, 200 − 130)` = 50 câu. Bài 5 mở tối đa 20 câu. Sau đó không mở được bài, dù mỗi bài có bộ đếm riêng.
+
+### VD3 — Từ học Kana ở N5, thêm Kanji ở N4 (R4, §6a)
+
+Từ X có nhãn `KANJI_DEFERRED`, cấp N4 (từ giả định, nhãn thật do script đề xuất và chủ dự án duyệt). Ở N5 người học xong Stage 3 → có `vocab.kana`, dừng. Khi người học mở cấp N4 cho Từ vựng Kanji, Stage 4 của X mở; điểm Stage 2, 3 và Card Kana giữ nguyên.
+
+### VD4 — Lưu trữ và khôi phục (R13)
+
+Card `vocab.kanji` của 学校 đang có stability 46, đến hạn 20/12. Người học bấm Đã học xong ngày 01/12: Card rời Review, Card `vocab.kana` của 学校 vẫn ôn. Ngày 25/12 khôi phục giữ tiến độ: Card quá hạn 5 ngày, vào Review hôm đó.
+
+## 19. Câu hỏi đã chốt (2026-11-10)
+
+| # | Câu hỏi | Đề xuất |
 | --- | --- | --- |
-| Q1 | Số câu mỗi phiên ~5 phút | 20 câu, chỉnh sau khi test thật |
-| Q2 | Khi câu Stage đến hẹn nhiều hơn trần | Quá hẹn lâu nhất trước (R7) |
-| Q3 | Card bị Again có quay lại trong ngày và có tính vào trần không | Có quay lại; không tính thêm vào trần (R7 bước 9) |
-| Q4 | Thời gian trả lời đo ở client hay server | Server ghi nhận; client gửi kèm để đối chiếu |
-| Q5 | Speed Matching có cặp Kana ↔ Hán Việt không | Có, khi từ đã có card `vocab.kana_hanviet` |
+| Q1 | Review cho phép "chọn Kanji trong 6" ở Card Kanji riêng lẻ? | **Chốt: có**, ngoại lệ duy nhất (§7) |
+| Q2 | Câu `MICRO_PRACTICE` có tính vào ngân sách 200 câu? | **Chốt: không** (2026-11-10) |
+| Q3 | `KANJI_OPTIONAL` có cho người học tự bật? | **Chốt: có**, nút ở trang chi tiết từ |
+| Q4 | Card đến hạn của Kanji riêng lẻ có tính vào ngưỡng chặn từ mới? | **Chốt: có** |
+| Q5 | Bài Learn có cho chọn chỉ một nhóm? | **Chốt: có** |
+| Q6 | Giữ nút Học hỗn hợp cụm 5 câu của v2? | **Chốt: bỏ**, AIS thay thế |
+| Q7 | Câu `MICRO_PRACTICE` có tính vào số câu của bài? | **Chốt: có** |
