@@ -1871,3 +1871,78 @@ n4-0887,競走します,KANJI_DEFERRED,2,high,"Có chữ 競 cấp N2, học d�
 n4-0888,サーカス,KANA_ONLY,,high,Từ không có Kanji,data,false
 n4-0889,芸,KANJI_DEFERRED,2,high,"Có chữ 芸 cấp N2, học dạng Kanji ở N2",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
 n4-0890,姿,KANJI_DEFERRED,1,high,"Có chữ 姿 cấp N1, học dạng Kanji ở N1",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0891,勤めます,KANJI_DEFERRED,3,high,"Có chữ 勤 cấp N3, học dạng Kanji ở N3",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0892,過ごします,KANJI_DEFERRED,3,high,"Có chữ 過 cấp N3, học dạng Kanji ở N3",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0893,寄ります,KANJI_DEFERRED,3,high,"Có chữ 寄 cấp N3, học dạng Kanji ở N3",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0894,召し上がります,KANJI_DEFERRED,2,high,"Có chữ 召 cấp N2, học dạng Kanji ở N2",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0895,おっしゃいます,KANA_ONLY,,high,Từ không có Kanji,data,false
+n4-0896,なさいます,KANA_ONLY,,high,Từ không có Kanji,data,false
+n4-0897,ご覧になります,KANJI_DEFERRED,1,high,"Có chữ 覧 cấp N1, học dạng Kanji ở N1",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0898,ご存じです,KANJI_CORE,4,medium,Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4,chủ dự án chọn cho cụm câu,false
+n4-0899,あいさつ,KANA_ONLY,,high,Từ không có Kanji,data,false
+n4-0900,灰皿,KANJI_DEFERRED,2,high,"Có chữ 灰皿 cấp N2, học dạng Kanji ở N2",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0901,旅館,KANJI_CORE,4,high,Mọi chữ thuộc N4 hoặc dễ hơn,JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0902,会場,KANJI_CORE,4,high,Mọi chữ thuộc N4 hoặc dễ hơn,JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0903,バス停,KANJI_DEFERRED,2,high,"Có chữ 停 cấp N2, học dạng Kanji ở N2",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0904,貿易,KANJI_DEFERRED,2,high,"Có chữ 貿 cấp N2, học dạng Kanji ở N2",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0905,様,KANJI_DEFERRED,3,high,"Có chữ 様 cấp N3, học dạng Kanji ở N3",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0906,帰りに,KANJI_CORE,4,medium,Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4,chủ dự án chọn cho cụm câu,false
+n4-0907,たまに,KANA_ONLY,,high,Từ không có Kanji,data,false
+n4-0908,ちっとも,KANA_ONLY,,high,Từ không có Kanji,data,false
+n4-0909,遠慮なく,KANJI_DEFERRED,1,high,"Có chữ 慮 cấp N1, học dạng Kanji ở N1",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0910,組,KANJI_DEFERRED,3,high,"Có chữ 組 cấp N3, học dạng Kanji ở N3",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0911,熱を出します,KANJI_CORE,4,medium,Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4,chủ dự án chọn cho cụm câu,false
+n4-0912,よろしくお伝えください,KANJI_CORE,4,medium,Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4,chủ dự án chọn cho cụm câu,false
+n4-0913,失礼いたします,KANJI_CORE,4,medium,Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4,chủ dự án chọn cho cụm câu,false
+n4-0914,講師,KANJI_DEFERRED,2,high,"Có chữ 講 cấp N2, học dạng Kanji ở N2",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0915,多くの,KANJI_CORE,4,medium,Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4,chủ dự án chọn cho cụm câu,false
+n4-0916,作品,KANJI_CORE,4,high,Mọi chữ thuộc N4 hoặc dễ hơn,JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0917,受賞します,KANJI_DEFERRED,2,high,"Có chữ 賞 cấp N2, học dạng Kanji ở N2",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0918,世界的に,KANJI_CORE,4,medium,Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4,chủ dự án chọn cho cụm câu,false
+n4-0919,作家,KANJI_CORE,4,high,Mọi chữ thuộc N4 hoặc dễ hơn,JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0920,でいらっしゃいます,KANA_ONLY,,high,Từ không có Kanji,data,false
+n4-0921,長男,KANJI_CORE,4,high,Mọi chữ thuộc N4 hoặc dễ hơn,JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0922,障害,KANJI_DEFERRED,1,high,"Có chữ 障 cấp N1, học dạng Kanji ở N1",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0923,お持ちです,KANJI_CORE,4,medium,Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4,chủ dự án chọn cho cụm câu,false
+n4-0924,作曲,KANJI_DEFERRED,3,high,"Có chữ 曲 cấp N3, học dạng Kanji ở N3",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0925,活動,KANJI_DEFERRED,3,high,"Có chữ 活 cấp N3, học dạng Kanji ở N3",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0926,それでは,KANA_ONLY,,high,Từ không có Kanji,data,false
+n4-0927,参ります,KANJI_DEFERRED,3,medium,"Có chữ 参 cấp N3, học dạng Kanji ở N3; JMdict ghi thường viết bằng Kana",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0928,おります,KANA_ONLY,,high,Từ không có Kanji,data,false
+n4-0929,申します,KANJI_DEFERRED,3,high,"Có chữ 申 cấp N3, học dạng Kanji ở N3",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0930,いたします,KANA_ONLY,,high,Từ không có Kanji,data,false
+n4-0931,拝見します,KANJI_DEFERRED,2,high,"Có chữ 拝 cấp N2, học dạng Kanji ở N2",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0932,存じます,KANJI_DEFERRED,3,high,"Có chữ 存 cấp N3, học dạng Kanji ở N3",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0933,お目にかかります,KANJI_CORE,4,high,Mọi chữ thuộc N4 hoặc dễ hơn,JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0934,ございます,KANA_ONLY,,high,Từ không có Kanji,data,false
+n4-0935,私,KANJI_CORE,4,high,Mọi chữ thuộc N4 hoặc dễ hơn,JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0936,ガイド,KANA_ONLY,,high,Từ không có Kanji,data,false
+n4-0937,お宅,KANJI_DEFERRED,3,high,"Có chữ 宅 cấp N3, học dạng Kanji ở N3",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0938,郊外,KANJI_DEFERRED,2,high,"Có chữ 郊 cấp N2, học dạng Kanji ở N2",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0939,アルバム,KANA_ONLY,,high,Từ không có Kanji,data,false
+n4-0940,さ来週,KANJI_CORE,4,medium,Mọi chữ thuộc N4 hoặc dễ hơn; JMdict ghi cách viết là sK,JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0941,さ来月,KANJI_CORE,4,medium,Mọi chữ thuộc N4 hoặc dễ hơn; JMdict ghi cách viết là sK,JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0942,さ来年,KANJI_CORE,4,medium,Mọi chữ thuộc N4 hoặc dễ hơn; JMdict ghi cách viết là sK,JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0943,半年,KANJI_CORE,4,high,Mọi chữ thuộc N4 hoặc dễ hơn,JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0944,最初に,KANJI_CORE,4,medium,Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4,chủ dự án chọn cho cụm câu,false
+n4-0945,最後に,KANJI_CORE,4,medium,Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4,chủ dự án chọn cho cụm câu,false
+n4-0946,ただ今,KANJI_CORE,4,medium,Mọi chữ thuộc N4 hoặc dễ hơn; JMdict ghi thường viết bằng Kana,JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0947,緊張します,KANJI_DEFERRED,1,high,"Có chữ 緊張 cấp N1, học dạng Kanji ở N1",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0948,放送します,KANJI_DEFERRED,3,high,"Có chữ 放 cấp N3, học dạng Kanji ở N3",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0949,賞金,KANJI_DEFERRED,2,high,"Có chữ 賞 cấp N2, học dạng Kanji ở N2",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0950,きりん,KANA_ONLY,,high,Từ không có Kanji,data,false
+n4-0951,象,KANJI_DEFERRED,2,high,"Có chữ 象 cấp N2, học dạng Kanji ở N2",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0952,ころ,KANA_ONLY,,high,Từ không có Kanji,data,false
+n4-0953,かないます,KANA_ONLY,,high,Từ không có Kanji,data,false
+n4-0954,ひとことよろしいでしょうか,KANA_ONLY,,high,Từ không có Kanji,data,false
+n4-0955,協力します,KANJI_DEFERRED,2,high,"Có chữ 協 cấp N2, học dạng Kanji ở N2",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0956,心から,KANJI_CORE,4,high,Mọi chữ thuộc N4 hoặc dễ hơn,JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0957,感謝します,KANJI_DEFERRED,1,high,"Có chữ 謝 cấp N1, học dạng Kanji ở N1",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0958,お礼,KANJI_DEFERRED,3,high,"Có chữ 礼 cấp N3, học dạng Kanji ở N3",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0959,拝啓,KANJI_DEFERRED,1,high,"Có chữ 啓 cấp N1, học dạng Kanji ở N1",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0960,お元気でいらっしゃいますか,KANJI_CORE,4,medium,Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4,chủ dự án chọn cho cụm câu,false
+n4-0961,迷惑をかけます,KANJI_DEFERRED,1,high,"Có chữ 惑 cấp N1, học dạng Kanji ở N1",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0962,生かします,KANJI_CORE,4,high,Mọi chữ thuộc N4 hoặc dễ hơn,JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0963,お城,KANJI_DEFERRED,2,high,"Có chữ 城 cấp N2, học dạng Kanji ở N2",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0964,敬具,KANJI_DEFERRED,2,high,"Có chữ 敬 cấp N2, học dạng Kanji ở N2",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
+n4-0965,ミュンヘン,KANA_ONLY,,high,Từ không có Kanji,data,false

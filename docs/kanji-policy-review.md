@@ -8,12 +8,12 @@ Nguồn: JMdict (EDRDG, CC BY-SA 4.0) để biết từ thường viết bằng 
 
 | Nhãn | Ý nghĩa | Từ N5 | Từ N4 |
 | --- | --- | --- | --- |
-| KANA_ONLY | Không có Kanji | 357 | 231 |
-| KANJI_CORE | Học dạng Kanji ở cấp của từ | 240 | 215 |
-| KANJI_DEFERRED | Học dạng Kanji ở cấp sau | 385 | 444 |
+| KANA_ONLY | Không có Kanji | 357 | 248 |
+| KANJI_CORE | Học dạng Kanji ở cấp của từ | 240 | 240 |
+| KANJI_DEFERRED | Học dạng Kanji ở cấp sau | 385 | 477 |
 | KANJI_OPTIONAL | Thường viết Kana, chỉ học khi bấm "Học dạng Kanji" | 0 | 0 |
 
-Đã duyệt (locked): 3/1872.
+Đã duyệt (locked): 3/1947.
 
 ## 2. Đã duyệt nhưng đề xuất mới khác
 
@@ -111,6 +111,22 @@ Không có.
 | n4-0833 | どちら様でしょうか | どちらさまでしょうか | vị nào đấy ạ | N4 | KANJI_CORE | N4 | Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4 |
 | n4-0878 | お忙しいですか | おいそがしいですか | anh/chị đang bận phải không | N4 | KANJI_CORE | N4 | Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4 |
 | n4-0885 | 代わりをします | かわりをします | thay thế | N4 | KANJI_CORE | N4 | Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4 |
+| n4-0898 | ご存じです | ごぞんじです | biết (tôn kính ngữ) | N4 | KANJI_CORE | N4 | Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4 |
+| n4-0906 | 帰りに | かえりに | trên đường về | N4 | KANJI_CORE | N4 | Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4 |
+| n4-0911 | 熱を出します | ねつをだします | bị sốt | N4 | KANJI_CORE | N4 | Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4 |
+| n4-0912 | よろしくお伝えください | よろしくおつたえください | cho tôi gửi lời hỏi thăm | N4 | KANJI_CORE | N4 | Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4 |
+| n4-0913 | 失礼いたします | しつれいいたします | tôi xin phép (khiêm nhường) | N4 | KANJI_CORE | N4 | Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4 |
+| n4-0915 | 多くの | おおくの | nhiều | N4 | KANJI_CORE | N4 | Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4 |
+| n4-0918 | 世界的に | せかいてきに | trên toàn thế giới; ở tầm thế giới | N4 | KANJI_CORE | N4 | Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4 |
+| n4-0923 | お持ちです | おもちです | có (tôn kính ngữ) | N4 | KANJI_CORE | N4 | Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4 |
+| n4-0927 | 参ります | まいります | đi; đến (khiêm nhường ngữ) | N4 | KANJI_DEFERRED | N3 | Có chữ 参 cấp N3, học dạng Kanji ở N3; JMdict ghi thường viết bằng Kana |
+| n4-0940 | さ来週 | さらいしゅう | tuần sau nữa | N4 | KANJI_CORE | N4 | Mọi chữ thuộc N4 hoặc dễ hơn; JMdict ghi cách viết là sK |
+| n4-0941 | さ来月 | さらいげつ | tháng sau nữa | N4 | KANJI_CORE | N4 | Mọi chữ thuộc N4 hoặc dễ hơn; JMdict ghi cách viết là sK |
+| n4-0942 | さ来年 | さらいねん | năm sau nữa | N4 | KANJI_CORE | N4 | Mọi chữ thuộc N4 hoặc dễ hơn; JMdict ghi cách viết là sK |
+| n4-0944 | 最初に | さいしょに | trước hết; đầu tiên | N4 | KANJI_CORE | N4 | Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4 |
+| n4-0945 | 最後に | さいごに | cuối cùng | N4 | KANJI_CORE | N4 | Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4 |
+| n4-0946 | ただ今 | ただいま | bây giờ; ngay lúc này (trang trọng) | N4 | KANJI_CORE | N4 | Mọi chữ thuộc N4 hoặc dễ hơn; JMdict ghi thường viết bằng Kana |
+| n4-0960 | お元気でいらっしゃいますか | おげんきでいらっしゃいますか | ngài có khỏe không ạ | N4 | KANJI_CORE | N4 | Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N4 |
 
 ## 5. Học dạng Kanji ở cấp sau (KANJI_DEFERRED, độ tin cậy cao)
 
@@ -784,7 +800,7 @@ Không có.
 | n4-0571 | 号室 | ごうしつ | phòng số ~ | N4 | KANJI_DEFERRED | N3 | Có chữ 号 cấp N3, học dạng Kanji ở N3 |
 | n4-0572 | 汗 | あせ | mồ hôi | N4 | KANJI_DEFERRED | N2 | Có chữ 汗 cấp N2, học dạng Kanji ở N2 |
 | n4-0575 | 大勢 | おおぜい | nhiều người | N4 | KANJI_DEFERRED | N2 | Có chữ 勢 cấp N2, học dạng Kanji ở N2 |
-| n4-0577 | 伺います | うかがいます | tôi đến thăm | N4 | KANJI_DEFERRED | N2 | Có chữ 伺 cấp N2, học dạng Kanji ở N2 |
+| n4-0577 | 伺います | うかがいます | hỏi; nghe; đến thăm (khiêm nhường ngữ) | N4 | KANJI_DEFERRED | N2 | Có chữ 伺 cấp N2, học dạng Kanji ở N2 |
 | n4-0581 | 並びます | ならびます | xếp hàng | N4 | KANJI_DEFERRED | N2 | Có chữ 並 cấp N2, học dạng Kanji ở N2 |
 | n4-0584 | 西洋化します | せいようかします | tây âu hóa | N4 | KANJI_DEFERRED | N3 | Có chữ 化 cấp N3, học dạng Kanji ở N3 |
 | n4-0585 | 合います | あいます | vừa; hợp | N4 | KANJI_DEFERRED | N3 | Có chữ 合 cấp N3, học dạng Kanji ở N3 |
@@ -937,3 +953,35 @@ Không có.
 | n4-0887 | 競走します | きょうそうします | chạy đua | N4 | KANJI_DEFERRED | N2 | Có chữ 競 cấp N2, học dạng Kanji ở N2 |
 | n4-0889 | 芸 | げい | trò diễn; tiết mục; tài năng | N4 | KANJI_DEFERRED | N2 | Có chữ 芸 cấp N2, học dạng Kanji ở N2 |
 | n4-0890 | 姿 | すがた | dáng hình; tư thế | N4 | KANJI_DEFERRED | N1 | Có chữ 姿 cấp N1, học dạng Kanji ở N1 |
+| n4-0891 | 勤めます | つとめます | làm việc (ở công ty) | N4 | KANJI_DEFERRED | N3 | Có chữ 勤 cấp N3, học dạng Kanji ở N3 |
+| n4-0892 | 過ごします | すごします | trải qua; sống (một khoảng thời gian) | N4 | KANJI_DEFERRED | N3 | Có chữ 過 cấp N3, học dạng Kanji ở N3 |
+| n4-0893 | 寄ります | よります | ghé qua; tạt vào | N4 | KANJI_DEFERRED | N3 | Có chữ 寄 cấp N3, học dạng Kanji ở N3 |
+| n4-0894 | 召し上がります | めしあがります | ăn; uống (tôn kính ngữ) | N4 | KANJI_DEFERRED | N2 | Có chữ 召 cấp N2, học dạng Kanji ở N2 |
+| n4-0897 | ご覧になります | ごらんになります | xem; nhìn (tôn kính ngữ) | N4 | KANJI_DEFERRED | N1 | Có chữ 覧 cấp N1, học dạng Kanji ở N1 |
+| n4-0900 | 灰皿 | はいざら | gạt tàn thuốc | N4 | KANJI_DEFERRED | N2 | Có chữ 灰皿 cấp N2, học dạng Kanji ở N2 |
+| n4-0903 | バス停 | バスてい | bến xe buýt | N4 | KANJI_DEFERRED | N2 | Có chữ 停 cấp N2, học dạng Kanji ở N2 |
+| n4-0904 | 貿易 | ぼうえき | thương mại; mậu dịch | N4 | KANJI_DEFERRED | N2 | Có chữ 貿 cấp N2, học dạng Kanji ở N2 |
+| n4-0905 | 様 | さま | ngài; quý (cách gọi kính trọng hơn さん) | N4 | KANJI_DEFERRED | N3 | Có chữ 様 cấp N3, học dạng Kanji ở N3 |
+| n4-0909 | 遠慮なく | えんりょなく | đừng ngại; cứ tự nhiên | N4 | KANJI_DEFERRED | N1 | Có chữ 慮 cấp N1, học dạng Kanji ở N1 |
+| n4-0910 | 組 | くみ | lớp (học) | N4 | KANJI_DEFERRED | N3 | Có chữ 組 cấp N3, học dạng Kanji ở N3 |
+| n4-0914 | 講師 | こうし | giảng viên | N4 | KANJI_DEFERRED | N2 | Có chữ 講 cấp N2, học dạng Kanji ở N2 |
+| n4-0917 | 受賞します | じゅしょうします | nhận giải thưởng | N4 | KANJI_DEFERRED | N2 | Có chữ 賞 cấp N2, học dạng Kanji ở N2 |
+| n4-0922 | 障害 | しょうがい | khuyết tật; trở ngại | N4 | KANJI_DEFERRED | N1 | Có chữ 障 cấp N1, học dạng Kanji ở N1 |
+| n4-0924 | 作曲 | さっきょく | sáng tác nhạc | N4 | KANJI_DEFERRED | N3 | Có chữ 曲 cấp N3, học dạng Kanji ở N3 |
+| n4-0925 | 活動 | かつどう | hoạt động | N4 | KANJI_DEFERRED | N3 | Có chữ 活 cấp N3, học dạng Kanji ở N3 |
+| n4-0929 | 申します | もうします | nói; xin tự giới thiệu là (khiêm nhường ngữ) | N4 | KANJI_DEFERRED | N3 | Có chữ 申 cấp N3, học dạng Kanji ở N3 |
+| n4-0931 | 拝見します | はいけんします | xem (khiêm nhường ngữ) | N4 | KANJI_DEFERRED | N2 | Có chữ 拝 cấp N2, học dạng Kanji ở N2 |
+| n4-0932 | 存じます | ぞんじます | biết (khiêm nhường ngữ) | N4 | KANJI_DEFERRED | N3 | Có chữ 存 cấp N3, học dạng Kanji ở N3 |
+| n4-0937 | お宅 | おたく | nhà của người khác (kính trọng) | N4 | KANJI_DEFERRED | N3 | Có chữ 宅 cấp N3, học dạng Kanji ở N3 |
+| n4-0938 | 郊外 | こうがい | ngoại ô | N4 | KANJI_DEFERRED | N2 | Có chữ 郊 cấp N2, học dạng Kanji ở N2 |
+| n4-0947 | 緊張します | きんちょうします | căng thẳng; hồi hộp | N4 | KANJI_DEFERRED | N1 | Có chữ 緊張 cấp N1, học dạng Kanji ở N1 |
+| n4-0948 | 放送します | ほうそうします | phát sóng | N4 | KANJI_DEFERRED | N3 | Có chữ 放 cấp N3, học dạng Kanji ở N3 |
+| n4-0949 | 賞金 | しょうきん | tiền thưởng | N4 | KANJI_DEFERRED | N2 | Có chữ 賞 cấp N2, học dạng Kanji ở N2 |
+| n4-0951 | 象 | ぞう | con voi | N4 | KANJI_DEFERRED | N2 | Có chữ 象 cấp N2, học dạng Kanji ở N2 |
+| n4-0955 | 協力します | きょうりょくします | hợp tác; giúp sức | N4 | KANJI_DEFERRED | N2 | Có chữ 協 cấp N2, học dạng Kanji ở N2 |
+| n4-0957 | 感謝します | かんしゃします | cảm ơn; biết ơn | N4 | KANJI_DEFERRED | N1 | Có chữ 謝 cấp N1, học dạng Kanji ở N1 |
+| n4-0958 | お礼 | おれい | lời cảm ơn; quà cảm ơn | N4 | KANJI_DEFERRED | N3 | Có chữ 礼 cấp N3, học dạng Kanji ở N3 |
+| n4-0959 | 拝啓 | はいけい | kính gửi (mở đầu thư) | N4 | KANJI_DEFERRED | N1 | Có chữ 啓 cấp N1, học dạng Kanji ở N1 |
+| n4-0961 | 迷惑をかけます | めいわくをかけます | làm phiền; gây phiền hà | N4 | KANJI_DEFERRED | N1 | Có chữ 惑 cấp N1, học dạng Kanji ở N1 |
+| n4-0963 | お城 | おしろ | lâu đài | N4 | KANJI_DEFERRED | N2 | Có chữ 城 cấp N2, học dạng Kanji ở N2 |
+| n4-0964 | 敬具 | けいぐ | kính thư (kết thư) | N4 | KANJI_DEFERRED | N2 | Có chữ 敬 cấp N2, học dạng Kanji ở N2 |

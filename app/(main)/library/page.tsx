@@ -9,7 +9,7 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
 
   return (
     <>
-      <PageHeader eyebrow="辞書" title="Library" description="Every word on your path, with your progress. N5 is lessons 1–25, N4 is lessons 26–48." />
+      <PageHeader eyebrow="辞書" title="Library" description="Every word on your path, with your progress. N5 is lessons 1–25, N4 is lessons 26–50." />
       <StarredWordsProvider ids={starredIds}>
         <LibraryBrowser vocabulary={vocabulary} kanji={kanji} initialTab={tab === 'kanji' ? 'kanji' : 'vocab'} />
       </StarredWordsProvider>

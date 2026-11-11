@@ -702,7 +702,7 @@ n5-0638,700,独身,どくしん,độc thân,dokushin,ĐỘC THÂN,false,5,,15
 n5-0639,701,特に,とくに,đặc biệt,tokuni,ĐẶC,false,5,,15
 n5-0640,702,思い出します,おもいだします,nhớ lại; hồi tưởng,omoidashimasu,TƯ XUẤT,false,5,,15
 n5-0641,703,ご家族,ごかぞく,gia đình (dùng cho người khác),gokazoku,GIA TỘC,false,5,,15
-n5-0642,704,いらっしゃいます,いらっしゃいます,thể kính trọng của 「います」,irasshaimasu,,true,5,,15
+n5-0642,704,いらっしゃいます,いらっしゃいます,ở; đi; đến (tôn kính ngữ),irasshaimasu,,true,5,,15
 n5-0643,705,高校,こうこう,trường trung học phổ thông,koukou,CAO HIỆU,false,5,,15
 n5-0644,706,乗ります,のります,đi; lên [tàu],norimasu,THỪA,false,5,,15
 n5-0645,707,降ります,おります,xuống [tàu],orimasu,GIÁNG,false,5,,15
@@ -1557,7 +1557,7 @@ n4-0573,1555,タオル,タオル,khăn lau; khăn tắm,taoru,,true,4,,39
 n4-0574,1556,せっけん,せっけん,xà phòng,sekken,,true,4,,39
 n4-0575,1557,大勢,おおぜい,nhiều người,oozei,ĐẠI THẾ,false,4,,39
 n4-0576,1558,お疲れさまでした,おつかれさまでした,chắc anh/chị đã mệt vì làm việc,otsukaresamadeshita,BÌ,false,4,,39
-n4-0577,1559,伺います,うかがいます,tôi đến thăm,ukagaimasu,TÝ,false,4,,39
+n4-0577,1559,伺います,うかがいます,hỏi; nghe; đến thăm (khiêm nhường ngữ),ukagaimasu,TÝ,false,4,,39
 n4-0578,1560,途中で,とちゅうで,giữa đường; giữa chừng,tochuude,ĐỒ TRUNG,false,4,,39
 n4-0579,1561,トラック,トラック,xe tải,torakku,,true,4,,39
 n4-0580,1562,ぶつかります,ぶつかります,đâm; va chạm,butsukarimasu,,true,4,,39
@@ -1871,3 +1871,78 @@ n4-0887,1869,競走します,きょうそうします,chạy đua,kyousoushimasu
 n4-0888,1870,サーカス,サーカス,xiếc,saakasu,,true,4,,48
 n4-0889,1871,芸,げい,trò diễn; tiết mục; tài năng,gei,NGHỆ,false,4,,48
 n4-0890,1872,姿,すがた,dáng hình; tư thế,sugata,TƯ,false,4,,48
+n4-0891,1873,勤めます,つとめます,làm việc (ở công ty),tsutomemasu,CẦN,false,4,,49
+n4-0892,1874,過ごします,すごします,trải qua; sống (một khoảng thời gian),sugoshimasu,QUÁ,false,4,,49
+n4-0893,1875,寄ります,よります,ghé qua; tạt vào,yorimasu,KÝ,false,4,,49
+n4-0894,1876,召し上がります,めしあがります,ăn; uống (tôn kính ngữ),meshiagarimasu,TRIỆU THƯỢNG,false,4,,49
+n4-0895,1877,おっしゃいます,おっしゃいます,nói (tôn kính ngữ),osshaimasu,,true,4,,49
+n4-0896,1878,なさいます,なさいます,làm (tôn kính ngữ),nasaimasu,,true,4,,49
+n4-0897,1879,ご覧になります,ごらんになります,xem; nhìn (tôn kính ngữ),goranninarimasu,LÃM,false,4,,49
+n4-0898,1880,ご存じです,ごぞんじです,biết (tôn kính ngữ),gozonjidesu,TỒN,false,4,,49
+n4-0899,1881,あいさつ,あいさつ,lời chào; bài phát biểu chào mừng,aisatsu,,true,4,,49
+n4-0900,1882,灰皿,はいざら,gạt tàn thuốc,haizara,KHÔI MÃNH,false,4,,49
+n4-0901,1883,旅館,りょかん,nhà trọ kiểu Nhật,ryokan,LỮ QUÁN,false,4,,49
+n4-0902,1884,会場,かいじょう,hội trường; nơi tổ chức,kaijou,HỘI TRƯỜNG,false,4,,49
+n4-0903,1885,バス停,バスてい,bến xe buýt,basutei,ĐÌNH,false,4,,49
+n4-0904,1886,貿易,ぼうえき,thương mại; mậu dịch,boueki,MẬU DỊCH,false,4,,49
+n4-0905,1887,様,さま,ngài; quý (cách gọi kính trọng hơn さん),sama,DẠNG,false,4,,49
+n4-0906,1888,帰りに,かえりに,trên đường về,kaerini,QUY,false,4,,49
+n4-0907,1889,たまに,たまに,thỉnh thoảng,tamani,,true,4,,49
+n4-0908,1890,ちっとも,ちっとも,chẳng ... chút nào (đi với phủ định),chittomo,,true,4,,49
+n4-0909,1891,遠慮なく,えんりょなく,đừng ngại; cứ tự nhiên,enryonaku,VIỄN LỰ,false,4,,49
+n4-0910,1892,組,くみ,lớp (học),kumi,TỔ,false,4,,49
+n4-0911,1893,熱を出します,ねつをだします,bị sốt,netsuwodashimasu,NHIỆT XUẤT,false,4,,49
+n4-0912,1894,よろしくお伝えください,よろしくおつたえください,cho tôi gửi lời hỏi thăm,yoroshikuotsutaekudasai,TRUYỆN,false,4,,49
+n4-0913,1895,失礼いたします,しつれいいたします,tôi xin phép (khiêm nhường),shitsureiitashimasu,THẤT LỄ,false,4,,49
+n4-0914,1896,講師,こうし,giảng viên,koushi,GIẢNG SƯ,false,4,,49
+n4-0915,1897,多くの,おおくの,nhiều,ookuno,ĐA,false,4,,49
+n4-0916,1898,作品,さくひん,tác phẩm,sakuhin,TÁC PHẨM,false,4,,49
+n4-0917,1899,受賞します,じゅしょうします,nhận giải thưởng,jushoushimasu,THỤ THƯỞNG,false,4,,49
+n4-0918,1900,世界的に,せかいてきに,trên toàn thế giới; ở tầm thế giới,sekaitekini,THẾ GIỚI ĐÍCH,false,4,,49
+n4-0919,1901,作家,さっか,nhà văn,sakka,TÁC GIA,false,4,,49
+n4-0920,1902,でいらっしゃいます,でいらっしゃいます,là (tôn kính ngữ của です),deirasshaimasu,,true,4,,49
+n4-0921,1903,長男,ちょうなん,con trai cả,chounan,TRƯỜNG NAM,false,4,,49
+n4-0922,1904,障害,しょうがい,khuyết tật; trở ngại,shougai,CHƯỚNG HẠI,false,4,,49
+n4-0923,1905,お持ちです,おもちです,có (tôn kính ngữ),omochidesu,TRÌ,false,4,,49
+n4-0924,1906,作曲,さっきょく,sáng tác nhạc,sakkyoku,TÁC KHÚC,false,4,,49
+n4-0925,1907,活動,かつどう,hoạt động,katsudou,HOẠT ĐỘNG,false,4,,49
+n4-0926,1908,それでは,それでは,vậy thì; sau đây,soredeha,,true,4,,49
+n4-0927,1909,参ります,まいります,đi; đến (khiêm nhường ngữ),mairimasu,THAM,false,4,,50
+n4-0928,1910,おります,おります,ở; có mặt (khiêm nhường ngữ),orimasu,,true,4,,50
+n4-0929,1911,申します,もうします,nói; xin tự giới thiệu là (khiêm nhường ngữ),moushimasu,THÂN,false,4,,50
+n4-0930,1912,いたします,いたします,làm (khiêm nhường ngữ),itashimasu,,true,4,,50
+n4-0931,1913,拝見します,はいけんします,xem (khiêm nhường ngữ),haikenshimasu,BÁI KIẾN,false,4,,50
+n4-0932,1914,存じます,ぞんじます,biết (khiêm nhường ngữ),zonjimasu,TỒN,false,4,,50
+n4-0933,1915,お目にかかります,おめにかかります,gặp (khiêm nhường ngữ),omenikakarimasu,MỤC,false,4,,50
+n4-0934,1916,ございます,ございます,có (cách nói lịch sự của あります),gozaimasu,,true,4,,50
+n4-0935,1917,私,わたくし,tôi (cách nói trang trọng),watakushi,TƯ,false,4,,50
+n4-0936,1918,ガイド,ガイド,hướng dẫn viên,gaido,,true,4,,50
+n4-0937,1919,お宅,おたく,nhà của người khác (kính trọng),otaku,TRẠCH,false,4,,50
+n4-0938,1920,郊外,こうがい,ngoại ô,kougai,GIAO NGOẠI,false,4,,50
+n4-0939,1921,アルバム,アルバム,album ảnh,arubamu,,true,4,,50
+n4-0940,1922,さ来週,さらいしゅう,tuần sau nữa,saraishuu,LAI CHU,false,4,,50
+n4-0941,1923,さ来月,さらいげつ,tháng sau nữa,saraigetsu,LAI NGUYỆT,false,4,,50
+n4-0942,1924,さ来年,さらいねん,năm sau nữa,sarainen,LAI NIÊN,false,4,,50
+n4-0943,1925,半年,はんとし,nửa năm,hantoshi,BÁN NIÊN,false,4,,50
+n4-0944,1926,最初に,さいしょに,trước hết; đầu tiên,saishoni,TỐI SƠ,false,4,,50
+n4-0945,1927,最後に,さいごに,cuối cùng,saigoni,TỐI HẬU,false,4,,50
+n4-0946,1928,ただ今,ただいま,bây giờ; ngay lúc này (trang trọng),tadaima,KIM,false,4,,50
+n4-0947,1929,緊張します,きんちょうします,căng thẳng; hồi hộp,kinchoushimasu,KHẨN TRƯƠNG,false,4,,50
+n4-0948,1930,放送します,ほうそうします,phát sóng,housoushimasu,PHÓNG TỐNG,false,4,,50
+n4-0949,1931,賞金,しょうきん,tiền thưởng,shoukin,THƯỞNG KIM,false,4,,50
+n4-0950,1932,きりん,きりん,hươu cao cổ,kirin,,true,4,,50
+n4-0951,1933,象,ぞう,con voi,zou,TƯỢNG,false,4,,50
+n4-0952,1934,ころ,ころ,hồi; thời; khoảng (thời gian),koro,,true,4,,50
+n4-0953,1935,かないます,かないます,thành hiện thực (ước mơ),kanaimasu,,true,4,,50
+n4-0954,1936,ひとことよろしいでしょうか,ひとことよろしいでしょうか,cho phép tôi nói đôi lời được không ạ,hitokotoyoroshiideshouka,,true,4,,50
+n4-0955,1937,協力します,きょうりょくします,hợp tác; giúp sức,kyouryokushimasu,HIỆP LỰC,false,4,,50
+n4-0956,1938,心から,こころから,từ đáy lòng,kokorokara,TÂM,false,4,,50
+n4-0957,1939,感謝します,かんしゃします,cảm ơn; biết ơn,kanshashimasu,CẢM TẠ,false,4,,50
+n4-0958,1940,お礼,おれい,lời cảm ơn; quà cảm ơn,orei,LỄ,false,4,,50
+n4-0959,1941,拝啓,はいけい,kính gửi (mở đầu thư),haikei,BÁI KHẢI,false,4,,50
+n4-0960,1942,お元気でいらっしゃいますか,おげんきでいらっしゃいますか,ngài có khỏe không ạ,ogenkideirasshaimasuka,NGUYÊN KHÍ,false,4,,50
+n4-0961,1943,迷惑をかけます,めいわくをかけます,làm phiền; gây phiền hà,meiwakuwokakemasu,MÊ HOẶC,false,4,,50
+n4-0962,1944,生かします,いかします,tận dụng; phát huy,ikashimasu,SINH,false,4,,50
+n4-0963,1945,お城,おしろ,lâu đài,oshiro,THÀNH,false,4,,50
+n4-0964,1946,敬具,けいぐ,kính thư (kết thư),keigu,KÍNH CỤ,false,4,,50
+n4-0965,1947,ミュンヘン,ミュンヘン,Munich (thành phố ở Đức),myunhen,,true,4,,50

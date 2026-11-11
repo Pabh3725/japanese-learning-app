@@ -38,6 +38,7 @@ a,b,score,explanation,approved
 話,語,0.943,"話 (THOẠI, câu chuyện) và 語 (NGỮ, ngôn ngữ; lời nói). 話 có 13 nét, 語 có 14 nét. Khác ở thành phần: 話 có 舌, 語 có 吾.",true
 遅,過,0.943,"遅 (TRÌ, muộn; chậm) và 過 (QUÁ, quá). Cả hai đều 12 nét. Khác ở thành phần: 遅 có 尸, 羊, 過 có 咼.",true
 屋,里,0.942,"屋 (ỐC, nhà; cửa hàng) và 里 (LÝ, làng; dặm). 屋 có 9 nét, 里 có 7 nét. Khác ở thành phần: 屋 có 尸, 至, 里 có 日.",false
+速,迷,0.942,"速 (TỐC, nhanh) và 迷 (MÊ, lạc; phân vân). 速 có 10 nét, 迷 có 9 nét. Khác ở thành phần: 速 có 束, 迷 có 米.",false
 速,連,0.942,"速 (TỐC, nhanh) và 連 (LIÊN, dẫn theo; liên tiếp). Cả hai đều 10 nét. Khác ở thành phần: 速 có 束, 連 có 車.",true
 速,過,0.942,"速 (TỐC, nhanh) và 過 (QUÁ, quá). 速 có 10 nét, 過 có 12 nét. Khác ở thành phần: 速 có 束, 過 có 咼.",false
 通,道,0.941,"通 (THÔNG, đi qua; thông) và 道 (ĐẠO, con đường). 通 có 10 nét, 道 có 12 nét. Khác ở thành phần: 通 có 甬, 道 có 首.",false
@@ -96,6 +97,7 @@ a,b,score,explanation,approved
 簡,憩,0.922,"簡 (GIẢN, giản đơn) và 憩 (KHẾ, nghỉ ngơi). 簡 có 18 nét, 憩 có 16 nét. Khác ở thành phần: 簡 có 竹, 間, 憩 có 舌, 息.",false
 温,脳,0.922,"温 (ÔN, ấm) và 脳 (NÃO, não). 温 có 12 nét, 脳 có 11 nét. Khác ở thành phần: 温 có 氵, 昷, 脳 có 月, ⺍, 凶.",true
 軽,経,0.922,"軽 (KHINH, nhẹ) và 経 (KINH, trải qua; kinh). 軽 có 12 nét, 経 có 11 nét. Khác ở thành phần: 軽 có 車, 経 có 糸.",true
+質,賞,0.922,"質 (CHẤT, chất) và 賞 (THƯỞNG, giải thưởng; khen). Cả hai đều 15 nét. Khác ở thành phần: 質 có 斤, 斤, 賞 có 尚.",false
 持,待,0.921,"持 (TRÌ, cầm; mang; có) và 待 (ĐÃI, chờ đợi). Cả hai đều 9 nét. Khác ở thành phần: 持 có 扌, 待 có 彳.",true
 校,械,0.921,"校 (HIỆU, trường học) và 械 (GIỚI, máy móc). 校 có 10 nét, 械 có 11 nét. Khác ở thành phần: 校 có 交, 械 có 戒.",true
 速,退,0.921,"速 (TỐC, nhanh) và 退 (THOÁI, rút lui). 速 có 10 nét, 退 có 9 nét. Khác ở thành phần: 速 có 束, 退 có 艮.",true
@@ -118,6 +120,7 @@ a,b,score,explanation,approved
 静,傷,0.917,"静 (TĨNH, yên tĩnh) và 傷 (THƯƠNG, vết thương). 静 có 14 nét, 傷 có 13 nét. Khác ở thành phần: 静 có 青, 争, 傷 có 亻, 𬀷.",true
 空,宝,0.917,"空 (KHÔNG, bầu trời) và 宝 (BẢO, báu vật). Cả hai đều 8 nét. Khác ở thành phần: 空 có 穴, 工, 宝 có 宀, 玉.",true
 袋,載,0.917,"袋 (ĐẠI, túi) và 載 (TẢI, chất lên). 袋 có 11 nét, 載 có 13 nét. Khác ở thành phần: 袋 có 代, 衣, 載 có 𢦏, 車.",false
+賃,賞,0.917,"賃 (NHẪM, tiền thuê; tiền công) và 賞 (THƯỞNG, giải thưởng; khen). 賃 có 13 nét, 賞 có 15 nét. Khác ở thành phần: 賃 có 任, 賞 có 尚.",false
 願,騒,0.917,"願 (NGUYỆN, mong muốn) và 騒 (TAO, ồn ào). 願 có 19 nét, 騒 có 18 nét. Khác ở thành phần: 願 có 原, 頁, 騒 có 馬, 又, 虫.",true
 棚,側,0.916,"棚 (BẰNG, cái kệ) và 側 (TRẮC, bên, phía). 棚 có 12 nét, 側 có 11 nét. Khác ở thành phần: 棚 có 木, 朋, 側 có 亻, 則.",true
 要,姿,0.916,"要 (YẾU, cần; quan trọng) và 姿 (TƯ, dáng hình). Cả hai đều 9 nét. Khác ở thành phần: 要 có 覀, 姿 có 次.",true
@@ -127,6 +130,7 @@ a,b,score,explanation,approved
 禁,陽,0.916,"禁 (CẤM, cấm) và 陽 (DƯƠNG, mặt trời). 禁 có 13 nét, 陽 có 12 nét. Khác ở thành phần: 禁 có 林, 示, 陽 có ⻖, 昜.",true
 箱,績,0.916,"箱 (TƯƠNG, cái hộp) và 績 (TÍCH, thành tích). 箱 có 15 nét, 績 có 17 nét. Khác ở thành phần: 箱 có 竹, 相, 績 có 糸, 責.",false
 庭,恋,0.915,"庭 (ĐÌNH, sân; vườn) và 恋 (LUYẾN, yêu). Cả hai đều 10 nét. Khác ở thành phần: 庭 có 广, 廷, 恋 có 亦, 心.",true
+週,迷,0.915,"週 (CHU, tuần) và 迷 (MÊ, lạc; phân vân). 週 có 11 nét, 迷 có 9 nét. Khác ở thành phần: 週 có 周, 迷 có 米.",false
 閉,問,0.914,"閉 (BẾ, đóng) và 問 (VẤN, hỏi; vấn đề). Cả hai đều 11 nét. Khác ở thành phần: 閉 có 才, 問 có 口.",true
 失,夫,0.914,"失 (THẤT, mất; đánh mất) và 夫 (PHU, chồng). 失 có 5 nét, 夫 có 4 nét. Khác ở thành phần: 失 có 丿, 夫, 夫 có 大.",true
 池,泊,0.914,"池 (TRÌ, cái ao) và 泊 (BẠC, ngủ trọ). 池 có 6 nét, 泊 có 8 nét. Khác ở thành phần: 池 có 也, 泊 có 白.",false
@@ -138,6 +142,8 @@ a,b,score,explanation,approved
 械,栓,0.913,"械 (GIỚI, máy móc) và 栓 (XUYÊN, nút chai). 械 có 11 nét, 栓 có 10 nét. Khác ở thành phần: 械 có 戒, 栓 có 全.",true
 隣,誘,0.913,"隣 (LÂN, bên cạnh) và 誘 (DỤ, mời, rủ). 隣 có 16 nét, 誘 có 14 nét. Khác ở thành phần: 隣 có ⻖, 粦, 誘 có 言, 秀.",false
 返,退,0.913,"返 (PHẢN, trả lại) và 退 (THOÁI, rút lui). 返 có 7 nét, 退 có 9 nét. Khác ở thành phần: 返 có 反, 退 có 艮.",false
+連,迷,0.913,"連 (LIÊN, dẫn theo; liên tiếp) và 迷 (MÊ, lạc; phân vân). 連 có 10 nét, 迷 có 9 nét. Khác ở thành phần: 連 có 車, 迷 có 米.",false
+部,郊,0.913,"部 (BỘ, bộ phận; phần) và 郊 (GIAO, ngoại ô). 部 có 11 nét, 郊 có 9 nét. Khác ở thành phần: 部 có 咅, 郊 có 交.",false
 雨,医,0.912,"雨 (VŨ, mưa) và 医 (Y, y; chữa bệnh). 雨 có 8 nét, 医 có 7 nét. 医 có thêm 匸, 矢.",true
 手,牛,0.912,"手 (THỦ, tay) và 牛 (NGƯU, bò). Cả hai đều 4 nét. Nhìn kỹ số nét và độ dài các nét.",true
 機,撲,0.912,"機 (CƠ, máy; cơ hội) và 撲 (PHÁC, đánh). 機 có 16 nét, 撲 có 15 nét. Khác ở thành phần: 機 có 木, 幾, 撲 có 扌, 菐.",true
@@ -175,6 +181,7 @@ a,b,score,explanation,approved
 棚,植,0.907,"棚 (BẰNG, cái kệ) và 植 (THỰC, trồng). Cả hai đều 12 nét. Khác ở thành phần: 棚 có 朋, 植 có 直.",true
 猫,棚,0.907,"猫 (MIÊU, con mèo) và 棚 (BẰNG, cái kệ). 猫 có 11 nét, 棚 có 12 nét. Khác ở thành phần: 猫 có ⺨, 苗, 棚 có 木, 朋.",true
 賑,煙,0.907,"賑 (CHẨN, náo nhiệt) và 煙 (YÊN, khói). 賑 có 14 nét, 煙 có 13 nét. Khác ở thành phần: 賑 có 貝, 辰, 煙 có 火, 垔.",true
+送,退,0.907,"送 (TỐNG, gửi; tiễn) và 退 (THOÁI, rút lui). Cả hai đều 9 nét. Khác ở thành phần: 送 có 关, 退 có 艮.",false
 送,逃,0.907,"送 (TỐNG, gửi; tiễn) và 逃 (ĐÀO, chạy trốn). Cả hai đều 9 nét. Khác ở thành phần: 送 có 关, 逃 có 兆.",true
 顔,頼,0.907,"顔 (NHAN, khuôn mặt) và 頼 (LẠI, nhờ). 顔 có 18 nét, 頼 có 16 nét. Khác ở thành phần: 顔 có 彦, 頼 có 束.",false
 厚,岸,0.906,"厚 (HẬU, dày) và 岸 (NGẠN, bờ). 厚 có 9 nét, 岸 có 8 nét. Khác ở thành phần: 厚 có 日, 子, 岸 có 山, 干.",true
@@ -216,6 +223,7 @@ a,b,score,explanation,approved
 低,係,0.902,"低 (ĐÊ, thấp) và 係 (HỆ, liên quan). 低 có 7 nét, 係 có 9 nét. Khác ở thành phần: 低 có 氏, 一, 係 có 系.",false
 備,袋,0.902,"備 (BỊ, chuẩn bị; trang bị) và 袋 (ĐẠI, túi). 備 có 12 nét, 袋 có 11 nét. Khác ở thành phần: 備 có 亻, 艹, 厂, 用, 袋 có 代, 衣.",true
 閉,則,0.902,"閉 (BẾ, đóng) và 則 (TẮC, quy tắc). 閉 có 11 nét, 則 có 9 nét. Khác ở thành phần: 閉 có 門, 才, 則 có 貝, 刂.",false
+番,害,0.902,"番 (PHIÊN, số; lượt) và 害 (HẠI, có hại; thiệt hại). 番 có 12 nét, 害 có 10 nét. Khác ở thành phần: 番 có 釆, 田, 害 có 宀, 龶, 口.",false
 残,張,0.902,"残 (TÀN, còn lại; tàn) và 張 (TRƯƠNG, căng; kéo). 残 có 10 nét, 張 có 11 nét. Khác ở thành phần: 残 có 歹, 戋, 張 có 弓, 長.",true
 浴,彫,0.902,"浴 (DỤC, tắm) và 彫 (ĐIÊU, khắc). 浴 có 10 nét, 彫 có 11 nét. Khác ở thành phần: 浴 có 氵, 谷, 彫 có 周, 彡.",true
 酒,彫,0.902,"酒 (TỬU, rượu) và 彫 (ĐIÊU, khắc). 酒 có 10 nét, 彫 có 11 nét. Khác ở thành phần: 酒 có 氵, 酉, 彫 có 周, 彡.",true
@@ -265,6 +273,7 @@ a,b,score,explanation,approved
 嫌,際,0.898,"嫌 (HIỀM, ghét) và 際 (TẾ, lúc; ranh giới). 嫌 có 13 nét, 際 có 14 nét. Khác ở thành phần: 嫌 có 女, 兼, 際 có ⻖, 祭.",true
 特,待,0.898,"特 (ĐẶC, đặc biệt) và 待 (ĐÃI, chờ đợi). 特 có 10 nét, 待 có 9 nét. Khác ở thành phần: 特 có 牛, 待 có 彳.",true
 歯,意,0.898,"歯 (XỈ, răng) và 意 (Ý, ý; ý nghĩa). 歯 có 12 nét, 意 có 13 nét. Khác ở thành phần: 歯 có 止, 米, 凵, 意 có 音, 心.",true
+漫,緊,0.898,"漫 (MẠN, tràn, truyện tranh) và 緊 (KHẨN, căng; khẩn cấp). 漫 có 14 nét, 緊 có 15 nét. Khác ở thành phần: 漫 có 氵, 曼, 緊 có 臣, 又, 糸.",false
 船,無,0.898,"船 (THUYỀN, thuyền; tàu) và 無 (VÔ, không có). 船 có 11 nét, 無 có 12 nét. Khác ở thành phần: 船 có 舟, 㕣, 無 có 丿, 一, 灬.",true
 煙,頑,0.898,"煙 (YÊN, khói) và 頑 (NGOAN, cứng đầu; kiên cường). Cả hai đều 13 nét. Khác ở thành phần: 煙 có 火, 垔, 頑 có 元, 頁.",true
 理,眼,0.898,"理 (LÝ, lý; lý lẽ) và 眼 (NHÃN, mắt). Cả hai đều 11 nét. Khác ở thành phần: 理 có 王, 里, 眼 có 目, 艮.",true
@@ -278,6 +287,7 @@ a,b,score,explanation,approved
 銀,短,0.897,"銀 (NGÂN, bạc) và 短 (ĐOẢN, ngắn). 銀 có 14 nét, 短 có 12 nét. Khác ở thành phần: 銀 có 金, 艮, 短 có 矢, 豆.",false
 鏡,競,0.897,"鏡 (KÍNH, cái gương) và 競 (CẠNH, cạnh tranh). 鏡 có 19 nét, 競 có 20 nét. Khác ở thành phần: 鏡 có 金, 竟, 競 có 立, 兄, 立, 兄.",true
 賃,賛,0.897,"賃 (NHẪM, tiền thuê; tiền công) và 賛 (TÁN, tán thành). 賃 có 13 nét, 賛 có 15 nét. Khác ở thành phần: 賃 có 任, 賛 có 夫, 夫.",false
+賛,賞,0.897,"賛 (TÁN, tán thành) và 賞 (THƯỞNG, giải thưởng; khen). Cả hai đều 15 nét. Khác ở thành phần: 賛 có 夫, 夫, 賞 có 尚.",false
 週,運,0.897,"週 (CHU, tuần) và 運 (VẬN, vận chuyển; vận may). 週 có 11 nét, 運 có 12 nét. Khác ở thành phần: 週 có 周, 運 có 軍.",true
 領,預,0.897,"領 (LĨNH, lãnh thổ; thủ lĩnh) và 預 (DỰ, gửi, giữ). 領 có 14 nét, 預 có 13 nét. Khác ở thành phần: 領 có 令, 預 có 予.",true
 妻,姿,0.896,"妻 (THÊ, vợ) và 姿 (TƯ, dáng hình). 妻 có 8 nét, 姿 có 9 nét. Khác ở thành phần: 妻 có ⺕, 姿 có 次.",true
@@ -290,6 +300,7 @@ a,b,score,explanation,approved
 階,留,0.896,"階 (GIAI, tầng; bậc) và 留 (LƯU, giữ lại; lưu). 階 có 12 nét, 留 có 10 nét. Khác ở thành phần: 階 có ⻖, 皆, 留 có 卯, 田.",false
 終,紺,0.896,"終 (CHUNG, kết thúc) và 紺 (CÁM, màu xanh lam). Cả hai đều 11 nét. Khác ở thành phần: 終 có 冬, 紺 có 甘.",true
 結,紺,0.896,"結 (KẾT, buộc; kết) và 紺 (CÁM, màu xanh lam). 結 có 12 nét, 紺 có 11 nét. Khác ở thành phần: 結 có 吉, 紺 có 甘.",true
+賃,貿,0.896,"賃 (NHẪM, tiền thuê; tiền công) và 貿 (MẬU, buôn bán). 賃 có 13 nét, 貿 có 12 nét. Khác ở thành phần: 賃 có 任, 貿 có 卯.",false
 難,顔,0.896,"難 (NAN, khó) và 顔 (NHAN, khuôn mặt). Cả hai đều 18 nét. Khác ở thành phần: 難 có 艹, 口, 夫, 隹, 顔 có 彦, 頁.",true
 億,携,0.895,"億 (ỨC, trăm triệu) và 携 (HUỀ, mang theo). 億 có 15 nét, 携 có 13 nét. Khác ở thành phần: 億 có 亻, 意, 携 có 扌, 隽.",false
 別,到,0.895,"別 (BIỆT, khác; riêng) và 到 (ĐÁO, đến nơi). 別 có 7 nét, 到 có 8 nét. Khác ở thành phần: 別 có 口, 勹, 到 có 至.",true
@@ -307,8 +318,8 @@ a,b,score,explanation,approved
 校,性,0.894,"校 (HIỆU, trường học) và 性 (TÍNH, tính). 校 có 10 nét, 性 có 8 nét. Khác ở thành phần: 校 có 木, 交, 性 có 忄, 生.",false
 濯,曜,0.894,"濯 (TRẠC, giặt) và 曜 (DIỆU, ngày trong tuần). 濯 có 17 nét, 曜 có 18 nét. Khác ở thành phần: 濯 có 氵, 曜 có 日.",true
 阪,服,0.894,"阪 (BẢN, dốc (Osaka)) và 服 (PHỤC, quần áo). 阪 có 7 nét, 服 có 8 nét. Khác ở thành phần: 阪 có ⻖, 反, 服 có 月, 卩, 又.",true
-運,連,0.894,"運 (VẬN, vận chuyển; vận may) và 連 (LIÊN, dẫn theo; liên tiếp). 運 có 12 nét, 連 có 10 nét. Khác ở thành phần: 運 có 軍, 連 có 車.",false
 備,慣,0.893,"備 (BỊ, chuẩn bị; trang bị) và 慣 (QUÁN, quen). 備 có 12 nét, 慣 có 14 nét. Khác ở thành phần: 備 có 亻, 艹, 厂, 用, 慣 có 忄, 貫.",false
+書,害,0.893,"書 (THƯ, viết; sách) và 害 (HẠI, có hại; thiệt hại). Cả hai đều 10 nét. Khác ở thành phần: 書 có 聿, 日, 害 có 宀, 龶, 口.",false
 宿,留,0.893,"宿 (TÚC, trọ; chỗ ở) và 留 (LƯU, giữ lại; lưu). 宿 có 11 nét, 留 có 10 nét. Khác ở thành phần: 宿 có 宀, 佰, 留 có 卯, 田.",true
 役,牧,0.893,"役 (DỊCH, vai trò; chức vụ) và 牧 (MỤC, chăn nuôi). 役 có 7 nét, 牧 có 8 nét. Khác ở thành phần: 役 có 彳, 殳, 牧 có 牛, 攵.",true
 徒,指,0.893,"徒 (ĐỒ, học trò) và 指 (CHỈ, ngón tay, chỉ). 徒 có 10 nét, 指 có 9 nét. Khác ở thành phần: 徒 có 彳, 走, 指 có 扌, 旨.",true
@@ -337,7 +348,9 @@ a,b,score,explanation,approved
 量,黄,0.892,"量 (LƯỢNG, lượng) và 黄 (HOÀNG, màu vàng). 量 có 12 nét, 黄 có 11 nét. Khác ở thành phần: 量 có 旦, 里, 黄 có 龷, 由, 八.",true
 曲,向,0.891,"曲 (KHÚC, cong; bản nhạc) và 向 (HƯỚNG, hướng về). Cả hai đều 6 nét. Khác ở thành phần: 曲 có 日, 廾, 向 có 丿, 冂, 口.",true
 朝,報,0.891,"朝 (TRIÊU, buổi sáng) và 報 (BÁO, báo tin). Cả hai đều 12 nét. Khác ở thành phần: 朝 có 𠦝, 月, 報 có 幸, 卩, 又.",true
+答,害,0.891,"答 (ĐÁP, trả lời) và 害 (HẠI, có hại; thiệt hại). 答 có 12 nét, 害 có 10 nét. Khác ở thành phần: 答 có 竹, 合, 害 có 宀, 龶, 口.",false
 寝,宿,0.891,"寝 (TẨM, ngủ) và 宿 (TÚC, trọ; chỗ ở). 寝 có 13 nét, 宿 có 11 nét. Khác ở thành phần: 寝 có ⺦, ⺕, 冖, 又, 宿 có 佰.",false
+欲,敬,0.891,"欲 (DỤC, muốn) và 敬 (KÍNH, kính trọng). 欲 có 11 nét, 敬 có 12 nét. Khác ở thành phần: 欲 có 谷, 欠, 敬 có 苟, 攵.",false
 曲,治,0.891,"曲 (KHÚC, cong; bản nhạc) và 治 (TRỊ, cai trị; chữa trị). 曲 có 6 nét, 治 có 8 nét. Khác ở thành phần: 曲 có 日, 廾, 治 có 氵, 台.",false
 車,束,0.891,"車 (XA, xe) và 束 (THÚC, bó; ràng buộc). Cả hai đều 7 nét. 束 có thêm 木, 口.",true
 疲,波,0.891,"疲 (BÌ, mệt) và 波 (BA, sóng). 疲 có 10 nét, 波 có 8 nét. Khác ở thành phần: 疲 có 疒, 波 có 氵.",false
@@ -357,6 +370,8 @@ a,b,score,explanation,approved
 奥,集,0.89,"奥 (ÁO, bên trong; sâu) và 集 (TẬP, tập hợp). Cả hai đều 12 nét. Khác ở thành phần: 奥 có 丿, 冂, 米, 大, 集 có 隹, 木.",true
 寂,座,0.89,"寂 (TỊCH, cô đơn; tĩnh mịch) và 座 (TOẠ, ngồi; chỗ ngồi). 寂 có 11 nét, 座 có 10 nét. Khác ở thành phần: 寂 có 宀, 叔, 座 có 广, 坐.",true
 封,財,0.89,"封 (PHONG, phong bì; niêm phong) và 財 (TÀI, tài sản). 封 có 9 nét, 財 có 10 nét. Khác ở thành phần: 封 có 圭, 寸, 財 có 貝, 才.",true
+悲,惑,0.89,"悲 (BI, buồn) và 惑 (HOẶC, bối rối; mê hoặc). Cả hai đều 12 nét. Khác ở thành phần: 悲 có 非, 惑 có 或.",false
+投,放,0.89,"投 (ĐẦU, ném) và 放 (PHÓNG, thả; phóng). 投 có 7 nét, 放 có 8 nét. Khác ở thành phần: 投 có 扌, 殳, 放 có 方, 攵.",false
 病,授,0.89,"病 (BỆNH, bệnh) và 授 (THỤ, truyền dạy). 病 có 10 nét, 授 có 11 nét. Khác ở thành phần: 病 có 疒, 丙, 授 có 扌, 受.",true
 授,設,0.89,"授 (THỤ, truyền dạy) và 設 (THIẾT, thiết lập). Cả hai đều 11 nét. Khác ở thành phần: 授 có 扌, 受, 設 có 言, 殳.",true
 来,束,0.89,"来 (LAI, đến) và 束 (THÚC, bó; ràng buộc). Cả hai đều 7 nét. Khác ở thành phần: 来 có 米, 束 có 木, 口.",true
@@ -370,6 +385,7 @@ a,b,score,explanation,approved
 空,宙,0.889,"空 (KHÔNG, bầu trời) và 宙 (TRỤ, không gian). Cả hai đều 8 nét. Khác ở thành phần: 空 có 穴, 工, 宙 có 宀, 由.",true
 庭,座,0.889,"庭 (ĐÌNH, sân; vườn) và 座 (TOẠ, ngồi; chỗ ngồi). Cả hai đều 10 nét. Khác ở thành phần: 庭 có 廷, 座 có 坐.",true
 議,懸,0.889,"議 (NGHỊ, bàn bạc; nghị luận) và 懸 (HUYỀN, treo). Cả hai đều 20 nét. Khác ở thành phần: 議 có 言, 義, 懸 có 縣, 心.",true
+歌,敬,0.889,"歌 (CA, bài hát; hát) và 敬 (KÍNH, kính trọng). 歌 có 14 nét, 敬 có 12 nét. Khác ở thành phần: 歌 có 哥, 欠, 敬 có 苟, 攵.",false
 貸,賃,0.889,"貸 (THẢI, cho mượn) và 賃 (NHẪM, tiền thuê; tiền công). 貸 có 12 nét, 賃 có 13 nét. Khác ở thành phần: 貸 có 代, 賃 có 任.",true
 大,太,0.888,"大 (ĐẠI, to, lớn) và 太 (THÁI, to, béo). 大 có 3 nét, 太 có 4 nét. 太 có thêm 大, 丶.",true
 年,早,0.888,"年 (NIÊN, năm) và 早 (TẢO, sớm; nhanh). Cả hai đều 6 nét. Khác ở thành phần: 年 có 丿, 干, 早 có 日, 十.",true
@@ -437,6 +453,7 @@ a,b,score,explanation,approved
 答,替,0.884,"答 (ĐÁP, trả lời) và 替 (THẾ, thay). Cả hai đều 12 nét. Khác ở thành phần: 答 có 竹, 合, 替 có 夫, 夫, 日.",true
 狭,枝,0.884,"狭 (HIỆP, hẹp) và 枝 (CHI, cành cây). 狭 có 9 nét, 枝 có 8 nét. Khác ở thành phần: 狭 có ⺨, 夹, 枝 có 木, 支.",true
 菓,柔,0.884,"菓 (QUẢ, bánh kẹo) và 柔 (NHU, mềm). 菓 có 11 nét, 柔 có 9 nét. Khác ở thành phần: 菓 có 艹, 果, 柔 có 矛, 木.",false
+覧,緊,0.884,"覧 (LÃM, xem) và 緊 (KHẨN, căng; khẩn cấp). 覧 có 17 nét, 緊 có 15 nét. Khác ở thành phần: 覧 có 𠂉, 見, 緊 có 又, 糸.",false
 達,遊,0.884,"達 (ĐẠT, đạt; (hậu tố số nhiều)) và 遊 (DU, chơi). Cả hai đều 12 nét. Khác ở thành phần: 達 có 土, 羊, 遊 có 斿.",true
 休,林,0.883,"休 (HƯU, nghỉ) và 林 (LÂM, rừng; lùm cây). 休 có 6 nét, 林 có 8 nét. 休 có thêm 亻.",false
 働,陸,0.883,"働 (ĐỘNG, làm việc) và 陸 (LỤC, lục địa). 働 có 13 nét, 陸 có 11 nét. Khác ở thành phần: 働 có 亻, 動, 陸 có ⻖, 坴.",false
@@ -471,6 +488,7 @@ a,b,score,explanation,approved
 後,段,0.881,"後 (HẬU, phía sau; sau) và 段 (ĐOẠN, bậc; cấp). Cả hai đều 9 nét. Khác ở thành phần: 後 có 彳, 幺, 夂, 段 có 殳.",true
 悲,絶,0.881,"悲 (BI, buồn) và 絶 (TUYỆT, tuyệt đối). Cả hai đều 12 nét. Khác ở thành phần: 悲 có 非, 心, 絶 có 糸, 色.",true
 髪,愛,0.881,"髪 (PHÁT, tóc) và 愛 (ÁI, yêu). 髪 có 14 nét, 愛 có 13 nét. Khác ở thành phần: 髪 có 髟, 友, 愛 có ⺤, 冖, 心, 夂.",true
+磨,慮,0.881,"磨 (MA, mài) và 慮 (LỰ, suy nghĩ; lo lắng). 磨 có 16 nét, 慮 có 15 nét. Khác ở thành phần: 磨 có 麻, 石, 慮 có 虍, 思.",false
 探,都,0.881,"探 (THÁM, tìm) và 都 (ĐÔ, thủ đô). Cả hai đều 11 nét. Khác ở thành phần: 探 có 扌, 㓁, 木, 都 có 者, ⻏.",true
 窓,案,0.881,"窓 (SONG, cửa sổ) và 案 (ÁN, phương án; dự thảo). 窓 có 11 nét, 案 có 10 nét. Khác ở thành phần: 窓 có 穴, 厶, 心, 案 có 安, 木.",true
 葉,業,0.881,"葉 (DIỆP, lá) và 業 (NGHIỆP, nghiệp; công việc). 葉 có 12 nét, 業 có 13 nét. Khác ở thành phần: 葉 có 艹, 枼, 業 có 业, 羊, 木.",true
@@ -478,6 +496,7 @@ a,b,score,explanation,approved
 親,騒,0.881,"親 (THÂN, cha mẹ; thân thiết) và 騒 (TAO, ồn ào). 親 có 16 nét, 騒 có 18 nét. Khác ở thành phần: 親 có 立, 木, 見, 騒 có 馬, 又, 虫.",false
 鉄,駐,0.881,"鉄 (THIẾT, sắt) và 駐 (TRÚ, dừng lại; đỗ). 鉄 có 13 nét, 駐 có 15 nét. Khác ở thành phần: 鉄 có 金, 失, 駐 có 馬, 主.",false
 僕,罰,0.88,"僕 (BỘC, tôi (nam)) và 罰 (PHẠT, phạt). Cả hai đều 14 nét. Khác ở thành phần: 僕 có 亻, 菐, 罰 có 罒, 䚯.",true
+発,協,0.88,"発 (PHÁT, phát; xuất phát) và 協 (HIỆP, hợp sức). 発 có 9 nét, 協 có 8 nét. Khác ở thành phần: 発 có 癶, 二, 儿, 協 có 十, 劦.",false
 庫,厚,0.88,"庫 (KHỐ, kho) và 厚 (HẬU, dày). 庫 có 10 nét, 厚 có 9 nét. Khác ở thành phần: 庫 có 广, 車, 厚 có 厂, 日, 子.",true
 静,替,0.88,"静 (TĨNH, yên tĩnh) và 替 (THẾ, thay). 静 có 14 nét, 替 có 12 nét. Khác ở thành phần: 静 có 青, 争, 替 có 夫, 夫, 日.",false
 軽,栓,0.88,"軽 (KHINH, nhẹ) và 栓 (XUYÊN, nút chai). 軽 có 12 nét, 栓 có 10 nét. Khác ở thành phần: 軽 có 車, 圣, 栓 có 木, 全.",false
@@ -494,6 +513,7 @@ a,b,score,explanation,approved
 然,義,0.879,"然 (NHIÊN, như thế; tự nhiên) và 義 (NGHĨA, nghĩa). 然 có 12 nét, 義 có 13 nét. Khác ở thành phần: 然 có 月, 犬, 灬, 義 có 羊, 我.",true
 額,積,0.879,"額 (NGẠCH, số tiền; trán) và 積 (TÍCH, chất lên). 額 có 18 nét, 積 có 16 nét. Khác ở thành phần: 額 có 客, 頁, 積 có 禾, 責.",false
 合,介,0.878,"合 (HỢP, hợp; phù hợp) và 介 (GIỚI, trung gian; giới thiệu). 合 có 6 nét, 介 có 4 nét. Khác ở thành phần: 合 có 一, 口, 介 có 丿, 丨.",false
+壁,褒,0.878,"壁 (BÍCH, bức tường) và 褒 (BAO, khen). 壁 có 16 nét, 褒 có 15 nét. Khác ở thành phần: 壁 có 辟, 土, 褒 có 衣, 保.",false
 届,展,0.878,"届 (GIỚI, gửi đến) và 展 (TRIỂN, triển lãm). 届 có 8 nét, 展 có 10 nét. Khác ở thành phần: 届 có 由, 展 có 廾.",false
 鳥,島,0.878,"鳥 (ĐIỂU, chim) và 島 (ĐẢO, đảo). 鳥 có 11 nét, 島 có 10 nét. Khác ở thành phần: 鳥 có 灬, 島 có 鳥, 山.",true
 越,悲,0.878,"越 (VIỆT, vượt qua) và 悲 (BI, buồn). Cả hai đều 12 nét. Khác ở thành phần: 越 có 走, 戉, 悲 có 非, 心.",true
@@ -503,11 +523,13 @@ a,b,score,explanation,approved
 港,酔,0.878,"港 (CẢNG, cảng) và 酔 (TÚY, say). 港 có 12 nét, 酔 có 11 nét. Khác ở thành phần: 港 có 氵, 巷, 酔 có 酉, 卆.",true
 物,相,0.878,"物 (VẬT, đồ vật) và 相 (TƯƠNG, tương; lẫn nhau). 物 có 8 nét, 相 có 9 nét. Khác ở thành phần: 物 có 牛, 勿, 相 có 木, 目.",true
 筆,祭,0.878,"筆 (BÚT, bút) và 祭 (TẾ, lễ hội). 筆 có 12 nét, 祭 có 11 nét. Khác ở thành phần: 筆 có 竹, 聿, 祭 có 月, 示.",true
+震,緊,0.878,"震 (CHẤN, rung động) và 緊 (KHẨN, căng; khẩn cấp). Cả hai đều 15 nét. Khác ở thành phần: 震 có 雨, 辰, 緊 có 臣, 又, 糸.",false
 務,弱,0.877,"務 (VỤ, nhiệm vụ; làm việc) và 弱 (NHƯỢC, yếu). 務 có 11 nét, 弱 có 10 nét. Khác ở thành phần: 務 có 矛, 攵, 力, 弱 có 弓, 冫, 弓, 冫.",true
 場,増,0.877,"場 (TRƯỜNG, nơi; chỗ) và 増 (TĂNG, tăng). 場 có 12 nét, 増 có 14 nét. Khác ở thành phần: 場 có 昜, 増 có 曽.",false
 強,張,0.877,"強 (CƯỜNG, mạnh) và 張 (TRƯƠNG, căng; kéo). Cả hai đều 11 nét. Khác ở thành phần: 強 có 厶, 虫, 張 có 長.",true
 強,陸,0.877,"強 (CƯỜNG, mạnh) và 陸 (LỤC, lục địa). Cả hai đều 11 nét. Khác ở thành phần: 強 có 弓, 厶, 虫, 陸 có ⻖, 坴.",true
 真,息,0.877,"真 (CHÂN, thật; chân thật) và 息 (TỨC, hơi thở, con trai). Cả hai đều 10 nét. Khác ở thành phần: 真 có 十, 具, 息 có 自, 心.",true
+慮,感,0.877,"慮 (LỰ, suy nghĩ; lo lắng) và 感 (CẢM, cảm giác; cảm xúc). 慮 có 15 nét, 感 có 13 nét. Khác ở thành phần: 慮 có 虍, 思, 感 có 咸, 心.",false
 所,財,0.877,"所 (SỞ, nơi; chỗ) và 財 (TÀI, tài sản). 所 có 8 nét, 財 có 10 nét. Khác ở thành phần: 所 có 戸, 斤, 財 có 貝, 才.",false
 独,救,0.877,"独 (ĐỘC, một mình; độc) và 救 (CỨU, cứu). 独 có 9 nét, 救 có 11 nét. Khác ở thành phần: 独 có ⺨, 虫, 救 có 求, 攵.",false
 整,覧,0.877,"整 (CHỈNH, sắp xếp) và 覧 (LÃM, xem). 整 có 16 nét, 覧 có 17 nét. Khác ở thành phần: 整 có 敕, 正, 覧 có 臣, 𠂉, 見.",true
@@ -519,6 +541,7 @@ a,b,score,explanation,approved
 糖,齢,0.877,"糖 (ĐƯỜNG, đường) và 齢 (LINH, tuổi). 糖 có 16 nét, 齢 có 17 nét. Khác ở thành phần: 糖 có 米, 唐, 齢 có 歯, 令.",true
 若,苦,0.877,"若 (NHƯỢC, trẻ) và 苦 (KHỔ, đắng, khổ). Cả hai đều 8 nét. Khác ở thành phần: 若 có 右, 苦 có 古.",true
 遠,選,0.877,"遠 (VIỄN, xa) và 選 (TUYỂN, chọn). 遠 có 13 nét, 選 có 15 nét. Khác ở thành phần: 遠 có 袁, 選 có 巽.",false
+邪,郊,0.877,"邪 (TÀ, tà, sai lệch) và 郊 (GIAO, ngoại ô). 邪 có 8 nét, 郊 có 9 nét. Khác ở thành phần: 邪 có 牙, 郊 có 交.",false
 低,保,0.876,"低 (ĐÊ, thấp) và 保 (BẢO, giữ gìn; bảo đảm). 低 có 7 nét, 保 có 9 nét. Khác ở thành phần: 低 có 氏, 一, 保 có 呆.",false
 壁,整,0.876,"壁 (BÍCH, bức tường) và 整 (CHỈNH, sắp xếp). Cả hai đều 16 nét. Khác ở thành phần: 壁 có 辟, 土, 整 có 敕, 正.",true
 変,定,0.876,"変 (BIẾN, thay đổi; lạ) và 定 (ĐỊNH, quyết định). 変 có 9 nét, 定 có 8 nét. Khác ở thành phần: 変 có 亦, 夂, 定 có 宀, 疋.",true
@@ -539,10 +562,13 @@ a,b,score,explanation,approved
 僕,億,0.874,"僕 (BỘC, tôi (nam)) và 億 (ỨC, trăm triệu). 僕 có 14 nét, 億 có 15 nét. Khác ở thành phần: 僕 có 菐, 億 có 意.",true
 年,卒,0.874,"年 (NIÊN, năm) và 卒 (TỐT, kết thúc). 年 có 6 nét, 卒 có 8 nét. Khác ở thành phần: 年 có 丿, 干, 卒 có 亠, 从, 十.",false
 床,朱,0.874,"床 (SÀNG, sàn; giường) và 朱 (CHU, màu đỏ). 床 có 7 nét, 朱 có 6 nét. Khác ở thành phần: 床 có 广, 木, 朱 có 丿, 未.",true
+救,敬,0.874,"救 (CỨU, cứu) và 敬 (KÍNH, kính trọng). 救 có 11 nét, 敬 có 12 nét. Khác ở thành phần: 救 có 求, 敬 có 苟.",false
 鉛,船,0.874,"鉛 (DUYÊN, chì) và 船 (THUYỀN, thuyền; tàu). 鉛 có 13 nét, 船 có 11 nét. Khác ở thành phần: 鉛 có 金, 船 có 舟.",false
 菜,落,0.874,"菜 (THÁI, rau) và 落 (LẠC, rơi). 菜 có 11 nét, 落 có 12 nét. Khác ở thành phần: 菜 có 采, 落 có 洛.",true
 失,矢,0.873,"失 (THẤT, mất; đánh mất) và 矢 (THỈ, mũi tên). Cả hai đều 5 nét. Khác ở thành phần: 失 có 丿, 夫, 矢 có 天.",true
 姉,的,0.873,"姉 (TỶ, chị gái) và 的 (ĐÍCH, mục tiêu). Cả hai đều 8 nét. Khác ở thành phần: 姉 có 女, 市, 的 có 白, 勺.",true
+普,寄,0.873,"普 (PHỔ, phổ biến; rộng khắp) và 寄 (KÝ, ghé; gửi). 普 có 12 nét, 寄 có 11 nét. Khác ở thành phần: 普 có 並, 日, 寄 có 宀, 奇.",false
+感,惑,0.873,"感 (CẢM, cảm giác; cảm xúc) và 惑 (HOẶC, bối rối; mê hoặc). 感 có 13 nét, 惑 có 12 nét. Khác ở thành phần: 感 có 咸, 惑 có 或.",false
 乗,余,0.872,"乗 (THỪA, lên (xe); cưỡi) và 余 (DƯ, dư; thừa). 乗 có 9 nét, 余 có 7 nét. Khác ở thành phần: 乗 có 千, 木, 余 có 人, 小.",false
 借,若,0.872,"借 (TÁ, mượn; vay) và 若 (NHƯỢC, trẻ). 借 có 10 nét, 若 có 8 nét. Khác ở thành phần: 借 có 亻, 昔, 若 có 艹, 右.",false
 同,到,0.872,"同 (ĐỒNG, giống nhau) và 到 (ĐÁO, đến nơi). 同 có 6 nét, 到 có 8 nét. Khác ở thành phần: 同 có 冂, 一, 口, 到 có 至, 刂.",false
@@ -552,8 +578,11 @@ a,b,score,explanation,approved
 四,田,0.872,"四 (TỨ, số bốn) và 田 (ĐIỀN, ruộng). Cả hai đều 5 nét. 四 có thêm 囗, 儿.",true
 妻,格,0.872,"妻 (THÊ, vợ) và 格 (CÁCH, tính cách, đỗ). 妻 có 8 nét, 格 có 10 nét. Khác ở thành phần: 妻 có ⺕, 女, 格 có 木, 各.",false
 布,希,0.872,"布 (BỐ, vải) và 希 (HI, mong). 布 có 5 nét, 希 có 7 nét. Khác ở thành phần: 布 có 巾, 希 có 乂, 布.",false
+産,感,0.872,"産 (SẢN, sinh ra; sản xuất) và 感 (CẢM, cảm giác; cảm xúc). 産 có 11 nét, 感 có 13 nét. Khác ở thành phần: 産 có 立, 厂, 生, 感 có 咸, 心.",false
 相,招,0.872,"相 (TƯƠNG, tương; lẫn nhau) và 招 (CHIÊU, mời). 相 có 9 nét, 招 có 8 nét. Khác ở thành phần: 相 có 木, 目, 招 có 扌, 召.",true
+杯,拝,0.872,"杯 (BÔI, chén; cốc) và 拝 (BÁI, vái lạy; (khiêm nhường) kính). Cả hai đều 8 nét. Khác ở thành phần: 杯 có 木, 不, 拝 có 扌, 一, 丰.",false
 現,暖,0.872,"現 (HIỆN, hiện tại; xuất hiện) và 暖 (NOÃN, ấm). 現 có 11 nét, 暖 có 13 nét. Khác ở thành phần: 現 có 王, 見, 暖 có 日, 爰.",false
+資,貿,0.872,"資 (TƯ, tư bản; tài liệu) và 貿 (MẬU, buôn bán). 資 có 13 nét, 貿 có 12 nét. Khác ở thành phần: 資 có 次, 貿 có 卯.",false
 題,類,0.872,"題 (ĐỀ, đề; chủ đề) và 類 (LOẠI, loại). Cả hai đều 18 nét. Khác ở thành phần: 題 có 是, 類 có 米, 大.",true
 五,正,0.871,"五 (NGŨ, số năm) và 正 (CHÍNH, đúng; chính). 五 có 4 nét, 正 có 5 nét. Khác ở thành phần: 五 có 二, 正 có 一, 止.",true
 億,傷,0.871,"億 (ỨC, trăm triệu) và 傷 (THƯƠNG, vết thương). 億 có 15 nét, 傷 có 13 nét. Khác ở thành phần: 億 có 意, 傷 có 𬀷.",false
@@ -567,18 +596,22 @@ a,b,score,explanation,approved
 乗,始,0.87,"乗 (THỪA, lên (xe); cưỡi) và 始 (THUỶ, bắt đầu). 乗 có 9 nét, 始 có 8 nét. Khác ở thành phần: 乗 có 千, 木, 始 có 女, 台.",true
 元,兄,0.87,"元 (NGUYÊN, gốc; nguyên bản) và 兄 (HUYNH, anh trai). 元 có 4 nét, 兄 có 5 nét. Khác ở thành phần: 元 có 二, 兄 có 口.",true
 庫,原,0.87,"庫 (KHỐ, kho) và 原 (NGUYÊN, gốc). Cả hai đều 10 nét. Khác ở thành phần: 庫 có 广, 車, 原 có 厂, CDP-8BC4.",true
+目,召,0.87,"目 (MỤC, mắt) và 召 (TRIỆU, gọi; (kính ngữ) ăn; mặc). Cả hai đều 5 nét. 召 có thêm 刀, 口.",false
 夜,表,0.87,"夜 (DẠ, ban đêm) và 表 (BIỂU, bề mặt; biểu thị). Cả hai đều 8 nét. Khác ở thành phần: 夜 có 亠, 亻, 夕, 表 có 二, 丨, 衣.",true
 高,実,0.87,"高 (CAO, cao; đắt) và 実 (THẬT, thật; quả). 高 có 10 nét, 実 có 8 nét. Khác ở thành phần: 高 có 亠, 口, 冋, 実 có 宀, 𡗗.",false
 末,忘,0.87,"末 (MẠT, cuối) và 忘 (VONG, quên). 末 có 5 nét, 忘 có 7 nét. Khác ở thành phần: 末 có 木, 忘 có 亡, 心.",false
 鉄,談,0.87,"鉄 (THIẾT, sắt) và 談 (ĐÀM, trò chuyện). 鉄 có 13 nét, 談 có 15 nét. Khác ở thành phần: 鉄 có 金, 失, 談 có 言, 炎.",false
-賃,質,0.87,"賃 (NHẪM, tiền thuê; tiền công) và 質 (CHẤT, chất). 賃 có 13 nét, 質 có 15 nét. Khác ở thành phần: 賃 có 任, 質 có 斤, 斤.",false
 金,余,0.869,"金 (KIM, tiền; kim loại) và 余 (DƯ, dư; thừa). 金 có 8 nét, 余 có 7 nét. 余 có thêm 人, 小.",true
 借,情,0.869,"借 (TÁ, mượn; vay) và 情 (TÌNH, tình cảm). 借 có 10 nét, 情 có 11 nét. Khác ở thành phần: 借 có 亻, 昔, 情 có 忄, 青.",true
 値,怖,0.869,"値 (TRỊ, giá trị) và 怖 (BỐ, sợ). 値 có 10 nét, 怖 có 8 nét. Khác ở thành phần: 値 có 亻, 直, 怖 có 忄, 布.",false
+勉,規,0.869,"勉 (MIỄN, cố gắng) và 規 (QUY, quy tắc). 勉 có 10 nét, 規 có 11 nét. Khác ở thành phần: 勉 có 免, 力, 規 có 夫, 見.",false
+務,惑,0.869,"務 (VỤ, nhiệm vụ; làm việc) và 惑 (HOẶC, bối rối; mê hoặc). 務 có 11 nét, 惑 có 12 nét. Khác ở thành phần: 務 có 矛, 攵, 力, 惑 có 或, 心.",false
 来,南,0.869,"来 (LAI, đến) và 南 (NAM, phía Nam). 来 có 7 nét, 南 có 9 nét. Khác ở thành phần: 来 có 米, 南 có 十, 冂, 干.",false
+答,啓,0.869,"答 (ĐÁP, trả lời) và 啓 (KHẢI, mở ra; thưa (trong thư)). 答 có 12 nét, 啓 có 11 nét. Khác ở thành phần: 答 có 竹, 合, 啓 có 戸, 攵, 口.",false
 森,寂,0.869,"森 (SÂM, rừng) và 寂 (TỊCH, cô đơn; tĩnh mịch). 森 có 12 nét, 寂 có 11 nét. Khác ở thành phần: 森 có 木, 林, 寂 có 宀, 叔.",true
 球,減,0.869,"球 (CẦU, quả cầu; bóng) và 減 (GIẢM, giảm). 球 có 11 nét, 減 có 12 nét. Khác ở thành phần: 球 có 王, 求, 減 có 氵, 咸.",true
 剣,起,0.868,"剣 (KIẾM, kiếm) và 起 (KHỞI, thức dậy). Cả hai đều 10 nét. Khác ở thành phần: 剣 có 㑒, 刂, 起 có 走, 己.",true
+夜,灰,0.868,"夜 (DẠ, ban đêm) và 灰 (KHÔI, tro). 夜 có 8 nét, 灰 có 6 nét. Khác ở thành phần: 夜 có 亠, 亻, 夕, 灰 có 厂, 火.",false
 店,席,0.868,"店 (ĐIẾM, cửa hàng) và 席 (TỊCH, chỗ ngồi). 店 có 8 nét, 席 có 10 nét. Khác ở thành phần: 店 có 占, 席 có 廿, 巾.",false
 急,念,0.868,"急 (CẤP, gấp; vội) và 念 (NIỆM, ý niệm; suy nghĩ). 急 có 9 nét, 念 có 8 nét. Khác ở thành phần: 急 có 𠂊, ⺕, 念 có 今.",true
 書,番,0.868,"書 (THƯ, viết; sách) và 番 (PHIÊN, số; lượt). 書 có 10 nét, 番 có 12 nét. Khác ở thành phần: 書 có 聿, 日, 番 có 釆, 田.",false
@@ -587,10 +620,12 @@ a,b,score,explanation,approved
 誌,焼,0.868,"誌 (CHÍ, ghi chép; tạp chí) và 焼 (THIÊU, nướng; đốt). 誌 có 14 nét, 焼 có 12 nét. Khác ở thành phần: 誌 có 言, 志, 焼 có 火, 尭.",false
 蔵,覧,0.868,"蔵 (TÀNG, kho; cất giữ) và 覧 (LÃM, xem). 蔵 có 15 nét, 覧 có 17 nét. Khác ở thành phần: 蔵 có 艹, 厂, 戈, 覧 có 𠂉, 見.",false
 電,覚,0.868,"電 (ĐIỆN, điện) và 覚 (GIÁC, nhớ; tỉnh giác). 電 có 13 nét, 覚 có 12 nét. Khác ở thành phần: 電 có 雨, 日, 覚 có ⺍, 冖, 見.",true
+貸,貿,0.868,"貸 (THẢI, cho mượn) và 貿 (MẬU, buôn bán). Cả hai đều 12 nét. Khác ở thành phần: 貸 có 代, 貿 có 卯.",false
 左,主,0.867,"左 (TẢ, bên trái) và 主 (CHỦ, chủ; chính). Cả hai đều 5 nét. Khác ở thành phần: 左 có 工, 主 có 亠, 王.",true
 会,全,0.867,"会 (HỘI, gặp; hội họp) và 全 (TOÀN, toàn bộ). Cả hai đều 6 nét. Khác ở thành phần: 会 có 云, 全 có 王.",true
 営,管,0.867,"営 (DOANH, kinh doanh) và 管 (QUẢN, quản lý). 営 có 12 nét, 管 có 14 nét. Khác ở thành phần: 営 có ⺍, 冖, 呂, 管 có 竹, 官.",false
 宙,宝,0.867,"宙 (TRỤ, không gian) và 宝 (BẢO, báu vật). Cả hai đều 8 nét. Khác ở thành phần: 宙 có 由, 宝 có 玉.",true
+島,易,0.867,"島 (ĐẢO, đảo) và 易 (DỊCH, trao đổi; dễ). 島 có 10 nét, 易 có 8 nét. Khác ở thành phần: 島 có 鳥, 山, 易 có 日, 勿.",false
 産,差,0.867,"産 (SẢN, sinh ra; sản xuất) và 差 (SAI, chênh lệch; khác biệt). 産 có 11 nét, 差 có 10 nét. Khác ở thành phần: 産 có 立, 厂, 生, 差 có 羊, 丿, 工.",true
 座,康,0.867,"座 (TOẠ, ngồi; chỗ ngồi) và 康 (KHANG, yên ổn; khoẻ mạnh). 座 có 10 nét, 康 có 11 nét. Khác ở thành phần: 座 có 坐, 康 có 隶.",true
 強,預,0.867,"強 (CƯỜNG, mạnh) và 預 (DỰ, gửi, giữ). 強 có 11 nét, 預 có 13 nét. Khác ở thành phần: 強 có 弓, 厶, 虫, 預 có 予, 頁.",false
@@ -616,21 +651,26 @@ a,b,score,explanation,approved
 遊,際,0.866,"遊 (DU, chơi) và 際 (TẾ, lúc; ranh giới). 遊 có 12 nét, 際 có 14 nét. Khác ở thành phần: 遊 có 斿, ⻌, 際 có ⻖, 祭.",false
 利,科,0.865,"利 (LỢI, lợi; tiện lợi) và 科 (KHOA, khoa). 利 có 7 nét, 科 có 9 nét. Khác ở thành phần: 利 có 刂, 科 có 斗.",false
 前,重,0.865,"前 (TIỀN, phía trước; trước) và 重 (TRÙNG, nặng; chồng lên). Cả hai đều 9 nét. Khác ở thành phần: 前 có 八, 月, 刂, 重 có 千, 里.",true
+格,啓,0.865,"格 (CÁCH, tính cách, đỗ) và 啓 (KHẢI, mở ra; thưa (trong thư)). 格 có 10 nét, 啓 có 11 nét. Khác ở thành phần: 格 có 木, 各, 啓 có 戸, 攵, 口.",false
 売,麦,0.865,"売 (MẠI, bán) và 麦 (MẠCH, lúa mạch). Cả hai đều 7 nét. Khác ở thành phần: 売 có 士, 冖, 儿, 麦 có 龶, 夂.",true
 寝,寒,0.865,"寝 (TẨM, ngủ) và 寒 (HÀN, lạnh (thời tiết)). 寝 có 13 nét, 寒 có 12 nét. Khác ở thành phần: 寝 có ⺦, ⺕, 冖, 又, 寒 có 三, 八, 冫.",true
 故,敗,0.865,"故 (CỐ, cố; lý do) và 敗 (BẠI, thất bại). 故 có 9 nét, 敗 có 11 nét. Khác ở thành phần: 故 có 古, 敗 có 貝.",false
+身,易,0.865,"身 (THÂN, thân thể) và 易 (DỊCH, trao đổi; dễ). 身 có 7 nét, 易 có 8 nét. 易 có thêm 日, 勿.",false
 普,暑,0.865,"普 (PHỔ, phổ biến; rộng khắp) và 暑 (THỬ, nóng (thời tiết)). Cả hai đều 12 nét. Khác ở thành phần: 普 có 並, 暑 có 者.",true
 末,朱,0.865,"末 (MẠT, cuối) và 朱 (CHU, màu đỏ). 末 có 5 nét, 朱 có 6 nét. Khác ở thành phần: 末 có 木, 朱 có 丿, 未.",true
+洋,郊,0.865,"洋 (DƯƠNG, phương Tây) và 郊 (GIAO, ngoại ô). Cả hai đều 9 nét. Khác ở thành phần: 洋 có 氵, 羊, 郊 có 交, ⻏.",false
 題,濯,0.865,"題 (ĐỀ, đề; chủ đề) và 濯 (TRẠC, giặt). 題 có 18 nét, 濯 có 17 nét. Khác ở thành phần: 題 có 是, 頁, 濯 có 氵, 翟.",true
 術,筒,0.865,"術 (THUẬT, kỹ thuật; nghệ thuật) và 筒 (ĐỒNG, ống). 術 có 11 nét, 筒 có 12 nét. Khác ở thành phần: 術 có 行, 朮, 行, 筒 có 竹, 同.",true
 遊,華,0.865,"遊 (DU, chơi) và 華 (HOA, hoa lệ). 遊 có 12 nét, 華 có 10 nét. Khác ở thành phần: 遊 có 斿, ⻌, 華 có 艹, 丨.",false
 計,針,0.865,"計 (KẾ, đo; tính toán) và 針 (CHÂM, cái kim). 計 có 9 nét, 針 có 10 nét. Khác ở thành phần: 計 có 言, 針 có 金.",true
 念,余,0.864,"念 (NIỆM, ý niệm; suy nghĩ) và 余 (DƯ, dư; thừa). 念 có 8 nét, 余 có 7 nét. Khác ở thành phần: 念 có 今, 心, 余 có 人, 小.",true
 桜,割,0.864,"桜 (ANH, hoa anh đào) và 割 (CÁT, chia, vỡ). 桜 có 10 nét, 割 có 12 nét. Khác ở thành phần: 桜 có 木, ⺍, 女, 割 có 害, 刂.",false
+家,象,0.864,"家 (GIA, nhà) và 象 (TƯỢNG, con voi; hình tượng). 家 có 10 nét, 象 có 12 nét. Khác ở thành phần: 家 có 宀, 象 có 𠂊.",false
 復,裏,0.864,"復 (PHỤC, lặp lại) và 裏 (LÝ, mặt sau). 復 có 12 nét, 裏 có 13 nét. Khác ở thành phần: 復 có 彳, 复, 裏 có 衣, 里, 衣.",true
 米,朱,0.864,"米 (MỄ, gạo) và 朱 (CHU, màu đỏ). Cả hai đều 6 nét. 朱 có thêm 丿, 未.",true
 東,直,0.864,"東 (ĐÔNG, phía Đông) và 直 (TRỰC, sửa; thẳng). Cả hai đều 8 nét. Khác ở thành phần: 東 có 木, 日, 直 có 十, 目.",true
 館,贈,0.864,"館 (QUÁN, toà nhà; quán) và 贈 (TẶNG, tặng). 館 có 16 nét, 贈 có 18 nét. Khác ở thành phần: 館 có 飠, 官, 贈 có 貝, 曽.",false
+達,運,0.864,"達 (ĐẠT, đạt; (hậu tố số nhiều)) và 運 (VẬN, vận chuyển; vận may). Cả hai đều 12 nét. Khác ở thành phần: 達 có 土, 羊, 運 có 軍.",false
 鏡,離,0.864,"鏡 (KÍNH, cái gương) và 離 (LY, rời xa). Cả hai đều 19 nét. Khác ở thành phần: 鏡 có 金, 竟, 離 có 离, 隹.",true
 低,他,0.863,"低 (ĐÊ, thấp) và 他 (THA, khác). 低 có 7 nét, 他 có 5 nét. Khác ở thành phần: 低 có 氏, 一, 他 có 也.",false
 角,周,0.863,"角 (GIÁC, góc; sừng) và 周 (CHU, xung quanh). 角 có 7 nét, 周 có 8 nét. Khác ở thành phần: 角 có 𠂊, 周 có 冂, 吉.",true
@@ -650,14 +690,13 @@ a,b,score,explanation,approved
 若,芸,0.862,"若 (NHƯỢC, trẻ) và 芸 (NGHỆ, nghệ thuật). 若 có 8 nét, 芸 có 7 nét. Khác ở thành phần: 若 có 右, 芸 có 云.",true
 増,滑,0.861,"増 (TĂNG, tăng) và 滑 (HOẠT, trượt). 増 có 14 nét, 滑 có 13 nét. Khác ở thành phần: 増 có 土, 曽, 滑 có 氵, 骨.",true
 界,客,0.861,"界 (GIỚI, giới hạn; thế giới) và 客 (KHÁCH, khách). Cả hai đều 9 nét. Khác ở thành phần: 界 có 田, 介, 客 có 宀, 各.",true
+牧,放,0.861,"牧 (MỤC, chăn nuôi) và 放 (PHÓNG, thả; phóng). Cả hai đều 8 nét. Khác ở thành phần: 牧 có 牛, 放 có 方.",false
 族,訳,0.861,"族 (TỘC, gia tộc; dòng họ) và 訳 (DỊCH, dịch). Cả hai đều 11 nét. Khác ở thành phần: 族 có 方, 𠂉, 矢, 訳 có 言, 尺.",true
 果,星,0.861,"果 (QUẢ, quả; kết quả) và 星 (TINH, ngôi sao). 果 có 8 nét, 星 có 9 nét. Khác ở thành phần: 果 có 田, 木, 星 có 日, 生.",true
 部,棒,0.861,"部 (BỘ, bộ phận; phần) và 棒 (BỔNG, cây gậy). 部 có 11 nét, 棒 có 12 nét. Khác ở thành phần: 部 có 咅, ⻏, 棒 có 木, 奉.",true
-歳,震,0.861,"歳 (TUẾ, tuổi; năm) và 震 (CHẤN, rung động). 歳 có 13 nét, 震 có 15 nét. Khác ở thành phần: 歳 có 止, 戌, 小, 震 có 雨, 辰.",false
 洗,決,0.861,"洗 (TẨY, rửa; giặt) và 決 (QUYẾT, quyết định). 洗 có 9 nét, 決 có 7 nét. Khác ở thành phần: 洗 có 先, 決 có 夬.",false
 証,粧,0.861,"証 (CHỨNG, chứng cứ; chứng nhận) và 粧 (TRANG, trang điểm). Cả hai đều 12 nét. Khác ở thành phần: 証 có 言, 正, 粧 có 米, 庄.",true
 仲,件,0.86,"仲 (TRỌNG, quan hệ) và 件 (KIỆN, sự việc). Cả hai đều 6 nét. Khác ở thành phần: 仲 có 中, 件 có 牛.",true
-伎,牧,0.86,"伎 (KỸ, kỹ năng; diễn xướng) và 牧 (MỤC, chăn nuôi). 伎 có 6 nét, 牧 có 8 nét. Khác ở thành phần: 伎 có 亻, 支, 牧 có 牛, 攵.",false
 均,的,0.86,"均 (QUÂN, đều) và 的 (ĐÍCH, mục tiêu). 均 có 7 nét, 的 có 8 nét. Khác ở thành phần: 均 có 土, 匀, 的 có 白, 勺.",true
 始,起,0.86,"始 (THUỶ, bắt đầu) và 起 (KHỞI, thức dậy). 始 có 8 nét, 起 có 10 nét. Khác ở thành phần: 始 có 女, 台, 起 có 走, 己.",false
 姫,探,0.86,"姫 (CƠ, công chúa) và 探 (THÁM, tìm). 姫 có 10 nét, 探 có 11 nét. Khác ở thành phần: 姫 có 女, 臣, 探 có 扌, 㓁, 木.",true
@@ -672,19 +711,21 @@ a,b,score,explanation,approved
 誌,整,0.859,"誌 (CHÍ, ghi chép; tạp chí) và 整 (CHỈNH, sắp xếp). 誌 có 14 nét, 整 có 16 nét. Khác ở thành phần: 誌 có 言, 志, 整 có 敕, 正.",false
 貸,髪,0.859,"貸 (THẢI, cho mượn) và 髪 (PHÁT, tóc). 貸 có 12 nét, 髪 có 14 nét. Khác ở thành phần: 貸 có 代, 貝, 髪 có 髟, 友.",false
 際,越,0.859,"際 (TẾ, lúc; ranh giới) và 越 (VIỆT, vượt qua). 際 có 14 nét, 越 có 12 nét. Khác ở thành phần: 際 có ⻖, 祭, 越 có 走, 戉.",false
-達,途,0.859,"達 (ĐẠT, đạt; (hậu tố số nhiều)) và 途 (ĐỒ, đường đi). 達 có 12 nét, 途 có 10 nét. Khác ở thành phần: 達 có 土, 羊, 途 có 余.",false
 果,乗,0.858,"果 (QUẢ, quả; kết quả) và 乗 (THỪA, lên (xe); cưỡi). 果 có 8 nét, 乗 có 9 nét. Khác ở thành phần: 果 có 田, 乗 có 千.",true
+修,寄,0.858,"修 (TU, sửa chữa; tu) và 寄 (KÝ, ghé; gửi). 修 có 10 nét, 寄 có 11 nét. Khác ở thành phần: 修 có 攸, 攸, 彡, 寄 có 宀, 奇.",false
 品,具,0.858,"品 (PHẨM, hàng hoá; phẩm) và 具 (CỤ, dụng cụ). 品 có 9 nét, 具 có 8 nét. Khác ở thành phần: 品 có 口, 口, 口, 具 có 目, 八.",true
 南,念,0.858,"南 (NAM, phía Nam) và 念 (NIỆM, ý niệm; suy nghĩ). 南 có 9 nét, 念 có 8 nét. Khác ở thành phần: 南 có 十, 冂, 干, 念 có 今, 心.",true
 員,買,0.858,"員 (VIÊN, thành viên; nhân viên) và 買 (MÃI, mua). 員 có 10 nét, 買 có 12 nét. Khác ở thành phần: 員 có 口, 買 có 罒.",false
 字,宇,0.858,"字 (TỰ, chữ) và 宇 (VŨ, không gian). Cả hai đều 6 nét. Khác ở thành phần: 字 có 子, 宇 có 于.",true
 現,孫,0.858,"現 (HIỆN, hiện tại; xuất hiện) và 孫 (TÔN, cháu). 現 có 11 nét, 孫 có 10 nét. Khác ở thành phần: 現 có 王, 見, 孫 có 子, 系.",true
+師,拝,0.858,"師 (SƯ, thầy; người có chuyên môn) và 拝 (BÁI, vái lạy; (khiêm nhường) kính). 師 có 10 nét, 拝 có 8 nét. Khác ở thành phần: 師 có 丿, 丨, 巾, 拝 có 扌, 一, 丰.",false
 術,徒,0.858,"術 (THUẬT, kỹ thuật; nghệ thuật) và 徒 (ĐỒ, học trò). 術 có 11 nét, 徒 có 10 nét. Khác ở thành phần: 術 có 行, 朮, 行, 徒 có 彳, 走.",true
 段,険,0.858,"段 (ĐOẠN, bậc; cấp) và 険 (HIỂM, hiểm trở; nguy hiểm). 段 có 9 nét, 険 có 11 nét. Khác ở thành phần: 段 có 殳, 険 có ⻖, 㑒.",false
 記,祖,0.858,"記 (KÝ, ghi chép) và 祖 (TỔ, tổ tiên). 記 có 10 nét, 祖 có 9 nét. Khác ở thành phần: 記 có 言, 己, 祖 có 礻, 且.",true
 舞,薄,0.858,"舞 (VŨ, múa) và 薄 (BẠC, mỏng). 舞 có 15 nét, 薄 có 16 nét. Khác ở thành phần: 舞 có 丿, 一, 舛, 薄 có 艹, 溥.",true
 試,訳,0.858,"試 (THÍ, thử) và 訳 (DỊCH, dịch). 試 có 13 nét, 訳 có 11 nét. Khác ở thành phần: 試 có 式, 訳 có 尺.",false
 鏡,護,0.858,"鏡 (KÍNH, cái gương) và 護 (HỘ, bảo vệ). 鏡 có 19 nét, 護 có 20 nét. Khác ở thành phần: 鏡 có 金, 竟, 護 có 言, 蒦.",true
+修,啓,0.857,"修 (TU, sửa chữa; tu) và 啓 (KHẢI, mở ra; thưa (trong thư)). 修 có 10 nét, 啓 có 11 nét. Khác ở thành phần: 修 có 攸, 攸, 彡, 啓 có 戸, 攵, 口.",false
 偉,博,0.857,"偉 (VĨ, vĩ đại) và 博 (BÁC, rộng). Cả hai đều 12 nét. Khác ở thành phần: 偉 có 亻, 韋, 博 có 十, 尃.",true
 営,常,0.857,"営 (DOANH, kinh doanh) và 常 (THƯỜNG, thường). 営 có 12 nét, 常 có 11 nét. Khác ở thành phần: 営 có ⺍, 冖, 呂, 常 có 尚, 吊.",true
 婚,掛,0.857,"婚 (HÔN, hôn nhân) và 掛 (QUẢI, treo). Cả hai đều 11 nét. Khác ở thành phần: 婚 có 女, 昏, 掛 có 扌, 卦.",true
@@ -715,23 +756,28 @@ a,b,score,explanation,approved
 帽,割,0.854,"帽 (MẠO, cái mũ) và 割 (CÁT, chia, vỡ). Cả hai đều 12 nét. Khác ở thành phần: 帽 có 巾, 冒, 割 có 害, 刂.",true
 南,売,0.854,"南 (NAM, phía Nam) và 売 (MẠI, bán). 南 có 9 nét, 売 có 7 nét. Khác ở thành phần: 南 có 十, 冂, 干, 売 có 士, 冖, 儿.",false
 阪,吸,0.854,"阪 (BẢN, dốc (Osaka)) và 吸 (HẤP, hút; hít). 阪 có 7 nét, 吸 có 6 nét. Khác ở thành phần: 阪 có ⻖, 反, 吸 có 口, 及.",true
+服,孫,0.854,"服 (PHỤC, quần áo) và 孫 (TÔN, cháu). 服 có 8 nét, 孫 có 10 nét. Khác ở thành phần: 服 có 月, 卩, 又, 孫 có 子, 系.",false
 形,沸,0.854,"形 (HÌNH, hình dạng) và 沸 (PHÍ, sôi). 形 có 7 nét, 沸 có 8 nét. Khác ở thành phần: 形 có 开, 彡, 沸 có 氵, 弗.",true
+歳,豪,0.854,"歳 (TUẾ, tuổi; năm) và 豪 (HÀO, hào nhoáng). 歳 có 13 nét, 豪 có 14 nét. Khác ở thành phần: 歳 có 止, 戌, 小, 豪 có 亠, 口, 冖, 豕.",false
 修,華,0.853,"修 (TU, sửa chữa; tu) và 華 (HOA, hoa lệ). Cả hai đều 10 nét. Khác ở thành phần: 修 có 攸, 攸, 彡, 華 có 艹, 丨.",true
 友,立,0.853,"友 (HỮU, bạn) và 立 (LẬP, đứng). 友 có 4 nét, 立 có 5 nét. Khác ở thành phần: 友 có 𠂇, 又, 立 có 亠.",true
 寂,紀,0.853,"寂 (TỊCH, cô đơn; tĩnh mịch) và 紀 (KỶ, thế kỷ). 寂 có 11 nét, 紀 có 9 nét. Khác ở thành phần: 寂 có 宀, 叔, 紀 có 糸, 己.",false
+希,放,0.853,"希 (HI, mong) và 放 (PHÓNG, thả; phóng). 希 có 7 nét, 放 có 8 nét. Khác ở thành phần: 希 có 乂, 布, 放 có 方, 攵.",false
 幹,棒,0.853,"幹 (CÁN, thân cây; cốt cán) và 棒 (BỔNG, cây gậy). 幹 có 13 nét, 棒 có 12 nét. Khác ở thành phần: 幹 có 𠦝, 人, 干, 棒 có 木, 奉.",true
 米,床,0.853,"米 (MỄ, gạo) và 床 (SÀNG, sàn; giường). 米 có 6 nét, 床 có 7 nét. 床 có thêm 广, 木.",true
+庫,華,0.853,"庫 (KHỐ, kho) và 華 (HOA, hoa lệ). Cả hai đều 10 nét. Khác ở thành phần: 庫 có 广, 車, 華 có 艹, 丨.",false
 服,星,0.853,"服 (PHỤC, quần áo) và 星 (TINH, ngôi sao). 服 có 8 nét, 星 có 9 nét. Khác ở thành phần: 服 có 月, 卩, 又, 星 có 日, 生.",true
-覧,質,0.853,"覧 (LÃM, xem) và 質 (CHẤT, chất). 覧 có 17 nét, 質 có 15 nét. Khác ở thành phần: 覧 có 臣, 𠂉, 見, 質 có 斤, 斤, 貝.",false
 中,宇,0.852,"中 (TRUNG, bên trong; giữa) và 宇 (VŨ, không gian). 中 có 4 nét, 宇 có 6 nét. Khác ở thành phần: 中 có 口, 丨, 宇 có 宀, 于.",false
 貸,博,0.852,"貸 (THẢI, cho mượn) và 博 (BÁC, rộng). Cả hai đều 12 nét. Khác ở thành phần: 貸 có 代, 貝, 博 có 十, 尃.",true
 堂,愛,0.852,"堂 (ĐƯỜNG, nhà lớn; hội trường) và 愛 (ÁI, yêu). 堂 có 11 nét, 愛 có 13 nét. Khác ở thành phần: 堂 có 尚, 土, 愛 có ⺤, 冖, 心, 夂.",false
 森,塩,0.852,"森 (SÂM, rừng) và 塩 (DIÊM, muối). 森 có 12 nét, 塩 có 13 nét. Khác ở thành phần: 森 có 木, 林, 塩 có 土, 𠂉, 口, 皿.",true
-換,格,0.852,"換 (HOÁN, đổi; thay) và 格 (CÁCH, tính cách, đỗ). 換 có 12 nét, 格 có 10 nét. Khác ở thành phần: 換 có 扌, 奐, 格 có 木, 各.",false
+整,翻,0.852,"整 (CHỈNH, sắp xếp) và 翻 (PHIÊN, dịch). 整 có 16 nét, 翻 có 18 nét. Khác ở thành phần: 整 có 敕, 正, 翻 có 番, 羽.",false
 者,昔,0.852,"者 (GIẢ, người; người làm nghề) và 昔 (TÍCH, ngày xưa). Cả hai đều 8 nét. Khác ở thành phần: 者 có 耂, 昔 có 廾.",true
+波,途,0.852,"波 (BA, sóng) và 途 (ĐỒ, đường đi). 波 có 8 nét, 途 có 10 nét. Khác ở thành phần: 波 có 氵, 皮, 途 có 余, ⻌.",false
 熱,触,0.852,"熱 (NHIỆT, nóng (vật); nhiệt) và 触 (XÚC, chạm; sờ). 熱 có 15 nét, 触 có 13 nét. Khác ở thành phần: 熱 có 埶, 灬, 触 có 角, 虫.",false
 釣,発,0.852,"釣 (ĐIẾU, câu cá) và 発 (PHÁT, phát; xuất phát). 釣 có 11 nét, 発 có 9 nét. Khác ở thành phần: 釣 có 金, 勺, 発 có 癶, 二, 儿.",false
 背,育,0.852,"背 (BỐI, lưng; chiều cao) và 育 (DỤC, nuôi dạy). 背 có 9 nét, 育 có 8 nét. Khác ở thành phần: 背 có 北, 育 có 亠, 厶.",true
+家,星,0.851,"家 (GIA, nhà) và 星 (TINH, ngôi sao). 家 có 10 nét, 星 có 9 nét. Khác ở thành phần: 家 có 宀, 豕, 星 có 日, 生.",false
 杯,律,0.851,"杯 (BÔI, chén; cốc) và 律 (LUẬT, luật). 杯 có 8 nét, 律 có 9 nét. Khác ở thành phần: 杯 có 木, 不, 律 có 彳, 聿.",true
 机,払,0.851,"机 (KỶ, cái bàn) và 払 (PHẤT, trả tiền; phủi). 机 có 6 nét, 払 có 5 nét. Khác ở thành phần: 机 có 木, 几, 払 có 扌, 厶.",true
 投,抜,0.851,"投 (ĐẦU, ném) và 抜 (BẠT, rút ra). Cả hai đều 7 nét. Khác ở thành phần: 投 có 殳, 抜 có 友.",true
@@ -752,19 +798,15 @@ a,b,score,explanation,approved
 神,将,0.849,"神 (THẦN, thần) và 将 (TƯƠNG, tương lai). 神 có 9 nét, 将 có 10 nét. Khác ở thành phần: 神 có 礻, 申, 将 có ⺦, ⺤, 寸.",false
 男,房,0.849,"男 (NAM, đàn ông; nam) và 房 (PHÒNG, phòng). 男 có 7 nét, 房 có 8 nét. Khác ở thành phần: 男 có 田, 力, 房 có 戸, 方.",false
 県,泉,0.849,"県 (HUYỆN, tỉnh) và 泉 (TUYỀN, suối). Cả hai đều 9 nét. Khác ở thành phần: 県 có 目, 小, 泉 có 白, 水.",false
+偉,棒,0.848,"偉 (VĨ, vĩ đại) và 棒 (BỔNG, cây gậy). Cả hai đều 12 nét. Khác ở thành phần: 偉 có 亻, 韋, 棒 có 木, 奉.",false
 夫,矢,0.848,"夫 (PHU, chồng) và 矢 (THỈ, mũi tên). 夫 có 4 nét, 矢 có 5 nét. Khác ở thành phần: 夫 có 大, 矢 có 天.",false
 寺,守,0.848,"寺 (TỰ, chùa) và 守 (THỦ, bảo vệ). Cả hai đều 6 nét. Khác ở thành phần: 寺 có 土, 守 có 宀.",false
-靴,歌,0.848,"靴 (NGOA, giày) và 歌 (CA, bài hát; hát). 靴 có 13 nét, 歌 có 14 nét. Khác ở thành phần: 靴 có 革, 化, 歌 có 哥, 欠.",false
-発,沸,0.848,"発 (PHÁT, phát; xuất phát) và 沸 (PHÍ, sôi). 発 có 9 nét, 沸 có 8 nét. Khác ở thành phần: 発 có 癶, 二, 儿, 沸 có 氵, 弗.",false
-鉄,熱,0.848,"鉄 (THIẾT, sắt) và 熱 (NHIỆT, nóng (vật); nhiệt). 鉄 có 13 nét, 熱 có 15 nét. Khác ở thành phần: 鉄 có 金, 失, 熱 có 埶, 灬.",false
-管,賛,0.848,"管 (QUẢN, quản lý) và 賛 (TÁN, tán thành). 管 có 14 nét, 賛 có 15 nét. Khác ở thành phần: 管 có 竹, 官, 賛 có 夫, 夫, 貝.",false
+鉄,換,0.848,"鉄 (THIẾT, sắt) và 換 (HOÁN, đổi; thay). 鉄 có 13 nét, 換 có 12 nét. Khác ở thành phần: 鉄 có 金, 失, 換 có 扌, 奐.",false
 細,約,0.848,"細 (TẾ, nhỏ; mảnh) và 約 (ƯỚC, ước hẹn; khoảng). 細 có 11 nét, 約 có 9 nét. Khác ở thành phần: 細 có 田, 約 có 勺.",false
 首,官,0.847,"首 (THỦ, cổ; đứng đầu) và 官 (QUAN, quan chức). 首 có 9 nét, 官 có 8 nét. Khác ở thành phần: 首 có 自, 官 có 宀, 口.",false
 律,怖,0.847,"律 (LUẬT, luật) và 怖 (BỐ, sợ). 律 có 9 nét, 怖 có 8 nét. Khác ở thành phần: 律 có 彳, 聿, 怖 có 忄, 布.",false
 美,昼,0.847,"美 (MỸ, đẹp) và 昼 (TRÚ, buổi trưa; ban ngày). Cả hai đều 9 nét. Khác ở thành phần: 美 có ⺷, 大, 昼 có 尺, 旦.",false
-書,答,0.847,"書 (THƯ, viết; sách) và 答 (ĐÁP, trả lời). 書 có 10 nét, 答 có 12 nét. Khác ở thành phần: 書 có 聿, 日, 答 có 竹, 合.",false
 肉,交,0.846,"肉 (NHỤC, thịt) và 交 (GIAO, giao nhau; qua lại). Cả hai đều 6 nét. 交 có thêm 亠, 父.",false
-筆,修,0.846,"筆 (BÚT, bút) và 修 (TU, sửa chữa; tu). 筆 có 12 nét, 修 có 10 nét. Khác ở thành phần: 筆 có 竹, 聿, 修 có 攸, 攸, 彡.",false
 真,具,0.846,"真 (CHÂN, thật; chân thật) và 具 (CỤ, dụng cụ). 真 có 10 nét, 具 có 8 nét. Khác ở thành phần: 真 có 十, 具, 具 có 目, 八.",false
 学,歩,0.846,"学 (HỌC, học) và 歩 (BỘ, đi bộ). Cả hai đều 8 nét. Khác ở thành phần: 学 có ⺍, 冖, 子, 歩 có 止, 少.",false
 計,許,0.846,"計 (KẾ, đo; tính toán) và 許 (HỨA, cho phép). 計 có 9 nét, 許 có 11 nét. Khác ở thành phần: 計 có 十, 許 có 午.",false
@@ -777,14 +819,13 @@ a,b,score,explanation,approved
 靴,粧,0.845,"靴 (NGOA, giày) và 粧 (TRANG, trang điểm). 靴 có 13 nét, 粧 có 12 nét. Khác ở thành phần: 靴 có 革, 化, 粧 có 米, 庄.",false
 置,豪,0.845,"置 (TRÍ, đặt; để) và 豪 (HÀO, hào nhoáng). 置 có 13 nét, 豪 có 14 nét. Khác ở thành phần: 置 có 罒, 直, 豪 có 亠, 口, 冖, 豕.",false
 翻,興,0.845,"翻 (PHIÊN, dịch) và 興 (HỨNG, hứng thú). 翻 có 18 nét, 興 có 16 nét. Khác ở thành phần: 翻 có 番, 羽, 興 có 𦥑, 同, 八.",false
-翻,鶏,0.845,"翻 (PHIÊN, dịch) và 鶏 (KÊ, con gà). 翻 có 18 nét, 鶏 có 19 nét. Khác ở thành phần: 翻 có 番, 羽, 鶏 có 奚, 鳥.",false
 許,貯,0.845,"許 (HỨA, cho phép) và 貯 (TRỮ, tích trữ). 許 có 11 nét, 貯 có 12 nét. Khác ở thành phần: 許 có 言, 午, 貯 có 貝, 宁.",false
 辞,詳,0.845,"辞 (TỪ, từ; lời; từ bỏ) và 詳 (TƯỜNG, chi tiết). Cả hai đều 13 nét. Khác ở thành phần: 辞 có 舌, 辛, 詳 có 言, 羊.",false
+夢,停,0.844,"夢 (MỘNG, giấc mơ) và 停 (ĐÌNH, dừng lại). 夢 có 13 nét, 停 có 11 nét. Khác ở thành phần: 夢 có 艹, 罒, 冖, 夕, 停 có 亻, 亭.",false
 勢,診,0.844,"勢 (THẾ, thế, lực) và 診 (CHẨN, khám bệnh). 勢 có 13 nét, 診 có 12 nét. Khác ở thành phần: 勢 có 埶, 力, 診 có 言, 人, 彡.",false
 舎,命,0.844,"舎 (XÁ, nhà; quán xá) và 命 (MỆNH, mệnh). Cả hai đều 8 nét. Khác ở thành phần: 舎 có 吉, 命 có 一, 口, 卩.",false
 姿,寿,0.844,"姿 (TƯ, dáng hình) và 寿 (THỌ, thọ). 姿 có 9 nét, 寿 có 7 nét. Khác ở thành phần: 姿 có 次, 女, 寿 có 三, 丿, 寸.",false
 将,科,0.844,"将 (TƯƠNG, tương lai) và 科 (KHOA, khoa). 将 có 10 nét, 科 có 9 nét. Khác ở thành phần: 将 có ⺦, ⺤, 寸, 科 có 禾, 斗.",false
-希,材,0.844,"希 (HI, mong) và 材 (TÀI, vật liệu). Cả hai đều 7 nét. Khác ở thành phần: 希 có 乂, 布, 材 có 木, 才.",false
 海,泥,0.844,"海 (HẢI, biển) và 泥 (NÊ, bùn). 海 có 9 nét, 泥 có 8 nét. Khác ở thành phần: 海 có 毎, 泥 có 尼.",false
 済,涙,0.844,"済 (TẾ, xong; giải quyết) và 涙 (LỆ, nước mắt). 済 có 11 nét, 涙 có 10 nét. Khác ở thành phần: 済 có 斉, 涙 có 戻.",false
 芸,苦,0.844,"芸 (NGHỆ, nghệ thuật) và 苦 (KHỔ, đắng, khổ). 芸 có 7 nét, 苦 có 8 nét. Khác ở thành phần: 芸 có 云, 苦 có 古.",false
@@ -818,8 +859,8 @@ a,b,score,explanation,approved
 台,由,0.84,"台 (ĐÀI, bệ, bục) và 由 (DO, lý do). Cả hai đều 5 nét. Khác ở thành phần: 台 có 厶, 口, 由 có 日, 丨.",false
 表,城,0.84,"表 (BIỂU, bề mặt; biểu thị) và 城 (THÀNH, lâu đài; thành). 表 có 8 nét, 城 có 9 nét. Khác ở thành phần: 表 có 二, 丨, 衣, 城 có 土, 成.",false
 実,定,0.84,"実 (THẬT, thật; quả) và 定 (ĐỊNH, quyết định). Cả hai đều 8 nét. Khác ở thành phần: 実 có 𡗗, 定 có 疋.",false
+差,象,0.84,"差 (SAI, chênh lệch; khác biệt) và 象 (TƯỢNG, con voi; hình tượng). 差 có 10 nét, 象 có 12 nét. Khác ở thành phần: 差 có 羊, 丿, 工, 象 có 𠂊, 豕.",false
 帰,野,0.84,"帰 (QUY, trở về) và 野 (DÃ, cánh đồng; hoang dã). 帰 có 10 nét, 野 có 11 nét. Khác ở thành phần: 帰 có 刂, 帚, 野 có 里, 予.",false
-春,邪,0.84,"春 (XUÂN, mùa xuân) và 邪 (TÀ, tà, sai lệch). 春 có 9 nét, 邪 có 8 nét. Khác ở thành phần: 春 có 𡗗, 日, 邪 có 牙, ⻏.",false
 死,辺,0.84,"死 (TỬ, chết) và 辺 (BIÊN, vùng). 死 có 6 nét, 辺 có 5 nét. Khác ở thành phần: 死 có 歹, 匕, 辺 có 刀, ⻌.",false
 海,洋,0.84,"海 (HẢI, biển) và 洋 (DƯƠNG, phương Tây). Cả hai đều 9 nét. Khác ở thành phần: 海 có 毎, 洋 có 羊.",false
 舞,詳,0.84,"舞 (VŨ, múa) và 詳 (TƯỜNG, chi tiết). 舞 có 15 nét, 詳 có 13 nét. Khác ở thành phần: 舞 có 丿, 一, 舛, 詳 có 言, 羊.",false
@@ -829,9 +870,9 @@ a,b,score,explanation,approved
 晴,暖,0.839,"晴 (TÌNH, nắng) và 暖 (NOÃN, ấm). 晴 có 12 nét, 暖 có 13 nét. Khác ở thành phần: 晴 có 青, 暖 có 爰.",false
 習,望,0.839,"習 (TẬP, học tập) và 望 (VỌNG, mong). Cả hai đều 11 nét. Khác ở thành phần: 習 có 羽, 白, 望 có 亡, 月, 王.",false
 何,伺,0.838,"何 (HÀ, cái gì) và 伺 (TÝ, hỏi thăm). Cả hai đều 7 nét. Khác ở thành phần: 何 có 可, 伺 có 司.",false
+沸,協,0.838,"沸 (PHÍ, sôi) và 協 (HIỆP, hợp sức). Cả hai đều 8 nét. Khác ở thành phần: 沸 có 氵, 弗, 協 có 十, 劦.",false
 受,差,0.838,"受 (THỤ, nhận) và 差 (SAI, chênh lệch; khác biệt). 受 có 8 nét, 差 có 10 nét. Khác ở thành phần: 受 có ⺤, 冖, 又, 差 có 羊, 丿, 工.",false
 学,宇,0.838,"学 (HỌC, học) và 宇 (VŨ, không gian). 学 có 8 nét, 宇 có 6 nét. Khác ở thành phần: 学 có ⺍, 冖, 子, 宇 có 宀, 于.",false
-弾,豪,0.838,"弾 (ĐÀN, chơi (đàn); viên đạn) và 豪 (HÀO, hào nhoáng). 弾 có 12 nét, 豪 có 14 nét. Khác ở thành phần: 弾 có 弓, 単, 豪 có 亠, 口, 冖, 豕.",false
 私,払,0.838,"私 (TƯ, tôi) và 払 (PHẤT, trả tiền; phủi). 私 có 7 nét, 払 có 5 nét. Khác ở thành phần: 私 có 禾, 払 có 扌.",false
 黒,界,0.838,"黒 (HẮC, đen) và 界 (GIỚI, giới hạn; thế giới). 黒 có 11 nét, 界 có 9 nét. Khác ở thành phần: 黒 có 里, 灬, 界 có 田, 介.",false
 美,黒,0.838,"美 (MỸ, đẹp) và 黒 (HẮC, đen). 美 có 9 nét, 黒 có 11 nét. Khác ở thành phần: 美 có ⺷, 大, 黒 có 里, 灬.",false
@@ -844,37 +885,41 @@ a,b,score,explanation,approved
 射,財,0.837,"射 (XẠ, bắn) và 財 (TÀI, tài sản). Cả hai đều 10 nét. Khác ở thành phần: 射 có 身, 寸, 財 có 貝, 才.",false
 生,左,0.837,"生 (SINH, sinh; sự sống) và 左 (TẢ, bên trái). Cả hai đều 5 nét. 左 có thêm 工.",false
 左,立,0.837,"左 (TẢ, bên trái) và 立 (LẬP, đứng). Cả hai đều 5 nét. Khác ở thành phần: 左 có 工, 立 có 亠.",false
+折,材,0.837,"折 (CHIẾT, gãy) và 材 (TÀI, vật liệu). Cả hai đều 7 nét. Khác ở thành phần: 折 có 扌, 斤, 材 có 木, 才.",false
 隣,興,0.837,"隣 (LÂN, bên cạnh) và 興 (HỨNG, hứng thú). Cả hai đều 16 nét. Khác ở thành phần: 隣 có ⻖, 粦, 興 có 𦥑, 同, 八.",false
 言,首,0.837,"言 (NGÔN, nói; lời nói) và 首 (THỦ, cổ; đứng đầu). 言 có 7 nét, 首 có 9 nét. Khác ở thành phần: 言 có 口, 首 có 自.",false
-師,偉,0.836,"師 (SƯ, thầy; người có chuyên môn) và 偉 (VĨ, vĩ đại). 師 có 10 nét, 偉 có 12 nét. Khác ở thành phần: 師 có 丿, 丨, 巾, 偉 có 亻, 韋.",false
 卵,非,0.836,"卵 (NOÃN, trứng) và 非 (PHI, không phải). 卵 có 7 nét, 非 có 8 nét. 卵 có thêm 卯, 丶.",false
 古,由,0.836,"古 (CỔ, cũ) và 由 (DO, lý do). Cả hai đều 5 nét. Khác ở thành phần: 古 có 十, 口, 由 có 日, 丨.",false
 究,室,0.836,"究 (CỨU, tìm tòi; nghiên cứu) và 室 (THẤT, phòng). 究 có 7 nét, 室 có 9 nét. Khác ở thành phần: 究 có 穴, 九, 室 có 宀, 至.",false
 寿,非,0.836,"寿 (THỌ, thọ) và 非 (PHI, không phải). 寿 có 7 nét, 非 có 8 nét. 寿 có thêm 三, 丿, 寸.",false
 県,差,0.836,"県 (HUYỆN, tỉnh) và 差 (SAI, chênh lệch; khác biệt). 県 có 9 nét, 差 có 10 nét. Khác ở thành phần: 県 có 目, 小, 差 có 羊, 丿, 工.",false
+林,春,0.836,"林 (LÂM, rừng; lùm cây) và 春 (XUÂN, mùa xuân). 林 có 8 nét, 春 có 9 nét. Khác ở thành phần: 林 có 木, 木, 春 có 𡗗, 日.",false
 青,舎,0.836,"青 (THANH, xanh) và 舎 (XÁ, nhà; quán xá). Cả hai đều 8 nét. Khác ở thành phần: 青 có 龶, 月, 舎 có 人, 吉.",false
+靴,趣,0.836,"靴 (NGOA, giày) và 趣 (THÚ, thú vị; ý vị). 靴 có 13 nét, 趣 có 15 nét. Khác ở thành phần: 靴 có 革, 化, 趣 có 走, 取.",false
 交,史,0.835,"交 (GIAO, giao nhau; qua lại) và 史 (SỬ, lịch sử). 交 có 6 nét, 史 có 5 nét. Khác ở thành phần: 交 có 亠, 父, 史 có 口, 乂.",false
 去,缶,0.835,"去 (KHỨ, đi qua; đã qua) và 缶 (PHỮU, cái lon). 去 có 5 nét, 缶 có 6 nét. 去 có thêm 土, 厶.",false
 古,台,0.835,"古 (CỔ, cũ) và 台 (ĐÀI, bệ, bục). Cả hai đều 5 nét. Khác ở thành phần: 古 có 十, 台 có 厶.",false
 韓,薄,0.835,"韓 (HÀN, Hàn (Quốc)) và 薄 (BẠC, mỏng). 韓 có 18 nét, 薄 có 16 nét. Khác ở thành phần: 韓 có 𠦝, 韋, 薄 có 艹, 溥.",false
 誕,試,0.835,"誕 (ĐẢN, ra đời) và 試 (THÍ, thử). 誕 có 15 nét, 試 có 13 nét. Khác ở thành phần: 誕 có 延, 試 có 式.",false
 野,貯,0.835,"野 (DÃ, cánh đồng; hoang dã) và 貯 (TRỮ, tích trữ). 野 có 11 nét, 貯 có 12 nét. Khác ở thành phần: 野 có 里, 予, 貯 có 貝, 宁.",false
-傘,庫,0.834,"傘 (TẢN, ô; dù) và 庫 (KHỐ, kho). 傘 có 12 nét, 庫 có 10 nét. Khác ở thành phần: 傘 có 人, 从, 从, 十, 庫 có 广, 車.",false
 赤,参,0.834,"赤 (XÍCH, đỏ) và 参 (THAM, tham gia). 赤 có 7 nét, 参 có 8 nét. Khác ở thành phần: 赤 có 土, 参 có 厶, 大, 彡.",false
 安,缶,0.834,"安 (AN, rẻ; an toàn) và 缶 (PHỮU, cái lon). Cả hai đều 6 nét. 安 có thêm 宀, 女.",false
 愛,景,0.834,"愛 (ÁI, yêu) và 景 (CẢNH, cảnh). 愛 có 13 nét, 景 có 12 nét. Khác ở thành phần: 愛 có ⺤, 冖, 心, 夂, 景 có 日, 京.",false
 油,泣,0.834,"油 (DU, dầu) và 泣 (KHẤP, khóc). Cả hai đều 8 nét. Khác ở thành phần: 油 có 由, 泣 có 立.",false
 独,破,0.834,"独 (ĐỘC, một mình; độc) và 破 (PHÁ, rách). 独 có 9 nét, 破 có 10 nét. Khác ở thành phần: 独 có ⺨, 虫, 破 có 石, 皮.",false
-普,勢,0.833,"普 (PHỔ, phổ biến; rộng khắp) và 勢 (THẾ, thế, lực). 普 có 12 nét, 勢 có 13 nét. Khác ở thành phần: 普 có 並, 日, 勢 có 埶, 力.",false
 室,度,0.833,"室 (THẤT, phòng) và 度 (ĐỘ, lần; độ). Cả hai đều 9 nét. Khác ở thành phần: 室 có 宀, 至, 度 có 广, 廿, 又.",false
 終,約,0.833,"終 (CHUNG, kết thúc) và 約 (ƯỚC, ước hẹn; khoảng). 終 có 11 nét, 約 có 9 nét. Khác ở thành phần: 終 có 冬, 約 có 勺.",false
 価,缶,0.832,"価 (GIÁ, giá trị; giá) và 缶 (PHỮU, cái lon). 価 có 8 nét, 缶 có 6 nét. 価 có thêm 亻, 覀.",false
+非,存,0.832,"非 (PHI, không phải) và 存 (TỒN, tồn tại; biết). 非 có 8 nét, 存 có 6 nét. 存 có thêm 亻, 子.",false
 専,客,0.832,"専 (CHUYÊN, chuyên) và 客 (KHÁCH, khách). Cả hai đều 9 nét. Khác ở thành phần: 専 có 由, 寸, 客 có 宀, 各.",false
+着,寄,0.832,"着 (TRƯỚC, mặc; đến nơi) và 寄 (KÝ, ghé; gửi). 着 có 12 nét, 寄 có 11 nét. Khác ở thành phần: 着 có 羊, 丿, 目, 寄 có 宀, 奇.",false
+筆,帯,0.832,"筆 (BÚT, bút) và 帯 (ĐỚI, mang theo). 筆 có 12 nét, 帯 có 10 nét. Khác ở thành phần: 筆 có 竹, 聿, 帯 có 丗, 冖, 巾.",false
 早,平,0.832,"早 (TẢO, sớm; nhanh) và 平 (BÌNH, bằng phẳng). 早 có 6 nét, 平 có 5 nét. Khác ở thành phần: 早 có 日, 十, 平 có 干.",false
 三,玉,0.831,"三 (TAM, số ba) và 玉 (NGỌC, ngọc). 三 có 3 nét, 玉 có 5 nét. Khác ở thành phần: 三 có 一, 一, 一, 玉 có 王, 丶.",false
 風,並,0.831,"風 (PHONG, gió) và 並 (TỊNH, xếp hàng). 風 có 9 nét, 並 có 8 nét. Khác ở thành phần: 風 có 几, 虫, 並 có 八, 一, 业.",false
 季,争,0.831,"季 (QUÝ, mùa) và 争 (TRANH, tranh giành). 季 có 8 nét, 争 có 6 nét. Khác ở thành phần: 季 có 禾, 子, 争 có 𠂊, ⺕, 亅.",false
 婚,博,0.831,"婚 (HÔN, hôn nhân) và 博 (BÁC, rộng). 婚 có 11 nét, 博 có 12 nét. Khác ở thành phần: 婚 có 女, 昏, 博 có 十, 尃.",false
+吸,灰,0.831,"吸 (HẤP, hút; hít) và 灰 (KHÔI, tro). Cả hai đều 6 nét. Khác ở thành phần: 吸 có 口, 及, 灰 có 厂, 火.",false
 幹,診,0.831,"幹 (CÁN, thân cây; cốt cán) và 診 (CHẨN, khám bệnh). 幹 có 13 nét, 診 có 12 nét. Khác ở thành phần: 幹 có 𠦝, 干, 診 có 言, 彡.",false
 戻,房,0.831,"戻 (LỆ, quay lại) và 房 (PHÒNG, phòng). 戻 có 7 nét, 房 có 8 nét. Khác ở thành phần: 戻 có 大, 房 có 方.",false
 言,玄,0.831,"言 (NGÔN, nói; lời nói) và 玄 (HUYỀN, huyền bí). 言 có 7 nét, 玄 có 5 nét. Khác ở thành phần: 言 có 口, 玄 có 亠, 幺.",false
@@ -883,12 +928,14 @@ a,b,score,explanation,approved
 千,子,0.83,"千 (THIÊN, một nghìn) và 子 (TỬ, con). Cả hai đều 3 nét. 千 có thêm 丿, 十.",false
 受,度,0.83,"受 (THỤ, nhận) và 度 (ĐỘ, lần; độ). 受 có 8 nét, 度 có 9 nét. Khác ở thành phần: 受 có ⺤, 冖, 度 có 广, 廿.",false
 妹,姉,0.83,"妹 (MUỘI, em gái) và 姉 (TỶ, chị gái). Cả hai đều 8 nét. Khác ở thành phần: 妹 có 未, 姉 có 市.",false
-砂,帯,0.83,"砂 (SA, cát) và 帯 (ĐỚI, mang theo). 砂 có 9 nét, 帯 có 10 nét. Khác ở thành phần: 砂 có 石, 少, 帯 có 丗, 冖, 巾.",false
 所,政,0.83,"所 (SỞ, nơi; chỗ) và 政 (CHÍNH, chính trị). 所 có 8 nét, 政 có 9 nét. Khác ở thành phần: 所 có 戸, 斤, 政 có 正, 攵.",false
+次,灰,0.83,"次 (THỨ, tiếp theo) và 灰 (KHÔI, tro). Cả hai đều 6 nét. Khác ở thành phần: 次 có 冫, 欠, 灰 có 厂, 火.",false
+涼,越,0.83,"涼 (LƯƠNG, mát) và 越 (VIỆT, vượt qua). 涼 có 11 nét, 越 có 12 nét. Khác ở thành phần: 涼 có 氵, 京, 越 có 走, 戉.",false
 赤,走,0.83,"赤 (XÍCH, đỏ) và 走 (TẨU, chạy). Cả hai đều 7 nét. 走 có thêm 龰.",false
 他,似,0.829,"他 (THA, khác) và 似 (TỰ, giống). 他 có 5 nét, 似 có 7 nét. Khác ở thành phần: 他 có 也, 似 có 以.",false
 冷,珍,0.829,"冷 (LÃNH, lạnh) và 珍 (TRÂN, hiếm). 冷 có 7 nét, 珍 có 9 nét. Khác ở thành phần: 冷 có 冫, 令, 珍 có 王, 人, 彡.",false
 季,参,0.829,"季 (QUÝ, mùa) và 参 (THAM, tham gia). Cả hai đều 8 nét. Khác ở thành phần: 季 có 禾, 子, 参 có 厶, 大, 彡.",false
+百,召,0.829,"百 (BÁCH, một trăm) và 召 (TRIỆU, gọi; (kính ngữ) ăn; mặc). 百 có 6 nét, 召 có 5 nét. Khác ở thành phần: 百 có 一, 白, 召 có 刀, 口.",false
 毎,寿,0.829,"毎 (MỖI, mỗi; hàng) và 寿 (THỌ, thọ). 毎 có 6 nét, 寿 có 7 nét. Khác ở thành phần: 毎 có 𠂉, 毋, 寿 có 三, 丿, 寸.",false
 帰,暑,0.829,"帰 (QUY, trở về) và 暑 (THỬ, nóng (thời tiết)). 帰 có 10 nét, 暑 có 12 nét. Khác ở thành phần: 帰 có 刂, 帚, 暑 có 日, 者.",false
 弾,詳,0.829,"弾 (ĐÀN, chơi (đàn); viên đạn) và 詳 (TƯỜNG, chi tiết). 弾 có 12 nét, 詳 có 13 nét. Khác ở thành phần: 弾 có 弓, 単, 詳 có 言, 羊.",false
@@ -901,15 +948,13 @@ a,b,score,explanation,approved
 交,支,0.828,"交 (GIAO, giao nhau; qua lại) và 支 (CHI, chi nhánh). 交 có 6 nét, 支 có 4 nét. Khác ở thành phần: 交 có 亠, 父, 支 có 十, 又.",false
 旅,味,0.828,"旅 (LỮ, du lịch; chuyến đi) và 味 (VỊ, vị). 旅 có 10 nét, 味 có 8 nét. Khác ở thành phần: 旅 có 方, 𠂉, 亻, 味 có 口, 未.",false
 専,房,0.828,"専 (CHUYÊN, chuyên) và 房 (PHÒNG, phòng). 専 có 9 nét, 房 có 8 nét. Khác ở thành phần: 専 có 由, 寸, 房 có 戸, 方.",false
-投,折,0.828,"投 (ĐẦU, ném) và 折 (CHIẾT, gãy). Cả hai đều 7 nét. Khác ở thành phần: 投 có 殳, 折 có 斤.",false
+弟,易,0.828,"弟 (ĐỆ, em trai) và 易 (DỊCH, trao đổi; dễ). 弟 có 7 nét, 易 có 8 nét. Khác ở thành phần: 弟 có 八, 弔, 丿, 易 có 日, 勿.",false
 卵,作,0.827,"卵 (NOÃN, trứng) và 作 (TÁC, làm; tạo ra). Cả hai đều 7 nét. Khác ở thành phần: 卵 có 卯, 丶, 作 có 亻, 乍.",false
 肉,内,0.827,"肉 (NHỤC, thịt) và 内 (NỘI, bên trong). 肉 có 6 nét, 内 có 4 nét. 内 có thêm 冂, 人.",false
 字,卒,0.827,"字 (TỰ, chữ) và 卒 (TỐT, kết thúc). 字 có 6 nét, 卒 có 8 nét. Khác ở thành phần: 字 có 宀, 子, 卒 có 亠, 从, 十.",false
 白,台,0.827,"白 (BẠCH, trắng) và 台 (ĐÀI, bệ, bục). Cả hai đều 5 nét. Khác ở thành phần: 白 có 日, 台 có 厶, 口.",false
-究,夜,0.827,"究 (CỨU, tìm tòi; nghiên cứu) và 夜 (DẠ, ban đêm). 究 có 7 nét, 夜 có 8 nét. Khác ở thành phần: 究 có 穴, 九, 夜 có 亠, 亻, 夕.",false
 室,素,0.827,"室 (THẤT, phòng) và 素 (TỐ, tuyệt, yếu tố). 室 có 9 nét, 素 có 10 nét. Khác ở thành phần: 室 có 宀, 至, 素 có 龶, 糸.",false
 置,望,0.827,"置 (TRÍ, đặt; để) và 望 (VỌNG, mong). 置 có 13 nét, 望 có 11 nét. Khác ở thành phần: 置 có 罒, 直, 望 có 亡, 月, 王.",false
-消,波,0.827,"消 (TIÊU, tắt; xoá) và 波 (BA, sóng). 消 có 10 nét, 波 có 8 nét. Khác ở thành phần: 消 có 肖, 波 có 皮.",false
 波,盆,0.827,"波 (BA, sóng) và 盆 (BỒN, lễ Bon). 波 có 8 nét, 盆 có 9 nét. Khác ở thành phần: 波 có 氵, 皮, 盆 có 分, 皿.",false
 社,祖,0.827,"社 (XÃ, công ty; xã hội) và 祖 (TỔ, tổ tiên). 社 có 7 nét, 祖 có 9 nét. Khác ở thành phần: 社 có 土, 祖 có 且.",false
 考,幸,0.826,"考 (KHẢO, suy nghĩ) và 幸 (HẠNH, hạnh phúc). 考 có 6 nét, 幸 có 8 nét. Khác ở thành phần: 考 có 耂, 丂, 幸 có 土, 𢆉.",false
@@ -918,12 +963,12 @@ a,b,score,explanation,approved
 証,配,0.826,"証 (CHỨNG, chứng cứ; chứng nhận) và 配 (PHỐI, phân phát; lo lắng). 証 có 12 nét, 配 có 10 nét. Khác ở thành phần: 証 có 言, 正, 配 có 酉, 己.",false
 押,件,0.825,"押 (ÁP, ấn; đẩy) và 件 (KIỆN, sự việc). 押 có 8 nét, 件 có 6 nét. Khác ở thành phần: 押 có 扌, 甲, 件 có 亻, 牛.",false
 兄,反,0.825,"兄 (HUYNH, anh trai) và 反 (PHẢN, ngược). 兄 có 5 nét, 反 có 4 nét. Khác ở thành phần: 兄 có 口, 儿, 反 có 厂, 又.",false
-野,着,0.825,"野 (DÃ, cánh đồng; hoang dã) và 着 (TRƯỚC, mặc; đến nơi). 野 có 11 nét, 着 có 12 nét. Khác ở thành phần: 野 có 里, 予, 着 có 羊, 丿, 目.",false
+館,熱,0.825,"館 (QUÁN, toà nhà; quán) và 熱 (NHIỆT, nóng (vật); nhiệt). 館 có 16 nét, 熱 có 15 nét. Khác ở thành phần: 館 có 飠, 官, 熱 có 埶, 灬.",false
 習,首,0.825,"習 (TẬP, học tập) và 首 (THỦ, cổ; đứng đầu). 習 có 11 nét, 首 có 9 nét. Khác ở thành phần: 習 có 羽, 白, 首 có 自.",false
 価,似,0.824,"価 (GIÁ, giá trị; giá) và 似 (TỰ, giống). 価 có 8 nét, 似 có 7 nét. Khác ở thành phần: 価 có 覀, 似 có 以.",false
 有,布,0.824,"有 (HỮU, có) và 布 (BỐ, vải). 有 có 6 nét, 布 có 5 nét. Khác ở thành phần: 有 có 月, 布 có 巾.",false
 帰,弾,0.824,"帰 (QUY, trở về) và 弾 (ĐÀN, chơi (đàn); viên đạn). 帰 có 10 nét, 弾 có 12 nét. Khác ở thành phần: 帰 có 刂, 帚, 弾 có 弓, 単.",false
-林,非,0.824,"林 (LÂM, rừng; lùm cây) và 非 (PHI, không phải). Cả hai đều 8 nét. 林 có thêm 木, 木.",false
+弾,準,0.824,"弾 (ĐÀN, chơi (đàn); viên đạn) và 準 (CHUẨN, chuẩn). 弾 có 12 nét, 準 có 13 nét. Khác ở thành phần: 弾 có 弓, 単, 準 có 氵, 隼.",false
 祖,紀,0.824,"祖 (TỔ, tổ tiên) và 紀 (KỶ, thế kỷ). Cả hai đều 9 nét. Khác ở thành phần: 祖 có 礻, 且, 紀 có 糸, 己.",false
 負,素,0.824,"負 (PHỤ, thua; gánh vác) và 素 (TỐ, tuyệt, yếu tố). 負 có 9 nét, 素 có 10 nét. Khác ở thành phần: 負 có 𠂊, 貝, 素 có 龶, 糸.",false
 田,卵,0.823,"田 (ĐIỀN, ruộng) và 卵 (NOÃN, trứng). 田 có 5 nét, 卵 có 7 nét. 卵 có thêm 卯, 丶.",false
@@ -931,7 +976,9 @@ a,b,score,explanation,approved
 料,祈,0.823,"料 (LIỆU, nguyên liệu; phí) và 祈 (KỲ, cầu nguyện). 料 có 10 nét, 祈 có 8 nét. Khác ở thành phần: 料 có 米, 斗, 祈 có 礻, 斤.",false
 新,終,0.823,"新 (TÂN, mới) và 終 (CHUNG, kết thúc). 新 có 13 nét, 終 có 11 nét. Khác ở thành phần: 新 có 立, 木, 斤, 終 có 糸, 冬.",false
 文,丈,0.822,"文 (VĂN, văn; câu văn) và 丈 (TRƯỢNG, chiều cao; vững chắc). 文 có 4 nét, 丈 có 3 nét. Khác ở thành phần: 文 có 亠, 丈 có 一.",false
+桜,協,0.822,"桜 (ANH, hoa anh đào) và 協 (HIỆP, hợp sức). 桜 có 10 nét, 協 có 8 nét. Khác ở thành phần: 桜 có 木, ⺍, 女, 協 có 十, 劦.",false
 名,車,0.822,"名 (DANH, tên) và 車 (XA, xe). 名 có 6 nét, 車 có 7 nét. 名 có thêm 夕, 口.",false
+官,存,0.822,"官 (QUAN, quan chức) và 存 (TỒN, tồn tại; biết). 官 có 8 nét, 存 có 6 nét. Khác ở thành phần: 官 có 宀, 口, 存 có 亻, 子.",false
 曇,暮,0.822,"曇 (ĐÀM, có mây; âm u) và 暮 (MỘ, sinh sống). 曇 có 16 nét, 暮 có 14 nét. Khác ở thành phần: 曇 có 雲, 暮 có 莫.",false
 消,険,0.822,"消 (TIÊU, tắt; xoá) và 険 (HIỂM, hiểm trở; nguy hiểm). 消 có 10 nét, 険 có 11 nét. Khác ở thành phần: 消 có 氵, 肖, 険 có ⻖, 㑒.",false
 安,売,0.821,"安 (AN, rẻ; an toàn) và 売 (MẠI, bán). 安 có 6 nét, 売 có 7 nét. Khác ở thành phần: 安 có 宀, 女, 売 có 士, 冖, 儿.",false
@@ -942,18 +989,19 @@ a,b,score,explanation,approved
 丈,史,0.82,"丈 (TRƯỢNG, chiều cao; vững chắc) và 史 (SỬ, lịch sử). 丈 có 3 nét, 史 có 5 nét. Khác ở thành phần: 丈 có 一, 史 có 口.",false
 降,洋,0.82,"降 (GIÁNG, xuống; rơi) và 洋 (DƯƠNG, phương Tây). 降 có 10 nét, 洋 có 9 nét. Khác ở thành phần: 降 có ⻖, 夅, 洋 có 氵, 羊.",false
 世,吸,0.819,"世 (THẾ, đời; thế giới) và 吸 (HẤP, hút; hít). 世 có 5 nét, 吸 có 6 nét. Khác ở thành phần: 世 có 廿, 吸 có 口, 及.",false
-家,客,0.819,"家 (GIA, nhà) và 客 (KHÁCH, khách). 家 có 10 nét, 客 có 9 nét. Khác ở thành phần: 家 có 豕, 客 có 各.",false
+勢,望,0.819,"勢 (THẾ, thế, lực) và 望 (VỌNG, mong). 勢 có 13 nét, 望 có 11 nét. Khác ở thành phần: 勢 có 埶, 力, 望 có 亡, 月, 王.",false
 金,査,0.819,"金 (KIM, tiền; kim loại) và 査 (TRA, điều tra). 金 có 8 nét, 査 có 9 nét. 査 có thêm 木, 且.",false
 事,専,0.818,"事 (SỰ, việc; sự việc) và 専 (CHUYÊN, chuyên). 事 có 8 nét, 専 có 9 nét. Khác ở thành phần: 事 có 口, ⺕, 亅, 専 có 由, 寸.",false
 時,砂,0.818,"時 (THỜI, thời gian; lúc) và 砂 (SA, cát). 時 có 10 nét, 砂 có 9 nét. Khác ở thành phần: 時 có 日, 寺, 砂 có 石, 少.",false
-涼,配,0.818,"涼 (LƯƠNG, mát) và 配 (PHỐI, phân phát; lo lắng). 涼 có 11 nét, 配 có 10 nét. Khác ở thành phần: 涼 có 氵, 京, 配 có 酉, 己.",false
+消,落,0.818,"消 (TIÊU, tắt; xoá) và 落 (LẠC, rơi). 消 có 10 nét, 落 có 12 nét. Khác ở thành phần: 消 có 氵, 肖, 落 có 艹, 洛.",false
 茶,界,0.818,"茶 (TRÀ, trà) và 界 (GIỚI, giới hạn; thế giới). Cả hai đều 9 nét. Khác ở thành phần: 茶 có 艹, 人, 木, 界 có 田, 介.",false
-館,障,0.818,"館 (QUÁN, toà nhà; quán) và 障 (CHƯỚNG, cản trở; trở ngại). 館 có 16 nét, 障 có 14 nét. Khác ở thành phần: 館 có 飠, 官, 障 có ⻖, 章.",false
 辛,争,0.817,"辛 (TÂN, cay; khổ) và 争 (TRANH, tranh giành). 辛 có 7 nét, 争 có 6 nét. Khác ở thành phần: 辛 có 立, 十, 争 có 𠂊, ⺕, 亅.",false
 今,手,0.817,"今 (KIM, bây giờ) và 手 (THỦ, tay). Cả hai đều 4 nét. 今 có thêm 人, 一.",false
+配,泥,0.817,"配 (PHỐI, phân phát; lo lắng) và 泥 (NÊ, bùn). 配 có 10 nét, 泥 có 8 nét. Khác ở thành phần: 配 có 酉, 己, 泥 có 氵, 尼.",false
 三,五,0.816,"三 (TAM, số ba) và 五 (NGŨ, số năm). 三 có 3 nét, 五 có 4 nét. Khác ở thành phần: 三 có 一, 一, 一, 五 có 二.",false
 毎,争,0.816,"毎 (MỖI, mỗi; hàng) và 争 (TRANH, tranh giành). Cả hai đều 6 nét. Khác ở thành phần: 毎 có 𠂉, 毋, 争 có 𠂊, ⺕, 亅.",false
 作,件,0.816,"作 (TÁC, làm; tạo ra) và 件 (KIỆN, sự việc). 作 có 7 nét, 件 có 6 nét. Khác ở thành phần: 作 có 乍, 件 có 牛.",false
+君,召,0.816,"君 (QUÂN, bạn; cậu) và 召 (TRIỆU, gọi; (kính ngữ) ăn; mặc). 君 có 7 nét, 召 có 5 nét. Khác ở thành phần: 君 có 尹, 召 có 刀.",false
 島,泉,0.816,"島 (ĐẢO, đảo) và 泉 (TUYỀN, suối). 島 có 10 nét, 泉 có 9 nét. Khác ở thành phần: 島 có 鳥, 山, 泉 có 白, 水.",false
 研,建,0.816,"研 (NGHIÊN, mài; nghiên cứu) và 建 (KIẾN, xây dựng). Cả hai đều 9 nét. Khác ở thành phần: 研 có 石, 开, 建 có 聿, 廴.",false
 押,汗,0.816,"押 (ÁP, ấn; đẩy) và 汗 (HÃN, mồ hôi). 押 có 8 nét, 汗 có 6 nét. Khác ở thành phần: 押 có 扌, 甲, 汗 có 氵, 干.",false
@@ -961,6 +1009,7 @@ a,b,score,explanation,approved
 足,兄,0.815,"足 (TÚC, chân) và 兄 (HUYNH, anh trai). 足 có 7 nét, 兄 có 5 nét. Khác ở thành phần: 足 có 龰, 兄 có 儿.",false
 暗,場,0.815,"暗 (ÁM, tối) và 場 (TRƯỜNG, nơi; chỗ). 暗 có 13 nét, 場 có 12 nét. Khác ở thành phần: 暗 có 日, 音, 場 có 土, 昜.",false
 多,歩,0.815,"多 (ĐA, nhiều) và 歩 (BỘ, đi bộ). 多 có 6 nét, 歩 có 8 nét. Khác ở thành phần: 多 có 夕, 夕, 歩 có 止, 少.",false
+忘,存,0.815,"忘 (VONG, quên) và 存 (TỒN, tồn tại; biết). 忘 có 7 nét, 存 có 6 nét. Khác ở thành phần: 忘 có 亡, 心, 存 có 亻, 子.",false
 準,寧,0.815,"準 (CHUẨN, chuẩn) và 寧 (NINH, yên ổn). 準 có 13 nét, 寧 có 14 nét. Khác ở thành phần: 準 có 氵, 隼, 寧 có 寍, 丁.",false
 毎,弟,0.815,"毎 (MỖI, mỗi; hàng) và 弟 (ĐỆ, em trai). 毎 có 6 nét, 弟 có 7 nét. Khác ở thành phần: 毎 có 𠂉, 毋, 弟 có 八, 弔, 丿.",false
 韓,曇,0.815,"韓 (HÀN, Hàn (Quốc)) và 曇 (ĐÀM, có mây; âm u). 韓 có 18 nét, 曇 có 16 nét. Khác ở thành phần: 韓 có 𠦝, 韋, 曇 có 日, 雲.",false
@@ -972,9 +1021,8 @@ a,b,score,explanation,approved
 住,似,0.813,"住 (TRÚ, sống; cư trú) và 似 (TỰ, giống). Cả hai đều 7 nét. Khác ở thành phần: 住 có 主, 似 có 以.",false
 傘,準,0.813,"傘 (TẢN, ô; dù) và 準 (CHUẨN, chuẩn). 傘 có 12 nét, 準 có 13 nét. Khác ở thành phần: 傘 có 人, 从, 从, 十, 準 có 氵, 隼.",false
 明,宅,0.813,"明 (MINH, sáng; rõ) và 宅 (TRẠCH, nhà). 明 có 8 nét, 宅 có 6 nét. Khác ở thành phần: 明 có 日, 月, 宅 có 宀, 乇.",false
+曇,慮,0.813,"曇 (ĐÀM, có mây; âm u) và 慮 (LỰ, suy nghĩ; lo lắng). 曇 có 16 nét, 慮 có 15 nét. Khác ở thành phần: 曇 có 日, 雲, 慮 có 虍, 思.",false
 映,独,0.813,"映 (ÁNH, chiếu; phản chiếu) và 独 (ĐỘC, một mình; độc). Cả hai đều 9 nét. Khác ở thành phần: 映 có 日, 央, 独 có ⺨, 虫.",false
-望,査,0.813,"望 (VỌNG, mong) và 査 (TRA, điều tra). 望 có 11 nét, 査 có 9 nét. Khác ở thành phần: 望 có 亡, 月, 王, 査 có 木, 且.",false
-準,落,0.813,"準 (CHUẨN, chuẩn) và 落 (LẠC, rơi). 準 có 13 nét, 落 có 12 nét. Khác ở thành phần: 準 có 氵, 隼, 落 có 艹, 洛.",false
 向,均,0.812,"向 (HƯỚNG, hướng về) và 均 (QUÂN, đều). 向 có 6 nét, 均 có 7 nét. Khác ở thành phần: 向 có 丿, 冂, 口, 均 có 土, 匀.",false
 壊,曜,0.812,"壊 (HOẠI, phá hỏng) và 曜 (DIỆU, ngày trong tuần). 壊 có 16 nét, 曜 có 18 nét. Khác ở thành phần: 壊 có 土, 十, 罒, 衣, 曜 có 日, 翟.",false
 師,泥,0.812,"師 (SƯ, thầy; người có chuyên môn) và 泥 (NÊ, bùn). 師 có 10 nét, 泥 có 8 nét. Khác ở thành phần: 師 có 丿, 丨, 巾, 泥 có 氵, 尼.",false
@@ -982,25 +1030,18 @@ a,b,score,explanation,approved
 三,正,0.811,"三 (TAM, số ba) và 正 (CHÍNH, đúng; chính). 三 có 3 nét, 正 có 5 nét. 正 có thêm 止.",false
 印,申,0.811,"印 (ẤN, dấu) và 申 (THÂN, thưa). 印 có 6 nét, 申 có 5 nét. Khác ở thành phần: 印 có 丿, 卩, 申 có 日.",false
 犬,天,0.811,"犬 (KHUYỂN, chó) và 天 (THIÊN, trời). Cả hai đều 4 nét. Khác ở thành phần: 犬 có 丶, 天 có 一.",false
-家,風,0.811,"家 (GIA, nhà) và 風 (PHONG, gió). 家 có 10 nét, 風 có 9 nét. Khác ở thành phần: 家 có 宀, 豕, 風 có 几, 虫.",false
 計,折,0.811,"計 (KẾ, đo; tính toán) và 折 (CHIẾT, gãy). 計 có 9 nét, 折 có 7 nét. Khác ở thành phần: 計 có 言, 十, 折 có 扌, 斤.",false
 社,礼,0.811,"社 (XÃ, công ty; xã hội) và 礼 (LỄ, lễ; lễ nghĩa). 社 có 7 nét, 礼 có 5 nét. Khác ở thành phần: 社 có 土, 礼 có 乙.",false
-君,吸,0.81,"君 (QUÂN, bạn; cậu) và 吸 (HẤP, hút; hít). 君 có 7 nét, 吸 có 6 nét. Khác ở thành phần: 君 có 尹, 吸 có 及.",false
-曇,磨,0.81,"曇 (ĐÀM, có mây; âm u) và 磨 (MA, mài). Cả hai đều 16 nét. Khác ở thành phần: 曇 có 日, 雲, 磨 có 麻, 石.",false
-桜,集,0.81,"桜 (ANH, hoa anh đào) và 集 (TẬP, tập hợp). 桜 có 10 nét, 集 có 12 nét. Khác ở thành phần: 桜 có ⺍, 女, 集 có 隹.",false
-百,目,0.81,"百 (BÁCH, một trăm) và 目 (MỤC, mắt). 百 có 6 nét, 目 có 5 nét. 百 có thêm 一, 白.",false
+押,拝,0.81,"押 (ÁP, ấn; đẩy) và 拝 (BÁI, vái lạy; (khiêm nhường) kính). Cả hai đều 8 nét. Khác ở thành phần: 押 có 甲, 拝 có 一, 丰.",false
 秒,苦,0.81,"秒 (MIỂU, giây) và 苦 (KHỔ, đắng, khổ). 秒 có 9 nét, 苦 có 8 nét. Khác ở thành phần: 秒 có 禾, 少, 苦 có 艹, 古.",false
 危,包,0.809,"危 (NGUY, nguy hiểm) và 包 (BAO, gói). 危 có 6 nét, 包 có 5 nét. Khác ở thành phần: 危 có 𠂊, 厄, 包 có 勹, 己.",false
-有,官,0.809,"有 (HỮU, có) và 官 (QUAN, quan chức). 有 có 6 nét, 官 có 8 nét. Khác ở thành phần: 有 có 月, 官 có 宀, 口.",false
-押,杯,0.809,"押 (ÁP, ấn; đẩy) và 杯 (BÔI, chén; cốc). Cả hai đều 8 nét. Khác ở thành phần: 押 có 扌, 甲, 杯 có 木, 不.",false
 紅,泣,0.809,"紅 (HỒNG, đỏ thẫm) và 泣 (KHẤP, khóc). 紅 có 9 nét, 泣 có 8 nét. Khác ở thành phần: 紅 có 糸, 工, 泣 có 氵, 立.",false
 君,飛,0.808,"君 (QUÂN, bạn; cậu) và 飛 (PHI, bay). 君 có 7 nét, 飛 có 9 nét. Khác ở thành phần: 君 có 尹, 口, 飛 có 升.",false
+飛,風,0.808,"飛 (PHI, bay) và 風 (PHONG, gió). Cả hai đều 9 nét. Khác ở thành phần: 飛 có 升, 風 có 几, 虫.",false
 母,世,0.807,"母 (MẪU, mẹ) và 世 (THẾ, đời; thế giới). Cả hai đều 5 nét. Khác ở thành phần: 母 có 毋, 世 có 廿.",false
 字,事,0.807,"字 (TỰ, chữ) và 事 (SỰ, việc; sự việc). 字 có 6 nét, 事 có 8 nét. Khác ở thành phần: 字 có 宀, 子, 事 có 口, ⺕, 亅.",false
-具,島,0.807,"具 (CỤ, dụng cụ) và 島 (ĐẢO, đảo). 具 có 8 nét, 島 có 10 nét. Khác ở thành phần: 具 có 目, 八, 島 có 鳥, 山.",false
 北,死,0.807,"北 (BẮC, phía Bắc) và 死 (TỬ, chết). 北 có 5 nét, 死 có 6 nét. 死 có thêm 歹.",false
 子,号,0.807,"子 (TỬ, con) và 号 (HIỆU, số hiệu). 子 có 3 nét, 号 có 5 nét. 号 có thêm 口, 一.",false
-泥,涙,0.807,"泥 (NÊ, bùn) và 涙 (LỆ, nước mắt). 泥 có 8 nét, 涙 có 10 nét. Khác ở thành phần: 泥 có 尼, 涙 có 戻.",false
 向,必,0.806,"向 (HƯỚNG, hướng về) và 必 (TẤT, nhất định). 向 có 6 nét, 必 có 5 nét. Khác ở thành phần: 向 có 冂, 口, 必 có 心.",false
 母,好,0.806,"母 (MẪU, mẹ) và 好 (HẢO, thích). 母 có 5 nét, 好 có 6 nét. Khác ở thành phần: 母 có 毋, 好 có 女, 子.",false
 料,射,0.806,"料 (LIỆU, nguyên liệu; phí) và 射 (XẠ, bắn). Cả hai đều 10 nét. Khác ở thành phần: 料 có 米, 斗, 射 có 身, 寸.",false
@@ -1012,14 +1053,15 @@ a,b,score,explanation,approved
 主,末,0.804,"主 (CHỦ, chủ; chính) và 末 (MẠT, cuối). Cả hai đều 5 nét. Khác ở thành phần: 主 có 亠, 王, 末 có 木.",false
 気,包,0.804,"気 (KHÍ, không khí; khí) và 包 (BAO, gói). 気 có 6 nét, 包 có 5 nét. Khác ở thành phần: 気 có 气, 乂, 包 có 勹, 己.",false
 取,恥,0.804,"取 (THỦ, lấy) và 恥 (SỈ, xấu hổ). 取 có 8 nét, 恥 có 10 nét. Khác ở thành phần: 取 có 又, 恥 có 心.",false
-広,忘,0.804,"広 (QUẢNG, rộng) và 忘 (VONG, quên). 広 có 5 nét, 忘 có 7 nét. Khác ở thành phần: 広 có 广, 厶, 忘 có 亡, 心.",false
+究,査,0.804,"究 (CỨU, tìm tòi; nghiên cứu) và 査 (TRA, điều tra). 究 có 7 nét, 査 có 9 nét. Khác ở thành phần: 究 có 穴, 九, 査 có 木, 且.",false
 貯,針,0.804,"貯 (TRỮ, tích trữ) và 針 (CHÂM, cái kim). 貯 có 12 nét, 針 có 10 nét. Khác ở thành phần: 貯 có 貝, 宁, 針 có 金, 十.",false
 今,介,0.803,"今 (KIM, bây giờ) và 介 (GIỚI, trung gian; giới thiệu). Cả hai đều 4 nét. Khác ở thành phần: 今 có 一, 介 có 丿, 丨.",false
+伎,化,0.803,"伎 (KỸ, kỹ năng; diễn xướng) và 化 (HÓA, biến đổi). 伎 có 6 nét, 化 có 4 nét. Khác ở thành phần: 伎 có 支, 化 có 匕.",false
 石,以,0.802,"石 (THẠCH, đá) và 以 (DĨ, từ, bằng). Cả hai đều 5 nét. Khác ở thành phần: 石 có 口, 以 có 丶, 人.",false
 以,犯,0.801,"以 (DĨ, từ, bằng) và 犯 (PHẠM, phạm tội). Cả hai đều 5 nét. Khác ở thành phần: 以 có 丶, 人, 犯 có ⺨, 㔾.",false
 背,胃,0.801,"背 (BỐI, lưng; chiều cao) và 胃 (VỊ, dạ dày). Cả hai đều 9 nét. Khác ở thành phần: 背 có 北, 胃 có 田.",false
 映,咲,0.8,"映 (ÁNH, chiếu; phản chiếu) và 咲 (TIẾU, nở). Cả hai đều 9 nét. Khác ở thành phần: 映 có 日, 央, 咲 có 口, 关.",false
-泳,弟,0.8,"泳 (VỊNH, bơi) và 弟 (ĐỆ, em trai). 泳 có 8 nét, 弟 có 7 nét. Khác ở thành phần: 泳 có 氵, 永, 弟 có 八, 弔, 丿.",false
+有,市,0.8,"有 (HỮU, có) và 市 (THỊ, thành phố; chợ). 有 có 6 nét, 市 có 5 nét. Khác ở thành phần: 有 có 月, 市 có 亠, 巾.",false
 約,初,0.799,"約 (ƯỚC, ước hẹn; khoảng) và 初 (SƠ, lần đầu). 約 có 9 nét, 初 có 7 nét. Khác ở thành phần: 約 có 糸, 勺, 初 có 衤, 刀.",false
 砂,珍,0.799,"砂 (SA, cát) và 珍 (TRÂN, hiếm). Cả hai đều 9 nét. Khác ở thành phần: 砂 có 石, 少, 珍 có 王, 人, 彡.",false
 研,珍,0.799,"研 (NGHIÊN, mài; nghiên cứu) và 珍 (TRÂN, hiếm). Cả hai đều 9 nét. Khác ở thành phần: 研 có 石, 开, 珍 có 王, 人, 彡.",false
@@ -1042,18 +1084,19 @@ a,b,score,explanation,approved
 冷,功,0.793,"冷 (LÃNH, lạnh) và 功 (CÔNG, công lao). 冷 có 7 nét, 功 có 5 nét. Khác ở thành phần: 冷 có 冫, 令, 功 có 工, 力.",false
 危,色,0.793,"危 (NGUY, nguy hiểm) và 色 (SẮC, màu sắc). Cả hai đều 6 nét. Khác ở thành phần: 危 có 厄, 色 có 巴.",false
 火,大,0.793,"火 (HỎA, lửa) và 大 (ĐẠI, to, lớn). 火 có 4 nét, 大 có 3 nét. Nhìn kỹ số nét và độ dài các nét.",false
-誕,趣,0.793,"誕 (ĐẢN, ra đời) và 趣 (THÚ, thú vị; ý vị). Cả hai đều 15 nét. Khác ở thành phần: 誕 có 言, 延, 趣 có 走, 取.",false
-建,洋,0.792,"建 (KIẾN, xây dựng) và 洋 (DƯƠNG, phương Tây). Cả hai đều 9 nét. Khác ở thành phần: 建 có 聿, 廴, 洋 có 氵, 羊.",false
 刻,建,0.791,"刻 (KHẮC, khắc; thời khắc) và 建 (KIẾN, xây dựng). 刻 có 8 nét, 建 có 9 nét. Khác ở thành phần: 刻 có 亥, 刂, 建 có 聿, 廴.",false
 方,玄,0.791,"方 (PHƯƠNG, phương hướng; người) và 玄 (HUYỀN, huyền bí). 方 có 4 nét, 玄 có 5 nét. 玄 có thêm 幺.",false
 和,恥,0.79,"和 (HÒA, hòa, Nhật) và 恥 (SỈ, xấu hổ). 和 có 8 nét, 恥 có 10 nét. Khác ở thành phần: 和 có 禾, 口, 恥 có 耳, 心.",false
 飲,喫,0.79,"飲 (ẨM, uống) và 喫 (KHIẾT, hút; uống). Cả hai đều 12 nét. Khác ở thành phần: 飲 có 飠, 欠, 喫 có 口, 契.",false
 地,必,0.79,"地 (ĐỊA, đất; địa) và 必 (TẤT, nhất định). 地 có 6 nét, 必 có 5 nét. Khác ở thành phần: 地 có 土, 也, 必 có 心, 丿.",false
+幹,野,0.79,"幹 (CÁN, thân cây; cốt cán) và 野 (DÃ, cánh đồng; hoang dã). 幹 có 13 nét, 野 có 11 nét. Khác ở thành phần: 幹 có 𠦝, 人, 干, 野 có 里, 予.",false
+韓,鶏,0.79,"韓 (HÀN, Hàn (Quốc)) và 鶏 (KÊ, con gà). 韓 có 18 nét, 鶏 có 19 nét. Khác ở thành phần: 韓 có 𠦝, 韋, 鶏 có 奚, 鳥.",false
 二,工,0.789,"二 (NHỊ, số hai) và 工 (CÔNG, công nghiệp). 二 có 2 nét, 工 có 3 nét. Nhìn kỹ số nét và độ dài các nét.",false
 父,元,0.789,"父 (PHỤ, cha) và 元 (NGUYÊN, gốc; nguyên bản). Cả hai đều 4 nét. 元 có thêm 二, 儿.",false
 夢,寧,0.789,"夢 (MỘNG, giấc mơ) và 寧 (NINH, yên ổn). 夢 có 13 nét, 寧 có 14 nét. Khác ở thành phần: 夢 có 艹, 罒, 冖, 夕, 寧 có 寍, 丁.",false
 飲,乾,0.788,"飲 (ẨM, uống) và 乾 (CÀN, khô). 飲 có 12 nét, 乾 có 11 nét. Khác ở thành phần: 飲 có 飠, 欠, 乾 có 𠦝, 乞.",false
 付,仲,0.788,"付 (PHÓ, gắn; kèm theo) và 仲 (TRỌNG, quan hệ). 付 có 5 nét, 仲 có 6 nét. Khác ở thành phần: 付 có 寸, 仲 có 中.",false
+単,客,0.788,"単 (ĐƠN, đơn; đơn giản) và 客 (KHÁCH, khách). Cả hai đều 9 nét. Khác ở thành phần: 単 có ⺍, 甲, 客 có 宀, 各.",false
 双,皿,0.788,"双 (SONG, đôi) và 皿 (MÃNH, đĩa). 双 có 4 nét, 皿 có 5 nét. 双 có thêm 又, 又.",false
 多,角,0.788,"多 (ĐA, nhiều) và 角 (GIÁC, góc; sừng). 多 có 6 nét, 角 có 7 nét. Khác ở thành phần: 多 có 夕, 夕, 角 có 𠂊.",false
 女,公,0.787,"女 (NỮ, phụ nữ; nữ) và 公 (CÔNG, công cộng). 女 có 3 nét, 公 có 4 nét. 公 có thêm 八, 厶.",false
@@ -1069,15 +1112,19 @@ a,b,score,explanation,approved
 分,仲,0.784,"分 (PHÂN, phút; phần) và 仲 (TRỌNG, quan hệ). 分 có 4 nét, 仲 có 6 nét. Khác ở thành phần: 分 có 八, 刀, 仲 có 亻, 中.",false
 分,母,0.783,"分 (PHÂN, phút; phần) và 母 (MẪU, mẹ). 分 có 4 nét, 母 có 5 nét. Khác ở thành phần: 分 có 八, 刀, 母 có 毋.",false
 午,平,0.783,"午 (NGỌ, buổi trưa) và 平 (BÌNH, bằng phẳng). 午 có 4 nét, 平 có 5 nét. 午 có thêm 丿.",false
+買,算,0.783,"買 (MÃI, mua) và 算 (TOÁN, tính toán). 買 có 12 nét, 算 có 14 nét. Khác ở thành phần: 買 có 罒, 貝, 算 có 竹, 目, 廾.",false
 査,素,0.782,"査 (TRA, điều tra) và 素 (TỐ, tuyệt, yếu tố). 査 có 9 nét, 素 có 10 nét. Khác ở thành phần: 査 có 木, 且, 素 có 龶, 糸.",false
+集,算,0.782,"集 (TẬP, tập hợp) và 算 (TOÁN, tính toán). 集 có 12 nét, 算 có 14 nét. Khác ở thành phần: 集 có 隹, 木, 算 có 竹, 目, 廾.",false
 冷,助,0.781,"冷 (LÃNH, lạnh) và 助 (TRỢ, giúp đỡ). Cả hai đều 7 nét. Khác ở thành phần: 冷 có 冫, 令, 助 có 且, 力.",false
 印,序,0.781,"印 (ẤN, dấu) và 序 (TỰ, thứ tự). 印 có 6 nét, 序 có 7 nét. Khác ở thành phần: 印 có 丿, 丨, 卩, 序 có 广, 予.",false
 好,汚,0.781,"好 (HẢO, thích) và 汚 (Ô, bẩn). Cả hai đều 6 nét. Khác ở thành phần: 好 có 女, 子, 汚 có 氵, 二.",false
+取,涙,0.78,"取 (THỦ, lấy) và 涙 (LỆ, nước mắt). 取 có 8 nét, 涙 có 10 nét. Khác ở thành phần: 取 có 耳, 又, 涙 có 氵, 戻.",false
 泳,味,0.78,"泳 (VỊNH, bơi) và 味 (VỊ, vị). Cả hai đều 8 nét. Khác ở thành phần: 泳 có 氵, 永, 味 có 口, 未.",false
 夏,負,0.779,"夏 (HẠ, mùa hè) và 負 (PHỤ, thua; gánh vác). 夏 có 10 nét, 負 có 9 nét. Khác ở thành phần: 夏 có 一, 自, 夂, 負 có 𠂊, 貝.",false
 紅,知,0.779,"紅 (HỒNG, đỏ thẫm) và 知 (TRI, biết). 紅 có 9 nét, 知 có 8 nét. Khác ở thành phần: 紅 có 糸, 工, 知 có 矢, 口.",false
 付,甘,0.778,"付 (PHÓ, gắn; kèm theo) và 甘 (CAM, ngọt). Cả hai đều 5 nét. Khác ở thành phần: 付 có 亻, 寸, 甘 có 廿.",false
 文,玄,0.778,"文 (VĂN, văn; câu văn) và 玄 (HUYỀN, huyền bí). 文 có 4 nét, 玄 có 5 nét. Khác ở thành phần: 文 có 乂, 玄 có 幺.",false
+事,建,0.777,"事 (SỰ, việc; sự việc) và 建 (KIẾN, xây dựng). 事 có 8 nét, 建 có 9 nét. Khác ở thành phần: 事 có 口, ⺕, 亅, 建 có 聿, 廴.",false
 木,本,0.777,"木 (MỘC, cây) và 本 (BẢN, sách; gốc). 木 có 4 nét, 本 có 5 nét. 本 có thêm 木.",false
 元,反,0.776,"元 (NGUYÊN, gốc; nguyên bản) và 反 (PHẢN, ngược). Cả hai đều 4 nét. Khác ở thành phần: 元 có 二, 儿, 反 có 厂, 又.",false
 店,助,0.776,"店 (ĐIẾM, cửa hàng) và 助 (TRỢ, giúp đỡ). 店 có 8 nét, 助 có 7 nét. Khác ở thành phần: 店 có 广, 占, 助 có 且, 力.",false
@@ -1087,6 +1134,7 @@ a,b,score,explanation,approved
 確,障,0.775,"確 (XÁC, chắc chắn; xác nhận) và 障 (CHƯỚNG, cản trở; trở ngại). 確 có 15 nét, 障 có 14 nét. Khác ở thành phần: 確 có 石, 寉, 障 có ⻖, 章.",false
 歩,身,0.774,"歩 (BỘ, đi bộ) và 身 (THÂN, thân thể). 歩 có 8 nét, 身 có 7 nét. 歩 có thêm 止, 少.",false
 先,公,0.773,"先 (TIÊN, trước; phía trước) và 公 (CÔNG, công cộng). 先 có 6 nét, 公 có 4 nét. Khác ở thành phần: 先 có 儿, 公 có 八, 厶.",false
+夢,管,0.773,"夢 (MỘNG, giấc mơ) và 管 (QUẢN, quản lý). 夢 có 13 nét, 管 có 14 nét. Khác ở thành phần: 夢 có 艹, 罒, 冖, 夕, 管 có 竹, 官.",false
 双,収,0.772,"双 (SONG, đôi) và 収 (THU, thu vào). Cả hai đều 4 nét. 収 có thêm 丨.",false
 名,店,0.772,"名 (DANH, tên) và 店 (ĐIẾM, cửa hàng). 名 có 6 nét, 店 có 8 nét. Khác ở thành phần: 名 có 夕, 口, 店 có 广, 占.",false
 知,和,0.772,"知 (TRI, biết) và 和 (HÒA, hòa, Nhật). Cả hai đều 8 nét. Khác ở thành phần: 知 có 矢, 和 có 禾.",false
@@ -1095,33 +1143,32 @@ a,b,score,explanation,approved
 払,収,0.771,"払 (PHẤT, trả tiền; phủi) và 収 (THU, thu vào). 払 có 5 nét, 収 có 4 nét. Khác ở thành phần: 払 có 扌, 厶, 収 có 丨, 又.",false
 私,和,0.771,"私 (TƯ, tôi) và 和 (HÒA, hòa, Nhật). 私 có 7 nét, 和 có 8 nét. Khác ở thành phần: 私 có 厶, 和 có 口.",false
 立,次,0.771,"立 (LẬP, đứng) và 次 (THỨ, tiếp theo). 立 có 5 nét, 次 có 6 nét. Khác ở thành phần: 立 có 亠, 次 có 冫, 欠.",false
-韓,優,0.77,"韓 (HÀN, Hàn (Quốc)) và 優 (ƯU, dịu dàng; ưu tú). 韓 có 18 nét, 優 có 17 nét. Khác ở thành phần: 韓 có 𠦝, 韋, 優 có 亻, 憂.",false
 化,比,0.77,"化 (HÓA, biến đổi) và 比 (TỶ, so sánh). Cả hai đều 4 nét. 化 có thêm 亻.",false
 何,杯,0.769,"何 (HÀ, cái gì) và 杯 (BÔI, chén; cốc). 何 có 7 nét, 杯 có 8 nét. Khác ở thành phần: 何 có 亻, 可, 杯 có 木, 不.",false
 傘,降,0.769,"傘 (TẢN, ô; dù) và 降 (GIÁNG, xuống; rơi). 傘 có 12 nét, 降 có 10 nét. Khác ở thành phần: 傘 có 人, 从, 从, 十, 降 có ⻖, 夅.",false
 外,冬,0.769,"外 (NGOẠI, bên ngoài) và 冬 (ĐÔNG, mùa đông). Cả hai đều 5 nét. Khác ở thành phần: 外 có 夕, 卜, 冬 có 夂, 冫.",false
+誕,優,0.768,"誕 (ĐẢN, ra đời) và 優 (ƯU, dịu dàng; ưu tú). 誕 có 15 nét, 優 có 17 nét. Khác ở thành phần: 誕 có 言, 延, 優 có 亻, 憂.",false
+優,質,0.768,"優 (ƯU, dịu dàng; ưu tú) và 質 (CHẤT, chất). 優 có 17 nét, 質 có 15 nét. Khác ở thành phần: 優 có 亻, 憂, 質 có 斤, 斤, 貝.",false
 長,良,0.768,"長 (TRƯỜNG, dài) và 良 (LƯƠNG, tốt). 長 có 8 nét, 良 có 7 nét. 良 có thêm 艮.",false
 何,打,0.767,"何 (HÀ, cái gì) và 打 (ĐẢ, đánh). 何 có 7 nét, 打 có 5 nét. Khác ở thành phần: 何 có 亻, 可, 打 có 扌, 丁.",false
+足,具,0.767,"足 (TÚC, chân) và 具 (CỤ, dụng cụ). 足 có 7 nét, 具 có 8 nét. Khác ở thành phần: 足 có 口, 龰, 具 có 目, 八.",false
 方,市,0.767,"方 (PHƯƠNG, phương hướng; người) và 市 (THỊ, thành phố; chợ). 方 có 4 nét, 市 có 5 nét. 市 có thêm 巾.",false
 吹,咲,0.766,"吹 (XUY, thổi) và 咲 (TIẾU, nở). 吹 có 7 nét, 咲 có 9 nét. Khác ở thành phần: 吹 có 欠, 咲 có 关.",false
 細,登,0.766,"細 (TẾ, nhỏ; mảnh) và 登 (ĐĂNG, leo; lên). 細 có 11 nét, 登 có 12 nét. Khác ở thành phần: 細 có 糸, 田, 登 có 癶, 豆.",false
-花,飛,0.765,"花 (HOA, hoa) và 飛 (PHI, bay). 花 có 7 nét, 飛 có 9 nét. Khác ở thành phần: 花 có 艹, 化, 飛 có 升.",false
+呼,砂,0.764,"呼 (HÔ, gọi) và 砂 (SA, cát). 呼 có 8 nét, 砂 có 9 nét. Khác ở thành phần: 呼 có 口, 乎, 砂 có 石, 少.",false
 万,方,0.763,"万 (VẠN, mười nghìn) và 方 (PHƯƠNG, phương hướng; người). 万 có 3 nét, 方 có 4 nét. Khác ở thành phần: 万 có 一, 方 có 亠.",false
-天,次,0.762,"天 (THIÊN, trời) và 次 (THỨ, tiếp theo). 天 có 4 nét, 次 có 6 nét. Khác ở thành phần: 天 có 一, 大, 次 có 冫, 欠.",false
+出,広,0.763,"出 (XUẤT, đi ra; xuất) và 広 (QUẢNG, rộng). Cả hai đều 5 nét. Khác ở thành phần: 出 có 山, 凵, 広 có 广, 厶.",false
 行,付,0.761,"行 (HÀNH, đi; thực hiện) và 付 (PHÓ, gắn; kèm theo). 行 có 6 nét, 付 có 5 nét. Khác ở thành phần: 行 có 彳, 付 có 亻, 寸.",false
-出,比,0.761,"出 (XUẤT, đi ra; xuất) và 比 (TỶ, so sánh). 出 có 5 nét, 比 có 4 nét. Khác ở thành phần: 出 có 山, 凵, 比 có 匕.",false
+登,停,0.761,"登 (ĐĂNG, leo; lên) và 停 (ĐÌNH, dừng lại). 登 có 12 nét, 停 có 11 nét. Khác ở thành phần: 登 có 癶, 豆, 停 có 亻, 亭.",false
 考,命,0.761,"考 (KHẢO, suy nghĩ) và 命 (MỆNH, mệnh). 考 có 6 nét, 命 có 8 nét. Khác ở thành phần: 考 có 耂, 丂, 命 có 人, 一, 口, 卩.",false
-登,針,0.761,"登 (ĐĂNG, leo; lên) và 針 (CHÂM, cái kim). 登 có 12 nét, 針 có 10 nét. Khác ở thành phần: 登 có 癶, 豆, 針 có 金, 十.",false
 身,胃,0.761,"身 (THÂN, thân thể) và 胃 (VỊ, dạ dày). 身 có 7 nét, 胃 có 9 nét. 胃 có thêm 田, 月.",false
 花,近,0.761,"花 (HOA, hoa) và 近 (CẬN, gần). Cả hai đều 7 nét. Khác ở thành phần: 花 có 艹, 化, 近 có 斤, ⻌.",false
 丸,札,0.76,"丸 (HOÀN, tròn) và 札 (TRÁT, tờ tiền). 丸 có 3 nét, 札 có 5 nét. Khác ở thành phần: 丸 có 九, 丶, 札 có 木, 乙.",false
 仕,忙,0.76,"仕 (SĨ, phục vụ; làm việc) và 忙 (MANG, bận). 仕 có 5 nét, 忙 có 6 nét. Khác ở thành phần: 仕 có 亻, 士, 忙 có 忄, 亡.",false
 土,止,0.76,"土 (THỔ, đất) và 止 (CHỈ, dừng). 土 có 3 nét, 止 có 4 nét. 止 có thêm 卜.",false
 花,宅,0.76,"花 (HOA, hoa) và 宅 (TRẠCH, nhà). 花 có 7 nét, 宅 có 6 nét. Khác ở thành phần: 花 có 艹, 化, 宅 có 宀, 乇.",false
-幹,乾,0.759,"幹 (CÁN, thân cây; cốt cán) và 乾 (CÀN, khô). 幹 có 13 nét, 乾 có 11 nét. Khác ở thành phần: 幹 có 人, 干, 乾 có 乞.",false
-身,弁,0.759,"身 (THÂN, thân thể) và 弁 (BIỆN, cơm hộp, biện luận). 身 có 7 nét, 弁 có 5 nét. 弁 có thêm 厶, 廾.",false
 私,込,0.759,"私 (TƯ, tôi) và 込 (NHẬP, vào, đông). 私 có 7 nét, 込 có 5 nét. Khác ở thành phần: 私 có 禾, 厶, 込 có 入, ⻌.",false
-事,序,0.758,"事 (SỰ, việc; sự việc) và 序 (TỰ, thứ tự). 事 có 8 nét, 序 có 7 nét. Khác ở thành phần: 事 có 口, ⺕, 亅, 序 có 广, 予.",false
+傘,針,0.758,"傘 (TẢN, ô; dù) và 針 (CHÂM, cái kim). 傘 có 12 nét, 針 có 10 nét. Khác ở thành phần: 傘 có 人, 从, 从, 針 có 金.",false
 乳,泳,0.757,"乳 (NHŨ, sữa) và 泳 (VỊNH, bơi). Cả hai đều 8 nét. Khác ở thành phần: 乳 có 孚, 乙, 泳 có 氵, 永.",false
 子,予,0.757,"子 (TỬ, con) và 予 (DỰ, trước; dự định). 子 có 3 nét, 予 có 4 nét. 予 có thêm マ, 了.",false
 円,用,0.757,"円 (VIÊN, yên Nhật) và 用 (DỤNG, dùng; việc). 円 có 4 nét, 用 có 5 nét. 円 có thêm 冂.",false
@@ -1136,19 +1183,20 @@ a,b,score,explanation,approved
 今,中,0.75,"今 (KIM, bây giờ) và 中 (TRUNG, bên trong; giữa). Cả hai đều 4 nét. Khác ở thành phần: 今 có 人, 一, 中 có 口, 丨.",false
 千,号,0.75,"千 (THIÊN, một nghìn) và 号 (HIỆU, số hiệu). 千 có 3 nét, 号 có 5 nét. Khác ở thành phần: 千 có 丿, 十, 号 có 口, 一.",false
 女,太,0.748,"女 (NỮ, phụ nữ; nữ) và 太 (THÁI, to, béo). 女 có 3 nét, 太 có 4 nét. 太 có thêm 大, 丶.",false
+花,良,0.748,"花 (HOA, hoa) và 良 (LƯƠNG, tốt). Cả hai đều 7 nét. Khác ở thành phần: 花 có 艹, 化, 良 có 艮.",false
 北,比,0.746,"北 (BẮC, phía Bắc) và 比 (TỶ, so sánh). 北 có 5 nét, 比 có 4 nét. Cùng có 匕; nhìn kỹ số nét và độ dài các nét.",false
 味,咲,0.745,"味 (VỊ, vị) và 咲 (TIẾU, nở). 味 có 8 nét, 咲 có 9 nét. Khác ở thành phần: 味 có 未, 咲 có 关.",false
 呼,考,0.745,"呼 (HÔ, gọi) và 考 (KHẢO, suy nghĩ). 呼 có 8 nét, 考 có 6 nét. Khác ở thành phần: 呼 có 口, 乎, 考 có 耂, 丂.",false
 行,汗,0.745,"行 (HÀNH, đi; thực hiện) và 汗 (HÃN, mồ hôi). Cả hai đều 6 nét. Khác ở thành phần: 行 có 彳, 汗 có 氵, 干.",false
 号,予,0.744,"号 (HIỆU, số hiệu) và 予 (DỰ, trước; dự định). 号 có 5 nét, 予 có 4 nét. Khác ở thành phần: 号 có 口, 一, 予 có マ, 了.",false
 切,公,0.743,"切 (THIẾT, cắt) và 公 (CÔNG, công cộng). Cả hai đều 4 nét. Khác ở thành phần: 切 có 七, 刀, 公 có 八, 厶.",false
-足,用,0.743,"足 (TÚC, chân) và 用 (DỤNG, dùng; việc). 足 có 7 nét, 用 có 5 nét. 足 có thêm 口, 龰.",false
 月,片,0.742,"月 (NGUYỆT, mặt trăng) và 片 (PHIẾN, mảnh). Cả hai đều 4 nét. Nhìn kỹ số nét và độ dài các nét.",false
 土,上,0.74,"土 (THỔ, đất) và 上 (THƯỢNG, phía trên). Cả hai đều 3 nét. 上 có thêm 卜, 一.",false
 止,太,0.739,"止 (CHỈ, dừng) và 太 (THÁI, to, béo). Cả hai đều 4 nét. Khác ở thành phần: 止 có 卜, 太 có 大, 丶.",false
 耳,可,0.738,"耳 (NHĨ, tai) và 可 (KHẢ, có thể). 耳 có 6 nét, 可 có 5 nét. 可 có thêm 丁, 口.",false
 知,恥,0.738,"知 (TRI, biết) và 恥 (SỈ, xấu hổ). 知 có 8 nét, 恥 có 10 nét. Khác ở thành phần: 知 có 矢, 口, 恥 có 耳, 心.",false
 見,点,0.738,"見 (KIẾN, nhìn; thấy) và 点 (ĐIỂM, điểm). 見 có 7 nét, 点 có 9 nét. Khác ở thành phần: 見 có 目, 儿, 点 có 占, 灬.",false
+乾,象,0.735,"乾 (CÀN, khô) và 象 (TƯỢNG, con voi; hình tượng). 乾 có 11 nét, 象 có 12 nét. Khác ở thành phần: 乾 có 𠦝, 乞, 象 có 𠂊, 豕.",false
 代,化,0.735,"代 (ĐẠI, thay thế) và 化 (HÓA, biến đổi). 代 có 5 nét, 化 có 4 nét. Khác ở thành phần: 代 có 弋, 化 có 匕.",false
 加,必,0.734,"加 (GIA, thêm) và 必 (TẤT, nhất định). Cả hai đều 5 nét. Khác ở thành phần: 加 có 力, 口, 必 có 心, 丿.",false
 月,甘,0.734,"月 (NGUYỆT, mặt trăng) và 甘 (CAM, ngọt). 月 có 4 nét, 甘 có 5 nét. 甘 có thêm 廿.",false
@@ -1164,8 +1212,6 @@ a,b,score,explanation,approved
 切,収,0.727,"切 (THIẾT, cắt) và 収 (THU, thu vào). Cả hai đều 4 nét. Khác ở thành phần: 切 có 七, 刀, 収 có 丨, 又.",false
 喫,乾,0.725,"喫 (KHIẾT, hút; uống) và 乾 (CÀN, khô). 喫 có 12 nét, 乾 có 11 nét. Khác ở thành phần: 喫 có 口, 契, 乾 có 𠦝, 乞.",false
 食,背,0.724,"食 (THỰC, ăn) và 背 (BỐI, lưng; chiều cao). Cả hai đều 9 nét. 背 có thêm 北, 月.",false
-万,市,0.723,"万 (VẠN, mười nghìn) và 市 (THỊ, thành phố; chợ). 万 có 3 nét, 市 có 5 nét. Khác ở thành phần: 万 có 一, 市 có 亠, 巾.",false
-北,化,0.723,"北 (BẮC, phía Bắc) và 化 (HÓA, biến đổi). 北 có 5 nét, 化 có 4 nét. 化 có thêm 亻.",false
 竹,甘,0.723,"竹 (TRÚC, tre) và 甘 (CAM, ngọt). 竹 có 6 nét, 甘 có 5 nét. 甘 có thêm 廿.",false
 代,汽,0.721,"代 (ĐẠI, thay thế) và 汽 (KHÍ, hơi nước). 代 có 5 nét, 汽 có 7 nét. Khác ở thành phần: 代 có 亻, 弋, 汽 có 氵, 气.",false
 万,力,0.719,"万 (VẠN, mười nghìn) và 力 (LỰC, sức lực). 万 có 3 nét, 力 có 2 nét. 万 có thêm 一.",false
@@ -1173,20 +1219,20 @@ a,b,score,explanation,approved
 上,止,0.718,"上 (THƯỢNG, phía trên) và 止 (CHỈ, dừng). 上 có 3 nét, 止 có 4 nét. 上 có thêm 一.",false
 代,式,0.718,"代 (ĐẠI, thay thế) và 式 (THỨC, nghi thức). 代 có 5 nét, 式 có 6 nét. Khác ở thành phần: 代 có 亻, 式 có 工.",false
 冬,写,0.716,"冬 (ĐÔNG, mùa đông) và 写 (TẢ, chép; chụp). Cả hai đều 5 nét. Khác ở thành phần: 冬 có 夂, 冫, 写 có 冖, 与.",false
-近,取,0.714,"近 (CẬN, gần) và 取 (THỦ, lấy). 近 có 7 nét, 取 có 8 nét. Khác ở thành phần: 近 có 斤, ⻌, 取 có 耳, 又.",false
-点,良,0.714,"点 (ĐIỂM, điểm) và 良 (LƯƠNG, tốt). 点 có 9 nét, 良 có 7 nét. Khác ở thành phần: 点 có 占, 灬, 良 có 艮.",false
-優,確,0.713,"優 (ƯU, dịu dàng; ưu tú) và 確 (XÁC, chắc chắn; xác nhận). 優 có 17 nét, 確 có 15 nét. Khác ở thành phần: 優 có 亻, 憂, 確 có 石, 寉.",false
+北,加,0.715,"北 (BẮC, phía Bắc) và 加 (GIA, thêm). Cả hai đều 5 nét. Khác ở thành phần: 北 có 匕, 加 có 力, 口.",false
 食,長,0.711,"食 (THỰC, ăn) và 長 (TRƯỜNG, dài). 食 có 9 nét, 長 có 8 nét. Nhìn kỹ số nét và độ dài các nét.",false
 木,右,0.71,"木 (MỘC, cây) và 右 (HỮU, bên phải). 木 có 4 nét, 右 có 5 nét. 右 có thêm 丆, 口.",false
 外,片,0.71,"外 (NGOẠI, bên ngoài) và 片 (PHIẾN, mảnh). 外 có 5 nét, 片 có 4 nét. 外 có thêm 夕, 卜.",false
+川,用,0.71,"川 (XUYÊN, sông) và 用 (DỤNG, dùng; việc). 川 có 3 nét, 用 có 5 nét. Nhìn kỹ số nét và độ dài các nét.",false
 冬,不,0.709,"冬 (ĐÔNG, mùa đông) và 不 (BẤT, không). 冬 có 5 nét, 不 có 4 nét. Khác ở thành phần: 冬 có 夂, 冫, 不 có 一, 丿, 丨.",false
-夢,喫,0.706,"夢 (MỘNG, giấc mơ) và 喫 (KHIẾT, hút; uống). 夢 có 13 nét, 喫 có 12 nét. Khác ở thành phần: 夢 có 艹, 罒, 冖, 夕, 喫 có 口, 契.",false
+近,泳,0.706,"近 (CẬN, gần) và 泳 (VỊNH, bơi). 近 có 7 nét, 泳 có 8 nét. Khác ở thành phần: 近 có 斤, ⻌, 泳 có 氵, 永.",false
 久,札,0.704,"久 (CỬU, lâu) và 札 (TRÁT, tờ tiền). 久 có 3 nét, 札 có 5 nét. Khác ở thành phần: 久 có 𠂊, 札 có 木, 乙.",false
 内,力,0.703,"内 (NỘI, bên trong) và 力 (LỰC, sức lực). 内 có 4 nét, 力 có 2 nét. 内 có thêm 冂, 人.",false
-夢,算,0.701,"夢 (MỘNG, giấc mơ) và 算 (TOÁN, tính toán). 夢 có 13 nét, 算 có 14 nét. Khác ở thành phần: 夢 có 艹, 罒, 冖, 夕, 算 có 竹, 目, 廾.",false
 月,耳,0.701,"月 (NGUYỆT, mặt trăng) và 耳 (NHĨ, tai). 月 có 4 nét, 耳 có 6 nét. Nhìn kỹ số nét và độ dài các nét.",false
-仕,加,0.692,"仕 (SĨ, phục vụ; làm việc) và 加 (GIA, thêm). Cả hai đều 5 nét. Khác ở thành phần: 仕 có 亻, 士, 加 có 力, 口.",false
 午,予,0.691,"午 (NGỌ, buổi trưa) và 予 (DỰ, trước; dự định). Cả hai đều 4 nét. Khác ở thành phần: 午 có 丿, 干, 予 có マ, 了.",false
 土,士,0.688,"土 (THỔ, đất) và 士 (SĨ, người có chuyên môn). Cả hai đều 3 nét. Nhìn kỹ số nét và độ dài các nét.",false
 耳,写,0.687,"耳 (NHĨ, tai) và 写 (TẢ, chép; chụp). 耳 có 6 nét, 写 có 5 nét. 写 có thêm 冖, 与.",false
+喫,障,0.686,"喫 (KHIẾT, hút; uống) và 障 (CHƯỚNG, cản trở; trở ngại). 喫 có 12 nét, 障 có 14 nét. Khác ở thành phần: 喫 có 口, 契, 障 có ⻖, 章.",false
+声,序,0.686,"声 (THANH, giọng nói) và 序 (TỰ, thứ tự). Cả hai đều 7 nét. Khác ở thành phần: 声 có 士, 序 có 广, 予.",false
+少,弁,0.684,"少 (THIỂU, ít) và 弁 (BIỆN, cơm hộp, biện luận). 少 có 4 nét, 弁 có 5 nét. Khác ở thành phần: 少 có 小, 丿, 弁 có 厶, 廾.",false
 日,天,0.683,"日 (NHẬT, ngày; mặt trời) và 天 (THIÊN, trời). Cả hai đều 4 nét. 天 có thêm 一, 大.",false
