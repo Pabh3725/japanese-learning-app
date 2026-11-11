@@ -106,6 +106,7 @@ export function validateGrammar(files: { name: string; text: string }[], vocabKa
         if (n < MIN_PER_LEVEL) warn(pw, `mức ${level} chỉ có ${n} câu (nên ≥ ${MIN_PER_LEVEL})`)
       }
       const texts = new Map<string, string>()
+      const meanings = new Map<string, string>()
       const types = new Set<GrammarExercise>()
 
       for (const s of point.sentences) {
@@ -117,7 +118,8 @@ export function validateGrammar(files: { name: string; text: string }[], vocabKa
         if (typeof s.meaning !== 'string' || s.meaning.trim() === '') err(sw, 'thiếu nghĩa tiếng Việt')
         if (!checkPieces(s.pieces, sw, err)) continue
         const text = sentenceText(s.pieces)
-        if (texts.has(text)) warn(sw, `trùng câu với ${texts.get(text)}`)
+        // Cùng một câu mà khác nghĩa thì dạng chọn nghĩa có hai đáp án đúng
+        if (texts.has(text) && !s.hidden) err(sw, `trùng câu với ${texts.get(text)}`)
         texts.set(text, s.code)
         for (const ch of text) if (KANJI_CHAR.test(ch) && !known.has(ch)) warn(sw, `chữ ${ch} chưa có trong từ vựng tới bài ${data.lesson}`)
 
@@ -140,6 +142,14 @@ export function validateGrammar(files: { name: string; text: string }[], vocabKa
         if (s.prompt) {
           checkPieces(s.prompt.pieces, `${sw} prompt`, err)
           if (typeof s.prompt.meaning !== 'string' || s.prompt.meaning.trim() === '') err(sw, 'prompt thiếu nghĩa')
+          const reply = sentenceText(s.pieces)
+          if (!Array.isArray(s.prompt.distractors) || s.prompt.distractors.length < MIN_DISTRACTORS) err(sw, `prompt cần ít nhất ${MIN_DISTRACTORS} câu đáp sai`)
+          else if (s.prompt.distractors.includes(reply)) err(sw, 'câu đáp sai trùng câu đáp đúng')
+        }
+        if (typeof s.meaning === 'string') {
+          const key = s.meaning.trim().toLowerCase()
+          if (!s.hidden && meanings.has(key)) err(sw, `nghĩa trùng với ${meanings.get(key)} (dạng chọn nghĩa sẽ có hai đáp án đúng)`)
+          meanings.set(key, s.code)
         }
         for (const use of s.uses ?? []) {
           const um = POINT_CODE.exec(use)

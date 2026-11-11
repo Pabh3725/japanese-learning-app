@@ -1,0 +1,10476 @@
+{
+ "lesson": 2,
+ "points": [
+  {
+   "code": "g02-01",
+   "order": 1,
+   "pattern": "これ／それ／あれ は N です",
+   "meaning": "Cái này / cái đó / cái kia là N",
+   "explanation": "これ, それ, あれ là đại từ chỉ đồ vật, đứng một mình làm chủ đề câu. これ: vật gần người nói (cái này, đây). それ: vật gần người nghe (cái đó, đó). あれ: vật xa cả hai người (cái kia, kia). Hỏi \"cái gì\" bằng 何 (なん): これは何ですか.",
+   "approved": true,
+   "sentences": [
+    {
+     "code": "g02-01-s01",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là quyển sách.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "それ",
+        "あれ",
+        "この"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g02-01-s02",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "辞書",
+       "r": "じしょ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là cuốn từ điển.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "それ",
+        "あれ",
+        "この"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s03",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "雑誌",
+       "r": "ざっし"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là tạp chí.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "あれ",
+        "その"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s04",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ノート"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là quyển vở.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "あれ",
+        "その"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s05",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia là cái đồng hồ.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "それ",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s06",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "テレビ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia là cái tivi.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "それ",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g02-01-s07",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "かぎ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là chìa khóa.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "それ",
+        "あれ",
+        "この"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s08",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "傘",
+       "r": "かさ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là cái ô.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "あれ",
+        "その"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s09",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "自動車",
+       "r": "じどうしゃ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia là chiếc ô tô.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "それ",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s10",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ボールペン"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là cây bút bi.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "それ",
+        "あれ",
+        "この"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s11",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "鉛筆",
+       "r": "えんぴつ"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó không phải là bút chì.",
+     "uses": [
+      "g01-02"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "あれ",
+        "その"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s12",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "新聞",
+       "r": "しんぶん"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây có phải là tờ báo không?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "それ",
+        "あれ",
+        "この"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g02-01-s13",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "カメラ"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia có phải là máy ảnh không?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "それ",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s14",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "名刺",
+       "r": "めいし"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là danh thiếp.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "それ",
+        "あれ",
+        "この"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s15",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "テレホンカード"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó có phải là thẻ điện thoại không?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "あれ",
+        "その"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s16",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "コンピュータ"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia không phải là máy vi tính.",
+     "uses": [
+      "g01-02"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "それ",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s17",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "チョコレート"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là sô-cô-la.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "それ",
+        "あれ",
+        "この"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s18",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "コーヒー"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là cà phê.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "あれ",
+        "その"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g02-01-s19",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ラジオ"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia có phải là cái radio không?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "それ",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s20",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "手帳",
+       "r": "てちょう"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây không phải là sổ tay.",
+     "uses": [
+      "g01-02"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "それ",
+        "あれ",
+        "この"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s21",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "何",
+       "r": "なん"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là cái gì?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "それ",
+        "あれ",
+        "この"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s22",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "テープ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "これ"
+      },
+      {
+       "t": "も"
+      },
+      {
+       "t": "テープ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là băng cát-xét. Cái này cũng là băng cát-xét.",
+     "uses": [
+      "g01-04"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 5,
+       "distractors": [
+        "それ",
+        "あれ",
+        "この"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s23",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là sách của tôi.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "それ",
+        "あれ",
+        "この"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s24",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ミラーさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "自動車",
+       "r": "じどうしゃ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia là ô tô của anh Miller.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "それ",
+        "あの"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s25",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "日本",
+       "r": "にほん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó có phải là đồng hồ Nhật không?",
+     "uses": [
+      "g01-03",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "あれ",
+        "その"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g02-01-s26",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "テレビ"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "コンピュータ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia không phải là tivi. Đó là máy vi tính.",
+     "uses": [
+      "g01-01",
+      "g01-02"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "それ",
+        "あの"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s27",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "かばん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "それ"
+      },
+      {
+       "t": "も"
+      },
+      {
+       "t": "かばん"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là cái cặp. Cái đó cũng là cái cặp à?",
+     "uses": [
+      "g01-03",
+      "g01-04"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 5,
+       "distractors": [
+        "これ",
+        "あれ",
+        "その"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s28",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "誰",
+       "r": "だれ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "傘",
+       "r": "かさ"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia là ô của ai?",
+     "uses": [
+      "g01-03",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "それ",
+        "あの"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s29",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "名刺",
+       "r": "めいし"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó không phải là danh thiếp của tôi.",
+     "uses": [
+      "g01-02",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "あれ",
+        "その"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-01-s30",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "カリナさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "ノート"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là quyển vở của chị Karina.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "それ",
+        "あれ",
+        "この"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "code": "g02-02",
+   "order": 2,
+   "pattern": "この／その／あの N",
+   "meaning": "N này / N đó / N kia",
+   "explanation": "この, その, あの luôn đi kèm một danh từ ngay sau, không đứng một mình: この本 (quyển sách này), その傘 (cái ô đó), あの時計 (cái đồng hồ kia). Khoảng cách giống これ, それ, あれ. Phân biệt: これは本です (đây là sách) nhưng この本は私の本です (quyển sách này là sách của tôi).",
+   "approved": true,
+   "sentences": [
+    {
+     "code": "g02-02-s01",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Quyển sách này là sách của tôi.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "その",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g02-02-s02",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "かばん"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ミラーさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "かばん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái cặp này là cặp của anh Miller.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "その",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s03",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "傘",
+       "r": "かさ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "カリナさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "傘",
+       "r": "かさ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái ô đó là ô của chị Karina.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "それ",
+        "この",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s04",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "日本",
+       "r": "にほん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái đồng hồ đó là đồng hồ Nhật.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "それ",
+        "この",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s05",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "あの"
+      },
+      {
+       "t": "自動車",
+       "r": "じどうしゃ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "シュミットさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "自動車",
+       "r": "じどうしゃ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Chiếc ô tô kia là ô tô của ông Schmidt.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "あれ",
+        "この",
+        "その"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s06",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "ノート"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ワンさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "ノート"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Quyển vở này là vở của anh Wang.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "その",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g02-02-s07",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "辞書",
+       "r": "じしょ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "イーさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "辞書",
+       "r": "じしょ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cuốn từ điển đó là từ điển của chị Lee.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "それ",
+        "この",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s08",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "あの"
+      },
+      {
+       "t": "いす"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "先生",
+       "r": "せんせい"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "いす"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái ghế kia là ghế của giáo viên.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "あれ",
+        "この",
+        "その"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s09",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "カメラ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "カメラ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái máy ảnh này là máy ảnh của tôi.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "その",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s10",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "鉛筆",
+       "r": "えんぴつ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "サントスさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "鉛筆",
+       "r": "えんぴつ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cây bút chì đó là bút chì của anh Santos.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "それ",
+        "この",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s11",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "かぎ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "誰",
+       "r": "だれ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "かぎ"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Chìa khóa này là chìa khóa của ai?",
+     "uses": [
+      "g01-03",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "その",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s12",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "雑誌",
+       "r": "ざっし"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "誰",
+       "r": "だれ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "雑誌",
+       "r": "ざっし"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Tạp chí đó là tạp chí của ai?",
+     "uses": [
+      "g01-03",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "それ",
+        "この",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g02-02-s13",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "あの"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "日本",
+       "r": "にほん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái đồng hồ kia có phải là đồng hồ Nhật không?",
+     "uses": [
+      "g01-03",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "あれ",
+        "この",
+        "その"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s14",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "コンピュータ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "コンピュータ"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Máy vi tính này không phải là máy của tôi.",
+     "uses": [
+      "g01-02",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "その",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s15",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "テープ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ミラーさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "テープ"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cuộn băng đó có phải là băng của anh Miller không?",
+     "uses": [
+      "g01-03",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "それ",
+        "この",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s16",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "あの"
+      },
+      {
+       "t": "机",
+       "r": "つくえ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "先生",
+       "r": "せんせい"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "机",
+       "r": "つくえ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái bàn kia là bàn của giáo viên.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "あれ",
+        "この",
+        "その"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s17",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "名刺",
+       "r": "めいし"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "シュミットさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "名刺",
+       "r": "めいし"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Tấm danh thiếp này là danh thiếp của ông Schmidt.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "その",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s18",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "かばん"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "かばん"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái cặp đó không phải là cặp của tôi.",
+     "uses": [
+      "g01-02",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "それ",
+        "この",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g02-02-s19",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "あの"
+      },
+      {
+       "t": "ラジオ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "カリナさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "ラジオ"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái radio kia có phải là radio của chị Karina không?",
+     "uses": [
+      "g01-03",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "あれ",
+        "この",
+        "その"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s20",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "手帳",
+       "r": "てちょう"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "グプタさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "手帳",
+       "r": "てちょう"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cuốn sổ tay này là sổ tay của anh Gupta.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "その",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s21",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "この"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là quyển sách. Quyển sách này là sách của tôi.",
+     "uses": [
+      "g02-01",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 5,
+       "distractors": [
+        "これ",
+        "その",
+        "あの"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s22",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "傘",
+       "r": "かさ"
+      },
+      {
+       "t": "も"
+      },
+      {
+       "t": "カリナさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "傘",
+       "r": "かさ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái ô đó cũng là ô của chị Karina.",
+     "uses": [
+      "g01-04",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "それ",
+        "この",
+        "あの"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s23",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "あの"
+      },
+      {
+       "t": "自動車",
+       "r": "じどうしゃ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "日本",
+       "r": "にほん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "自動車",
+       "r": "じどうしゃ"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "ドイツ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "自動車",
+       "r": "じどうしゃ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Chiếc ô tô kia không phải là xe Nhật. Đó là xe Đức.",
+     "uses": [
+      "g01-01",
+      "g01-02",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "あれ",
+        "この",
+        "その"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s24",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "ボールペン"
+      },
+      {
+       "t": "も"
+      },
+      {
+       "t": "ワンさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "ボールペン"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cây bút bi này cũng là bút của anh Wang à?",
+     "uses": [
+      "g01-03",
+      "g01-04",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "その",
+        "あの"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s25",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "辞書",
+       "r": "じしょ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "辞書",
+       "r": "じしょ"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "イーさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "辞書",
+       "r": "じしょ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cuốn từ điển đó không phải của tôi. Đó là từ điển của chị Lee.",
+     "uses": [
+      "g01-01",
+      "g01-02",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "それ",
+        "この",
+        "あの"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g02-02-s26",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "あの"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia là cái đồng hồ. Cái đồng hồ kia là đồng hồ của tôi.",
+     "uses": [
+      "g02-01",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 5,
+       "distractors": [
+        "あれ",
+        "この",
+        "その"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s27",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "テープレコーダー"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "その"
+      },
+      {
+       "t": "テープレコーダー"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "先生",
+       "r": "せんせい"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "テープレコーダー"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là máy ghi âm. Máy ghi âm đó là của giáo viên.",
+     "uses": [
+      "g02-01",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 5,
+       "distractors": [
+        "それ",
+        "この",
+        "あの"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s28",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "シャープペンシル"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "誰",
+       "r": "だれ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "シャープペンシル"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cây bút chì kim này là của ai?",
+     "uses": [
+      "g01-03",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "その",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s29",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "あの"
+      },
+      {
+       "t": "いす"
+      },
+      {
+       "t": "も"
+      },
+      {
+       "t": "先生",
+       "r": "せんせい"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "いす"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái ghế kia cũng là ghế của giáo viên à?",
+     "uses": [
+      "g01-03",
+      "g01-04",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "あれ",
+        "この",
+        "その"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-02-s30",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "チョコレート"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "カリナさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "チョコレート"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Thanh sô-cô-la này là của chị Karina.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "その",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "code": "g02-03",
+   "order": 3,
+   "pattern": "そうです／そうじゃ ありません／違います",
+   "meaning": "Đúng vậy / Không phải / Sai rồi",
+   "explanation": "Trả lời câu hỏi \"N1 は N2 ですか\" mà không lặp lại danh từ: はい、そうです (vâng, đúng vậy); いいえ、そうじゃ ありません (không, không phải). いいえ、違います (không, sai rồi) cũng dùng để phủ định, rồi nói điều đúng ngay sau. そうですか (thế à) là câu đáp khi nhận thêm thông tin mới, không phải câu hỏi.",
+   "approved": true,
+   "sentences": [
+    {
+     "code": "g02-03-s01",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "はい"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "辞書",
+       "r": "じしょ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Vâng, đúng vậy. Đó là từ điển của tôi.",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 3,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "それ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "辞書",
+        "r": "じしょ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đó có phải là từ điển không?",
+      "distractors": [
+       "いいえ、そうです。私の辞書です。",
+       "はい、そうじゃありません。私の辞書です。",
+       "はい、違います。私の辞書です。"
+      ]
+     },
+     "sample": true
+    },
+    {
+     "code": "g02-03-s02",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "はい"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "日本",
+       "r": "にほん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Vâng, đúng vậy. Đây là sách của Nhật.",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 3,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "これ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "本",
+        "r": "ほん"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đây có phải là sách không?",
+      "distractors": [
+       "いいえ、そうです。日本の本です。",
+       "はい、そうじゃありません。日本の本です。",
+       "はい、違います。日本の本です。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s03",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "はい"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "先生",
+       "r": "せんせい"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Vâng, đúng vậy. Kia là đồng hồ của giáo viên.",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 3,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "あれ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "時計",
+        "r": "とけい"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Kia có phải là đồng hồ không?",
+      "distractors": [
+       "いいえ、そうです。先生の時計です。",
+       "はい、そうじゃありません。先生の時計です。",
+       "はい、違います。先生の時計です。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s04",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "手帳",
+       "r": "てちょう"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, không phải. Đó là sổ tay.",
+     "uses": [
+      "g01-02",
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 3,
+       "distractors": [
+        "です",
+        "ですか",
+        "じゃ"
+       ],
+       "accepted": [
+        "ではありません"
+       ],
+       "form": "phủ định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "それ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "ノート"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đó có phải là quyển vở không?",
+      "distractors": [
+       "はい、そうじゃありません。手帳です。",
+       "いいえ、そうです。手帳です。",
+       "はい、そうです。手帳です。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s05",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "ボールペン"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, không phải. Đó là bút bi.",
+     "uses": [
+      "g01-02",
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 3,
+       "distractors": [
+        "です",
+        "ですか",
+        "じゃ"
+       ],
+       "accepted": [
+        "ではありません"
+       ],
+       "form": "phủ định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "これ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "鉛筆",
+        "r": "えんぴつ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đây có phải là bút chì không?",
+      "distractors": [
+       "はい、そうじゃありません。ボールペンです。",
+       "いいえ、そうです。ボールペンです。",
+       "はい、そうです。ボールペンです。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s06",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "コンピュータ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, không phải. Đó là máy vi tính.",
+     "uses": [
+      "g01-02",
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 3,
+       "distractors": [
+        "です",
+        "ですか",
+        "じゃ"
+       ],
+       "accepted": [
+        "ではありません"
+       ],
+       "form": "phủ định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "あれ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "テレビ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Kia có phải là tivi không?",
+      "distractors": [
+       "はい、そうじゃありません。コンピュータです。",
+       "いいえ、そうです。コンピュータです。",
+       "はい、そうです。コンピュータです。"
+      ]
+     },
+     "sample": true
+    },
+    {
+     "code": "g02-03-s07",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "違います",
+       "r": "ちがいます"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "カード"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, sai rồi. Đó là tấm thẻ.",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 5,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "それ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "かぎ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đó có phải là chìa khóa không?",
+      "distractors": [
+       "はい、違います。カードです。",
+       "いいえ、そうです。カードです。",
+       "はい、そうです。カードです。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s08",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "違います",
+       "r": "ちがいます"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "雑誌",
+       "r": "ざっし"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, sai rồi. Đó là tạp chí.",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 5,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "これ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "新聞",
+        "r": "しんぶん"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đây có phải là tờ báo không?",
+      "distractors": [
+       "はい、違います。雑誌です。",
+       "いいえ、そうです。雑誌です。",
+       "はい、そうです。雑誌です。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s09",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "違います",
+       "r": "ちがいます"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "テープレコーダー"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, sai rồi. Đó là máy ghi âm.",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 5,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "あれ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "ラジオ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Kia có phải là radio không?",
+      "distractors": [
+       "はい、違います。テープレコーダーです。",
+       "いいえ、そうです。テープレコーダーです。",
+       "はい、そうです。テープレコーダーです。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s10",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "はい"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "ミラーさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "かばん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Vâng, đúng vậy. Đó là cặp của anh Miller.",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 3,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "それ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "かばん"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đó có phải là cái cặp không?",
+      "distractors": [
+       "いいえ、そうです。ミラーさんのかばんです。",
+       "はい、そうじゃありません。ミラーさんのかばんです。",
+       "はい、違います。ミラーさんのかばんです。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s11",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "鉛筆",
+       "r": "えんぴつ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, không phải. Đó là bút chì.",
+     "uses": [
+      "g01-02",
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 3,
+       "distractors": [
+        "です",
+        "ですか",
+        "じゃ"
+       ],
+       "accepted": [
+        "ではありません"
+       ],
+       "form": "phủ định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "それ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "シャープペンシル"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đó có phải là bút chì kim không?",
+      "distractors": [
+       "はい、そうじゃありません。鉛筆です。",
+       "いいえ、そうです。鉛筆です。",
+       "はい、そうです。鉛筆です。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s12",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "違います",
+       "r": "ちがいます"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, sai rồi. Đó là đồng hồ.",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 5,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "これ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "カメラ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đây có phải là máy ảnh không?",
+      "distractors": [
+       "はい、違います。時計です。",
+       "いいえ、そうです。時計です。",
+       "はい、そうです。時計です。"
+      ]
+     },
+     "sample": true
+    },
+    {
+     "code": "g02-03-s13",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "はい"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "シュミットさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "自動車",
+       "r": "じどうしゃ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Vâng, đúng vậy. Kia là ô tô của ông Schmidt.",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 3,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "あれ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "自動車",
+        "r": "じどうしゃ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Kia có phải là ô tô không?",
+      "distractors": [
+       "いいえ、そうです。シュミットさんの自動車です。",
+       "はい、そうじゃありません。シュミットさんの自動車です。",
+       "はい、違います。シュミットさんの自動車です。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s14",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "チョコレート"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, không phải. Đó là sô-cô-la.",
+     "uses": [
+      "g01-02",
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 3,
+       "distractors": [
+        "です",
+        "ですか",
+        "じゃ"
+       ],
+       "accepted": [
+        "ではありません"
+       ],
+       "form": "phủ định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "これ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "コーヒー"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đây có phải là cà phê không?",
+      "distractors": [
+       "はい、そうじゃありません。チョコレートです。",
+       "いいえ、そうです。チョコレートです。",
+       "はい、そうです。チョコレートです。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s15",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "違います",
+       "r": "ちがいます"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "いす"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, sai rồi. Đó là cái ghế.",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 5,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "それ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "傘",
+        "r": "かさ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đó có phải là cái ô không?",
+      "distractors": [
+       "はい、違います。いすです。",
+       "いいえ、そうです。いすです。",
+       "はい、そうです。いすです。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s16",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "はい"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "ワンさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "名刺",
+       "r": "めいし"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Vâng, đúng vậy. Đây là danh thiếp của anh Wang.",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 3,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "これ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "名刺",
+        "r": "めいし"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đây có phải là danh thiếp không?",
+      "distractors": [
+       "いいえ、そうです。ワンさんの名刺です。",
+       "はい、そうじゃありません。ワンさんの名刺です。",
+       "はい、違います。ワンさんの名刺です。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s17",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "いす"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, không phải. Đó là cái ghế.",
+     "uses": [
+      "g01-02",
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 3,
+       "distractors": [
+        "です",
+        "ですか",
+        "じゃ"
+       ],
+       "accepted": [
+        "ではありません"
+       ],
+       "form": "phủ định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "あれ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "机",
+        "r": "つくえ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Kia có phải là cái bàn không?",
+      "distractors": [
+       "はい、そうじゃありません。いすです。",
+       "いいえ、そうです。いすです。",
+       "はい、そうです。いすです。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s18",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "違います",
+       "r": "ちがいます"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "名刺",
+       "r": "めいし"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, sai rồi. Đó là danh thiếp.",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 5,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "それ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "テレホンカード"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đó có phải là thẻ điện thoại không?",
+      "distractors": [
+       "はい、違います。名刺です。",
+       "いいえ、そうです。名刺です。",
+       "はい、そうです。名刺です。"
+      ]
+     },
+     "sample": true
+    },
+    {
+     "code": "g02-03-s19",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "はい"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "日本",
+       "r": "にほん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "テープ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Vâng, đúng vậy. Đó là băng cát-xét của Nhật.",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 3,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "それ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "テープ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đó có phải là băng cát-xét không?",
+      "distractors": [
+       "いいえ、そうです。日本のテープです。",
+       "はい、そうじゃありません。日本のテープです。",
+       "はい、違います。日本のテープです。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s20",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, không phải. Đó là sách.",
+     "uses": [
+      "g01-02",
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 3,
+       "distractors": [
+        "です",
+        "ですか",
+        "じゃ"
+       ],
+       "accepted": [
+        "ではありません"
+       ],
+       "form": "phủ định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "これ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "辞書",
+        "r": "じしょ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đây có phải là từ điển không?",
+      "distractors": [
+       "はい、そうじゃありません。本です。",
+       "いいえ、そうです。本です。",
+       "はい、そうです。本です。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s21",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "傘",
+       "r": "かさ"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "カリナさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "傘",
+       "r": "かさ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, không phải. Đó không phải là ô của tôi. Đó là ô của chị Karina.",
+     "uses": [
+      "g01-01",
+      "g01-02",
+      "g01-03",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 3,
+       "distractors": [
+        "です",
+        "ですか",
+        "じゃ"
+       ],
+       "accepted": [
+        "ではありません"
+       ],
+       "form": "phủ định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "それ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "あなた"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "傘",
+        "r": "かさ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đó có phải là ô của bạn không?",
+      "distractors": [
+       "はい、そうじゃありません。私の傘じゃありません。カリナさんの傘です。",
+       "いいえ、そうです。私の傘じゃありません。カリナさんの傘です。",
+       "いいえ、違います。私の傘です。カリナさんの傘です。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s22",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "はい"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "ミラーさん"
+      },
+      {
+       "t": "も"
+      },
+      {
+       "t": "会社員",
+       "r": "かいしゃいん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Vâng, đúng vậy. Anh Miller cũng là nhân viên công ty.",
+     "uses": [
+      "g01-03",
+      "g01-04"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 3,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "ミラーさん"
+       },
+       {
+        "t": "も"
+       },
+       {
+        "t": "会社員",
+        "r": "かいしゃいん"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Anh Miller cũng là nhân viên công ty à?",
+      "distractors": [
+       "いいえ、そうです。ミラーさんも会社員です。",
+       "はい、そうじゃありません。ミラーさんも会社員です。",
+       "はい、違います。ミラーさんも会社員です。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s23",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "違います",
+       "r": "ちがいます"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "ドイツ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "自動車",
+       "r": "じどうしゃ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, sai rồi. Đó là xe Đức.",
+     "uses": [
+      "g01-03",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 7,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "この"
+       },
+       {
+        "t": "自動車",
+        "r": "じどうしゃ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "日本",
+        "r": "にほん"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "自動車",
+        "r": "じどうしゃ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Chiếc ô tô này có phải là xe Nhật không?",
+      "distractors": [
+       "はい、違います。ドイツの自動車です。",
+       "いいえ、そうです。ドイツの自動車です。",
+       "はい、そうです。ドイツの自動車です。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s24",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "そうですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Thế à.",
+     "uses": [
+      "g01-01"
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "これ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "日本",
+        "r": "にほん"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "チョコレート"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đây là sô-cô-la Nhật.",
+      "distractors": [
+       "いいえ、そうです。",
+       "はい、違います。",
+       "いいえ、そうですか。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s25",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "研究者",
+       "r": "けんきゅうしゃ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, không phải. Tôi là nhà nghiên cứu.",
+     "uses": [
+      "g01-01",
+      "g01-02",
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 3,
+       "distractors": [
+        "です",
+        "ですか",
+        "じゃ"
+       ],
+       "accepted": [
+        "ではありません"
+       ],
+       "form": "phủ định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "あなた"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "先生",
+        "r": "せんせい"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Bạn có phải là giáo viên không?",
+      "distractors": [
+       "はい、そうじゃありません。研究者です。",
+       "いいえ、そうです。研究者です。",
+       "はい、そうです。研究者です。"
+      ]
+     },
+     "sample": true
+    },
+    {
+     "code": "g02-03-s26",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "はい"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "さくら大学",
+       "r": "さくらだいがく"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "学生",
+       "r": "がくせい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Vâng, đúng vậy. Tôi là sinh viên trường đại học Sakura.",
+     "uses": [
+      "g01-01",
+      "g01-03",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 3,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "あなた"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "学生",
+        "r": "がくせい"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Bạn có phải là sinh viên không?",
+      "distractors": [
+       "いいえ、そうです。さくら大学の学生です。",
+       "はい、そうじゃありません。さくら大学の学生です。",
+       "はい、違います。さくら大学の学生です。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s27",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "違います",
+       "r": "ちがいます"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "イーさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "かぎ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, sai rồi. Đó là chìa khóa của chị Lee.",
+     "uses": [
+      "g01-03",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 7,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "その"
+       },
+       {
+        "t": "かぎ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "ワンさん"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "かぎ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Chìa khóa đó có phải là của anh Wang không?",
+      "distractors": [
+       "はい、違います。イーさんのかぎです。",
+       "いいえ、そうです。イーさんのかぎです。",
+       "はい、そうです。イーさんのかぎです。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s28",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "はい"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "あの方",
+       "r": "あのかた"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "さくら大学",
+       "r": "さくらだいがく"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "先生",
+       "r": "せんせい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Vâng, đúng vậy. Vị kia là giáo viên trường đại học Sakura.",
+     "uses": [
+      "g01-01",
+      "g01-03",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 3,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "あの方",
+        "r": "あのかた"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "先生",
+        "r": "せんせい"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Vị kia có phải là giáo viên không?",
+      "distractors": [
+       "いいえ、そうです。あの方はさくら大学の先生です。",
+       "はい、そうじゃありません。あの方はさくら大学の先生です。",
+       "はい、違います。あの方はさくら大学の先生です。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s29",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "アメリカ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "コンピュータ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, không phải. Đó là máy vi tính của Mỹ.",
+     "uses": [
+      "g01-02",
+      "g01-03",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 3,
+       "distractors": [
+        "です",
+        "ですか",
+        "じゃ"
+       ],
+       "accepted": [
+        "ではありません"
+       ],
+       "form": "phủ định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "その"
+       },
+       {
+        "t": "コンピュータ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "日本",
+        "r": "にほん"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "コンピュータ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Cái máy vi tính đó có phải là máy của Nhật không?",
+      "distractors": [
+       "はい、そうじゃありません。アメリカのコンピュータです。",
+       "いいえ、そうです。アメリカのコンピュータです。",
+       "はい、そうです。アメリカのコンピュータです。"
+      ]
+     }
+    },
+    {
+     "code": "g02-03-s30",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "はい"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "も"
+      },
+      {
+       "t": "日本人",
+       "r": "にほんじん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Vâng, đúng vậy. Tôi cũng là người Nhật.",
+     "uses": [
+      "g01-03",
+      "g01-04"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 3,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "あなた"
+       },
+       {
+        "t": "も"
+       },
+       {
+        "t": "日本人",
+        "r": "にほんじん"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Bạn cũng là người Nhật à?",
+      "distractors": [
+       "いいえ、そうです。私も日本人です。",
+       "はい、そうじゃありません。私も日本人です。",
+       "はい、違います。私も日本人です。"
+      ]
+     }
+    }
+   ],
+   "notes": "Khi trả lời bằng いいえ thì không dùng そうです; khi trả lời bằng はい thì không dùng 違います."
+  },
+  {
+   "code": "g02-04",
+   "order": 4,
+   "pattern": "S1 か、S2 か",
+   "meaning": "S1 hay S2?",
+   "explanation": "Câu hỏi lựa chọn: đặt hai câu hỏi liền nhau, mỗi câu kết thúc bằng か, để người nghe chọn một. Khi trả lời chỉ nói điều đúng: シャープペンシルです; không trả lời bằng はい hay いいえ.",
+   "approved": true,
+   "sentences": [
+    {
+     "code": "g02-04-s01",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ボールペン"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "シャープペンシル"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là bút bi hay bút chì kim?",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "の"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g02-04-s02",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "辞書",
+       "r": "じしょ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là sách hay từ điển?",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "の"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-04-s03",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "カメラ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia là đồng hồ hay máy ảnh?",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "の"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-04-s04",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ノート"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "手帳",
+       "r": "てちょう"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là quyển vở hay sổ tay?",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "の"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-04-s05",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "コーヒー"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "チョコレート"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là cà phê hay sô-cô-la?",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "の"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-04-s06",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "テレビ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "コンピュータ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia là tivi hay máy vi tính?",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "の"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g02-04-s07",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "雑誌",
+       "r": "ざっし"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "新聞",
+       "r": "しんぶん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là tạp chí hay tờ báo?",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "の"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-04-s08",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "カード"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "テレホンカード"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là tấm thẻ thường hay thẻ điện thoại?",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "の"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-04-s09",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ラジオ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "テープレコーダー"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia là radio hay máy ghi âm?",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "の"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-04-s10",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "鉛筆",
+       "r": "えんぴつ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "ボールペン"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là bút chì hay bút bi?",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "の"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-04-s11",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "シャープペンシル"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là bút chì kim.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 1,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "それ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "ボールペン"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "、"
+       },
+       {
+        "t": "シャープペンシル"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đó là bút bi hay bút chì kim?",
+      "distractors": [
+       "はい、シャープペンシルです。",
+       "いいえ、シャープペンシルです。",
+       "シャープペンシルですか。"
+      ]
+     }
+    },
+    {
+     "code": "g02-04-s12",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "辞書",
+       "r": "じしょ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là từ điển.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 1,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "これ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "本",
+        "r": "ほん"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "、"
+       },
+       {
+        "t": "辞書",
+        "r": "じしょ"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đây là sách hay từ điển?",
+      "distractors": [
+       "はい、辞書です。",
+       "いいえ、辞書です。",
+       "辞書ですか。"
+      ]
+     },
+     "sample": true
+    },
+    {
+     "code": "g02-04-s13",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "カメラ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là máy ảnh.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 1,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "あれ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "時計",
+        "r": "とけい"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "、"
+       },
+       {
+        "t": "カメラ"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Kia là đồng hồ hay máy ảnh?",
+      "distractors": [
+       "はい、カメラです。",
+       "いいえ、カメラです。",
+       "カメラですか。"
+      ]
+     }
+    },
+    {
+     "code": "g02-04-s14",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "ノート"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là quyển vở.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 1,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "それ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "ノート"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "、"
+       },
+       {
+        "t": "手帳",
+        "r": "てちょう"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đó là quyển vở hay sổ tay?",
+      "distractors": [
+       "はい、ノートです。",
+       "いいえ、ノートです。",
+       "ノートですか。"
+      ]
+     }
+    },
+    {
+     "code": "g02-04-s15",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "チョコレート"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là sô-cô-la.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 1,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "これ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "コーヒー"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "、"
+       },
+       {
+        "t": "チョコレート"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đây là cà phê hay sô-cô-la?",
+      "distractors": [
+       "はい、チョコレートです。",
+       "いいえ、チョコレートです。",
+       "チョコレートですか。"
+      ]
+     }
+    },
+    {
+     "code": "g02-04-s16",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "ミラーさん"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "学生",
+       "r": "がくせい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "会社員",
+       "r": "かいしゃいん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Anh Miller là sinh viên hay nhân viên công ty?",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "の"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-04-s17",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "あの方",
+       "r": "あのかた"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "先生",
+       "r": "せんせい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "学生",
+       "r": "がくせい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Vị kia là giáo viên hay sinh viên?",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "の"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-04-s18",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "会社員",
+       "r": "かいしゃいん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là nhân viên công ty.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 1,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "ミラーさん"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "学生",
+        "r": "がくせい"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "、"
+       },
+       {
+        "t": "会社員",
+        "r": "かいしゃいん"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Anh Miller là sinh viên hay nhân viên công ty?",
+      "distractors": [
+       "はい、会社員です。",
+       "いいえ、会社員です。",
+       "会社員ですか。"
+      ]
+     },
+     "sample": true
+    },
+    {
+     "code": "g02-04-s19",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "ワンさん"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "医者",
+       "r": "いしゃ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "研究者",
+       "r": "けんきゅうしゃ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Anh Wang là bác sĩ hay nhà nghiên cứu?",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "の"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-04-s20",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "医者",
+       "r": "いしゃ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là bác sĩ.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 1,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "ワンさん"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "医者",
+        "r": "いしゃ"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "、"
+       },
+       {
+        "t": "研究者",
+        "r": "けんきゅうしゃ"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Anh Wang là bác sĩ hay nhà nghiên cứu?",
+      "distractors": [
+       "はい、医者です。",
+       "いいえ、医者です。",
+       "医者ですか。"
+      ]
+     }
+    },
+    {
+     "code": "g02-04-s21",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ミラーさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "傘",
+       "r": "かさ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "カリナさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "傘",
+       "r": "かさ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là ô của anh Miller hay ô của chị Karina?",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 6,
+       "distractors": [
+        "は",
+        "も",
+        "の"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-04-s22",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "カリナさんの傘",
+       "r": "カリナさんのかさ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là ô của chị Karina.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 1,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "これ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "ミラーさんの傘",
+        "r": "ミラーさんのかさ"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "、"
+       },
+       {
+        "t": "カリナさんの傘",
+        "r": "カリナさんのかさ"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đây là ô của anh Miller hay ô của chị Karina?",
+      "distractors": [
+       "はい、カリナさんの傘です。",
+       "いいえ、カリナさんの傘です。",
+       "カリナさんの傘ですか。"
+      ]
+     }
+    },
+    {
+     "code": "g02-04-s23",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "日本",
+       "r": "にほん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "ドイツ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái đồng hồ này là đồng hồ Nhật hay đồng hồ Đức?",
+     "uses": [
+      "g02-02",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "これ",
+        "その",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 7,
+       "distractors": [
+        "は",
+        "も",
+        "の"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-04-s24",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "ドイツの時計",
+       "r": "ドイツのとけい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là đồng hồ Đức.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 1,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "この時計",
+        "r": "このとけい"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "日本の時計",
+        "r": "にほんのとけい"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "、"
+       },
+       {
+        "t": "ドイツの時計",
+        "r": "ドイツのとけい"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Cái đồng hồ này là đồng hồ Nhật hay đồng hồ Đức?",
+      "distractors": [
+       "はい、ドイツの時計です。",
+       "いいえ、ドイツの時計です。",
+       "ドイツの時計ですか。"
+      ]
+     }
+    },
+    {
+     "code": "g02-04-s25",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "サントスさん"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ブラジル人",
+       "r": "ブラジルじん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "アメリカ人",
+       "r": "アメリカじん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Anh Santos là người Brazil hay người Mỹ?",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "の"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g02-04-s26",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "ブラジル人",
+       "r": "ブラジルじん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là người Brazil.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 1,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "サントスさん"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "ブラジル人",
+        "r": "ブラジルじん"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "、"
+       },
+       {
+        "t": "アメリカ人",
+        "r": "アメリカじん"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Anh Santos là người Brazil hay người Mỹ?",
+      "distractors": [
+       "はい、ブラジル人です。",
+       "いいえ、ブラジル人です。",
+       "ブラジル人ですか。"
+      ]
+     }
+    },
+    {
+     "code": "g02-04-s27",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "かばん"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "あなた"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "かばん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "先生",
+       "r": "せんせい"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "かばん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái cặp đó là cặp của bạn hay cặp của giáo viên?",
+     "uses": [
+      "g02-02",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "それ",
+        "この",
+        "あの"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 7,
+       "distractors": [
+        "は",
+        "も",
+        "の"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-04-s28",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "先生のかばん",
+       "r": "せんせいのかばん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là cặp của giáo viên.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 1,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "そのかばん"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "あなたのかばん"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "、"
+       },
+       {
+        "t": "先生のかばん",
+        "r": "せんせいのかばん"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Cái cặp đó là cặp của bạn hay cặp của giáo viên?",
+      "distractors": [
+       "はい、先生のかばんです。",
+       "いいえ、先生のかばんです。",
+       "先生のかばんですか。"
+      ]
+     }
+    },
+    {
+     "code": "g02-04-s29",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "あの人",
+       "r": "あのひと"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "日本人",
+       "r": "にほんじん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "韓国人",
+       "r": "かんこくじん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Người kia là người Nhật hay người Hàn Quốc?",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "の"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-04-s30",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "韓国人",
+       "r": "かんこくじん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là người Hàn Quốc.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "form",
+       "piece": 1,
+       "distractors": [
+        "じゃありません",
+        "ですか",
+        "じゃ"
+       ],
+       "form": "khẳng định",
+       "dict": "です"
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "あの人",
+        "r": "あのひと"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "日本人",
+        "r": "にほんじん"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "、"
+       },
+       {
+        "t": "韓国人",
+        "r": "かんこくじん"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Người kia là người Nhật hay người Hàn Quốc?",
+      "distractors": [
+       "はい、韓国人です。",
+       "いいえ、韓国人です。",
+       "韓国人ですか。"
+      ]
+     }
+    }
+   ],
+   "notes": "Trả lời câu hỏi lựa chọn thì không bắt đầu bằng はい / いいえ."
+  },
+  {
+   "code": "g02-05",
+   "order": 5,
+   "pattern": "N1 の N2 (nội dung)",
+   "meaning": "N2 về N1; N2 tiếng N1",
+   "explanation": "Ngoài nghĩa sở hữu (bài 1), の còn cho biết N2 nói về điều gì hoặc bằng thứ tiếng nào: 日本語の本 (sách tiếng Nhật), コンピュータの本 (sách về máy vi tính). Hỏi nội dung bằng 何の N: これは何の本ですか (đây là sách gì?). Có thể ghép cả hai nghĩa: 私の日本語の本 (sách tiếng Nhật của tôi).",
+   "approved": true,
+   "sentences": [
+    {
+     "code": "g02-05-s01",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "日本語",
+       "r": "にほんご"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là sách tiếng Nhật.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g02-05-s02",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "英語",
+       "r": "えいご"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "辞書",
+       "r": "じしょ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là từ điển tiếng Anh.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-05-s03",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "英語",
+       "r": "えいご"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "新聞",
+       "r": "しんぶん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia là báo tiếng Anh.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-05-s04",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "コンピュータ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là sách về máy vi tính.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-05-s05",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "自動車",
+       "r": "じどうしゃ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "雑誌",
+       "r": "ざっし"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là tạp chí về ô tô.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-05-s06",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "日本語",
+       "r": "にほんご"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "テープ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là băng tiếng Nhật.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g02-05-s07",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "カメラ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "雑誌",
+       "r": "ざっし"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia là tạp chí về máy ảnh.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-05-s08",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "日本語",
+       "r": "にほんご"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "新聞",
+       "r": "しんぶん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là báo tiếng Nhật.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-05-s09",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "英語",
+       "r": "えいご"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là sách tiếng Anh.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-05-s10",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "コーヒー"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia là sách về cà phê.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-05-s11",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "何",
+       "r": "なん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là sách gì?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-05-s12",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "何",
+       "r": "なん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "雑誌",
+       "r": "ざっし"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là tạp chí gì?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g02-05-s13",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "何",
+       "r": "なん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "新聞",
+       "r": "しんぶん"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia là báo gì?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-05-s14",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "日本語",
+       "r": "にほんご"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là sách tiếng Nhật.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "これ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "何",
+        "r": "なん"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "本",
+        "r": "ほん"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đây là sách gì?",
+      "distractors": [
+       "はい、日本語の本です。",
+       "日本語は本です。",
+       "日本語の本ですか。"
+      ]
+     }
+    },
+    {
+     "code": "g02-05-s15",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "自動車",
+       "r": "じどうしゃ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "雑誌",
+       "r": "ざっし"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là tạp chí về ô tô.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "それ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "何",
+        "r": "なん"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "雑誌",
+        "r": "ざっし"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đó là tạp chí gì?",
+      "distractors": [
+       "はい、自動車の雑誌です。",
+       "自動車は雑誌です。",
+       "自動車の雑誌ですか。"
+      ]
+     }
+    },
+    {
+     "code": "g02-05-s16",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "英語",
+       "r": "えいご"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "辞書",
+       "r": "じしょ"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây có phải là từ điển tiếng Anh không?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-05-s17",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "日本語",
+       "r": "にほんご"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "辞書",
+       "r": "じしょ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, đó là từ điển tiếng Nhật.",
+     "uses": [
+      "g01-01",
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "これ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "英語",
+        "r": "えいご"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "辞書",
+        "r": "じしょ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đây có phải là từ điển tiếng Anh không?",
+      "distractors": [
+       "はい、日本語の辞書です。",
+       "いいえ、英語の辞書です。",
+       "いいえ、日本語は辞書です。"
+      ]
+     }
+    },
+    {
+     "code": "g02-05-s18",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "日本語",
+       "r": "にほんご"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Quyển sách này là sách tiếng Nhật.",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g02-05-s19",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "テープ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "英語",
+       "r": "えいご"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "テープ"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cuộn băng đó không phải là băng tiếng Anh.",
+     "uses": [
+      "g02-02",
+      "g01-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-05-s20",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "あの"
+      },
+      {
+       "t": "雑誌",
+       "r": "ざっし"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "カメラ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "雑誌",
+       "r": "ざっし"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Tạp chí kia có phải là tạp chí về máy ảnh không?",
+     "uses": [
+      "g02-02",
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-05-s21",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "日本語",
+       "r": "にほんご"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là sách tiếng Nhật của tôi.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 5,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-05-s22",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "先生",
+       "r": "せんせい"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "コンピュータ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là sách về máy vi tính của giáo viên.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 5,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-05-s23",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "雑誌",
+       "r": "ざっし"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "自動車",
+       "r": "じどうしゃ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "雑誌",
+       "r": "ざっし"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "ミラーさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "雑誌",
+       "r": "ざっし"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Tạp chí này là tạp chí về ô tô. Đó là tạp chí của anh Miller.",
+     "uses": [
+      "g02-02",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-05-s24",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "英語",
+       "r": "えいご"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "新聞",
+       "r": "しんぶん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "日本語",
+       "r": "にほんご"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "新聞",
+       "r": "しんぶん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia là báo tiếng Anh hay báo tiếng Nhật?",
+     "uses": [
+      "g02-04"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-05-s25",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "英語",
+       "r": "えいご"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "新聞",
+       "r": "しんぶん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là báo tiếng Anh.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "あれ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "英語",
+        "r": "えいご"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "新聞",
+        "r": "しんぶん"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "、"
+       },
+       {
+        "t": "日本語",
+        "r": "にほんご"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "新聞",
+        "r": "しんぶん"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Kia là báo tiếng Anh hay báo tiếng Nhật?",
+      "distractors": [
+       "はい、英語の新聞です。",
+       "英語は新聞です。",
+       "英語の新聞ですか。"
+      ]
+     },
+     "sample": true
+    },
+    {
+     "code": "g02-05-s26",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "も"
+      },
+      {
+       "t": "日本語",
+       "r": "にほんご"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Quyển sách đó cũng là sách tiếng Nhật à?",
+     "uses": [
+      "g02-02",
+      "g01-03",
+      "g01-04"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-05-s27",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "誰",
+       "r": "だれ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "日本語",
+       "r": "にほんご"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là sách tiếng Nhật của ai?",
+     "uses": [
+      "g01-03",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 5,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-05-s28",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "カリナさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "日本語",
+       "r": "にほんご"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là sách tiếng Nhật của chị Karina.",
+     "uses": [
+      "g01-01",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "それ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "誰",
+        "r": "だれ"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "日本語",
+        "r": "にほんご"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "本",
+        "r": "ほん"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đó là sách tiếng Nhật của ai?",
+      "distractors": [
+       "はい、カリナさんの日本語の本です。",
+       "カリナさんは日本語の本です。",
+       "カリナさんの日本語の本ですか。"
+      ]
+     }
+    },
+    {
+     "code": "g02-05-s29",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "テープ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "英語",
+       "r": "えいご"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "テープ"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "日本語",
+       "r": "にほんご"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "テープ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cuộn băng này không phải là băng tiếng Anh. Đó là băng tiếng Nhật.",
+     "uses": [
+      "g01-01",
+      "g02-02",
+      "g01-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 9,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-05-s30",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "も"
+      },
+      {
+       "t": "自動車",
+       "r": "じどうしゃ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "雑誌",
+       "r": "ざっし"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái kia cũng là tạp chí về ô tô.",
+     "uses": [
+      "g01-04"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "code": "g02-06",
+   "order": 6,
+   "pattern": "N の (thay cho danh từ)",
+   "meaning": "của N (bỏ danh từ đã rõ)",
+   "explanation": "Khi danh từ đã rõ, có thể bỏ nó và chỉ giữ \"N の\": このかばんは私のかばんです → このかばんは私のです (cái cặp này là của tôi). Hỏi \"của ai\" bằng 誰の: これは誰のですか. Không bỏ được の: 私です nghĩa là \"là tôi\", không phải \"của tôi\".",
+   "approved": true,
+   "sentences": [
+    {
+     "code": "g02-06-s01",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái này là của tôi.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g02-06-s02",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ミラーさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái đó là của anh Miller.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-06-s03",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "先生",
+       "r": "せんせい"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái kia là của giáo viên.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-06-s04",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Quyển sách này là của tôi.",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-06-s05",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "かばん"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "カリナさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái cặp đó là của chị Karina.",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-06-s06",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "あの"
+      },
+      {
+       "t": "傘",
+       "r": "かさ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "サントスさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái ô kia là của anh Santos.",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g02-06-s07",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "かぎ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ワンさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Chìa khóa này là của anh Wang.",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-06-s08",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "シュミットさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái đồng hồ đó là của ông Schmidt.",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-06-s09",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "あの"
+      },
+      {
+       "t": "自動車",
+       "r": "じどうしゃ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "先生",
+       "r": "せんせい"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Chiếc ô tô kia là của giáo viên.",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-06-s10",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "カメラ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "イーさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái máy ảnh này là của chị Lee.",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-06-s11",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "誰",
+       "r": "だれ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái này là của ai?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-06-s12",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "傘",
+       "r": "かさ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "誰",
+       "r": "だれ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái ô này là của ai?",
+     "uses": [
+      "g02-02",
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g02-06-s13",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là của tôi.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "この"
+       },
+       {
+        "t": "傘",
+        "r": "かさ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "誰",
+        "r": "だれ"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Cái ô này là của ai?",
+      "distractors": [
+       "はい、私のです。",
+       "私です。",
+       "私のですか。"
+      ]
+     }
+    },
+    {
+     "code": "g02-06-s14",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "ミラーさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là của anh Miller.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "その"
+       },
+       {
+        "t": "かばん"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "誰",
+        "r": "だれ"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Cái cặp đó là của ai?",
+      "distractors": [
+       "はい、ミラーさんのです。",
+       "ミラーさんです。",
+       "ミラーさんのですか。"
+      ]
+     }
+    },
+    {
+     "code": "g02-06-s15",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "ノート"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Quyển vở đó không phải của tôi.",
+     "uses": [
+      "g02-02",
+      "g01-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-06-s16",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "あの"
+      },
+      {
+       "t": "自動車",
+       "r": "じどうしゃ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ミラーさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Chiếc ô tô kia có phải của anh Miller không?",
+     "uses": [
+      "g02-02",
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-06-s17",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "ミラーさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, không phải của anh Miller.",
+     "uses": [
+      "g01-02",
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "あの"
+       },
+       {
+        "t": "自動車",
+        "r": "じどうしゃ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "ミラーさん"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Chiếc ô tô kia có phải của anh Miller không?",
+      "distractors": [
+       "はい、ミラーさんのじゃありません。",
+       "いいえ、ミラーさんのです。",
+       "いいえ、ミラーさんじゃありません。"
+      ]
+     }
+    },
+    {
+     "code": "g02-06-s18",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "名刺",
+       "r": "めいし"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "先生",
+       "r": "せんせい"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Tấm danh thiếp đó có phải của giáo viên không?",
+     "uses": [
+      "g02-02",
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g02-06-s19",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "辞書",
+       "r": "じしょ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "カリナさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cuốn từ điển này không phải của chị Karina.",
+     "uses": [
+      "g02-02",
+      "g01-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-06-s20",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "あの"
+      },
+      {
+       "t": "テレビ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái tivi kia là của tôi.",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-06-s21",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "その"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "も"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Quyển sách này là của tôi. Quyển sách đó cũng là của tôi.",
+     "uses": [
+      "g02-02",
+      "g01-04"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 11,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-06-s22",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "傘",
+       "r": "かさ"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "ミラーさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây không phải là ô của tôi. Nó là của anh Miller.",
+     "uses": [
+      "g01-02",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 8,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-06-s23",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "はい"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Vâng, đúng vậy. Là của tôi.",
+     "uses": [
+      "g02-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 6,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "それ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "あなた"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "かばん"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đó có phải là cặp của bạn không?",
+      "distractors": [
+       "いいえ、そうです。私のです。",
+       "はい、違います。私のです。",
+       "はい、そうです。私です。"
+      ]
+     }
+    },
+    {
+     "code": "g02-06-s24",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "日本",
+       "r": "にほん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái đồng hồ đó là đồng hồ Nhật. Nó là của tôi.",
+     "uses": [
+      "g02-02",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 9,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-06-s25",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "かばん"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "カリナさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "イーさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái cặp này là của chị Karina hay của chị Lee?",
+     "uses": [
+      "g02-02",
+      "g02-04"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g02-06-s26",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "イーさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là của chị Lee.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "この"
+       },
+       {
+        "t": "かばん"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "カリナさん"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "、"
+       },
+       {
+        "t": "イーさん"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Cái cặp này là của chị Karina hay của chị Lee?",
+      "distractors": [
+       "はい、イーさんのです。",
+       "イーさんです。",
+       "イーさんのですか。"
+      ]
+     }
+    },
+    {
+     "code": "g02-06-s27",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "あの"
+      },
+      {
+       "t": "日本語",
+       "r": "にほんご"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "本",
+       "r": "ほん"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "誰",
+       "r": "だれ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Quyển sách tiếng Nhật kia là của ai?",
+     "uses": [
+      "g02-02",
+      "g02-05"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 6,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-06-s28",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "傘",
+       "r": "かさ"
+      },
+      {
+       "t": "も"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái ô đó cũng không phải là của tôi.",
+     "uses": [
+      "g02-02",
+      "g01-02",
+      "g01-04"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g02-06-s29",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "違います",
+       "r": "ちがいます"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "ワンさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, sai rồi. Là của anh Wang.",
+     "uses": [
+      "g02-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 5,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "これ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "サントスさん"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Cái này có phải của anh Santos không?",
+      "distractors": [
+       "はい、違います。ワンさんのです。",
+       "いいえ、そうです。ワンさんのです。",
+       "いいえ、違います。ワンさんです。"
+      ]
+     }
+    },
+    {
+     "code": "g02-06-s30",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "コーヒー"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Ly cà phê này là của tôi.",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    }
+   ],
+   "notes": "私のです là \"của tôi\"; 私です là \"là tôi\". Không bỏ の."
+  }
+ ]
+}

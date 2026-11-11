@@ -5,6 +5,7 @@
 ## 1. Phạm vi và nguyên tắc
 
 - **Khu riêng:** Grammar không trộn vào bài Learn (R11 AIS) và không dùng ngân sách `learn_cap`. — CONFIRMED
+- **Ngữ pháp trong Library:** Library có thêm phần Ngữ pháp, liệt kê **toàn bộ** mẫu đã duyệt (kể cả mẫu người học chưa mở), giống danh sách từ vựng: lọc theo trình độ (N5 / N4) và theo bài Minna (1–50), tìm theo mẫu hoặc nghĩa. Trang chi tiết một mẫu: giải thích, lưu ý, câu ví dụ (các câu tiêu biểu, có furigana và nút nghe), bài Minna, tiến độ của người học (chưa mở / đang học / đang ôn). — CONFIRMED (2026-11-15), làm ở G4
 - **Grammar là tab chính:** lên thanh điều hướng chính (cùng Home, Learn, Review, Practice), không còn nằm trong mục phụ. Trong tab Grammar có các phần: **Bài học** (danh sách bài, Học), **Ôn**, **Luyện thêm**, **Thể động từ**, **Kiểm tra**. Mục "Verb forms" riêng bị bỏ khỏi điều hướng; Ôn ngữ pháp nằm trong tab Grammar, không ở tab Review. — CONFIRMED (2026-11-15)
 - **Phạm vi:** 50 bài của Minna no Nihongo sơ cấp (bài 1–25 là N5, 26–50 là N4). File từ vựng hiện có tới bài 48; từ vựng bài 49–50 được bổ sung ở gói G0. — CONFIRMED
 - **Nguồn nội dung:** danh sách mẫu ngữ pháp theo bài tra từ các trang web và tài liệu Minna trên mạng (là dữ kiện). Giải thích tiếng Việt, câu gốc, câu hỏi do Claude **tự soạn**, không chép nguyên văn giáo trình hay trang web. — CONFIRMED
@@ -56,7 +57,7 @@ Mỗi mẫu có **30 câu gốc từ dễ đến khó**. Mỗi câu có:
 | **Câu hỏi / lời nói đi trước** (nếu là câu đáp trong hội thoại) | Chọn câu đáp |
 
 - Câu mức 1 chỉ dùng mẫu chính và từ dễ; mức 3 kết hợp mẫu đang học với mẫu của các bài trước.
-- Từ trong câu phải có trong lộ trình từ vựng tới bài đó (bài ≤ n). Số đếm, tên riêng và từ ngoài lộ trình đi kèm cách đọc và được ghi chú.
+- **Chỉ dùng từ đã học** (chủ dự án nhấn mạnh 2026-11-15): mọi chữ trong câu, câu hỏi đi trước, đáp án nhiễu và câu đáp sai phải tách được thành từ vựng của bài ≤ n, trợ từ/đuôi đã học tới bài n, tên nhân vật (ミラー, カリナ…) hoặc số. Công cụ soạn (`scripts/grammar-content/dsl.py`) báo lỗi nếu không tách được.
 - Cách viết của từ theo cột `expression` của từ vựng; hiển thị Kanji + furigana, có nút ẩn furigana. — CONFIRMED
 
 **Định dạng file (G2):** mỗi bài một file `data/grammar/lesson-NN.json` (`{ lesson, points: [...] }`), kiểu dữ liệu ở `lib/grammar/types.ts` (`GrammarLessonFile`). Mẫu có code `gNN-MM` (bài NN, thứ tự MM), câu có code `gNN-MM-sKK`. Mỗi câu: `level`, `pieces` (`{ t, r? }`, `r` là cách đọc kana khi mảnh có Kanji), `meaning`, `uses?`, `slots?` (`{ kind: particle | word | form, piece, accepted?, distractors, form?, dict? }`), `split?`, `prompt?`, `sample?`, `hidden?`. Dạng bài một câu làm được do `exercisesFor` suy ra. `pnpm seed` kiểm tra rồi ghi `grammar_points`, `grammar_sentences`; câu bỏ khỏi file bị ẩn chứ không xoá.
@@ -238,7 +239,7 @@ export const GRAMMAR_V1 = {
 | G1 | Tài liệu này |
 | G2 | Database: `grammar_points`, `grammar_sentences`, tiến độ, nhật ký Học/Ôn/Luyện thêm, RLS; định dạng `data/grammar/*.json`; seed và kiểm tra §4.4 |
 | G3 | Nội dung bài 1–5 + file duyệt |
-| G4 | Engine (sinh 13 dạng, chọn dạng §8, Học §6, Ôn §7, Kiểm tra §9a) và giao diện tab Grammar (lên điều hướng chính); bỏ bản xem trước |
+| G4 | Engine (sinh 13 dạng, chọn dạng §8, Học §6, Ôn §7, Kiểm tra §9a) và giao diện tab Grammar (lên điều hướng chính); phần Ngữ pháp trong Library; bỏ bản xem trước |
 | G5 | Thể động từ trong tab Grammar: nhóm động từ từ JMdict, engine chia động từ có test, giao diện; bỏ `/verbs` riêng |
 | G6 | Nội dung bài 6–50, mỗi đợt 5 bài |
 
