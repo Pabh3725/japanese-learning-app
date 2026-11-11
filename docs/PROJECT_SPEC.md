@@ -1392,7 +1392,7 @@ Thay các trang từng stage bằng một luồng tại `/learn/session`; đư�
 - **Học lại Card:** ở trang chi tiết từ; Card đến hạn ngay, Card đã bỏ cũng được đưa lại. Chỉ đổi `due_at` và `retired_at`, điểm và FSRS khác giữ nguyên. Đây là ngoại lệ có chủ đích của luật "chỉ Official Review đổi FSRS", vì không có lần chấm nào.
 - **Học lại Stage:** chỉ cho stage đã hoàn tất (2, 4, 5), có xác nhận. Mở lại stage, điểm còn thiếu 3 so với mốc hoàn tất, câu vào Learn ngay. `current_stage` và Card đã có giữ nguyên; từ đã xong lộ trình trở lại trạng thái đang học cho tới khi hoàn tất lại.
 
-Ngữ pháp và Thể động từ hiện chỉ là **bản xem trước giao diện** (`/grammar`, `/verbs`), dùng nội dung mẫu và không lưu kết quả. Phần thật làm sau v0.1.
+Ngữ pháp và Thể động từ hiện chỉ là **bản xem trước giao diện** (`/grammar`, `/verbs`), dùng nội dung mẫu và không lưu kết quả. Thiết kế thật: §20 và `docs/grammar-rules.md` (2026-11-15).
 
 ### 18.3d Từ vựng theo bài giáo trình — CONFIRMED (2026-11-06)
 
@@ -1487,6 +1487,16 @@ Chủ dự án chốt ngày 2026-11-10. Luật đầy đủ: `docs/learning-rule
 - **Learn và Home (2026-11-12):** một ô trên cùng có nút **Learn** trộn cả ba nhóm; ba ô song song Vocabulary, Kanji words, Kanji để theo dõi và học riêng. Bỏ 3 tab trong Learn. Bỏ trang tổng kết ngày `/learn/summary`; tổng kết hôm nay (số câu, tỷ lệ đúng, stage và chữ Kanji xong theo từng nhóm) hiện ngay ở màn kết thúc mỗi phiên Learn, Kanji và phiên hỗn hợp.
 
 ---
+
+## 20. Ngữ pháp và Thể động từ (2026-11-15) — CONFIRMED, chưa triển khai
+
+Chi tiết: `docs/grammar-rules.md` (GRAMMAR_V1). Thay đoạn "bản xem trước giao diện" ở §18.
+
+- **Grammar là tab chính** trên thanh điều hướng, không trộn vào bài Learn. Trong tab có Bài học, Ôn (FSRS), Luyện thêm, **Thể động từ** (chỉ luyện, không lịch) và **Kiểm tra** (chọn bài Minna đã học xong mọi mẫu và số câu; chỉ câu mức 3; không đổi điểm hay lịch).
+- Phạm vi 50 bài Minna no Nihongo sơ cấp (N5: 1–25, N4: 26–50); bổ sung từ vựng bài 49–50.
+- Mở bài n: ≥ 50% từ bài n xong Stage 3 và ≥ 50% mẫu bài n−1 học xong. 1 mẫu mới mỗi ngày (1–3).
+- Mỗi mẫu 30 câu gốc tự soạn, dễ → khó, có kết hợp mẫu cũ; sinh 13 dạng bài, không vùng xám. Chủ dự án duyệt mẫu + 5 câu tiêu biểu theo nhóm 5 bài.
+- Học: 40 điểm, 5 buổi (ngày 1, 2, 3, 5, 8), 8 câu mỗi buổi, 3 bậc Hiểu / Dùng / Tạo. Ôn: tối đa 20 mẫu mỗi ngày, 2–3 câu mỗi mẫu, gộp thành Good / Hard / Again, tối đa 90 ngày.
 
 ## Phụ lục — Quy tắc bảo trì tài liệu
 
