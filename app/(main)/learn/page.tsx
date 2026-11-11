@@ -98,7 +98,7 @@ export default async function LearnPage() {
           </div>
           <div className="flex flex-col gap-3 md:items-end">
             {hasWork && (
-              <Link href="/learn/mixed" className={cn(actionButton({ size: 'lg' }), 'w-full md:w-auto md:px-12')}>
+              <Link href="/learn/lesson" className={cn(actionButton({ size: 'lg' }), 'w-full md:w-auto md:px-12')}>
                 <Play className="fill-current" aria-hidden="true" />
                 Learn
               </Link>
@@ -117,7 +117,7 @@ export default async function LearnPage() {
           detail={`${vocab.newToday} new words${vocab.currentLesson ? ` · Lesson ${vocab.currentLesson.lesson}: ${vocab.currentLesson.met}/${vocab.currentLesson.total}` : ''}`}
           progress={{ value: vocab.levels.reduce((s, l) => s + l.completed, 0), max: vocab.levels.reduce((s, l) => s + l.total, 0) }}
           progressLabel={`${vocab.inProgress} in progress`}
-          startHref="/learn/session"
+          startHref="/learn/lesson?groups=vocabulary"
           canStart={vocab.questionsToday + vocab.newToday > 0}
           moreHref="#path-title"
         />
@@ -129,7 +129,7 @@ export default async function LearnPage() {
           detail={`${wordKanji.waiting} ready · ${wordKanji.waitingForLevel} for the next level`}
           progress={{ value: wordKanji.completed, max: wordKanji.total }}
           progressLabel={`${wordKanji.inProgress} in progress`}
-          startHref="/learn/session?skill=word_kanji"
+          startHref="/learn/lesson?groups=word_kanji"
           canStart={wordKanji.questionsToday + wordKanji.waiting > 0}
           moreHref="/learn/word-kanji"
         />
@@ -141,7 +141,7 @@ export default async function LearnPage() {
           detail={`${kanji.dueReview} cards · ${kanji.dueLearning} learning · ${kanji.newToday} new`}
           progress={{ value: kanji.longTerm, max: kanji.total }}
           progressLabel={`${kanji.learning} learning`}
-          startHref="/learn/kanji/session"
+          startHref="/learn/lesson?groups=kanji"
           canStart={kanji.questionsToday + kanji.newToday > 0}
           moreHref="/learn/kanji"
         />

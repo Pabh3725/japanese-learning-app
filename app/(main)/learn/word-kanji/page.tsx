@@ -38,7 +38,7 @@ export default async function WordKanjiPage() {
             <p className="mt-1 text-sm text-muted-foreground tabular-nums">{overview.answeredToday} of {overview.cap} questions answered today</p>
           </div>
           {hasWork && (
-            <Link href="/learn/session?skill=word_kanji" className={cn(actionButton({ size: 'lg' }), 'w-full md:w-auto md:px-10')}>
+            <Link href="/learn/lesson?groups=word_kanji" className={cn(actionButton({ size: 'lg' }), 'w-full md:w-auto md:px-10')}>
               <Play className="fill-current" aria-hidden="true" />
               Start
             </Link>

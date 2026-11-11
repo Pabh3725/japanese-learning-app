@@ -5,7 +5,7 @@ import { requireUser } from '@/lib/dal/auth'
 import { readSkillLevels } from '@/lib/dal/skill-levels'
 import { nextLevel } from '@/lib/learn/levels'
 import { kanjiAllowed, kanjiTargetLevel, type KanjiPolicy, type WordPolicy } from '@/lib/learn/word-kanji-policy'
-import { RULES_V9 } from '@/lib/learning/rules'
+import { readDailyLimits } from '@/lib/dal/daily-limits'
 import { studyDate } from '@/lib/learning/time'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
@@ -149,7 +149,7 @@ export async function getWordKanjiOverview(): Promise<WordKanjiOverview> {
     readExcluded(supabase, user.id),
     readSkillLevels(supabase, user.id),
     readKanjiOptins(supabase, user.id),
-    supabase.from('learner_settings').select('word_kanji_cap').eq('user_id', user.id).maybeSingle(),
+    readDailyLimits(supabase, user.id),
     supabase.from('exercise_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('study_date', studyDate(now)).eq('source', 'lesson').in('stage_number', [5, 6]),
     supabase.from('vocabularies').select('id, jlpt_level, is_kana_only, kanji_policy, kanji_target_level').eq('is_kana_only', false).range(0, 1999),
     supabase
@@ -161,14 +161,15 @@ export async function getWordKanjiOverview(): Promise<WordKanjiOverview> {
       .lte('due_at', now.toISOString())
       .range(0, PAGE - 1),
   ])
-  if (settings.error) throw new Error(`Không đọc được learner_settings: ${settings.error.message}`)
   if (answered.error) throw new Error(`Không đọc được exercise_logs: ${answered.error.message}`)
   if (totals.error) throw new Error(`Không đọc được vocabularies: ${totals.error.message}`)
   if (due.error) throw new Error(`Không đọc được learner_stage_schedules: ${due.error.message}`)
 
   const active = rows.filter((row) => !excluded.has(row.vocabulary_id))
-  const cap = settings.data?.word_kanji_cap ?? RULES_V9.defaults.wordKanjiCap
+  // V9: ngân sách Learn chung với Từ vựng và câu Học Kanji
+  const cap = settings.stageCap
   const answeredToday = answered.count ?? 0
+  const room = Math.max(0, settings.stageCap - settings.answeredToday)
   const dueCount = ((due.data ?? []) as unknown as { learner_vocabulary: { vocabulary_id: string } }[]).filter((r) => !excluded.has(r.learner_vocabulary.vocabulary_id)).length
   const level = levels.word_kanji
   const waitingRows = active.filter((row) => !opened(row) && doneStage3(row) && row.vocabularies.vocabulary_kanji.length > 0)
@@ -184,7 +185,7 @@ export async function getWordKanjiOverview(): Promise<WordKanjiOverview> {
   const openedIds = new Set(active.filter(opened).map((row) => row.vocabulary_id))
   const levelDone = levelWords.length > 0 && levelWords.every((v) => openedIds.has(v.id) || excluded.has(v.id))
   return {
-    questionsToday: Math.min(dueCount, Math.max(0, cap - answeredToday)),
+    questionsToday: Math.min(dueCount, room),
     waiting: eligible.length,
     completed: active.filter((row) => row.learner_stage_schedules.some((s) => s.stage_number === 6 && s.completed_at !== null)).length,
     inProgress: active.filter((row) => opened(row) && !row.learner_stage_schedules.some((s) => s.stage_number === 6 && s.completed_at !== null)).length,

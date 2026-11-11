@@ -17,7 +17,7 @@ export function LearnMoreButton({ count }: { count: number }) {
       try {
         const { status } = await borrowNewWordsAction(count)
         if (status !== 'saved') throw new Error(status)
-        router.push('/learn/session')
+        router.push('/learn/lesson')
       } catch {
         setError("Couldn't start. Check your connection and try again.")
       }

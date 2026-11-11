@@ -42,7 +42,7 @@ export default async function DashboardPage() {
             eyebrow="Learn"
             title={questions + fresh > 0 ? `${questions} ${questions === 1 ? 'question' : 'questions'} · ${fresh} new` : 'All caught up'}
             subtitle={questions + fresh > 0 ? 'Vocabulary, Kanji words and Kanji, mixed into one session.' : 'Your next questions are scheduled. Come back later.'}
-            href={questions + fresh > 0 ? '/learn/mixed' : undefined}
+            href={questions + fresh > 0 ? '/learn/lesson' : undefined}
             cta="Learn"
           />
           <StudyHeroCard

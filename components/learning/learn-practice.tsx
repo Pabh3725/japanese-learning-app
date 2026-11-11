@@ -20,7 +20,7 @@ import { SpeedMatchingGame } from '@/components/practice/speed-matching-game'
 import type { SubmitExerciseResponse } from '@/lib/dal/exercise'
 import type { MatchPenalty } from '@/lib/exercise/match-round'
 import type { AssemblyQuestionData, ChoiceQuestionData, TypingQuestionData, WordReveal } from '@/lib/exercise/stage-questions'
-import type { StageQuestion } from '@/lib/dal/stage-session'
+import type { CheckStageAnswerResponse, StageQuestion } from '@/lib/dal/stage-session'
 import { levelUpOf, type LevelUp } from '@/lib/learn/level-up'
 import { RULES_V9 } from '@/lib/learning/rules'
 import { shouldRelearn } from '@/lib/learning/stage'
@@ -116,6 +116,17 @@ interface LearnPracticeProps {
   skillQuery?: string
   /** Học hỗn hợp: xong cụm câu thì sang cụm sau, không có màn kết thúc riêng. */
   onDone?: () => void
+  /** V9 bài Learn: một câu do AIS chọn. Không hỏi lại cuối lượt (AIS tự xếp câu kiểm tra lại), không có thanh tiêu đề riêng. */
+  lesson?: LessonEmbed
+}
+
+export interface LessonEmbed {
+  /** Câu kiểm tra nhanh: chấm và ghi ở bài, không có điểm, không đổi lịch. */
+  micro: boolean
+  /** Lưu câu kiểm tra nhanh, trả kết quả chấm. null khi chưa lưu được. */
+  submitMicro: (answer: string | string[], usedHint: boolean) => Promise<CheckStageAnswerResponse | null>
+  /** Đánh dấu đã biết từ này: bài bỏ từ và đi tiếp. */
+  onKnown: (vocabularyId: string) => void
 }
 
 /** Chờ lưu xong rồi mới báo xong cụm. */
@@ -126,8 +137,12 @@ function FinishSegment({ pending, onDone }: { pending: number; onDone: () => voi
   return <p className="m-auto text-sm text-muted-foreground">Saving…</p>
 }
 
-export function LearnPractice({ questions: initialQuestions, sessionNumber, sessionsLeft, finish, skillQuery = '', onDone }: LearnPracticeProps) {
+const MICRO_NOTE = 'Quick check: no points, it just helps the word stick.'
+
+export function LearnPractice({ questions: initialQuestions, sessionNumber, sessionsLeft, finish, skillQuery = '', onDone, lesson }: LearnPracticeProps) {
   const [questions, setQuestions] = useState(initialQuestions)
+  // Trong bài Learn, thanh tiêu đề thuộc trình chạy bài nên phần này chỉ lấp chỗ còn lại
+  const rootClass = lesson ? 'flex flex-1 flex-col' : 'flex min-h-dvh flex-col'
   const voice = useJapaneseVoice()
   const [index, setIndex] = useState(0)
   // Đúng hoặc sai của từng câu đã trả lời, để tính tỷ lệ cuối lượt
@@ -156,7 +171,7 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
 
   if ((relearn || levelUp) && index >= questions.length + retries.length) {
     return (
-      <div className="flex min-h-dvh flex-col">
+      <div className={rootClass}>
         {levelUp ? (
           <LevelUpCard levelUp={levelUp} onContinue={() => setLevelUp(null)} />
         ) : (
@@ -170,13 +185,13 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
   const isRetry = index >= questions.length
 
   if (index >= queue.length) {
-    if (onDone) return <div className="flex min-h-dvh flex-col"><FinishSegment pending={pending} onDone={onDone} /></div>
+    if (onDone) return <div className={rootClass}><FinishSegment pending={pending} onDone={onDone} /></div>
     const correct = results.filter(Boolean).length
     const wrong = results.length - correct
     const accuracy = results.length > 0 ? Math.round((correct / results.length) * 100) : 0
     const hasNext = sessionsLeft > 1
     return (
-      <div className="flex min-h-dvh flex-col">
+      <div className={rootClass}>
         <SessionComplete
           title={pending > 0 ? 'Saving…' : finish ? 'Extra practice done!' : `Session ${sessionNumber} complete!`}
           subtitle={warning ?? `${levelUpCount > 0 ? `${levelUpCount} new ${levelUpCount === 1 ? 'milestone' : 'milestones'}. ` : ''}${hasNext ? `${sessionsLeft - 1} more ${sessionsLeft === 2 ? 'session' : 'sessions'} today. Your progress is saved if you stop here.` : 'You’re done for now.'}`}
@@ -212,7 +227,7 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
   const afterAnswer = (correct: boolean, reveal: WordReveal | undefined) => {
     next()
     if (correct || q.kind === 'match' || q.kind === 'boss' || isRetry) return
-    setRetries((list) => [...list, q])
+    if (!lesson) setRetries((list) => [...list, q])
     if (reveal && shouldRelearn(q.wrongStreak + 1)) setRelearn(reveal)
   }
   const responseMs = () => Date.now() - shownAt.current
@@ -230,6 +245,18 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
       clientEventId: current.clientEventId,
       responseMs: responseMs(),
       starSessionId: current.starSessionId,
+    }
+    if (lesson?.micro) {
+      setPending((n) => n + 1)
+      saveQueue.current = saveQueue.current
+        .then(() => lesson.submitMicro(chosen, false))
+        .then((res) => {
+          if (!res) setWarning(SAVE_WARNING)
+          else setNotes((all) => ({ ...all, [current.clientEventId]: MICRO_NOTE }))
+        })
+        .catch(() => setWarning(SAVE_WARNING))
+        .finally(() => setPending((n) => n - 1))
+      return
     }
     const submit = current.starSessionId ? submitStarAnswerAction : submitStageAnswerAction
     setPending((n) => n + 1)
@@ -267,6 +294,15 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
         speak(checked.reading)
         lastReveal.current = checked.reveal
         return { correct: checked.outcome === 'correct', answer: [checked.answer], explanation: RETRY_NOTE, reveal: checked.reveal }
+      }
+      if (lesson?.micro) {
+        const checked = await lesson.submitMicro(given, usedHint)
+        if (!checked || checked.status !== 'graded') return { error: SAVE_ERROR }
+        const correct = checked.outcome !== 'wrong'
+        speak(checked.reading)
+        setResults((list) => [...list, correct])
+        lastReveal.current = checked.reveal
+        return { correct, answer: [checked.answer], explanation: MICRO_NOTE, reveal: checked.reveal }
       }
       const submit = current.starSessionId ? submitStarAnswerAction : submitStageAnswerAction
       const res = await submit({
@@ -321,7 +357,7 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
     setRelearn(null)
   }
 
-  const stageLabel = q.kind === 'match' ? 'Stage 3' : q.kind === 'boss' ? 'Boss round' : q.starSessionId ? 'Starred word' : `Stage ${q.stage}`
+  const stageLabel = q.kind === 'match' ? 'Stage 3' : q.kind === 'boss' ? 'Boss round' : q.starSessionId ? 'Starred word' : lesson?.micro ? `Stage ${q.stage} · Quick check` : `Stage ${q.stage}`
   // Cùng một câu hỏi lại nên cần key khác, để màn hình bắt đầu mới
   const bodyKey = `${q.clientEventId}${isRetry ? '-retry' : ''}`
   let body: React.ReactNode
@@ -375,15 +411,15 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
   }
 
   return (
-    <div className="flex min-h-dvh flex-col">
-      <SessionHeader
+    <div className={rootClass}>
+      {!lesson && <SessionHeader
         backHref={finish?.href ?? '/learn'}
         label={finish ? 'Starred words' : `Session ${sessionNumber} of ${sessionNumber - 1 + sessionsLeft}`}
         sublabel={q.kind === 'boss' ? 'Boss round' : q.kind === 'match' ? 'Matching round' : isRetry ? `Try again · ${index - questions.length + 1} of ${retries.length}` : `Step ${index + 1} of ${queue.length}`}
         current={index}
         total={queue.length}
-      />
-      <KnownWordBar vocabularyId={q.kind === 'match' || q.kind === 'boss' || levelUp ? null : q.vocabularyId} onKnown={removeWord} />
+      />}
+      <KnownWordBar vocabularyId={q.kind === 'match' || q.kind === 'boss' || levelUp ? null : q.vocabularyId} onKnown={lesson ? lesson.onKnown : removeWord} />
       {warning && <p role="alert" className="mx-auto mt-3 w-full max-w-2xl px-4 text-sm text-error">{warning}</p>}
       {levelUp ? (
         <LevelUpCard levelUp={levelUp} onContinue={() => setLevelUp(null)} />
