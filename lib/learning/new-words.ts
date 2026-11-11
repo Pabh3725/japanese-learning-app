@@ -40,6 +40,8 @@ export const STUDY_LIMITS = {
   kanji_new_per_day: { label: 'New Kanji per day', hint: 'Counts Kanji already opened today. New ones pause when questions need the room.', min: 0, max: 50 },
   kanji_cap: { label: 'Kanji learning questions per day', hint: 'Questions for Kanji you are still learning. New Kanji pause when they need the room.', min: 10, max: 500 },
   kanji_review_cap: { label: 'Kanji cards per day', hint: 'Long-term Kanji cards, reviewed in the Kanji area.', min: 10, max: 500 },
+  grammar_new_per_day: { label: 'New grammar patterns per day', hint: 'Each new pattern is practiced in 5 sittings over 8 days.', min: 1, max: 3 },
+  grammar_review_cap: { label: 'Grammar patterns to review per day', hint: 'Each pattern due gets 2–3 questions. Extra patterns move to the next day.', min: 5, max: 50 },
 } as const
 
 export type StudyLimitKey = keyof typeof STUDY_LIMITS

@@ -5,14 +5,14 @@ import { requireUser } from '@/lib/dal/auth'
 import { getKanjiOverview } from '@/lib/dal/kanji'
 import { getLearnOverview } from '@/lib/dal/learn-overview'
 import { getReviewOverview } from '@/lib/dal/review'
-import { getNewPerDay, getStudyLimits } from '@/lib/dal/settings'
+import { getGrammarFurigana, getNewPerDay, getStudyLimits } from '@/lib/dal/settings'
 import { RULES_V9 } from '@/lib/learning/rules'
 
 /** Ước lượng thời gian mỗi câu hoặc thẻ. */
 const SECONDS_PER_ITEM = 15
 
 export default async function SettingsPage() {
-  const [user, newPerDay, limits, learn, review, kanji] = await Promise.all([requireUser(), getNewPerDay(), getStudyLimits(), getLearnOverview(), getReviewOverview(), getKanjiOverview()])
+  const [user, newPerDay, limits, learn, review, kanji, furigana] = await Promise.all([requireUser(), getNewPerDay(), getStudyLimits(), getLearnOverview(), getReviewOverview(), getKanjiOverview(), getGrammarFurigana()])
   const minutes = Math.ceil(((learn.questionsToday + learn.newToday + review.dueNow + kanji.questionsToday + kanji.newToday * RULES_V9.kanji.questionsPerSitting) * SECONDS_PER_ITEM) / 60)
   const daysToFinish = newPerDay > 0 ? Math.ceil(learn.wordsLeft / newPerDay) : null
 
@@ -31,7 +31,7 @@ export default async function SettingsPage() {
           {daysToFinish !== null && <li>{learn.wordsLeft} words left on your path: about {daysToFinish} more days at this pace.</li>}
         </ul>
       </section>
-      <SettingsForm newPerDay={newPerDay} limits={limits} />
+      <SettingsForm newPerDay={newPerDay} limits={limits} furigana={furigana} />
 
       <section aria-labelledby="account-title" className="mt-6 max-w-2xl rounded-3xl border border-border bg-card p-6">
         <h2 id="account-title" className="font-semibold">Account</h2>

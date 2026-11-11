@@ -104,6 +104,12 @@ export const EXERCISE_TIER: Record<GrammarExercise, 1 | 2 | 3> = {
 export const MIN_PIECES_ORDER = 4
 export const MIN_PIECES_TRANSLATE = 3
 
+/** Câu dùng được cho sắp xếp / ★ / dịch-ghép: một câu, không có 、 (tránh nhiều cách xếp đúng ngoài cách đổi chỗ cụm). */
+export function canReorder(s: Pick<GrammarSentenceData, 'pieces'>): boolean {
+  const ends = s.pieces.filter((p) => /[。？！?!]/.test(p.t)).length
+  return ends <= 1 && !s.pieces.some((p) => p.t.includes('、'))
+}
+
 /** Mảnh chỉ có dấu câu: không tính khi sắp xếp, ★, tìm chỗ sai. */
 export const isPunctuation = (p: GrammarPiece) => /^[。、？！?!「」　 ]+$/.test(p.t)
 
@@ -117,8 +123,8 @@ export function exercisesFor(s: Pick<GrammarSentenceData, 'pieces' | 'slots' | '
   if (kinds.has('form')) out.push('form_choice', 'form_typing')
   if (kinds.has('particle') || kinds.has('form')) out.push('true_false')
   if ((kinds.has('particle') || kinds.has('form')) && n >= MIN_PIECES_ORDER) out.push('find_error')
-  if (n >= MIN_PIECES_ORDER) out.push('order', 'star')
-  if (n >= MIN_PIECES_TRANSLATE) out.push('translate_build')
+  if (canReorder(s) && n >= MIN_PIECES_ORDER) out.push('order', 'star')
+  if (canReorder(s) && n >= MIN_PIECES_TRANSLATE) out.push('translate_build')
   if (s.split !== undefined) out.push('clause_match')
   if (s.prompt) out.push('reply_choice')
   return GRAMMAR_EXERCISES.filter((e) => out.includes(e))

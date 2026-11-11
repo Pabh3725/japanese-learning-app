@@ -1,6 +1,6 @@
 'use server'
 
-import { saveNewPerDay, saveStudyLimit } from '@/lib/dal/settings'
+import { saveGrammarFurigana, saveNewPerDay, saveStudyLimit } from '@/lib/dal/settings'
 
 export async function saveNewPerDayAction(value: unknown): Promise<{ status: 'saved' | 'invalid' }> {
   return saveNewPerDay(value)
@@ -8,4 +8,8 @@ export async function saveNewPerDayAction(value: unknown): Promise<{ status: 'sa
 
 export async function saveStudyLimitAction(key: unknown, value: unknown): Promise<{ status: 'saved' | 'invalid' }> {
   return saveStudyLimit(key, value)
+}
+
+export async function saveGrammarFuriganaAction(value: unknown): Promise<{ status: 'saved' | 'invalid' }> {
+  return saveGrammarFurigana(value)
 }

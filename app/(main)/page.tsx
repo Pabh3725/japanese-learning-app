@@ -11,8 +11,7 @@ import { getWordKanjiOverview } from '@/lib/dal/word-kanji'
 import { getReviewOverview } from '@/lib/dal/review'
 
 const EXPLORE = [
-  { href: '/grammar', title: 'Grammar', body: 'Patterns by lesson, with exercises you choose.', sample: '文', badge: 'Preview' },
-  { href: '/verbs', title: 'Verb forms', body: 'Practice て, た, ない, たい and more.', sample: '動', badge: 'Preview' },
+  { href: '/grammar', title: 'Grammar', body: 'Patterns by Minna lesson: learn, review, practice and test.', sample: '文', badge: 'New' },
   { href: '/practice', title: 'Practice', body: 'Short games with the words you have met.', sample: '遊', badge: 'Games' },
   { href: '/library', title: 'Word list', body: 'Browse every word by lesson and see your progress.', sample: '語', badge: 'Library' },
 ]

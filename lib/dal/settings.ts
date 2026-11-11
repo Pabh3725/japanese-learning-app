@@ -3,6 +3,7 @@ import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { isValidNewPerDay, isValidStudyLimit, newPerDayOf, type StudyLimitKey } from '@/lib/learning/new-words'
+import { GRAMMAR_V1 } from '@/lib/grammar/rules'
 import { RULES_V9 } from '@/lib/learning/rules'
 
 export async function getNewPerDay(): Promise<number> {
@@ -29,7 +30,7 @@ export async function getStudyLimits(): Promise<Record<StudyLimitKey, number>> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('learner_settings')
-    .select('lesson_size, learn_cap, review_cap, word_kanji_review_cap, unlock_threshold, kanji_new_per_day, kanji_cap, kanji_review_cap')
+    .select('lesson_size, learn_cap, review_cap, word_kanji_review_cap, unlock_threshold, kanji_new_per_day, kanji_cap, kanji_review_cap, grammar_new_per_day, grammar_review_cap')
     .eq('user_id', user.id)
     .maybeSingle()
   if (error) throw new Error(`Không đọc được learner_settings: ${error.message}`)
@@ -43,6 +44,8 @@ export async function getStudyLimits(): Promise<Record<StudyLimitKey, number>> {
     kanji_new_per_day: data?.kanji_new_per_day ?? defaults.kanjiNewPerDay,
     kanji_cap: data?.kanji_cap ?? defaults.kanjiCap,
     kanji_review_cap: data?.kanji_review_cap ?? defaults.kanjiReviewCap,
+    grammar_new_per_day: data?.grammar_new_per_day ?? GRAMMAR_V1.newPerDay.default,
+    grammar_review_cap: data?.grammar_review_cap ?? GRAMMAR_V1.review.maxPerDay,
   }
 }
 
@@ -51,6 +54,23 @@ export async function saveStudyLimit(key: unknown, value: unknown): Promise<{ st
   const user = await requireUser()
   const supabase = await createClient()
   const { error } = await supabase.from('learner_settings').upsert({ user_id: user.id, [key]: value }, { onConflict: 'user_id' })
+  if (error) throw new Error(`Không lưu được learner_settings: ${error.message}`)
+  return { status: 'saved' }
+}
+
+export async function getGrammarFurigana(): Promise<boolean> {
+  const user = await requireUser()
+  const supabase = await createClient()
+  const { data, error } = await supabase.from('learner_settings').select('grammar_furigana').eq('user_id', user.id).maybeSingle()
+  if (error) throw new Error(`Không đọc được learner_settings: ${error.message}`)
+  return data?.grammar_furigana ?? true
+}
+
+export async function saveGrammarFurigana(value: unknown): Promise<{ status: 'saved' | 'invalid' }> {
+  if (typeof value !== 'boolean') return { status: 'invalid' }
+  const user = await requireUser()
+  const supabase = await createClient()
+  const { error } = await supabase.from('learner_settings').upsert({ user_id: user.id, grammar_furigana: value }, { onConflict: 'user_id' })
   if (error) throw new Error(`Không lưu được learner_settings: ${error.message}`)
   return { status: 'saved' }
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useId, useState, useTransition } from 'react'
-import { saveNewPerDayAction, saveStudyLimitAction } from '@/app/(main)/settings/actions'
+import { saveGrammarFuriganaAction, saveNewPerDayAction, saveStudyLimitAction } from '@/app/(main)/settings/actions'
 import { MAX_NEW_PER_DAY, MIN_NEW_PER_DAY, STUDY_LIMITS, type StudyLimitKey } from '@/lib/learning/new-words'
 import { cn } from '@/lib/utils'
 
@@ -76,7 +76,7 @@ function NewPerDaySetting({ initial }: { initial: number }) {
   )
 }
 
-function SettingSwitch({ label, description, defaultChecked }: { label: string; description: string; defaultChecked?: boolean }) {
+function SettingSwitch({ label, description, defaultChecked, onSave }: { label: string; description: string; defaultChecked?: boolean; onSave?: (value: boolean) => Promise<unknown> }) {
   const [checked, setChecked] = useState(!!defaultChecked)
   const id = useId()
   return (
@@ -91,7 +91,11 @@ function SettingSwitch({ label, description, defaultChecked }: { label: string; 
         aria-checked={checked}
         aria-labelledby={`${id}-label`}
         aria-describedby={`${id}-desc`}
-        onClick={() => setChecked((c) => !c)}
+        onClick={() => {
+          const value = !checked
+          setChecked(value)
+          void onSave?.(value)
+        }}
         className={cn('relative h-7 w-12 shrink-0 rounded-full transition-colors duration-200', checked ? 'bg-primary' : 'bg-[#2e3440]')}
       >
         <span className={cn('absolute top-1 left-1 size-5 rounded-full bg-white transition-transform duration-200', checked && 'translate-x-5')} />
@@ -119,7 +123,7 @@ function StudyLimitField({ limitKey, initial }: { limitKey: StudyLimitKey; initi
   )
 }
 
-export function SettingsForm({ newPerDay, limits }: { newPerDay: number; limits: Record<StudyLimitKey, number> }) {
+export function SettingsForm({ newPerDay, limits, furigana = true }: { newPerDay: number; limits: Record<StudyLimitKey, number>; furigana?: boolean }) {
   return (
     <div className="flex max-w-2xl flex-col gap-6">
       <NewPerDaySetting initial={newPerDay} />
@@ -135,6 +139,7 @@ export function SettingsForm({ newPerDay, limits }: { newPerDay: number; limits:
       <section aria-labelledby="study-title" className="rounded-3xl border border-border bg-card px-6 pt-6 pb-2">
         <h2 id="study-title" className="font-semibold">Study</h2>
         <div className="divide-y divide-border">
+          <SettingSwitch label="Furigana in Grammar" description="Show readings above Kanji in grammar sentences." defaultChecked={furigana} onSave={saveGrammarFuriganaAction} />
           <SettingSwitch label="Show Sino-Vietnamese" description="Display Hán Việt readings on cards." defaultChecked />
           <SettingSwitch label="Show romaji" description="Helpful while you're still learning Kana." />
           <SettingSwitch label="Sound effects" description="Play sounds for correct and wrong answers." defaultChecked />
