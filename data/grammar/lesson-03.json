@@ -1,0 +1,7345 @@
+{
+ "lesson": 3,
+ "points": [
+  {
+   "code": "g03-01",
+   "order": 1,
+   "pattern": "ここ／そこ／あそこ は N です",
+   "meaning": "Đây / đó / kia là N (nơi chốn)",
+   "explanation": "ここ, そこ, あそこ chỉ nơi chốn: ここ là chỗ người nói đang ở (đây), そこ là chỗ gần người nghe (đó), あそこ là chỗ xa cả hai (kia). Hỏi nơi chốn bằng どこ: ここはどこですか (đây là đâu?). Khác với これ, それ, あれ là chỉ đồ vật.",
+   "approved": true,
+   "sentences": [
+    {
+     "code": "g03-01-s01",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "ここ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "教室",
+       "r": "きょうしつ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là lớp học.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "そこ",
+        "あそこ",
+        "どこ"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g03-01-s02",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "ここ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "食堂",
+       "r": "しょくどう"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là nhà ăn.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "そこ",
+        "あそこ",
+        "どこ"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s03",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "そこ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "事務所",
+       "r": "じむしょ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là văn phòng.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "ここ",
+        "あそこ",
+        "どこ"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s04",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "そこ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "会議室",
+       "r": "かいぎしつ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là phòng họp.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "ここ",
+        "あそこ",
+        "どこ"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s05",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "あそこ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "受付",
+       "r": "うけつけ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia là quầy tiếp tân.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "ここ",
+        "そこ",
+        "どこ"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s06",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "あそこ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "トイレ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia là nhà vệ sinh.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "ここ",
+        "そこ",
+        "どこ"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g03-01-s07",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "ここ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ロビー"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là sảnh.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "そこ",
+        "あそこ",
+        "どこ"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s08",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "そこ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "階段",
+       "r": "かいだん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là cầu thang.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "ここ",
+        "あそこ",
+        "どこ"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s09",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "あそこ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "売り場",
+       "r": "うりば"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia là quầy bán hàng.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "ここ",
+        "そこ",
+        "どこ"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s10",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "ここ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "地下",
+       "r": "ちか"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là tầng hầm.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "そこ",
+        "あそこ",
+        "どこ"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s11",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "ここ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "教室",
+       "r": "きょうしつ"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây có phải là lớp học không?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "そこ",
+        "あそこ",
+        "どこ"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s12",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "そこ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "食堂",
+       "r": "しょくどう"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó không phải là nhà ăn.",
+     "uses": [
+      "g01-02"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "ここ",
+        "あそこ",
+        "どこ"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g03-01-s13",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "あそこ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "会議室",
+       "r": "かいぎしつ"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia có phải là phòng họp không?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "ここ",
+        "そこ",
+        "どこ"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s14",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "ここ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "大学",
+       "r": "だいがく"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là trường đại học.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "そこ",
+        "あそこ",
+        "どこ"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s15",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "そこ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "病院",
+       "r": "びょういん"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó có phải là bệnh viện không?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "ここ",
+        "あそこ",
+        "どこ"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s16",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "あそこ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "事務所",
+       "r": "じむしょ"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia không phải là văn phòng.",
+     "uses": [
+      "g01-02"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "ここ",
+        "そこ",
+        "どこ"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s17",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "ここ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "会社",
+       "r": "かいしゃ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là công ty.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "そこ",
+        "あそこ",
+        "どこ"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s18",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "ここ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "うち"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là nhà tôi.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "そこ",
+        "あそこ",
+        "どこ"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g03-01-s19",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "あそこ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "エレベーター"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia có phải là thang máy không?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "ここ",
+        "そこ",
+        "どこ"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s20",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "そこ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "エスカレーター"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là thang cuốn.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "ここ",
+        "あそこ",
+        "どこ"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s21",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "ここ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "どこ"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là đâu?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "そこ",
+        "あそこ",
+        "どこ"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s22",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "ここ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "さくら大学",
+       "r": "さくらだいがく"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là trường đại học Sakura.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "そこ",
+        "あそこ",
+        "どこ"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s23",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "ここ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "部屋",
+       "r": "へや"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là phòng của tôi.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "そこ",
+        "あそこ",
+        "どこ"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s24",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "そこ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "先生",
+       "r": "せんせい"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "部屋",
+       "r": "へや"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó có phải là phòng của giáo viên không?",
+     "uses": [
+      "g01-03",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "ここ",
+        "あそこ",
+        "どこ"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s25",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "あそこ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "食堂",
+       "r": "しょくどう"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "会議室",
+       "r": "かいぎしつ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia không phải là nhà ăn. Đó là phòng họp.",
+     "uses": [
+      "g01-01",
+      "g01-02"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "ここ",
+        "そこ",
+        "どこ"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g03-01-s26",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "ここ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ミラーさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "会社",
+       "r": "かいしゃ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là công ty của anh Miller.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "そこ",
+        "あそこ",
+        "どこ"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s27",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "そこ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "教室",
+       "r": "きょうしつ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "事務所",
+       "r": "じむしょ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là lớp học hay văn phòng?",
+     "uses": [
+      "g02-04"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "ここ",
+        "あそこ",
+        "どこ"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s28",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "あそこ"
+      },
+      {
+       "t": "も"
+      },
+      {
+       "t": "トイレ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia cũng là nhà vệ sinh.",
+     "uses": [
+      "g01-04"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "ここ",
+        "そこ",
+        "どこ"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s29",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "ここ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "日本語",
+       "r": "にほんご"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "教室",
+       "r": "きょうしつ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là lớp học tiếng Nhật.",
+     "uses": [
+      "g02-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "そこ",
+        "あそこ",
+        "どこ"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-01-s30",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "そこ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "靴",
+       "r": "くつ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "売り場",
+       "r": "うりば"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là quầy bán giày.",
+     "uses": [
+      "g02-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "ここ",
+        "あそこ",
+        "どこ"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "code": "g03-02",
+   "order": 2,
+   "pattern": "N は ここ／そこ／あそこ です",
+   "meaning": "N ở đây / đó / kia",
+   "explanation": "Để nói một nơi, một vật hay một người ở đâu, đặt nó làm chủ đề rồi nói chỗ: トイレはあそこです (nhà vệ sinh ở đằng kia). Hỏi bằng どこ: 食堂はどこですか (nhà ăn ở đâu?). Chỗ có thể là ここ/そこ/あそこ, tên phòng hoặc tầng: 会議室は3階です.",
+   "approved": true,
+   "sentences": [
+    {
+     "code": "g03-02-s01",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "トイレ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "あそこ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Nhà vệ sinh ở đằng kia.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "ここ",
+        "そこ",
+        "どこ"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g03-02-s02",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "食堂",
+       "r": "しょくどう"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ここ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Nhà ăn ở đây.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "そこ",
+        "あそこ",
+        "どこ"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-02-s03",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "受付",
+       "r": "うけつけ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "そこ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Quầy tiếp tân ở đó.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "ここ",
+        "あそこ",
+        "どこ"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-02-s04",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "会議室",
+       "r": "かいぎしつ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "あそこ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Phòng họp ở đằng kia.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "ここ",
+        "そこ",
+        "どこ"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-02-s05",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "事務所",
+       "r": "じむしょ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ここ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Văn phòng ở đây.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "そこ",
+        "あそこ",
+        "どこ"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-02-s06",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "教室",
+       "r": "きょうしつ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "そこ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Lớp học ở đó.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "ここ",
+        "あそこ",
+        "どこ"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g03-02-s07",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "エレベーター"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "あそこ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Thang máy ở đằng kia.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "ここ",
+        "そこ",
+        "どこ"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-02-s08",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "ロビー"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ここ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Sảnh ở đây.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "そこ",
+        "あそこ",
+        "どこ"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-02-s09",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "階段",
+       "r": "かいだん"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "そこ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cầu thang ở đó.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "ここ",
+        "あそこ",
+        "どこ"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-02-s10",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "エスカレーター"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "あそこ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Thang cuốn ở đằng kia.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "ここ",
+        "そこ",
+        "どこ"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-02-s11",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "トイレ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "どこ"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Nhà vệ sinh ở đâu?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "ここ",
+        "そこ",
+        "あそこ"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-02-s12",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "食堂",
+       "r": "しょくどう"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "どこ"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Nhà ăn ở đâu?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "ここ",
+        "そこ",
+        "あそこ"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g03-02-s13",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "あそこ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Ở đằng kia.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "ここ",
+        "そこ",
+        "どこ"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "トイレ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "どこ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Nhà vệ sinh ở đâu?",
+      "distractors": [
+       "はい、あそこです。",
+       "いいえ、あそこです。",
+       "あそこですか。"
+      ]
+     }
+    },
+    {
+     "code": "g03-02-s14",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "ここ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Ở đây.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "そこ",
+        "あそこ",
+        "どこ"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "食堂",
+        "r": "しょくどう"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "どこ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Nhà ăn ở đâu?",
+      "distractors": [
+       "はい、ここです。",
+       "いいえ、ここです。",
+       "ここですか。"
+      ]
+     }
+    },
+    {
+     "code": "g03-02-s15",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "受付",
+       "r": "うけつけ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "どこ"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Quầy tiếp tân ở đâu?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "ここ",
+        "そこ",
+        "あそこ"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-02-s16",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "そこ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Ở đó.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "ここ",
+        "あそこ",
+        "どこ"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "受付",
+        "r": "うけつけ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "どこ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Quầy tiếp tân ở đâu?",
+      "distractors": [
+       "はい、そこです。",
+       "いいえ、そこです。",
+       "そこですか。"
+      ]
+     }
+    },
+    {
+     "code": "g03-02-s17",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "会議室",
+       "r": "かいぎしつ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "3階",
+       "r": "さんがい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Phòng họp ở tầng 3.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-02-s18",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "事務所",
+       "r": "じむしょ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "2階",
+       "r": "にかい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Văn phòng ở tầng 2.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g03-02-s19",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "食堂",
+       "r": "しょくどう"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "地下",
+       "r": "ちか"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Nhà ăn ở tầng hầm.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-02-s20",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "ミラーさん"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "どこ"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Anh Miller ở đâu?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "ここ",
+        "そこ",
+        "あそこ"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-02-s21",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "会議室",
+       "r": "かいぎしつ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Anh ấy ở phòng họp.",
+     "uses": [
+      "g01-01"
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "ミラーさん"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "どこ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Anh Miller ở đâu?",
+      "distractors": [
+       "はい、会議室です。",
+       "いいえ、会議室です。",
+       "会議室ですか。"
+      ]
+     }
+    },
+    {
+     "code": "g03-02-s22",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "ワンさん"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "事務所",
+       "r": "じむしょ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Anh Wang ở văn phòng.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-02-s23",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "先生",
+       "r": "せんせい"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "教室",
+       "r": "きょうしつ"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Giáo viên có ở lớp học không?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-02-s24",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "教室",
+       "r": "きょうしつ"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "事務所",
+       "r": "じむしょ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, không ở lớp học. Ở văn phòng.",
+     "uses": [
+      "g01-02",
+      "g01-03"
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "先生",
+        "r": "せんせい"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "教室",
+        "r": "きょうしつ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Giáo viên có ở lớp học không?",
+      "distractors": [
+       "はい、教室じゃありません。事務所です。",
+       "いいえ、教室です。事務所です。",
+       "はい、事務所じゃありません。"
+      ]
+     }
+    },
+    {
+     "code": "g03-02-s25",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "会議室",
+       "r": "かいぎしつ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "何階",
+       "r": "なんがい"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Phòng họp ở tầng mấy?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g03-02-s26",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "5階",
+       "r": "ごかい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Ở tầng 5.",
+     "uses": [
+      "g01-01"
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "会議室",
+        "r": "かいぎしつ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "何階",
+        "r": "なんがい"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Phòng họp ở tầng mấy?",
+      "distractors": [
+       "はい、5階です。",
+       "いいえ、5階です。",
+       "5階ですか。"
+      ]
+     }
+    },
+    {
+     "code": "g03-02-s27",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "トイレ"
+      },
+      {
+       "t": "も"
+      },
+      {
+       "t": "あそこ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Nhà vệ sinh cũng ở đằng kia.",
+     "uses": [
+      "g01-04"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "は",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-02-s28",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "カリナさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "部屋",
+       "r": "へや"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "どこ"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Phòng của chị Karina ở đâu?",
+     "uses": [
+      "g01-03",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 4,
+       "distractors": [
+        "ここ",
+        "そこ",
+        "あそこ"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-02-s29",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "エレベーター"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "あそこ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そこ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Thang máy ở đằng kia hay ở đó?",
+     "uses": [
+      "g02-04"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-02-s30",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "ネクタイ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "売り場",
+       "r": "うりば"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "2階",
+       "r": "にかい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Quầy bán cà vạt ở tầng 2.",
+     "uses": [
+      "g02-05"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "code": "g03-03",
+   "order": 3,
+   "pattern": "こちら／そちら／あちら／どちら",
+   "meaning": "Phía này / phía đó / phía kia / phía nào (lịch sự)",
+   "explanation": "こちら, そちら, あちら, どちら vốn chỉ phương hướng, và được dùng thay cho ここ, そこ, あそこ, どこ khi nói lịch sự (nhân viên với khách, nói với người trên). こちら còn dùng để giới thiệu người: こちらはミラーさんです. Hỏi nước, công ty, trường của người nghe một cách lịch sự: お国はどちらですか (anh/chị là người nước nào?).",
+   "approved": true,
+   "sentences": [
+    {
+     "code": "g03-03-s01",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "こちら"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "受付",
+       "r": "うけつけ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Phía này là quầy tiếp tân.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "そちら",
+        "あちら",
+        "どちら"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g03-03-s02",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "そちら"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "会議室",
+       "r": "かいぎしつ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Phía đó là phòng họp.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "こちら",
+        "あちら",
+        "どちら"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-03-s03",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "あちら"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "エレベーター"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Phía kia là thang máy.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "こちら",
+        "そちら",
+        "どちら"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-03-s04",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "エレベーター"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "あちら"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Thang máy ở phía kia ạ.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "こちら",
+        "そちら",
+        "どちら"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-03-s05",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "トイレ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "こちら"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Nhà vệ sinh ở phía này ạ.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "そちら",
+        "あちら",
+        "どちら"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-03-s06",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "事務所",
+       "r": "じむしょ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "そちら"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Văn phòng ở phía đó ạ.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "こちら",
+        "あちら",
+        "どちら"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g03-03-s07",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "受付",
+       "r": "うけつけ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "あちら"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Quầy tiếp tân ở phía kia ạ.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "こちら",
+        "そちら",
+        "どちら"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-03-s08",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "会議室",
+       "r": "かいぎしつ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "こちら"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Phòng họp ở phía này ạ.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "そちら",
+        "あちら",
+        "どちら"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-03-s09",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "食堂",
+       "r": "しょくどう"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "そちら"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Nhà ăn ở phía đó ạ.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "こちら",
+        "あちら",
+        "どちら"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-03-s10",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "エスカレーター"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "あちら"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Thang cuốn ở phía kia ạ.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "こちら",
+        "そちら",
+        "どちら"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-03-s11",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "お国",
+       "r": "おくに"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "どちら"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Anh/chị là người nước nào ạ?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "こちら",
+        "そちら",
+        "あちら"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-03-s12",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "アメリカ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là nước Mỹ.",
+     "uses": [
+      "g01-01"
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "お国",
+        "r": "おくに"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "どちら"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Anh/chị là người nước nào ạ?",
+      "distractors": [
+       "はい、アメリカです。",
+       "いいえ、アメリカです。",
+       "アメリカですか。"
+      ]
+     },
+     "sample": true
+    },
+    {
+     "code": "g03-03-s13",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "大学",
+       "r": "だいがく"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "どちら"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Anh/chị học trường đại học nào ạ?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "こちら",
+        "そちら",
+        "あちら"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-03-s14",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "さくら大学",
+       "r": "さくらだいがく"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là trường đại học Sakura.",
+     "uses": [
+      "g01-01"
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "大学",
+        "r": "だいがく"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "どちら"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Anh/chị học trường đại học nào ạ?",
+      "distractors": [
+       "はい、さくら大学です。",
+       "いいえ、さくら大学です。",
+       "さくら大学ですか。"
+      ]
+     }
+    },
+    {
+     "code": "g03-03-s15",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "トイレ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "どちら"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Nhà vệ sinh ở phía nào ạ?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "こちら",
+        "そちら",
+        "あちら"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-03-s16",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "あちら"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Ở phía kia ạ.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "こちら",
+        "そちら",
+        "どちら"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "トイレ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "どちら"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Nhà vệ sinh ở phía nào ạ?",
+      "distractors": [
+       "はい、あちらです。",
+       "いいえ、あちらです。",
+       "あちらですか。"
+      ]
+     }
+    },
+    {
+     "code": "g03-03-s17",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "エレベーター"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "どちら"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Thang máy ở phía nào ạ?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "こちら",
+        "そちら",
+        "あちら"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-03-s18",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "こちら"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Ở phía này ạ.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "そちら",
+        "あちら",
+        "どちら"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "エレベーター"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "どちら"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Thang máy ở phía nào ạ?",
+      "distractors": [
+       "はい、こちらです。",
+       "いいえ、こちらです。",
+       "こちらですか。"
+      ]
+     },
+     "sample": true
+    },
+    {
+     "code": "g03-03-s19",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "受付",
+       "r": "うけつけ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "どちら"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Quầy tiếp tân ở phía nào ạ?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "こちら",
+        "そちら",
+        "あちら"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-03-s20",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "そちら"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Ở phía đó ạ.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "こちら",
+        "あちら",
+        "どちら"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "受付",
+        "r": "うけつけ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "どちら"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Quầy tiếp tân ở phía nào ạ?",
+      "distractors": [
+       "はい、そちらです。",
+       "いいえ、そちらです。",
+       "そちらですか。"
+      ]
+     }
+    },
+    {
+     "code": "g03-03-s21",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "こちら"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ミラーさん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là anh Miller (giới thiệu).",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "そちら",
+        "あちら",
+        "どちら"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-03-s22",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "こちら"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "さくら大学",
+       "r": "さくらだいがく"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "先生",
+       "r": "せんせい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là giáo viên trường đại học Sakura (giới thiệu).",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "そちら",
+        "あちら",
+        "どちら"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-03-s23",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "ドイツ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là nước Đức.",
+     "uses": [
+      "g01-01"
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "お国",
+        "r": "おくに"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "どちら"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Anh/chị là người nước nào ạ?",
+      "distractors": [
+       "はい、ドイツです。",
+       "いいえ、ドイツです。",
+       "ドイツですか。"
+      ]
+     }
+    },
+    {
+     "code": "g03-03-s24",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "会議室",
+       "r": "かいぎしつ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "3階",
+       "r": "さんがい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "エレベーター"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "あちら"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Phòng họp ở tầng 3. Thang máy ở phía kia ạ.",
+     "uses": [
+      "g03-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 6,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 7,
+       "distractors": [
+        "こちら",
+        "そちら",
+        "どちら"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-03-s25",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "電話",
+       "r": "でんわ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "どちら"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Điện thoại ở phía nào ạ?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "こちら",
+        "そちら",
+        "あちら"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g03-03-s26",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "電話",
+       "r": "でんわ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "こちら"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Điện thoại ở phía này ạ.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "そちら",
+        "あちら",
+        "どちら"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "電話",
+        "r": "でんわ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "どちら"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Điện thoại ở phía nào ạ?",
+      "distractors": [
+       "はい、電話はこちらです。",
+       "電話はこちらですか。",
+       "いいえ、電話はこちらです。"
+      ]
+     }
+    },
+    {
+     "code": "g03-03-s27",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "そちら"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "事務所",
+       "r": "じむしょ"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Phía đó có phải là văn phòng không ạ?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "こちら",
+        "あちら",
+        "どちら"
+       ]
+      },
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-03-s28",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "あちら"
+      },
+      {
+       "t": "も"
+      },
+      {
+       "t": "会議室",
+       "r": "かいぎしつ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Phía kia cũng là phòng họp.",
+     "uses": [
+      "g01-04"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 0,
+       "distractors": [
+        "こちら",
+        "そちら",
+        "どちら"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-03-s29",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "ワイン"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "売り場",
+       "r": "うりば"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "どちら"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Quầy bán rượu vang ở phía nào ạ?",
+     "uses": [
+      "g02-05"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 4,
+       "distractors": [
+        "こちら",
+        "そちら",
+        "あちら"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-03-s30",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "地下",
+       "r": "ちか"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Ở tầng hầm ạ.",
+     "uses": [
+      "g01-01"
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "ワイン"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "売り場",
+        "r": "うりば"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "どちら"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Quầy bán rượu vang ở phía nào ạ?",
+      "distractors": [
+       "はい、地下です。",
+       "いいえ、地下です。",
+       "地下ですか。"
+      ]
+     }
+    }
+   ],
+   "notes": "Không dùng こちら để chỉ đồ vật thay cho これ; こちら là phía này, chỗ này hoặc người này (lịch sự)."
+  },
+  {
+   "code": "g03-04",
+   "order": 4,
+   "pattern": "N1 (nước, công ty) の N2",
+   "meaning": "N2 của nước / công ty N1",
+   "explanation": "Khi N1 là tên nước hoặc công ty và N2 là sản phẩm, の cho biết N2 được làm ở đâu, của hãng nào: イタリアのワイン (rượu vang Ý), スイスの時計 (đồng hồ Thụy Sĩ). Hỏi xuất xứ bằng どこの: これはどこのワインですか. Khi N1 là công ty, nhà, の chỉ nơi N2 thuộc về: 日本の会社の事務所 (văn phòng của một công ty Nhật).",
+   "approved": true,
+   "sentences": [
+    {
+     "code": "g03-04-s01",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "イタリア"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "ワイン"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là rượu vang Ý.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g03-04-s02",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "スイス"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là đồng hồ Thụy Sĩ.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-04-s03",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "日本",
+       "r": "にほん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "カメラ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia là máy ảnh Nhật.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-04-s04",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ドイツ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "自動車",
+       "r": "じどうしゃ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là ô tô Đức.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-04-s05",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "フランス"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "ワイン"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là rượu vang Pháp.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-04-s06",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "靴",
+       "r": "くつ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "イタリア"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "靴",
+       "r": "くつ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đôi giày này là giày Ý.",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g03-04-s07",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "ネクタイ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "フランス"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "ネクタイ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái cà vạt đó là cà vạt Pháp.",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-04-s08",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "アメリカ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "コンピュータ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia là máy vi tính Mỹ.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-04-s09",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "日本",
+       "r": "にほん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "たばこ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là thuốc lá Nhật.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-04-s10",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "中国",
+       "r": "ちゅうごく"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "傘",
+       "r": "かさ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là ô Trung Quốc.",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-04-s11",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "どこ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "ワイン"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là rượu vang của nước nào?",
+     "uses": [
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-04-s12",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "イタリア"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "ワイン"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là rượu vang Ý.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "これ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "どこ"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "ワイン"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đây là rượu vang của nước nào?",
+      "distractors": [
+       "はい、イタリアのワインです。",
+       "イタリアはワインです。",
+       "イタリアのワインですか。"
+      ]
+     },
+     "sample": true
+    },
+    {
+     "code": "g03-04-s13",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "どこ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái đồng hồ đó là đồng hồ của nước nào?",
+     "uses": [
+      "g02-02",
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-04-s14",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "スイス"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là đồng hồ Thụy Sĩ.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "その"
+       },
+       {
+        "t": "時計",
+        "r": "とけい"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "どこ"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "時計",
+        "r": "とけい"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Cái đồng hồ đó là đồng hồ của nước nào?",
+      "distractors": [
+       "はい、スイスの時計です。",
+       "スイスは時計です。",
+       "スイスの時計ですか。"
+      ]
+     }
+    },
+    {
+     "code": "g03-04-s15",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "あの"
+      },
+      {
+       "t": "自動車",
+       "r": "じどうしゃ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "どこ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "自動車",
+       "r": "じどうしゃ"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Chiếc ô tô kia là xe của nước nào?",
+     "uses": [
+      "g02-02",
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-04-s16",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "ドイツ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là xe Đức.",
+     "uses": [
+      "g01-01",
+      "g02-06"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "あの"
+       },
+       {
+        "t": "自動車",
+        "r": "じどうしゃ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "どこ"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "自動車",
+        "r": "じどうしゃ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Chiếc ô tô kia là xe của nước nào?",
+      "distractors": [
+       "はい、ドイツのです。",
+       "ドイツです。",
+       "ドイツのですか。"
+      ]
+     }
+    },
+    {
+     "code": "g03-04-s17",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "カメラ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "日本",
+       "r": "にほん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "カメラ"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái máy ảnh này có phải là máy ảnh Nhật không?",
+     "uses": [
+      "g02-02",
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-04-s18",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "はい"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "そう"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "日本",
+       "r": "にほん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "カメラ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Vâng, đúng vậy. Đó là máy ảnh Nhật.",
+     "uses": [
+      "g02-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 6,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "この"
+       },
+       {
+        "t": "カメラ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "日本",
+        "r": "にほん"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "カメラ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Cái máy ảnh này có phải là máy ảnh Nhật không?",
+      "distractors": [
+       "いいえ、そうです。日本のカメラです。",
+       "はい、違います。日本のカメラです。",
+       "はい、そうじゃありません。日本のカメラです。"
+      ]
+     },
+     "sample": true
+    },
+    {
+     "code": "g03-04-s19",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "日本",
+       "r": "にほん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "ワイン"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây không phải là rượu vang Nhật.",
+     "uses": [
+      "g01-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-04-s20",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "靴",
+       "r": "くつ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "どこ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đôi giày đó là của nước nào?",
+     "uses": [
+      "g02-02",
+      "g01-03",
+      "g02-06"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-04-s21",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "私",
+       "r": "わたし"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "会社",
+       "r": "かいしゃ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "コンピュータ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là máy vi tính của công ty tôi.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 5,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-04-s22",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "ここ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "日本",
+       "r": "にほん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "会社",
+       "r": "かいしゃ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "事務所",
+       "r": "じむしょ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là văn phòng của một công ty Nhật.",
+     "uses": [
+      "g03-01",
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 5,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-04-s23",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "ワイン"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "イタリア"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "ワイン"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "フランス"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "ワイン"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Chai rượu vang này là rượu vang Ý hay rượu vang Pháp?",
+     "uses": [
+      "g02-02",
+      "g02-04"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-04-s24",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "フランス"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "ワイン"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là rượu vang Pháp.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "この"
+       },
+       {
+        "t": "ワイン"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "イタリア"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "ワイン"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "、"
+       },
+       {
+        "t": "フランス"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "ワイン"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Chai rượu vang này là rượu vang Ý hay rượu vang Pháp?",
+      "distractors": [
+       "はい、フランスのワインです。",
+       "いいえ、フランスのワインです。",
+       "フランスはワインです。"
+      ]
+     }
+    },
+    {
+     "code": "g03-04-s25",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "あの"
+      },
+      {
+       "t": "ネクタイ"
+      },
+      {
+       "t": "も"
+      },
+      {
+       "t": "イタリア"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "ネクタイ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái cà vạt kia cũng là cà vạt Ý.",
+     "uses": [
+      "g02-02",
+      "g01-04"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g03-04-s26",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "靴",
+       "r": "くつ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "どこ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "靴",
+       "r": "くつ"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đôi giày này là giày của nước nào?",
+     "uses": [
+      "g02-02",
+      "g01-03"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 4,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-04-s27",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "いいえ"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "イタリア"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "靴",
+       "r": "くつ"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "日本",
+       "r": "にほん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Không, không phải giày Ý. Là giày Nhật.",
+     "uses": [
+      "g01-02",
+      "g02-06"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 8,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "この"
+       },
+       {
+        "t": "靴",
+        "r": "くつ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "イタリア"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "靴",
+        "r": "くつ"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đôi giày này có phải là giày Ý không?",
+      "distractors": [
+       "はい、イタリアの靴じゃありません。日本のです。",
+       "いいえ、イタリアの靴です。日本のです。",
+       "いいえ、イタリアの靴じゃありません。日本です。"
+      ]
+     }
+    },
+    {
+     "code": "g03-04-s28",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "ミラーさん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "うち"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "電話",
+       "r": "でんわ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đó là điện thoại nhà anh Miller.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 5,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-04-s29",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "あれ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "アメリカ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "会社",
+       "r": "かいしゃ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "自動車",
+       "r": "じどうしゃ"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Kia là ô tô của một công ty Mỹ.",
+     "uses": [
+      "g01-05"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 5,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-04-s30",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "スイス"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "チョコレート"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đây là sô-cô-la Thụy Sĩ.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 3,
+       "distractors": [
+        "は",
+        "も",
+        "か"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "code": "g03-05",
+   "order": 5,
+   "pattern": "N は いくら ですか",
+   "meaning": "N giá bao nhiêu?",
+   "explanation": "Hỏi giá bằng いくら: この時計はいくらですか (cái đồng hồ này bao nhiêu tiền?). Trả lời bằng số tiền và đơn vị 円 (yên): 3000円です. Số lớn đọc theo hàng 百 (trăm), 千 (nghìn), 万 (vạn = mười nghìn): 1万円 là 10.000 yên, 250万円 là 2.500.000 yên.",
+   "approved": true,
+   "sentences": [
+    {
+     "code": "g03-05-s01",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "いくら"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái đồng hồ này bao nhiêu tiền?",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 3,
+       "distractors": [
+        "どこ",
+        "何",
+        "誰"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g03-05-s02",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "3000"
+      },
+      {
+       "t": "円",
+       "r": "えん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái đồng hồ này giá 3.000 yên.",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 4,
+       "distractors": [
+        "歳",
+        "人",
+        "階"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-05-s03",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "ネクタイ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "いくら"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái cà vạt đó bao nhiêu tiền?",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 3,
+       "distractors": [
+        "どこ",
+        "何",
+        "誰"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-05-s04",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "ネクタイ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "1500"
+      },
+      {
+       "t": "円",
+       "r": "えん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái cà vạt đó giá 1.500 yên.",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 4,
+       "distractors": [
+        "歳",
+        "人",
+        "階"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-05-s05",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "靴",
+       "r": "くつ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "8000"
+      },
+      {
+       "t": "円",
+       "r": "えん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Đôi giày này giá 8.000 yên.",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 4,
+       "distractors": [
+        "歳",
+        "人",
+        "階"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-05-s06",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "ワイン"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "2000"
+      },
+      {
+       "t": "円",
+       "r": "えん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Chai rượu vang đó giá 2.000 yên.",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 4,
+       "distractors": [
+        "歳",
+        "人",
+        "階"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g03-05-s07",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "かばん"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "5000"
+      },
+      {
+       "t": "円",
+       "r": "えん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái cặp này giá 5.000 yên.",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 4,
+       "distractors": [
+        "歳",
+        "人",
+        "階"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-05-s08",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "これ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "いくら"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái này bao nhiêu tiền?",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "どこ",
+        "何",
+        "誰"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-05-s09",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "それ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "500"
+      },
+      {
+       "t": "円",
+       "r": "えん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái đó giá 500 yên.",
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 3,
+       "distractors": [
+        "歳",
+        "人",
+        "階"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-05-s10",
+     "level": 1,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "傘",
+       "r": "かさ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "1000"
+      },
+      {
+       "t": "円",
+       "r": "えん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái ô này giá 1.000 yên.",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 4,
+       "distractors": [
+        "歳",
+        "人",
+        "階"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-05-s11",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "2500"
+      },
+      {
+       "t": "円",
+       "r": "えん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Giá 2.500 yên.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 1,
+       "distractors": [
+        "歳",
+        "人",
+        "階"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "その"
+       },
+       {
+        "t": "時計",
+        "r": "とけい"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "いくら"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Cái đồng hồ đó bao nhiêu tiền?",
+      "distractors": [
+       "はい、2500円です。",
+       "2500円ですか。",
+       "2500歳です。"
+      ]
+     }
+    },
+    {
+     "code": "g03-05-s12",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "800"
+      },
+      {
+       "t": "円",
+       "r": "えん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Giá 800 yên.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 1,
+       "distractors": [
+        "歳",
+        "人",
+        "階"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "この"
+       },
+       {
+        "t": "チョコレート"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "いくら"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Thanh sô-cô-la này bao nhiêu tiền?",
+      "distractors": [
+       "はい、800円です。",
+       "800円ですか。",
+       "800歳です。"
+      ]
+     },
+     "sample": true
+    },
+    {
+     "code": "g03-05-s13",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "15000"
+      },
+      {
+       "t": "円",
+       "r": "えん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Giá 15.000 yên.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 1,
+       "distractors": [
+        "歳",
+        "人",
+        "階"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "その"
+       },
+       {
+        "t": "カメラ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "いくら"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Cái máy ảnh đó bao nhiêu tiền?",
+      "distractors": [
+       "はい、15000円です。",
+       "15000円ですか。",
+       "15000歳です。"
+      ]
+     }
+    },
+    {
+     "code": "g03-05-s14",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "コンピュータ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "いくら"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái máy vi tính này bao nhiêu tiền?",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 3,
+       "distractors": [
+        "どこ",
+        "何",
+        "誰"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-05-s15",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "98000"
+      },
+      {
+       "t": "円",
+       "r": "えん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Giá 98.000 yên.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 1,
+       "distractors": [
+        "歳",
+        "人",
+        "階"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "この"
+       },
+       {
+        "t": "コンピュータ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "いくら"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Cái máy vi tính này bao nhiêu tiền?",
+      "distractors": [
+       "はい、98000円です。",
+       "98000円ですか。",
+       "98000歳です。"
+      ]
+     }
+    },
+    {
+     "code": "g03-05-s16",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "たばこ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "いくら"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Thuốc lá bao nhiêu tiền?",
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 1,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "どこ",
+        "何",
+        "誰"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-05-s17",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "400"
+      },
+      {
+       "t": "円",
+       "r": "えん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Giá 400 yên.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 1,
+       "distractors": [
+        "歳",
+        "人",
+        "階"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "たばこ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "いくら"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Thuốc lá bao nhiêu tiền?",
+      "distractors": [
+       "はい、400円です。",
+       "400円ですか。",
+       "400歳です。"
+      ]
+     }
+    },
+    {
+     "code": "g03-05-s18",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "ワイン"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "3500"
+      },
+      {
+       "t": "円",
+       "r": "えん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Chai rượu vang này giá 3.500 yên.",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 4,
+       "distractors": [
+        "歳",
+        "人",
+        "階"
+       ]
+      }
+     ],
+     "sample": true
+    },
+    {
+     "code": "g03-05-s19",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "あの"
+      },
+      {
+       "t": "自動車",
+       "r": "じどうしゃ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "いくら"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Chiếc ô tô kia bao nhiêu tiền?",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 3,
+       "distractors": [
+        "どこ",
+        "何",
+        "誰"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-05-s20",
+     "level": 2,
+     "pieces": [
+      {
+       "t": "250"
+      },
+      {
+       "t": "万",
+       "r": "まん"
+      },
+      {
+       "t": "円",
+       "r": "えん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Giá 2.500.000 yên.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "歳",
+        "人",
+        "階"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "あの"
+       },
+       {
+        "t": "自動車",
+        "r": "じどうしゃ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "いくら"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Chiếc ô tô kia bao nhiêu tiền?",
+      "distractors": [
+       "はい、250万円です。",
+       "250万円ですか。",
+       "250万歳です。"
+      ]
+     }
+    },
+    {
+     "code": "g03-05-s21",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "スイス"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "3"
+      },
+      {
+       "t": "万",
+       "r": "まん"
+      },
+      {
+       "t": "円",
+       "r": "えん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái đồng hồ này là đồng hồ Thụy Sĩ. Giá 30.000 yên.",
+     "uses": [
+      "g02-02",
+      "g03-04"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 10,
+       "distractors": [
+        "歳",
+        "人",
+        "階"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-05-s22",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "ワイン"
+      },
+      {
+       "t": "も"
+      },
+      {
+       "t": "2000"
+      },
+      {
+       "t": "円",
+       "r": "えん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Chai rượu vang đó cũng giá 2.000 yên.",
+     "uses": [
+      "g02-02",
+      "g01-04"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "は",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-05-s23",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "1"
+      },
+      {
+       "t": "万",
+       "r": "まん"
+      },
+      {
+       "t": "円",
+       "r": "えん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Giá 10.000 yên.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 2,
+       "distractors": [
+        "歳",
+        "人",
+        "階"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "その"
+       },
+       {
+        "t": "イタリア"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "靴",
+        "r": "くつ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "いくら"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Đôi giày Ý đó bao nhiêu tiền?",
+      "distractors": [
+       "はい、1万円です。",
+       "1万円ですか。",
+       "1万歳です。"
+      ]
+     }
+    },
+    {
+     "code": "g03-05-s24",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "ネクタイ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "日本",
+       "r": "にほん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "、"
+      },
+      {
+       "t": "イタリア"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "か"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái cà vạt này là của Nhật hay của Ý?",
+     "uses": [
+      "g02-02",
+      "g02-04",
+      "g02-06"
+     ]
+    },
+    {
+     "code": "g03-05-s25",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "イタリア"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "4000"
+      },
+      {
+       "t": "円",
+       "r": "えん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Là của Ý. Giá 4.000 yên.",
+     "uses": [
+      "g03-04",
+      "g02-06"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 5,
+       "distractors": [
+        "歳",
+        "人",
+        "階"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "この"
+       },
+       {
+        "t": "ネクタイ"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "日本",
+        "r": "にほん"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "、"
+       },
+       {
+        "t": "イタリア"
+       },
+       {
+        "t": "の"
+       },
+       {
+        "t": "です"
+       },
+       {
+        "t": "か"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Cái cà vạt này là của Nhật hay của Ý?",
+      "distractors": [
+       "はい、イタリアのです。4000円です。",
+       "いいえ、イタリアのです。4000円です。",
+       "イタリアのです。4000歳です。"
+      ]
+     },
+     "sample": true
+    },
+    {
+     "code": "g03-05-s26",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "ワイン"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "売り場",
+       "r": "うりば"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "地下",
+       "r": "ちか"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "この"
+      },
+      {
+       "t": "ワイン"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "1800"
+      },
+      {
+       "t": "円",
+       "r": "えん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Quầy bán rượu vang ở tầng hầm. Chai rượu vang này giá 1.800 yên.",
+     "uses": [
+      "g03-02",
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 11,
+       "distractors": [
+        "歳",
+        "人",
+        "階"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-05-s27",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "この"
+      },
+      {
+       "t": "カメラ"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "日本",
+       "r": "にほん"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "カメラ"
+      },
+      {
+       "t": "じゃありません"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "ドイツ"
+      },
+      {
+       "t": "の"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      },
+      {
+       "t": "5"
+      },
+      {
+       "t": "万",
+       "r": "まん"
+      },
+      {
+       "t": "円",
+       "r": "えん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái máy ảnh này không phải máy ảnh Nhật. Là của Đức. Giá 50.000 yên.",
+     "uses": [
+      "g01-02",
+      "g03-04",
+      "g02-06"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 14,
+       "distractors": [
+        "歳",
+        "人",
+        "階"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-05-s28",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "その"
+      },
+      {
+       "t": "時計",
+       "r": "とけい"
+      },
+      {
+       "t": "は"
+      },
+      {
+       "t": "いくら"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Cái đồng hồ đó bao nhiêu tiền?",
+     "uses": [
+      "g02-02"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "も",
+        "の",
+        "か"
+       ]
+      },
+      {
+       "kind": "word",
+       "piece": 3,
+       "distractors": [
+        "どこ",
+        "何",
+        "誰"
+       ]
+      }
+     ]
+    },
+    {
+     "code": "g03-05-s29",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "1"
+      },
+      {
+       "t": "万",
+       "r": "まん"
+      },
+      {
+       "t": "2000"
+      },
+      {
+       "t": "円",
+       "r": "えん"
+      },
+      {
+       "t": "です"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Giá 12.000 yên.",
+     "uses": [
+      "g01-01"
+     ],
+     "slots": [
+      {
+       "kind": "word",
+       "piece": 3,
+       "distractors": [
+        "歳",
+        "人",
+        "階"
+       ]
+      }
+     ],
+     "prompt": {
+      "pieces": [
+       {
+        "t": "その"
+       },
+       {
+        "t": "時計",
+        "r": "とけい"
+       },
+       {
+        "t": "は"
+       },
+       {
+        "t": "いくら"
+       },
+       {
+        "t": "ですか"
+       },
+       {
+        "t": "。"
+       }
+      ],
+      "meaning": "Cái đồng hồ đó bao nhiêu tiền?",
+      "distractors": [
+       "はい、1万2000円です。",
+       "1万2000円ですか。",
+       "1万2000歳です。"
+      ]
+     }
+    },
+    {
+     "code": "g03-05-s30",
+     "level": 3,
+     "pieces": [
+      {
+       "t": "あの"
+      },
+      {
+       "t": "自動車",
+       "r": "じどうしゃ"
+      },
+      {
+       "t": "も"
+      },
+      {
+       "t": "250"
+      },
+      {
+       "t": "万",
+       "r": "まん"
+      },
+      {
+       "t": "円",
+       "r": "えん"
+      },
+      {
+       "t": "ですか"
+      },
+      {
+       "t": "。"
+      }
+     ],
+     "meaning": "Chiếc ô tô kia cũng giá 2.500.000 yên à?",
+     "uses": [
+      "g02-02",
+      "g01-03",
+      "g01-04"
+     ],
+     "slots": [
+      {
+       "kind": "particle",
+       "piece": 2,
+       "distractors": [
+        "は",
+        "の",
+        "か"
+       ]
+      }
+     ]
+    }
+   ],
+   "notes": "Viết số tiền bằng chữ số; 万 là đơn vị mười nghìn (1万 = 10.000)."
+  }
+ ]
+}

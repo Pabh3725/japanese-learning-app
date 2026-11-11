@@ -12,8 +12,8 @@ function sentence(n: number, over: Partial<GrammarSentenceData> = {}): GrammarSe
   return {
     code: `g01-01-s${String(n).padStart(2, '0')}`,
     level: n <= 10 ? 1 : n <= 20 ? 2 : 3,
-    pieces: [{ t: '私', r: 'わたし' }, { t: 'は' }, { t: '学生', r: 'がくせい' }, { t: 'です' }, { t: '。' }],
-    meaning: `Tôi là học sinh (${n}).`,
+    pieces: [{ t: '私', r: 'わたし' }, { t: 'は' }, { t: String(n) }, { t: '学生', r: 'がくせい' }, { t: 'です' }, { t: '。' }],
+    meaning: `Tôi là học sinh số ${n}.`,
     slots: [{ kind: 'particle', piece: 1, distractors: ['を', 'に', 'で'] }],
     sample: n <= 5,
     ...over,
@@ -48,7 +48,7 @@ describe('exercisesFor — dạng bài suy từ đánh dấu của câu', () => 
     const s = sentence(1, {
       slots: [{ kind: 'form', piece: 3, distractors: ['たべます', 'たべません', 'たべて'], form: 'masu_past', dict: '食べる' }],
       split: 2,
-      prompt: { pieces: [{ t: 'きのう なにを しましたか。' }], meaning: 'Hôm qua bạn đã làm gì?' },
+      prompt: { pieces: [{ t: 'きのう なにを しましたか。' }], meaning: 'Hôm qua bạn đã làm gì?', distractors: ['はい、そうです。', 'いいえ。', 'はじめまして。'] },
     })
     expect(exercisesFor(s)).toEqual(expect.arrayContaining(['form_choice', 'form_typing', 'clause_match', 'reply_choice', 'true_false']))
     expect(exercisesFor(s)).not.toContain('particle_choice')
@@ -101,6 +101,13 @@ describe('validateGrammar — không vùng xám', () => {
     expect(errs.some((e) => e.includes('piece 9'))).toBe(true)
   })
 
+  it('nghĩa trùng hoặc câu trùng trong một mẫu là lỗi (dạng chọn nghĩa sẽ có hai đáp án đúng)', () => {
+    const s2 = sentence(2, { meaning: 'Tôi là học sinh số 1.' })
+    expect(messages([point({ sentences: [sentence(1), s2, ...point().sentences.slice(2)] })]).some((e) => e.includes('nghĩa trùng'))).toBe(true)
+    const s3 = sentence(3, { pieces: sentence(1).pieces })
+    expect(messages([point({ sentences: [sentence(1), sentence(2), s3, ...point().sentences.slice(3)] })]).some((e) => e.includes('trùng câu'))).toBe(true)
+  })
+
   it('chữ Kanji ngoài từ vựng tới bài đó chỉ là cảnh báo', () => {
     const s = sentence(1, { pieces: [{ t: '彼', r: 'かれ' }, { t: 'は' }, { t: '学生', r: 'がくせい' }, { t: 'です' }] })
     const data = validateGrammar([file([point({ sentences: [s, ...point().sentences.slice(1)] })])], vocab)
@@ -119,7 +126,7 @@ describe('seedGrammar', () => {
     expect(db.tables.grammar_sentences).toHaveLength(30)
     const pointId = db.tables.grammar_points[0].id
     expect(db.tables.grammar_sentences.every((s) => s.point_id === pointId)).toBe(true)
-    expect(db.tables.grammar_sentences[0].japanese).toBe('私は学生です。')
+    expect(db.tables.grammar_sentences[0].japanese).toBe('私は1学生です。')
 
     const writes = db.writes
     await seedGrammar(db, data, false, () => {})

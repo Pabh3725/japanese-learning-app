@@ -36,8 +36,11 @@ export interface GrammarSentenceData {
   slots?: GrammarSlot[]
   /** Chỉ số mảnh đầu tiên của vế sau (dạng ghép hai vế). */
   split?: number
-  /** Câu hỏi / lời nói đi trước, câu này là câu đáp (dạng chọn câu đáp). */
-  prompt?: { pieces: GrammarPiece[]; meaning: string }
+  /**
+   * Câu hỏi / lời nói đi trước, câu này là câu đáp (dạng chọn câu đáp).
+   * `distractors`: câu đáp sai chắc chắn cho đúng câu hỏi này (soạn tay, không lấy câu đáp của câu khác để tránh vùng xám).
+   */
+  prompt?: { pieces: GrammarPiece[]; meaning: string; distractors: string[] }
   /** Một trong 5 câu tiêu biểu chủ dự án duyệt. */
   sample?: boolean
   /** Ẩn khỏi người học (câu bị báo lỗi). */
@@ -101,10 +104,13 @@ export const EXERCISE_TIER: Record<GrammarExercise, 1 | 2 | 3> = {
 export const MIN_PIECES_ORDER = 4
 export const MIN_PIECES_TRANSLATE = 3
 
+/** Mảnh chỉ có dấu câu: không tính khi sắp xếp, ★, tìm chỗ sai. */
+export const isPunctuation = (p: GrammarPiece) => /^[。、？！?!「」　 ]+$/.test(p.t)
+
 /** Các dạng một câu gốc làm được, suy từ đánh dấu của câu (§4.2). */
 export function exercisesFor(s: Pick<GrammarSentenceData, 'pieces' | 'slots' | 'split' | 'prompt'>): GrammarExercise[] {
   const kinds = new Set((s.slots ?? []).map((slot) => slot.kind))
-  const n = s.pieces.length
+  const n = s.pieces.filter((p) => !isPunctuation(p)).length
   const out: GrammarExercise[] = ['meaning_choice', 'listening']
   if (kinds.has('particle')) out.push('particle_choice')
   if (kinds.has('word')) out.push('word_choice')
