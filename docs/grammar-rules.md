@@ -59,6 +59,8 @@ Mỗi mẫu có **30 câu gốc từ dễ đến khó**. Mỗi câu có:
 - Từ trong câu phải có trong lộ trình từ vựng tới bài đó (bài ≤ n). Số đếm, tên riêng và từ ngoài lộ trình đi kèm cách đọc và được ghi chú.
 - Cách viết của từ theo cột `expression` của từ vựng; hiển thị Kanji + furigana, có nút ẩn furigana. — CONFIRMED
 
+**Định dạng file (G2):** mỗi bài một file `data/grammar/lesson-NN.json` (`{ lesson, points: [...] }`), kiểu dữ liệu ở `lib/grammar/types.ts` (`GrammarLessonFile`). Mẫu có code `gNN-MM` (bài NN, thứ tự MM), câu có code `gNN-MM-sKK`. Mỗi câu: `level`, `pieces` (`{ t, r? }`, `r` là cách đọc kana khi mảnh có Kanji), `meaning`, `uses?`, `slots?` (`{ kind: particle | word | form, piece, accepted?, distractors, form?, dict? }`), `split?`, `prompt?`, `sample?`, `hidden?`. Dạng bài một câu làm được do `exercisesFor` suy ra. `pnpm seed` kiểm tra rồi ghi `grammar_points`, `grammar_sentences`; câu bỏ khỏi file bị ẩn chứ không xoá.
+
 ### 4.3 Đáp án nhiễu
 
 - Trợ từ: lấy từ nhóm trợ từ đã học, **loại các trợ từ cũng đúng** trong câu đó (ví dụ câu chỉ nơi chốn mà に và で đều được thì không hỏi vị trí đó, hoặc ghi rõ trợ từ được chấp nhận để loại khỏi đáp án nhiễu).
