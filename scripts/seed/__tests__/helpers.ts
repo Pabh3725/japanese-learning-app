@@ -49,7 +49,7 @@ export class FakeDb implements SeedDb {
   }
 
   async fetchAll(table: string, columns: string[]): Promise<Row[]> {
-    return this.tables[table].map((r) => Object.fromEntries(columns.map((c) => [c, r[c] ?? null])))
+    return (this.tables[table] ?? []).map((r) => Object.fromEntries(columns.map((c) => [c, r[c] ?? null])))
   }
 
   async upsert(table: string, rows: Row[], onConflict: string): Promise<void> {
@@ -57,10 +57,10 @@ export class FakeDb implements SeedDb {
     const keyCols = onConflict.split(',')
     const keyOf = (r: Row) => keyCols.map((c) => String(r[c])).join('#')
     for (const incoming of rows) {
-      const list = this.tables[table]
+      const list = (this.tables[table] ??= [])
       const target = list.find((r) => keyOf(r) === keyOf(incoming))
       const next: Row = target ? { ...target, ...incoming } : { id: randomUUID(), ...incoming }
-      for (const cols of this.unique[table]) {
+      for (const cols of this.unique[table] ?? []) {
         const clash = list.find((r) => r !== target && cols.every((c) => r[c] === next[c]))
         if (clash) throw new Error(`duplicate key ${table}(${cols.join(',')})`)
       }

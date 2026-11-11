@@ -1462,7 +1462,7 @@ Mục **Kanji trong tab Learn** (`/learn/kanji`), bên cạnh mục Vocabulary. 
 - **Mỗi ngày:** mặc định 10 chữ mới, 100 câu, chỉnh trong Settings. Ôn trước, Học sau, rồi tới chữ mới; chữ mới chỉ mở khi còn chỗ cho buổi đầu. Câu chưa làm chuyển sang hôm sau.
 - **Quá tải:** câu đến hạn vượt phần còn lại của trần từ 10 câu trở lên thì trang Kanji gợi ý giảm chữ mới (phần Học chiếm khoảng 70% trần) hoặc tăng trần, có lối sang Settings.
 - **Đã biết chữ này:** nút và phím K ở thẻ giới thiệu và trong phiên; chữ rời khỏi khu Kanji, không tính vào hạn mức và tổng. Khôi phục ở tab Kanji của Library, điểm và lịch còn nguyên. Không ảnh hưởng từ vựng.
-- **Dữ liệu:** 307 chữ điền âm từ KANJIDIC2 (EDRDG, CC BY-SA 4.0), ghi nguồn ở trang Kanji. Danh sách cần người rà soát: `docs/kanji-review.md`. Chưa có số nét nên không có bài theo nét.
+- **Dữ liệu:** 307 chữ điền âm từ KANJIDIC2 (EDRDG, CC BY-SA 4.0), ghi nguồn ở trang Kanji. Danh sách cần người rà soát: `docs/kanji-review.md`. Số nét đã có từ KanjiVG (gói 6).
 
 ### 18.7 Việc phải làm trong code
 
@@ -1483,6 +1483,7 @@ Chủ dự án chốt ngày 2026-11-10. Luật đầy đủ: `docs/learning-rule
 - **Archive:** nút "Đã học xong" lưu trữ riêng một Card, có kho lưu trữ, khôi phục giữ tiến độ hoặc học lại từ đầu.
 - **Prod:** tiến độ từ vựng thử nghiệm bị xóa khi lên V9 (chủ dự án chọn 2026-11-10).
 - **Bài Learn (gói 5, 2026-11-13):** nút Learn và "Practice only this" chạy bài `/learn/lesson` (mặc định 50 câu, chỉnh 20–100 trong Settings). AIS chọn từng câu: thẻ giới thiệu xen trong bài, câu kiểm tra nhanh ngay sau thẻ, gọi lại sau 4–6 và 8–12 câu, sai thì kiểm tra lại sau 2 câu. Ngân sách Learn chung 200 câu/ngày (Settings "Learn questions per day"), trần phụ câu Học Kanji 100; câu kiểm tra nhanh và Card Kanji không tính. Bài dở được lưu, tải lại trang hay đổi máy vẫn tiếp tục. Vòng boss mỗi 25 câu, vòng ghép ô Stage 3 cuối bài, tối đa 3 câu sao mỗi bài.
+- **Dữ liệu Kanji trực quan (gói 6, 2026-11-14):** cả 823 chữ có nét viết theo thứ tự, thành phần đủ mọi tầng kèm vị trí, bộ thủ Khang Hy (số theo Unicode) và số nét, lấy từ KanjiVG (Ulrich Apel, CC BY-SA 3.0, phải ghi nguồn). Tên tiếng Việt 214 bộ do Claude soạn, chờ chủ dự án duyệt. Cặp chữ gần giống do script đề xuất (so hình nét viết, số nét chênh ≤ 2), giải thích tự động, chỉ cặp đã duyệt mới dùng cho câu hỏi. Chưa hiện cho người học tới gói 7.
 - **Learn và Home (2026-11-12):** một ô trên cùng có nút **Learn** trộn cả ba nhóm; ba ô song song Vocabulary, Kanji words, Kanji để theo dõi và học riêng. Bỏ 3 tab trong Learn. Bỏ trang tổng kết ngày `/learn/summary`; tổng kết hôm nay (số câu, tỷ lệ đúng, stage và chữ Kanji xong theo từng nhóm) hiện ngay ở màn kết thúc mỗi phiên Learn, Kanji và phiên hỗn hợp.
 
 ---
