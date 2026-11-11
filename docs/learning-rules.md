@@ -218,8 +218,8 @@ Mỗi từ × Stage 2, 3, 5, 6 có một lịch `ts-fsrs`, tối đa 2 ngày, kh
 
 - **Không** làm dạng D (điền thành phần còn thiếu). — CONFIRMED
 - **Câu hỗ trợ trong bài Learn (gói 7):** C và E của chữ đang ôn bằng Card. Tính vào số câu của bài; không điểm, không lịch, không ghi nhật ký, không tốn ngân sách `learn_cap`; chấm ngay ở trình duyệt. Tối đa 30% số câu của bài (ít nhất 2) — CONFIRMED (2026-11-14). Mỗi chữ mỗi dạng một lần trong bài.
-  - C: sau câu tính điểm đúng đầu tiên của chữ đang ở giai đoạn Học (với chữ mới là lần gọi lại đầu). Chỉ khi chữ có đúng hai thành phần trái–phải hoặc trên–dưới; mảnh nhiễu lấy từ thành phần của chữ khác cùng bố cục. — PROPOSED
-  - E (Card): khi trả lời sai câu Card của chữ. — PROPOSED
+  - C: sau câu tính điểm đúng đầu tiên của chữ đang ở giai đoạn Học (với chữ mới là lần gọi lại đầu). Chỉ khi chữ có đúng hai thành phần trái–phải hoặc trên–dưới; mảnh nhiễu lấy từ thành phần của chữ khác cùng bố cục. — CONFIRMED (2026-11-15)
+  - E (Card): khi trả lời sai câu Card của chữ. — CONFIRMED (2026-11-15)
 - **E có điểm (`similar_kanji`, gói 7):** chữ có cặp gần giống đã duyệt thì câu phân biệt nằm trong lịch Học: xuất hiện từ 3 điểm (cùng nhóm câu chọn chữ), và ở bước cuối được ưu tiên nếu chưa đúng lần nào. Điều kiện hoàn tất thêm: đúng `similar_kanji` ≥ 1. Điểm như câu Kanji khác (+1, sai −2), ghi `kanji_logs`, tốn ngân sách. Tối đa 3 chữ nhiễu, chỉ cặp đã duyệt; đọc cặp lỗi thì coi như không có. — CONFIRMED (2026-11-15)
 - **F bắt buộc (gói 7):** một vòng mỗi bài khi đã gặp ít nhất 4 chữ, hiện khi qua nửa bài hoặc ngay trước khi bài kết thúc; không nằm trong trần 30%. Tính 1 câu của bài, không tốn ngân sách. Ghép sai thì chữ đang ở giai đoạn Học bị trừ `matchRound.wrongPoints` (−1), không xuống dưới 0, không đổi lịch; ghi ở `kanji_match_penalties` (không phải `kanji_logs`, nên không đếm vào buổi Học hay giãn cách), chống gửi trùng. Migration `20261115000001`. — CONFIRMED (2026-11-15)
 - **Dạng G hiện ở:** thẻ giới thiệu chữ mới, thẻ học lại khi sai liên tiếp, trang chi tiết chữ, câu "viết rồi tự chấm" của Review (sau khi lật). Người dùng chọn giảm chuyển động thì hiện sẵn cả chữ. — CONFIRMED (2026-11-14)
