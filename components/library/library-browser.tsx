@@ -4,15 +4,16 @@ import { useMemo, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { StarButton, useStarredWords } from '@/components/learning/star-button'
+import { GrammarLibrary, type LibraryGrammarItem } from '@/components/library/grammar-library'
 import { KanjiKnownToggle } from '@/components/library/kanji-known-toggle'
 import { Check, Search } from 'lucide-react'
-import { markWordsKnownAction, unmarkWordsKnownAction } from '@/app/learn/actions'
+import { markWordsKnownAction, markWordsLearnedAction, unmarkWordsKnownAction } from '@/app/learn/actions'
 import { actionButton } from '@/components/action-button'
 import { matchesKanji, matchesVocab } from '@/lib/library/search'
 import type { KanjiListItem, VocabListItem, VocabProgress } from '@/lib/library/types'
 import { cn } from '@/lib/utils'
 
-type Tab = 'vocab' | 'kanji'
+type Tab = 'vocab' | 'kanji' | 'grammar'
 
 /** Hiển thị từng đợt để trang nhẹ trên điện thoại (912 từ). */
 const PAGE_SIZE = 60
@@ -70,7 +71,7 @@ function StageDots({ progress }: { progress: VocabProgress }) {
   )
 }
 
-export function LibraryBrowser({ vocabulary, kanji, initialTab = 'vocab' }: { vocabulary: VocabListItem[]; kanji: KanjiListItem[]; initialTab?: Tab }) {
+export function LibraryBrowser({ vocabulary, kanji, grammar = [], initialTab = 'vocab' }: { vocabulary: VocabListItem[]; kanji: KanjiListItem[]; grammar?: LibraryGrammarItem[]; initialTab?: Tab }) {
   const [tab, setTab] = useState<Tab>(initialTab)
   const [query, setQuery] = useState('')
   const [visible, setVisible] = useState(PAGE_SIZE)
@@ -129,7 +130,7 @@ export function LibraryBrowser({ vocabulary, kanji, initialTab = 'vocab' }: { vo
     setVisible(PAGE_SIZE)
   }
   const kanjiResults = useMemo(() => kanji.filter((k) => matchesKanji(k, query)), [kanji, query])
-  const total = tab === 'vocab' ? vocabResults.length : kanjiResults.length
+  const total = tab === 'vocab' ? vocabResults.length : tab === 'kanji' ? kanjiResults.length : 0
 
   function changeQuery(value: string) {
     setQuery(value)
@@ -145,7 +146,7 @@ export function LibraryBrowser({ vocabulary, kanji, initialTab = 'vocab' }: { vo
     <div>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div role="tablist" aria-label="Library type" className="flex gap-1.5 rounded-2xl bg-secondary p-1.5">
-          {(['vocab', 'kanji'] as const).map((t) => (
+          {(['vocab', 'kanji', 'grammar'] as const).map((t) => (
             <button
               key={t}
               type="button"
@@ -157,7 +158,7 @@ export function LibraryBrowser({ vocabulary, kanji, initialTab = 'vocab' }: { vo
                 tab === t ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-subtle',
               )}
             >
-              {t === 'vocab' ? `Vocabulary (${vocabulary.length})` : `Kanji (${kanji.length})`}
+              {t === 'vocab' ? `Vocabulary (${vocabulary.length})` : t === 'kanji' ? `Kanji (${kanji.length})` : `Grammar (${grammar.length})`}
             </button>
           ))}
         </div>
@@ -168,7 +169,7 @@ export function LibraryBrowser({ vocabulary, kanji, initialTab = 'vocab' }: { vo
             type="search"
             value={query}
             onChange={(e) => changeQuery(e.target.value)}
-            placeholder="Search by word, reading, meaning or Hán Việt"
+            placeholder={tab === 'grammar' ? 'Search by pattern or meaning' : 'Search by word, reading, meaning or Hán Việt'}
             className="h-13 w-full rounded-2xl border border-border bg-card pr-4 pl-11 text-sm outline-none placeholder:text-muted-foreground focus:border-cyan"
           />
         </label>
@@ -239,19 +240,26 @@ export function LibraryBrowser({ vocabulary, kanji, initialTab = 'vocab' }: { vo
                 Put back on my path
               </button>
             ) : (
-              <button type="button" disabled={selected.size === 0 || saving} onClick={() => saveSelection(markWordsKnownAction)} className={actionButton({ size: 'sm' })}>
-                I already know these
-              </button>
+              <>
+                <button type="button" disabled={selected.size === 0 || saving} onClick={() => saveSelection(markWordsLearnedAction)} className={actionButton({ size: 'sm' })}>
+                  Mark as learned
+                </button>
+                <button type="button" disabled={selected.size === 0 || saving} onClick={() => saveSelection(markWordsKnownAction)} className={actionButton({ size: 'sm', variant: 'secondary' })}>
+                  I already know these
+                </button>
+              </>
             )}
           </div>
           {error && <p role="alert" className="w-full text-sm text-error">{error}</p>}
           <p className="w-full text-xs text-muted-foreground">
-            {status === 'known' ? 'These words return to your path with their progress.' : 'These words leave your path and do not count toward your daily new words. You can put them back here.'}
+            {status === 'known' ? 'These words return to your path with their progress.' : 'Mark as learned: the words leave Learn and get review cards, starting tomorrow. I already know these: the words leave your path with no review; you can put them back here.'}
           </p>
         </div>
       )}
 
-      <div className="mt-6" role="tabpanel">
+      {tab === 'grammar' && <GrammarLibrary items={grammar} query={query} />}
+
+      <div className={cn('mt-6', tab === 'grammar' && 'hidden')} role="tabpanel">
         {tab === 'vocab' ? (
           vocabResults.length ? (
             <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

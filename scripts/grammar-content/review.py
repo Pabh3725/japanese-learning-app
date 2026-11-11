@@ -24,8 +24,9 @@ def exercises(s):
     if 'form' in kinds: out |= {'form_choice', 'form_typing'}
     if kinds & {'particle', 'form'}: out.add('true_false')
     if kinds & {'particle', 'form'} and n >= 4: out.add('find_error')
-    if n >= 4: out |= {'order', 'star'}
-    if n >= 3: out.add('translate_build')
+    single = sum(1 for p in s['pieces'] if any(c in p['t'] for c in '。？！?!')) <= 1 and not any('、' in p['t'] for p in s['pieces'])
+    if single and n >= 4: out |= {'order', 'star'}
+    if single and n >= 3: out.add('translate_build')
     if 'split' in s: out.add('clause_match')
     if 'prompt' in s: out.add('reply_choice')
     return out

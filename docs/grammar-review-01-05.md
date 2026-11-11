@@ -888,7 +888,7 @@ Trả lời câu hỏi "N1 は N2 ですか" mà không lặp lại danh từ: �
 
 > Lưu ý: Khi trả lời bằng いいえ thì không dùng そうです; khi trả lời bằng はい thì không dùng 違います.
 
-Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được (10/13): Sắp xếp câu, Chọn dạng, Chọn nghĩa, Dịch-ghép câu, ★ JLPT, Tìm chỗ sai, Nghe câu, Gõ dạng, Chọn câu đáp, Đúng/Sai.
+Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được (7/13): Chọn dạng, Chọn nghĩa, Tìm chỗ sai, Nghe câu, Gõ dạng, Chọn câu đáp, Đúng/Sai.
 
 **5 câu tiêu biểu**
 
@@ -1008,7 +1008,7 @@ Câu hỏi lựa chọn: đặt hai câu hỏi liền nhau, mỗi câu kết th�
 
 > Lưu ý: Trả lời câu hỏi lựa chọn thì không bắt đầu bằng はい / いいえ.
 
-Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được (12/13): Chọn trợ từ, Chọn từ phù hợp, Sắp xếp câu, Chọn dạng, Chọn nghĩa, Dịch-ghép câu, ★ JLPT, Tìm chỗ sai, Nghe câu, Gõ dạng, Chọn câu đáp, Đúng/Sai.
+Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được (9/13): Chọn trợ từ, Chọn từ phù hợp, Chọn dạng, Chọn nghĩa, Tìm chỗ sai, Nghe câu, Gõ dạng, Chọn câu đáp, Đúng/Sai.
 
 **5 câu tiêu biểu**
 

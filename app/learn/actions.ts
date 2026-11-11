@@ -2,6 +2,7 @@
 
 // Server Function cho các câu Stage 2, 3, 5, 6. Mỏng: mọi logic nằm ở lib/dal/stage-session.ts.
 import { markWordsKnown, unmarkWordsKnown } from '@/lib/dal/known-words'
+import { markWordsLearned } from '@/lib/dal/mark-learned'
 import { getDaySummary, type DaySummary } from '@/lib/dal/progress'
 import { raiseSkillLevel } from '@/lib/dal/skill-levels'
 import { setKanjiOptin, type KanjiOptinResponse } from '@/lib/dal/word-kanji'
@@ -71,4 +72,8 @@ export async function checkStageAnswerAction(input: unknown): Promise<CheckStage
 
 export async function submitMatchPenaltiesAction(input: unknown): Promise<{ status: 'saved' | 'invalid' }> {
   return submitMatchPenalties(input)
+}
+
+export async function markWordsLearnedAction(input: unknown): Promise<{ status: 'saved' | 'invalid'; marked?: number }> {
+  return markWordsLearned(input)
 }
