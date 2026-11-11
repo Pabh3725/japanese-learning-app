@@ -17,6 +17,8 @@ import { LearnPractice } from '@/components/learning/learn-practice'
 import { SessionComplete } from '@/components/learning/session-complete'
 import { SessionHeader } from '@/components/learning/session-header'
 import { NoVoiceNote, SpeakerButton, useAutoSpeak } from '@/components/learning/speaker-button'
+import { AssemblyExercise } from '@/components/learning/steps/assembly-exercise'
+import { ChoiceExercise } from '@/components/learning/steps/choice-exercise'
 import { KanaIntroExercise } from '@/components/learning/steps/kana-intro-exercise'
 import { MatchRoundExercise } from '@/components/learning/steps/match-round-exercise'
 import { WordKanjiIntroExercise } from '@/components/learning/steps/word-kanji-intro-exercise'
@@ -176,6 +178,56 @@ export function LessonPlayer({ initial, groupsQuery }: { initial: LessonView; gr
     )
   } else if (step.kind === 'boss') {
     body = <SpeedMatchingGame key={key} words={step.round.words} mode="mixed" seconds={RULES_V9.bossRound.seconds} onBossDone={() => advance()} />
+  } else if (step.kind === 'kanji_parts') {
+    const q = step.question
+    body = (
+      <AssemblyExercise
+        key={key}
+        step={{
+          id: key,
+          type: 'assembly',
+          stage: 'Kanji parts · practice',
+          question: q.layout === 'row' ? 'Build this Kanji from its parts, left to right' : 'Build this Kanji from its parts, top to bottom',
+          prompt: { display: q.character, kind: 'kanji', hint: `${q.hanViet} · ${q.meaning}` },
+          pool: q.pool,
+          answer: q.answer,
+          pieceKind: 'kanji',
+          joiner: '+',
+          explanation: `${q.character} = ${q.answer.join(' + ')}. Practice only, no points.`,
+        }}
+        onComplete={() => advance()}
+      />
+    )
+  } else if (step.kind === 'kanji_similar') {
+    const q = step.question
+    body = (
+      <ChoiceExercise
+        key={key}
+        step={{
+          id: key,
+          type: 'choice',
+          stage: 'Look-alike Kanji · practice',
+          question: 'Which Kanji has this meaning?',
+          prompt: { display: q.meaning, kind: 'meaning', hint: `Hán Việt: ${q.hanViet}` },
+          options: q.options,
+          answer: q.answer,
+          optionKind: 'kanji',
+          explanation: q.explanation,
+        }}
+        instant
+        onComplete={() => advance()}
+      />
+    )
+  } else if (step.kind === 'kanji_match') {
+    body = (
+      <MatchRoundExercise
+        key={key}
+        round={step.round}
+        stage="Kanji · Matching round"
+        title={step.round.pairType === 'kanji_meaning' ? 'Match each Kanji with its meaning' : 'Match each Kanji with its Sino-Vietnamese reading'}
+        onDone={() => advance()}
+      />
+    )
   } else {
     const finishMatch = (penalties: MatchPenalty[]) => {
       startBusy(async () => {

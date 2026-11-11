@@ -78,7 +78,7 @@ export default async function WordDetailPage({ params }: { params: Promise<{ cod
           <ul className="mt-3 flex flex-col divide-y divide-border">
             {word.kanji.map((k) => (
               <li key={k.character} className="flex items-baseline gap-3 py-3">
-                <span lang="ja" className="font-jp text-2xl">{k.character}</span>
+                <Link href={`/library/kanji/${encodeURIComponent(k.character)}`} lang="ja" className="font-jp text-2xl hover:text-primary">{k.character}</Link>
                 <span className="text-sm font-semibold text-yellow">{k.hanViet}</span>
                 <span className="text-sm text-subtle">{k.meaning}</span>
               </li>

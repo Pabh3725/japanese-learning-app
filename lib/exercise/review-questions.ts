@@ -10,7 +10,16 @@ export type ReviewQuestionData =
   /** Nhìn Kanji → gõ Kana và Hán Việt trong cùng một câu. Sai một ô là sai cả câu. */
   | { kind: 'kanji_read'; exercise: 'kanji_read_typing'; question: string; prompt: { display: string; kind: 'vocab' } }
   /** Nhìn nghĩa → viết ra giấy hoặc nhớ trong đầu → lật thẻ → tự chấm. */
-  | { kind: 'self'; exercise: 'kanji_write_self'; question: string; prompt: { display: string; kind: 'meaning'; hint?: string }; reading: string; answer: string }
+  | {
+      kind: 'self'
+      exercise: 'kanji_write_self'
+      question: string
+      prompt: { display: string; kind: 'meaning'; hint?: string }
+      reading: string
+      answer: string
+      /** V9 R12 dạng G: nét viết từng chữ Kanji của từ, hiện sau khi lật thẻ. */
+      strokes?: { character: string; strokes: string[] }[]
+    }
 
 const CARD_EXERCISES: Record<CardType, readonly ExerciseCode[]> = {
   'vocab.kana': ['kana_free_recall'],

@@ -66,9 +66,12 @@ interface MatchRoundExerciseProps {
   round: MatchRoundData
   /** Gọi một lần khi bấm Continue, với các từ ở cột trái đã bị ghép sai. */
   onDone: (penalties: MatchPenalty[]) => void
+  /** Nhãn và đề khi dùng ngoài Stage 3 (vòng ghép chữ Kanji trong bài Learn). */
+  stage?: string
+  title?: string
 }
 
-export function MatchRoundExercise({ round, onDone }: MatchRoundExerciseProps) {
+export function MatchRoundExercise({ round, onDone, stage = 'Stage 3 · Matching round', title }: MatchRoundExerciseProps) {
   const [left, setLeft] = useState<number | null>(null)
   const [right, setRight] = useState<number | null>(null)
   const [matched, setMatched] = useState<Set<number>>(() => new Set())
@@ -140,8 +143,8 @@ export function MatchRoundExercise({ round, onDone }: MatchRoundExerciseProps) {
 
   return (
     <ExercisePanel
-      stage="Stage 3 · Matching round"
-      question={TITLES[round.pairType]}
+      stage={stage}
+      question={title ?? TITLES[round.pairType]}
       footer={
         <ContinueFooter
           label="Continue"

@@ -138,11 +138,32 @@
   }
 }
 
+/* V9 R12: hoạt hình thứ tự nét Kanji. Mỗi nét có pathLength = 1 nên vẽ dần bằng dashoffset 1 → 0. */
+.kanji-stroke {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation-name: kanji-draw;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes kanji-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+
+  /* Hiện sẵn cả chữ, không chờ từng nét */
+  .kanji-stroke {
+    animation: none;
+    stroke-dashoffset: 0;
   }
 }

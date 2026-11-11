@@ -12,7 +12,10 @@ import { getLastDaySeq } from '@/lib/dal/day-seq'
 import { completeWordIntro, getIntroData } from '@/lib/dal/intro'
 import {
   buildKanjiIntro,
+  buildKanjiMatchRound,
+  buildKanjiPartsFor,
   buildKanjiQuestionFor,
+  buildKanjiSimilarFor,
   checkKanjiAnswer,
   openKanji,
   readKanjiCandidates,
@@ -36,9 +39,11 @@ import { readStarredIds } from '@/lib/dal/star-relearn'
 import { openWordKanji, readEligibleWords, type KanjiIntroWord } from '@/lib/dal/word-kanji'
 import type { MatchRoundData } from '@/lib/exercise/match-round'
 import type { IntroWord } from '@/lib/intro/words'
+import type { PartsQuestion, SimilarQuestion } from '@/lib/kanji/visual'
 import {
   applyIntro,
   applyResult,
+  applySupport,
   dropItem,
   LESSON_GROUPS,
   NEW_ITEM_RECALLS,
@@ -64,6 +69,10 @@ const DAY_MS = 86_400_000
 const WORD_KANJI_INTROS_PER_LESSON = 5
 const BOSS_EVERY = 25
 const BOSS_MIN_WORDS = 6
+/** Câu hỗ trợ Kanji trực quan (V9 R12) chiếm tối đa phần này của bài. */
+const SUPPORT_SHARE = 0.15
+/** Vòng ghép chữ cần từng này chữ đã gặp trong bài. */
+const KANJI_MATCH_MIN = 4
 
 export type LessonStep =
   | { kind: 'intro_word'; key: string; word: IntroWord }
@@ -74,6 +83,10 @@ export type LessonStep =
   | { kind: 'star'; key: string; question: StageQuestionItem }
   | { kind: 'boss'; key: 'boss'; round: BossRoundData }
   | { kind: 'match'; key: 'match'; round: MatchRoundData }
+  /** V9 R12: câu hỗ trợ Kanji trực quan. Tính vào số câu của bài; không điểm, không lịch, không tốn ngân sách, chấm ngay ở trình duyệt. */
+  | { kind: 'kanji_parts'; key: string; question: PartsQuestion }
+  | { kind: 'kanji_similar'; key: string; question: SimilarQuestion }
+  | { kind: 'kanji_match'; key: 'kanji_match'; round: MatchRoundData }
   | { kind: 'end'; key: 'end'; reason: EndReason }
 
 export interface LessonView {
@@ -96,6 +109,71 @@ interface LessonExtra {
   anchors: string[]
   bossesShown: number
   matchDone: boolean
+  /** Câu hỗ trợ Kanji trực quan. Bài tạo trước gói 7 không có. */
+  support?: SupportState
+}
+
+interface SupportState {
+  queue: { kind: 'kanji_parts' | 'kanji_similar'; kanjiId: string }[]
+  /** Đã xếp hàng trong bài, mỗi chữ mỗi dạng một lần: 'p:<kanjiId>', 'e:<kanjiId>'. */
+  given: string[]
+  /** Số câu tính điểm của mỗi chữ trong bài. */
+  scored: Record<string, number>
+  shown: number
+  matchDone: boolean
+}
+
+const emptySupport = (): SupportState => ({ queue: [], given: [], scored: {}, shown: 0, matchDone: false })
+
+const isSupportStep = (step: LessonStep) => step.kind === 'kanji_parts' || step.kind === 'kanji_similar' || step.kind === 'kanji_match'
+
+/**
+ * Sau một câu Kanji tính điểm:
+ * - Ghép thành phần (C): sau câu đúng đầu tiên của chữ đang học (lần gọi lại đầu với chữ mới).
+ * - Phân biệt chữ gần giống (E): khi trả lời sai, hoặc từ câu thứ hai của chữ trong bài.
+ */
+function queueSupport(extra: LessonExtra, step: Extract<LessonStep, { kind: 'kanji' }>, outcome: Outcome): LessonExtra {
+  const prev = extra.support ?? emptySupport()
+  const id = step.question.kanjiId
+  const n = (prev.scored[id] ?? 0) + 1
+  const support: SupportState = { ...prev, queue: [...prev.queue], given: [...prev.given], scored: { ...prev.scored, [id]: n } }
+  if (step.question.phase === 'learning' && n === 1 && outcome !== 'wrong' && !support.given.includes(`p:${id}`)) {
+    support.given.push(`p:${id}`)
+    support.queue.push({ kind: 'kanji_parts', kanjiId: id })
+  }
+  if ((outcome === 'wrong' || n >= 2) && !support.given.includes(`e:${id}`)) {
+    support.given.push(`e:${id}`)
+    support.queue.push({ kind: 'kanji_similar', kanjiId: id })
+  }
+  return { ...extra, support }
+}
+
+/** Câu hỗ trợ kế tiếp nếu tới lượt: hàng đợi C/E trước, rồi vòng ghép chữ (F) một lần mỗi bài khi đã qua nửa bài. */
+async function nextSupport(supabase: Supabase, ais: LessonState, extra: LessonExtra): Promise<{ extra: LessonExtra; step: LessonStep | null }> {
+  const prev = extra.support
+  if (!prev || ais.answered >= ais.limits.target) return { extra, step: null }
+  if (prev.shown >= Math.max(2, Math.ceil(ais.limits.target * SUPPORT_SHARE))) return { extra, step: null }
+  const support: SupportState = { ...prev, queue: [...prev.queue] }
+  const done = (step: LessonStep) => ({ extra: { ...extra, support: { ...support, shown: support.shown + 1 } }, step })
+  while (support.queue.length > 0) {
+    const task = support.queue.shift()!
+    const key = `${task.kind === 'kanji_parts' ? 'kp' : 'ks'}:${task.kanjiId}`
+    if (task.kind === 'kanji_parts') {
+      const question = await buildKanjiPartsFor(supabase, task.kanjiId)
+      if (question) return done({ kind: 'kanji_parts', key, question })
+    } else {
+      const question = await buildKanjiSimilarFor(supabase, task.kanjiId)
+      if (question) return done({ kind: 'kanji_similar', key, question })
+    }
+  }
+  const kanjiIds = extra.anchors.filter((a) => a.startsWith('kj:')).map((a) => a.slice(3))
+  if (!support.matchDone && kanjiIds.length >= KANJI_MATCH_MIN && ais.answered * 2 >= ais.limits.target) {
+    support.matchDone = true
+    const round = await buildKanjiMatchRound(supabase, kanjiIds)
+    if (round) return done({ kind: 'kanji_match', key: 'kanji_match', round })
+  }
+  // Chữ không có dữ liệu thì đã rút khỏi hàng đợi, không thử lại
+  return { extra: { ...extra, support }, step: null }
 }
 
 interface StoredState {
@@ -274,6 +352,10 @@ async function nextStep(supabase: Supabase, userId: string, stored: StoredState)
     if (round) return { stored: { ais, extra }, step: { kind: 'boss', key: 'boss', round } }
   }
 
+  const support = await nextSupport(supabase, ais, extra)
+  if (support.step) return { stored: { ais, extra: support.extra }, step: support.step }
+  Object.assign(extra, support.extra)
+
   for (let attempt = 0; attempt < 40; attempt++) {
     const plan = planNext(ais)
     if (plan.type === 'end') {
@@ -354,7 +436,7 @@ export async function startLesson(groupsInput: unknown): Promise<LessonView | { 
 
   const [built, size] = await Promise.all([buildCandidates(supabase, user.id, groups), readLessonSize(supabase, user.id)])
   const ais = startAis(built.candidates, groups, { target: size, budget: built.budget, kanjiLearning: built.kanjiLearning, kanjiCards: built.kanjiCards }, Math.floor(Math.random() * 2 ** 31))
-  const stored: StoredState = { ais, extra: { refs: {}, lastExercise: null, stage3: [], anchors: [], bossesShown: 0, matchDone: false } }
+  const stored: StoredState = { ais, extra: { refs: {}, lastExercise: null, stage3: [], anchors: [], bossesShown: 0, matchDone: false, support: emptySupport() } }
   const next = await nextStep(supabase, user.id, stored)
   const { data, error } = await supabase
     .from('learn_lessons')
@@ -441,6 +523,9 @@ export async function advanceLesson(input: unknown): Promise<AdvanceResponse> {
     if (!outcome) return { status: 'not_saved' }
     ais = applyResult(ais, { type: 'question', key: step.key, micro: false }, outcome)
     extra = noteAsked(extra, step)
+    if (step.kind === 'kanji') extra = queueSupport(extra, step, outcome)
+  } else if (isSupportStep(step)) {
+    ais = applySupport(ais)
   } else if (step.kind === 'intro_word' || step.kind === 'intro_word_kanji' || step.kind === 'intro_kanji') {
     const ref = await saveIntro(supabase, user.id, step)
     if (ref === null) return { status: 'not_saved' }
@@ -537,7 +622,7 @@ export async function skipLessonItem(input: unknown): Promise<AdvanceResponse> {
   if (row === 'invalid' || row === 'not_found') return { status: row }
   if (row === 'stale') return { status: 'stale', view: await staleView(supabase, user.id, lessonId as string) }
   const step = row.step!
-  if (step.kind === 'end' || step.kind === 'boss' || step.kind === 'match') return { status: 'invalid' }
+  if (step.kind === 'end' || step.kind === 'boss' || step.kind === 'match' || isSupportStep(step)) return { status: 'invalid' }
   const next = await nextStep(supabase, user.id, { ais: dropItem(row.state.ais, step.key), extra: row.state.extra })
   return { status: 'ok', view: await saveStep(supabase, row, next.stored, next.step) }
 }

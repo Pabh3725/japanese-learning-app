@@ -2,6 +2,7 @@
 import { toHiragana } from 'wanakana'
 import type { Outcome } from '../learning/types'
 import type { KanjiExercise } from './rules'
+import type { KanjiVisualView } from './visual'
 
 export interface KanjiRow {
   id: string
@@ -19,6 +20,8 @@ export interface KanjiReveal {
   meaning: string
   onyomi: string[]
   kunyomi: string[]
+  /** V9 R12: bộ thủ, thành phần, nét viết (KanjiVG). Chưa seed thì không có. */
+  visual?: KanjiVisualView
 }
 
 export interface KanjiPrompt {
