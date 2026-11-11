@@ -479,11 +479,13 @@ export async function submitKanjiAnswer(input: unknown): Promise<SubmitKanjiResp
     if (error) throw new Error(`Không đọc được kanji_logs: ${error.message}`)
     const history = logs ?? []
     const streak = history.findIndex((l) => l.outcome !== 'correct')
+    const hasSimilar = ((await readSimilarFor(supabase, row.kanji_id)).length > 0)
     const result = applyLearningAnswer(
       { points, pointsToday, pointsDate, counts: countsFrom(history), correctStreak: streak === -1 ? history.length : streak },
       req.exercise,
       outcome,
       now,
+      hasSimilar,
     )
     points = result.state.points
     pointsToday = result.state.pointsToday
@@ -654,7 +656,7 @@ export async function buildKanjiQuestionFor(
   if (error) throw new Error(`Không đọc được learner_kanji: ${error.message}`)
   const row = data as LearnerRow | null
   if (!row || row.phase !== 'learning') return null
-  const [{ data: logs, error: logsError }, words] = await Promise.all([
+  const [{ data: logs, error: logsError }, words, similar] = await Promise.all([
     supabase
       .from('kanji_logs')
       .select('exercise_type, outcome, phase')
@@ -664,15 +666,17 @@ export async function buildKanjiQuestionFor(
       .order('answered_at', { ascending: false })
       .range(0, PAGE - 1),
     readWordOptions(supabase, userId, [row.kanji_id]),
+    readSimilarFor(supabase, row.kanji_id),
   ])
   if (logsError) throw new Error(`Không đọc được kanji_logs: ${logsError.message}`)
   const own = logs ?? []
   const word = words.get(row.kanji_id) ?? null
   const counts = countsFrom(own)
-  let exercise = chooseLearningExercise(row.points, counts, word !== null)
-  for (let i = 0; i < 6 && exercise === avoid; i++) exercise = chooseLearningExercise(row.points, counts, word !== null)
+  const hasSimilar = similar.length > 0
+  let exercise = chooseLearningExercise(row.points, counts, word !== null, Math.random, hasSimilar)
+  for (let i = 0; i < 6 && exercise === avoid; i++) exercise = chooseLearningExercise(row.points, counts, word !== null, Math.random, hasSimilar)
   return {
-    ...(await withVisual(supabase, buildKanjiQuestion(byId.get(row.kanji_id)!, exercise, allKanji, word), row.kanji_id)),
+    ...(await withVisual(supabase, buildKanjiQuestion(byId.get(row.kanji_id)!, exercise, allKanji, word, Math.random, undefined, similar), row.kanji_id)),
     learnerKanjiId: row.id,
     kanjiId: row.kanji_id,
     clientEventId: randomUUID(),
@@ -833,20 +837,23 @@ export async function buildKanjiPartsFor(supabase: Supabase, kanjiId: string): P
 
 /** Dạng E: phân biệt chữ gần giống, chỉ với cặp đã duyệt. */
 export async function buildKanjiSimilarFor(supabase: Supabase, kanjiId: string): Promise<SimilarQuestion | null> {
-  const allKanji = await readAllKanjiCached(supabase)
-  const kanji = allKanji.find((k) => k.id === kanjiId)
+  const kanji = (await readAllKanjiCached(supabase)).find((k) => k.id === kanjiId)
   if (!kanji) return null
+  return buildSimilarQuestion({ character: kanji.character, hanViet: kanji.han_viet, meaning: kanji.meaning_vi }, await readSimilarFor(supabase, kanjiId))
+}
+
+/** Chữ gần giống đã duyệt của một chữ. Đọc lỗi thì coi như không có (chữ vẫn học được, không bị kẹt điều kiện hoàn tất). */
+async function readSimilarFor(supabase: Supabase, kanjiId: string): Promise<{ other: string; explanation: string }[]> {
   const { data, error } = await supabase.from('kanji_similar_pairs').select('kanji_a, kanji_b, explanation').eq('approved', true).or(`kanji_a.eq.${kanjiId},kanji_b.eq.${kanjiId}`).range(0, 19)
   if (error) {
     console.error(`Không đọc được kanji_similar_pairs: ${error.message}`)
-    return null
+    return []
   }
-  const byId = new Map(allKanji.map((k) => [k.id, k]))
-  const pairs = (data ?? []).flatMap((p) => {
+  const byId = new Map((await readAllKanjiCached(supabase)).map((k) => [k.id, k]))
+  return (data ?? []).flatMap((p) => {
     const other = byId.get(p.kanji_a === kanjiId ? p.kanji_b : p.kanji_a)
     return other ? [{ other: other.character, explanation: p.explanation as string }] : []
   })
-  return buildSimilarQuestion({ character: kanji.character, hanViet: kanji.han_viet, meaning: kanji.meaning_vi }, pairs)
 }
 
 /** Nghĩa dài quá thì ô ghép không hiển thị nổi trên điện thoại. */

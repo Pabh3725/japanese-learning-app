@@ -212,16 +212,16 @@ Mỗi từ × Stage 2, 3, 5, 6 có một lịch `ts-fsrs`, tối đa 2 ngày, kh
 | A | Kanji → nghĩa; nghĩa → chọn Kanji | `KANJI_PRACTICE` | Luôn có |
 | B | Kanji → chọn hoặc gõ Hán Việt | `KANJI_PRACTICE` | Luôn có |
 | C | Ghép thành phần theo vị trí (亻 + 木 → 休) | Hỗ trợ | Chỉ khi dữ liệu cấu tạo được duyệt |
-| E | Phân biệt chữ gần giống (日 / 目), có giải thích sau câu | Hỗ trợ: câu riêng, không điểm — CONFIRMED (2026-11-14, thay cho tính vào hướng nghĩa → Kanji) | Cặp do script đề xuất (thành phần và số nét giống nhau, từ KanjiVG), lời giải thích soạn sẵn; chỉ cặp chủ dự án duyệt mới được hỏi — CONFIRMED (2026-11-10) |
-| F | Ghép cặp Kanji ↔ nghĩa hoặc Hán Việt | Hỗ trợ | Ít nhất 4 chữ đã giới thiệu |
+| E | Phân biệt chữ gần giống (日 / 目), có giải thích sau câu | `KANJI_PRACTICE` (`similar_kanji`): câu chính có điểm ở giai đoạn Học, bắt buộc đúng ít nhất 1 lần mới hoàn tất. Chữ đang ôn bằng Card: câu hỗ trợ không điểm khi trả lời sai — CONFIRMED (2026-11-15) | Cặp do script đề xuất (thành phần và số nét giống nhau, từ KanjiVG), lời giải thích soạn sẵn; chỉ cặp chủ dự án duyệt mới được hỏi — CONFIRMED (2026-11-10) |
+| F | Ghép cặp Kanji ↔ nghĩa hoặc Hán Việt | Bắt buộc, một vòng mỗi bài; ghép sai thì chữ đang học bị trừ 1 điểm (mỗi chữ một lần mỗi vòng) — CONFIRMED (2026-11-15) | Ít nhất 4 chữ đã gặp trong bài |
 | G | Xem hoạt hình thứ tự nét, tự viết ra giấy | Không phải câu hỏi: không chấm, không tính vào số câu | Có dữ liệu nét KanjiVG — CONFIRMED (2026-11-10) |
 
 - **Không** làm dạng D (điền thành phần còn thiếu). — CONFIRMED
-- **Câu hỗ trợ trong bài Learn (gói 7):** C, E, F xen vào bài Learn (CONFIRMED 2026-11-14). Tính vào số câu của bài; không điểm, không lịch, không ghi nhật ký, không tốn ngân sách `learn_cap`; chấm ngay ở trình duyệt. Tối đa 30% số câu của bài (ít nhất 2) — CONFIRMED (2026-11-14). Thời điểm hiện từng dạng — PROPOSED:
-  - C: sau câu tính điểm đúng đầu tiên của chữ đang ở giai đoạn Học (với chữ mới là lần gọi lại đầu). Chỉ khi chữ có đúng hai thành phần trái–phải hoặc trên–dưới; mảnh nhiễu lấy từ thành phần của chữ khác cùng bố cục.
-  - E: khi trả lời sai một câu Kanji, hoặc từ câu tính điểm thứ hai của chữ trong bài (cả câu Card). Tối đa 3 chữ nhiễu, chỉ cặp đã duyệt.
-  - F: một lần mỗi bài, khi đã qua nửa bài và đã gặp ít nhất 4 chữ; ghép với nghĩa hoặc Hán Việt (ngẫu nhiên), bỏ chữ trùng nghĩa/Hán Việt.
-  - Mỗi chữ mỗi dạng một lần trong bài.
+- **Câu hỗ trợ trong bài Learn (gói 7):** C và E của chữ đang ôn bằng Card. Tính vào số câu của bài; không điểm, không lịch, không ghi nhật ký, không tốn ngân sách `learn_cap`; chấm ngay ở trình duyệt. Tối đa 30% số câu của bài (ít nhất 2) — CONFIRMED (2026-11-14). Mỗi chữ mỗi dạng một lần trong bài.
+  - C: sau câu tính điểm đúng đầu tiên của chữ đang ở giai đoạn Học (với chữ mới là lần gọi lại đầu). Chỉ khi chữ có đúng hai thành phần trái–phải hoặc trên–dưới; mảnh nhiễu lấy từ thành phần của chữ khác cùng bố cục. — PROPOSED
+  - E (Card): khi trả lời sai câu Card của chữ. — PROPOSED
+- **E có điểm (`similar_kanji`, gói 7):** chữ có cặp gần giống đã duyệt thì câu phân biệt nằm trong lịch Học: xuất hiện từ 3 điểm (cùng nhóm câu chọn chữ), và ở bước cuối được ưu tiên nếu chưa đúng lần nào. Điều kiện hoàn tất thêm: đúng `similar_kanji` ≥ 1. Điểm như câu Kanji khác (+1, sai −2), ghi `kanji_logs`, tốn ngân sách. Tối đa 3 chữ nhiễu, chỉ cặp đã duyệt; đọc cặp lỗi thì coi như không có. — CONFIRMED (2026-11-15)
+- **F bắt buộc (gói 7):** một vòng mỗi bài khi đã gặp ít nhất 4 chữ, hiện khi qua nửa bài hoặc ngay trước khi bài kết thúc; không nằm trong trần 30%. Tính 1 câu của bài, không tốn ngân sách. Ghép sai thì chữ đang ở giai đoạn Học bị trừ `matchRound.wrongPoints` (−1), không xuống dưới 0, không đổi lịch; ghi ở `kanji_match_penalties` (không phải `kanji_logs`, nên không đếm vào buổi Học hay giãn cách), chống gửi trùng. Migration `20261115000001`. — CONFIRMED (2026-11-15)
 - **Dạng G hiện ở:** thẻ giới thiệu chữ mới, thẻ học lại khi sai liên tiếp, trang chi tiết chữ, câu "viết rồi tự chấm" của Review (sau khi lật). Người dùng chọn giảm chuyển động thì hiện sẵn cả chữ. — CONFIRMED (2026-11-14)
 - Ghi nguồn KanjiVG (CC BY-SA 3.0) ở trang chi tiết chữ.
 - Chấm Hán Việt khi gõ: bỏ khác biệt hoa/thường và khoảng trắng; dấu tiếng Việt phải đúng, nhưng chấp nhận cả hai kiểu đặt dấu (hoà/hòa). — PROPOSED

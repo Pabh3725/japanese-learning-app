@@ -130,7 +130,8 @@ const isSupportStep = (step: LessonStep) => step.kind === 'kanji_parts' || step.
 /**
  * Sau một câu Kanji tính điểm:
  * - Ghép thành phần (C): sau câu đúng đầu tiên của chữ đang học (lần gọi lại đầu với chữ mới).
- * - Phân biệt chữ gần giống (E): khi trả lời sai, hoặc từ câu thứ hai của chữ trong bài.
+ * - Phân biệt chữ gần giống (E) dạng không điểm: chỉ cho chữ đang ôn bằng Card, khi trả lời sai.
+ *   Chữ đang học thì E là câu Kanji có điểm (similar_kanji), do lịch Học chọn.
  */
 function queueSupport(extra: LessonExtra, step: Extract<LessonStep, { kind: 'kanji' }>, outcome: Outcome): LessonExtra {
   const prev = extra.support ?? emptySupport()
@@ -141,17 +142,31 @@ function queueSupport(extra: LessonExtra, step: Extract<LessonStep, { kind: 'kan
     support.given.push(`p:${id}`)
     support.queue.push({ kind: 'kanji_parts', kanjiId: id })
   }
-  if ((outcome === 'wrong' || n >= 2) && !support.given.includes(`e:${id}`)) {
+  if (step.question.phase === 'review' && outcome === 'wrong' && !support.given.includes(`e:${id}`)) {
     support.given.push(`e:${id}`)
     support.queue.push({ kind: 'kanji_similar', kanjiId: id })
   }
   return { ...extra, support }
 }
 
-/** Câu hỗ trợ kế tiếp nếu tới lượt: hàng đợi C/E trước, rồi vòng ghép chữ (F) một lần mỗi bài khi đã qua nửa bài. */
+/** Vòng ghép chữ (F), bắt buộc một lần mỗi bài khi đã gặp đủ chữ. Không nằm trong trần câu hỗ trợ. */
+async function kanjiMatchStep(supabase: Supabase, extra: LessonExtra): Promise<{ extra: LessonExtra; step: LessonStep | null }> {
+  const support = extra.support
+  const kanjiIds = extra.anchors.filter((a) => a.startsWith('kj:')).map((a) => a.slice(3))
+  if (!support || support.matchDone || kanjiIds.length < KANJI_MATCH_MIN) return { extra, step: null }
+  const round = await buildKanjiMatchRound(supabase, kanjiIds)
+  return { extra: { ...extra, support: { ...support, matchDone: true } }, step: round ? { kind: 'kanji_match', key: 'kanji_match', round } : null }
+}
+
+/** Câu tới lượt ngoài AIS: vòng ghép chữ (F) khi đã qua nửa bài, rồi hàng đợi C/E trong trần câu hỗ trợ. */
 async function nextSupport(supabase: Supabase, ais: LessonState, extra: LessonExtra): Promise<{ extra: LessonExtra; step: LessonStep | null }> {
-  const prev = extra.support
-  if (!prev || ais.answered >= ais.limits.target) return { extra, step: null }
+  if (!extra.support || ais.answered >= ais.limits.target) return { extra, step: null }
+  if (ais.answered * 2 >= ais.limits.target) {
+    const match = await kanjiMatchStep(supabase, extra)
+    if (match.step) return match
+    extra = match.extra
+  }
+  const prev = extra.support!
   if (prev.shown >= Math.max(2, Math.ceil(ais.limits.target * SUPPORT_SHARE))) return { extra, step: null }
   const support: SupportState = { ...prev, queue: [...prev.queue] }
   const done = (step: LessonStep) => ({ extra: { ...extra, support: { ...support, shown: support.shown + 1 } }, step })
@@ -166,14 +181,31 @@ async function nextSupport(supabase: Supabase, ais: LessonState, extra: LessonEx
       if (question) return done({ kind: 'kanji_similar', key, question })
     }
   }
-  const kanjiIds = extra.anchors.filter((a) => a.startsWith('kj:')).map((a) => a.slice(3))
-  if (!support.matchDone && kanjiIds.length >= KANJI_MATCH_MIN && ais.answered * 2 >= ais.limits.target) {
-    support.matchDone = true
-    const round = await buildKanjiMatchRound(supabase, kanjiIds)
-    if (round) return done({ kind: 'kanji_match', key: 'kanji_match', round })
-  }
   // Chữ không có dữ liệu thì đã rút khỏi hàng đợi, không thử lại
   return { extra: { ...extra, support }, step: null }
+}
+
+/** Vòng ghép chữ: trừ điểm Học các chữ bị ghép sai (chỉ chữ đang học), mỗi chữ một lần. Mã chống gửi trùng lấy từ vòng đã lưu. */
+async function applyKanjiMatchPenalties(supabase: Supabase, userId: string, step: Extract<LessonStep, { kind: 'kanji_match' }>, missed: unknown): Promise<boolean> {
+  if (!Array.isArray(missed)) return missed === undefined
+  const pairs = new Map(step.round.pairs.map((p) => [p.learnerVocabularyId, p.clientEventId]))
+  const kanjiIds = [...new Set(missed)].filter((id): id is string => typeof id === 'string' && pairs.has(id))
+  if (kanjiIds.length !== new Set(missed).size) return false
+  if (kanjiIds.length === 0) return true
+  const { data, error } = await supabase.from('learner_kanji').select('id, kanji_id').eq('user_id', userId).eq('phase', 'learning').in('kanji_id', kanjiIds)
+  if (error) throw new Error(`Không đọc được learner_kanji: ${error.message}`)
+  const rows = data ?? []
+  if (rows.length === 0) return true
+  const now = new Date()
+  const { error: rpcError } = await supabase.rpc('apply_kanji_match_penalties', {
+    p_learner_kanji_ids: rows.map((r) => r.id),
+    p_client_event_ids: rows.map((r) => pairs.get(r.kanji_id)!),
+    p_points: RULES_V9.matchRound.wrongPoints,
+    p_study_date: studyDate(now),
+    p_answered_at: now.toISOString(),
+  })
+  if (rpcError) throw new Error(`apply_kanji_match_penalties lỗi: ${rpcError.message}`)
+  return true
 }
 
 interface StoredState {
@@ -359,6 +391,10 @@ async function nextStep(supabase: Supabase, userId: string, stored: StoredState)
   for (let attempt = 0; attempt < 40; attempt++) {
     const plan = planNext(ais)
     if (plan.type === 'end') {
+      // Vòng ghép chữ bắt buộc: bài dừng trước nửa bài thì hiện ngay trước khi kết thúc
+      const match = await kanjiMatchStep(supabase, extra)
+      Object.assign(extra, match.extra)
+      if (match.step) return { stored: { ais, extra }, step: match.step }
       if (!extra.matchDone && extra.stage3.length > 0) {
         extra.matchDone = true
         const pools = await loadPoolsCached(supabase)
@@ -501,7 +537,7 @@ function noteAsked(extra: LessonExtra, step: LessonStep): LessonExtra {
  * - Vòng boss, vòng ghép: chỉ đi tiếp (vòng ghép đã lưu phần trừ điểm riêng).
  */
 export async function advanceLesson(input: unknown): Promise<AdvanceResponse> {
-  const { lessonId, stepNo, clientEventId } = (input ?? {}) as { lessonId?: unknown; stepNo?: unknown; clientEventId?: unknown }
+  const { lessonId, stepNo, clientEventId, missed } = (input ?? {}) as { lessonId?: unknown; stepNo?: unknown; clientEventId?: unknown; missed?: unknown }
   const user = await requireUser()
   const supabase = await createClient()
   const row = await readLessonFor(supabase, user.id, lessonId, stepNo)
@@ -525,6 +561,7 @@ export async function advanceLesson(input: unknown): Promise<AdvanceResponse> {
     extra = noteAsked(extra, step)
     if (step.kind === 'kanji') extra = queueSupport(extra, step, outcome)
   } else if (isSupportStep(step)) {
+    if (step.kind === 'kanji_match' && !(await applyKanjiMatchPenalties(supabase, user.id, step, missed))) return { status: 'invalid' }
     ais = applySupport(ais)
   } else if (step.kind === 'intro_word' || step.kind === 'intro_word_kanji' || step.kind === 'intro_kanji') {
     const ref = await saveIntro(supabase, user.id, step)

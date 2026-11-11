@@ -17,6 +17,8 @@ export const KANJI_EXERCISES = [
   'kanji_write',
   /** Card kanji.meaning: nhìn chữ → nhớ nghĩa, lật thẻ rồi tự chấm. */
   'meaning_self',
+  /** V9 R12 dạng E: nghĩa + Hán Việt → chọn đúng chữ giữa các chữ gần giống đã duyệt. */
+  'similar_kanji',
 ] as const
 export type KanjiExercise = (typeof KANJI_EXERCISES)[number]
 
@@ -46,6 +48,8 @@ const meaningDone = (c: KanjiCounts) => count(c, 'kanji_to_meaning') + count(c, 
 const toKanjiFromMeaningDone = (c: KanjiCounts) => count(c, 'pick_kanji')
 const hanVietDone = (c: KanjiCounts) => count(c, 'kanji_to_hanviet') + count(c, 'hanviet_typing')
 const toKanjiFromHanVietDone = (c: KanjiCounts) => count(c, 'hanviet_to_kanji')
+// Chữ có cặp gần giống đã duyệt: phải đúng câu phân biệt ít nhất một lần (chủ dự án chốt 2026-11-14)
+const similarDone = (c: KanjiCounts) => count(c, 'similar_kanji')
 
 function leastDone(list: readonly KanjiExercise[], counts: KanjiCounts, rng: Rng): KanjiExercise {
   const lowest = Math.min(...list.map((code) => count(counts, code)))
@@ -53,13 +57,17 @@ function leastDone(list: readonly KanjiExercise[], counts: KanjiCounts, rng: Rng
   return candidates[Math.floor(rng() * candidates.length)]
 }
 
-/** Đi từ dễ tới khó theo điểm. Bước cuối ưu tiên mặt còn thiếu để đủ điều kiện hoàn tất. */
-export function chooseLearningExercise(points: number, counts: KanjiCounts, hasWord: boolean, rng: Rng = Math.random): KanjiExercise {
+/**
+ * Đi từ dễ tới khó theo điểm. Bước cuối ưu tiên mặt còn thiếu để đủ điều kiện hoàn tất.
+ * `hasSimilar`: chữ có cặp gần giống đã duyệt, nên có câu phân biệt (bắt buộc đúng một lần).
+ */
+export function chooseLearningExercise(points: number, counts: KanjiCounts, hasWord: boolean, rng: Rng = Math.random, hasSimilar = false): KanjiExercise {
   const { middleFrom, recallFrom } = RULES_V9.kanji
   if (points < middleFrom) return leastDone(['kanji_to_meaning', 'kanji_to_hanviet'], counts, rng)
-  if (points < recallFrom) return leastDone(['pick_kanji', 'hanviet_to_kanji', 'kanji_reading'], counts, rng)
+  if (points < recallFrom) return leastDone(['pick_kanji', 'hanviet_to_kanji', 'kanji_reading', ...(hasSimilar ? (['similar_kanji'] as const) : [])], counts, rng)
 
   const needs: KanjiExercise[] = []
+  if (hasSimilar && similarDone(counts) < 1) needs.push('similar_kanji')
   if (count(counts, 'hanviet_typing') === 0 || hanVietDone(counts) < REQUIRED_PER_FACET) needs.push('hanviet_typing')
   if (toKanjiFromMeaningDone(counts) < REQUIRED_PER_FACET) needs.push('pick_kanji')
   if (toKanjiFromHanVietDone(counts) < REQUIRED_PER_FACET) needs.push('hanviet_to_kanji')
@@ -69,11 +77,11 @@ export function chooseLearningExercise(points: number, counts: KanjiCounts, hasW
 }
 
 /** Các câu của một buổi, tính như thể trả lời đúng để dạng bài tăng dần trong buổi. */
-export function planSitting(points: number, counts: KanjiCounts, questions: number, hasWord: boolean, rng: Rng = Math.random): KanjiExercise[] {
+export function planSitting(points: number, counts: KanjiCounts, questions: number, hasWord: boolean, rng: Rng = Math.random, hasSimilar = false): KanjiExercise[] {
   const plan: KanjiExercise[] = []
   const running = { ...counts }
   for (let i = 0; i < questions; i++) {
-    const exercise = chooseLearningExercise(points + i, running, hasWord, rng)
+    const exercise = chooseLearningExercise(points + i, running, hasWord, rng, hasSimilar)
     plan.push(exercise)
     running[exercise] = count(running, exercise) + 1
   }
@@ -99,9 +107,10 @@ export function chooseCardExercise(cardType: KanjiCardType, last: string | null,
 /** Số lựa chọn của câu trắc nghiệm khi ôn Card. */
 export const CARD_CHOICE_OPTIONS = 6
 
-export function canCompleteLearning(state: Pick<KanjiLearningState, 'points' | 'counts' | 'correctStreak'>): boolean {
+export function canCompleteLearning(state: Pick<KanjiLearningState, 'points' | 'counts' | 'correctStreak'>, hasSimilar = false): boolean {
   const c = state.counts
   return (
+    (!hasSimilar || similarDone(c) >= 1) &&
     state.points >= RULES_V9.kanji.completeAt &&
     state.correctStreak >= RULES_V9.completion.correctStreak &&
     meaningDone(c) >= REQUIRED_PER_FACET &&
@@ -119,7 +128,7 @@ export interface KanjiLearningResult {
 }
 
 /** Đúng +1, tối đa 3 điểm cộng mỗi ngày; đúng nhờ gợi ý 0; sai −2, không xuống dưới 0. */
-export function applyLearningAnswer(state: KanjiLearningState, exercise: KanjiExercise, outcome: Outcome, now: Date): KanjiLearningResult {
+export function applyLearningAnswer(state: KanjiLearningState, exercise: KanjiExercise, outcome: Outcome, now: Date, hasSimilar = false): KanjiLearningResult {
   const today = studyDate(now)
   const plusToday = state.pointsDate === today ? state.pointsToday : 0
   const { maxPositivePerDay, wrong } = RULES_V9.kanji
@@ -133,7 +142,7 @@ export function applyLearningAnswer(state: KanjiLearningState, exercise: KanjiEx
     counts: outcome === 'correct' ? { ...state.counts, [exercise]: count(state.counts, exercise) + 1 } : state.counts,
     correctStreak: outcome === 'correct' ? state.correctStreak + 1 : 0,
   }
-  return { state: next, delta: points - state.points, completed: canCompleteLearning(next) }
+  return { state: next, delta: points - state.points, completed: canCompleteLearning(next, hasSimilar) }
 }
 
 /** Buổi kế tiếp bắt đầu 00:00 giờ VN. Lịch khi đúng hết: ngày 1, 2, 3, 5; học thêm thì mỗi ngày một buổi. */

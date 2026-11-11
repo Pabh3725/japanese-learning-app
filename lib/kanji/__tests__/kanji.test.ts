@@ -30,7 +30,7 @@ const vn = (d: number, minute = 0) => new Date(Date.UTC(2026, 10, d, 13, minute)
 const seeded = (seed: number) => () => (seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296
 
 /** Mỗi tối một buổi, làm hết câu của buổi đó. `wrongAt`: thứ tự câu trả lời sai. */
-function runLearning(wrongAt = -1, hasWord = false) {
+function runLearning(wrongAt = -1, hasWord = false, hasSimilar = false) {
   let state = fresh
   let due = vn(1)
   let sittings = 0
@@ -40,9 +40,9 @@ function runLearning(wrongAt = -1, hasWord = false) {
   for (let d = 1; d < 40; d++) {
     if (due.getTime() > vn(d, 30).getTime()) continue
     sittings++
-    for (const exercise of planSitting(state.points, state.counts, RULES_V9.kanji.questionsPerSitting, hasWord, seeded(d))) {
+    for (const exercise of planSitting(state.points, state.counts, RULES_V9.kanji.questionsPerSitting, hasWord, seeded(d), hasSimilar)) {
       const outcome = total === wrongAt ? 'wrong' : 'correct'
-      const result = applyLearningAnswer(state, exercise, outcome, vn(d, total))
+      const result = applyLearningAnswer(state, exercise, outcome, vn(d, total), hasSimilar)
       state = result.state
       days.push(d)
       asked.push(exercise)
@@ -97,6 +97,31 @@ describe('12 điểm trong 4 buổi', () => {
     expect(applyLearningAnswer({ ...base, counts, correctStreak: 0 }, 'pick_kanji', 'correct', vn(3)).completed).toBe(false)
     // Không cần câu On/Kun nào
     expect(applyLearningAnswer({ ...base, counts }, 'pick_kanji', 'correct', vn(3)).completed).toBe(true)
+  })
+
+  it('chữ có cặp gần giống đã duyệt: có câu phân biệt, phải đúng ít nhất một lần mới hoàn tất, đúng hết vẫn xong trong 4 buổi', () => {
+    for (let wrongAt = -1; wrongAt < 6; wrongAt++) {
+      const { asked, state, lastDay } = runLearning(wrongAt, false, true)
+      expect(asked, `wrongAt ${wrongAt}`).toContain('similar_kanji')
+      expect(state.counts.similar_kanji ?? 0).toBeGreaterThanOrEqual(1)
+      if (wrongAt === -1) expect(lastDay).toBe(5)
+    }
+    // Không có cặp thì không bao giờ hỏi câu phân biệt
+    expect(runLearning(-1, false, false).asked).not.toContain('similar_kanji')
+    const counts = { kanji_to_meaning: 2, pick_kanji: 2, kanji_to_hanviet: 1, hanviet_typing: 1, hanviet_to_kanji: 2 }
+    const base = { ...fresh, points: 11, pointsDate: '2026-11-02', correctStreak: 2, counts }
+    expect(applyLearningAnswer(base, 'kanji_to_meaning', 'correct', vn(3), true).completed).toBe(false)
+    expect(applyLearningAnswer(base, 'similar_kanji', 'correct', vn(3), true).completed).toBe(true)
+  })
+
+  it('câu phân biệt: chọn đúng chữ giữa các chữ gần giống, có giải thích; chữ nhiễu chấm sai', () => {
+    const hi = all.find((k) => k.character === '日')!
+    const q = buildKanjiQuestion(hi, 'similar_kanji', all, null, seeded(7), 4, [{ other: '目', explanation: '目 có thêm một nét ngang.' }, { other: '白', explanation: '白 có nét phẩy trên đầu.' }])
+    if (q.kind !== 'choice') throw new Error('phải là câu chọn')
+    expect([...q.options].sort()).toEqual(['日', '白', '目'].sort())
+    expect(q.explanation).toContain('目')
+    expect(gradeKanjiAnswer(hi, 'similar_kanji', '日').outcome).toBe('correct')
+    expect(gradeKanjiAnswer(hi, 'similar_kanji', '目').outcome).toBe('wrong')
   })
 
   it('lịch buổi kế tiếp không vượt 2 ngày và rơi vào 00:00 giờ VN', () => {
@@ -198,7 +223,7 @@ describe('Trên toàn bộ chữ trong data', () => {
   it('mọi dạng: đủ 4 đáp án, đáp án đúng chấm đúng, đáp án nhiễu không bao giờ được chấm đúng', () => {
     let seed = 1
     for (const kanji of all) {
-      for (const exercise of KANJI_EXERCISES.filter((e) => e !== 'word_meaning' && e !== 'kanji_write')) {
+      for (const exercise of KANJI_EXERCISES.filter((e) => e !== 'word_meaning' && e !== 'kanji_write' && e !== 'similar_kanji')) {
         const q = buildKanjiQuestion(kanji, exercise, all, null, seeded(seed++))
         if (q.kind !== 'choice') continue
         expect(new Set(q.options).size, `${kanji.character} ${exercise}`).toBe(4)
