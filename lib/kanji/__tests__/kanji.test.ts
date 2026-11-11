@@ -216,7 +216,7 @@ describe('Thông báo quá tải', () => {
 
 describe('Trên toàn bộ chữ trong data', () => {
   it('mọi chữ có âm để hỏi', () => {
-    expect(all.length).toBe(823)
+    expect(all.length).toBe(844)
     for (const k of all) expect(k.onyomi.length + k.kunyomi.length, k.character).toBeGreaterThan(0)
   })
 

@@ -67,11 +67,11 @@ describe('dữ liệu nghĩa', () => {
     expect(words.filter((w) => w.meaning_vi.includes(w.reading_kana)).map((w) => w.reading_kana)).toEqual([])
   })
 
-  it('mỗi từ có bài từ 1 đến 48, và thứ tự không quay lui giữa các bài', () => {
+  it('mỗi từ có bài từ 1 đến 50, và thứ tự không quay lui giữa các bài', () => {
     const lessons = vocabRows.map((r) => Number(r.lesson))
-    expect(lessons.every((n) => n >= 1 && n <= 48)).toBe(true)
+    expect(lessons.every((n) => n >= 1 && n <= 50)).toBe(true)
     lessons.slice(1).forEach((n, i) => expect(n).toBeGreaterThanOrEqual(lessons[i]))
-    expect(new Set(lessons).size).toBe(48)
+    expect(new Set(lessons).size).toBe(50)
   })
 
   it('bài 1–25: mỗi nghĩa chỉ ứng với một cách đọc, để đề nghĩa chỉ có một đáp án khi gõ hoặc ghép', () => {
