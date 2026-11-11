@@ -17,6 +17,8 @@ import { LearnPractice } from '@/components/learning/learn-practice'
 import { SessionComplete } from '@/components/learning/session-complete'
 import { SessionHeader } from '@/components/learning/session-header'
 import { NoVoiceNote, SpeakerButton, useAutoSpeak } from '@/components/learning/speaker-button'
+import { AssemblyExercise } from '@/components/learning/steps/assembly-exercise'
+import { ChoiceExercise } from '@/components/learning/steps/choice-exercise'
 import { KanaIntroExercise } from '@/components/learning/steps/kana-intro-exercise'
 import { MatchRoundExercise } from '@/components/learning/steps/match-round-exercise'
 import { WordKanjiIntroExercise } from '@/components/learning/steps/word-kanji-intro-exercise'
@@ -55,6 +57,8 @@ export function LessonPlayer({ initial, groupsQuery }: { initial: LessonView; gr
   const [busy, startBusy] = useTransition()
   // Câu kiểm tra nhanh: server trả luôn bước kế tiếp cùng kết quả chấm, giữ lại tới khi người học bấm Continue
   const microNext = useRef<LessonView | null>(null)
+  // Vòng ghép chữ: các chữ ghép sai, giữ lại để bấm thử lại vẫn gửi đủ
+  const kanjiMissed = useRef<string[] | undefined>(undefined)
   const step = view.step
 
   const apply = (res: AdvanceResponse) => {
@@ -67,7 +71,7 @@ export function LessonPlayer({ initial, groupsQuery }: { initial: LessonView; gr
   }
 
   /** Đi tiếp sau bước hiện tại. Câu tính điểm: server đọc kết quả từ nhật ký theo mã câu. */
-  const advance = (clientEventId?: string) => {
+  const advance = (clientEventId?: string, missed?: string[]) => {
     if (microNext.current) {
       setView(microNext.current)
       microNext.current = null
@@ -77,7 +81,7 @@ export function LessonPlayer({ initial, groupsQuery }: { initial: LessonView; gr
     startBusy(async () => {
       try {
         // not_saved: câu vừa trả lời chưa kịp lưu xong, thử lại một nhịp
-        apply(await withRetry(() => advanceLessonAction({ lessonId: view.lessonId, stepNo: view.stepNo, clientEventId }), (r) => r.status === 'not_saved'))
+        apply(await withRetry(() => advanceLessonAction({ lessonId: view.lessonId, stepNo: view.stepNo, clientEventId, missed }), (r) => r.status === 'not_saved'))
       } catch {
         setError(SAVE_ERROR)
       }
@@ -176,6 +180,59 @@ export function LessonPlayer({ initial, groupsQuery }: { initial: LessonView; gr
     )
   } else if (step.kind === 'boss') {
     body = <SpeedMatchingGame key={key} words={step.round.words} mode="mixed" seconds={RULES_V9.bossRound.seconds} onBossDone={() => advance()} />
+  } else if (step.kind === 'kanji_parts') {
+    const q = step.question
+    body = (
+      <AssemblyExercise
+        key={key}
+        step={{
+          id: key,
+          type: 'assembly',
+          stage: 'Kanji parts · practice',
+          question: q.layout === 'row' ? 'Build this Kanji from its parts, left to right' : 'Build this Kanji from its parts, top to bottom',
+          prompt: { display: q.character, kind: 'kanji', hint: `${q.hanViet} · ${q.meaning}` },
+          pool: q.pool,
+          answer: q.answer,
+          pieceKind: 'kanji',
+          joiner: '+',
+          explanation: `${q.character} = ${q.answer.join(' + ')}. Practice only, no points.`,
+        }}
+        onComplete={() => advance()}
+      />
+    )
+  } else if (step.kind === 'kanji_similar') {
+    const q = step.question
+    body = (
+      <ChoiceExercise
+        key={key}
+        step={{
+          id: key,
+          type: 'choice',
+          stage: 'Look-alike Kanji · practice',
+          question: 'Which Kanji has this meaning?',
+          prompt: { display: q.meaning, kind: 'meaning', hint: `Hán Việt: ${q.hanViet}` },
+          options: q.options,
+          answer: q.answer,
+          optionKind: 'kanji',
+          explanation: q.explanation,
+        }}
+        instant
+        onComplete={() => advance()}
+      />
+    )
+  } else if (step.kind === 'kanji_match') {
+    body = (
+      <MatchRoundExercise
+        key={key}
+        round={step.round}
+        stage="Kanji · Matching round"
+        title={step.round.pairType === 'kanji_meaning' ? 'Match each Kanji with its meaning' : 'Match each Kanji with its Sino-Vietnamese reading'}
+        onDone={(penalties) => {
+          kanjiMissed.current = penalties.map((p) => p.learnerVocabularyId)
+          advance(undefined, kanjiMissed.current)
+        }}
+      />
+    )
   } else {
     const finishMatch = (penalties: MatchPenalty[]) => {
       startBusy(async () => {
@@ -196,7 +253,7 @@ export function LessonPlayer({ initial, groupsQuery }: { initial: LessonView; gr
       {error && step.kind !== 'intro_word' && step.kind !== 'intro_word_kanji' && step.kind !== 'intro_kanji' && (
         <div role="alert" className="mx-auto mt-3 flex w-full max-w-2xl items-center justify-between gap-3 px-4 text-sm text-error">
           <span>{error}</span>
-          <button type="button" onClick={() => advance(step.kind === 'stage' || step.kind === 'kanji' || step.kind === 'star' ? step.question.clientEventId : undefined)} className="font-medium underline-offset-2 hover:underline">
+          <button type="button" onClick={() => advance(step.kind === 'stage' || step.kind === 'kanji' || step.kind === 'star' ? step.question.clientEventId : undefined, step.kind === 'kanji_match' ? kanjiMissed.current : undefined)} className="font-medium underline-offset-2 hover:underline">
             Try again
           </button>
         </div>

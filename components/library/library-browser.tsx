@@ -70,8 +70,8 @@ function StageDots({ progress }: { progress: VocabProgress }) {
   )
 }
 
-export function LibraryBrowser({ vocabulary, kanji }: { vocabulary: VocabListItem[]; kanji: KanjiListItem[] }) {
-  const [tab, setTab] = useState<Tab>('vocab')
+export function LibraryBrowser({ vocabulary, kanji, initialTab = 'vocab' }: { vocabulary: VocabListItem[]; kanji: KanjiListItem[]; initialTab?: Tab }) {
+  const [tab, setTab] = useState<Tab>(initialTab)
   const [query, setQuery] = useState('')
   const [visible, setVisible] = useState(PAGE_SIZE)
   const [status, setStatus] = useState<StatusFilter>('all')
@@ -301,7 +301,9 @@ export function LibraryBrowser({ vocabulary, kanji }: { vocabulary: VocabListIte
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {kanjiResults.slice(0, visible).map((k) => (
               <li key={k.id} className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-5 text-center">
-                <p lang="ja" className="font-jp text-5xl font-medium">{k.character}</p>
+                <Link href={`/library/kanji/${encodeURIComponent(k.character)}`} lang="ja" className="font-jp text-5xl font-medium hover:text-primary">
+                  {k.character}
+                </Link>
                 <p className="mt-1 text-sm font-semibold tracking-wider text-yellow">{k.hanViet}</p>
                 <p className="text-sm text-subtle">{k.meaning}</p>
                 {(k.onyomi.length > 0 || k.kunyomi.length > 0) && (

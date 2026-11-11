@@ -12,6 +12,7 @@ import { SessionComplete } from '@/components/learning/session-complete'
 import { SessionHeader } from '@/components/learning/session-header'
 import type { AssemblyGrade } from '@/components/learning/steps/assembly-exercise'
 import { RecallExercise } from '@/components/learning/steps/recall-exercise'
+import { KanjiStrokes } from '@/components/kanji/kanji-strokes'
 import { SelfCheckExercise } from '@/components/learning/steps/self-check-exercise'
 import { KanjiReadExercise, type KanjiReadGrade } from '@/components/review/kanji-read-exercise'
 import type { ReviewQuestion } from '@/lib/dal/review'
@@ -153,7 +154,13 @@ export function ReviewSession({ questions: initialQuestions, capReached, cardsLe
   } else if (q.kind === 'kanji_read') {
     body = <KanjiReadExercise key={q.clientEventId} stage={label} question={q.question} prompt={q.prompt} wrongNote={WRONG_ANSWER_NOTE} onGrade={gradeRead(q)} onComplete={next} />
   } else {
-    body = <SelfCheckExercise key={q.clientEventId} stage={label} question={q.question} prompt={q.prompt} answer={q.answer} reading={q.reading} onResult={saveSelf(q)} onComplete={next} />
+    body = <SelfCheckExercise key={q.clientEventId} stage={label} question={q.question} prompt={q.prompt} answer={q.answer} reading={q.reading} after={q.strokes && (
+          <div className="mt-4 flex flex-wrap justify-center gap-4">
+            {q.strokes.map((k, i) => (
+              <KanjiStrokes key={`${k.character}-${i}`} strokes={k.strokes} size={110} label={`Stroke order of ${k.character}, ${k.strokes.length} strokes`} />
+            ))}
+          </div>
+        )} onResult={saveSelf(q)} onComplete={next} />
   }
 
   return (

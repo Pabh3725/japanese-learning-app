@@ -17,13 +17,15 @@ interface SelfCheckExerciseProps {
   reading?: string
   /** 'text': đáp án là nghĩa tiếng Việt (Card Kanji mặt chữ ↔ nghĩa), không phải chữ Nhật. */
   answerKind?: 'jp' | 'text'
+  /** Phần hiện thêm dưới đáp án sau khi lật (vd. nét viết). */
+  after?: React.ReactNode
   /** Lưu kết quả tự chấm. Trả chuỗi lỗi nếu chưa lưu được. */
   onResult: (remembered: boolean) => Promise<string | null>
   onComplete: (remembered: boolean) => void
 }
 
 /** App không chấm được chữ người học tự viết: viết ra giấy hoặc nhớ trong đầu, lật thẻ, rồi tự chấm. */
-export function SelfCheckExercise({ stage, question, prompt, answer, reading, answerKind = 'jp', onResult, onComplete }: SelfCheckExerciseProps) {
+export function SelfCheckExercise({ stage, question, prompt, answer, reading, answerKind = 'jp', after, onResult, onComplete }: SelfCheckExerciseProps) {
   const [shown, setShown] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -79,6 +81,7 @@ export function SelfCheckExercise({ stage, question, prompt, answer, reading, an
         <div className="mt-6 flex flex-col items-center gap-2 animate-in fade-in duration-200">
           {answerKind === 'text' ? <p className="text-center text-2xl font-medium">{answer}</p> : <p lang="ja" className="font-jp text-6xl font-medium">{answer}</p>}
           {reading && <p lang="ja" className="font-jp text-xl text-cyan">{reading}</p>}
+          {after}
         </div>
       )}
     </ExercisePanel>

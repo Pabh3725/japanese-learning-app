@@ -1,5 +1,7 @@
 'use client'
 
+import { KanjiPartsInfo } from '@/components/kanji/kanji-parts'
+import { KanjiStrokes } from '@/components/kanji/kanji-strokes'
 import { SpeakerButton, useAutoSpeak } from '@/components/learning/speaker-button'
 import type { KanjiIntroItem } from '@/lib/dal/kanji'
 import type { KanjiReveal } from '@/lib/kanji/questions'
@@ -30,6 +32,12 @@ export function KanjiCard({ kanji, examples }: { kanji: KanjiReveal; examples?: 
         <Readings label="On reading" readings={kanji.onyomi} />
         <Readings label="Kun reading" readings={kanji.kunyomi} />
       </dl>
+      {kanji.visual && (
+        <div className="grid w-full items-center gap-4 border-t border-border pt-4 sm:grid-cols-[1fr_auto]">
+          <KanjiPartsInfo visual={kanji.visual} />
+          <KanjiStrokes strokes={kanji.visual.strokes} size={120} label={`Stroke order of ${kanji.character}, ${kanji.visual.strokes.length} strokes`} />
+        </div>
+      )}
       {examples && examples.length > 0 && (
         <ul className="flex w-full flex-col gap-1 border-t border-border pt-4 text-left text-sm">
           {examples.map((word) => (

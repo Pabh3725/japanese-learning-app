@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest'
 import { RULES_V9 } from '../../learning/rules'
 import type { Outcome } from '../../learning/types'
-import { applyIntro, applyResult, planNext, startLesson, type Candidate, type EndReason, type LessonGroup, type LessonLimits, type LessonState, type StepPlan } from '../ais'
+import { applyIntro, applyResult, applySupport, planNext, startLesson, type Candidate, type EndReason, type LessonGroup, type LessonLimits, type LessonState, type StepPlan } from '../ais'
 
 function seeded(seed: number) {
   let a = seed >>> 0
@@ -235,5 +235,17 @@ describe('AIS — công bằng, hết câu, tiếp tục bài', () => {
     expect(stars.length).toBeLessThanOrEqual(RULES_V9.ais.starPerLesson)
     expect(stars.length).toBeGreaterThan(0)
     expect(r.state.answered).toBe(50)
+  })
+
+  it('câu hỗ trợ Kanji trực quan (R12): tính vào số câu của bài, không tốn ngân sách, không đổi mục nào', () => {
+    const start = startLesson(pool(), ALL, limits(), 5)
+    const after = applySupport(start)
+    expect(after.answered).toBe(start.answered + 1)
+    expect(after.counted).toBe(start.counted)
+    expect(after.limits).toEqual(start.limits)
+    expect(after.items).toEqual(start.items)
+    let s = start
+    for (let i = 0; i < 50; i++) s = applySupport(s)
+    expect(planNext(s)).toEqual({ type: 'end', reason: 'target' })
   })
 })

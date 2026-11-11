@@ -198,7 +198,7 @@ export function KanjiPractice({ questions: initialQuestions, onDone, lesson }: {
       options: q.options,
       answer: q.answer,
       optionKind: q.optionKind,
-      explanation: isRetry ? RETRY_NOTE : (notes[q.clientEventId] ?? ''),
+      explanation: isRetry ? RETRY_NOTE : [q.explanation, notes[q.clientEventId]].filter(Boolean).join(' '),
     }
     body = <ChoiceExercise key={key} step={step} onAnswer={answerChoice(q)} instant wrongNote={WRONG_ANSWER_NOTE} reveal={toReveal(q.reveal)} onComplete={afterAnswer} />
   } else if (q.kind === 'self') {

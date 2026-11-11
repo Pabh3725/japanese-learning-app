@@ -256,6 +256,13 @@ export function applyIntro(state: LessonState, key: string): LessonState {
   return next
 }
 
+/** Câu hỗ trợ Kanji trực quan (V9 R12): tính vào số câu của bài, không điểm, không tốn ngân sách, không đổi mục nào. */
+export function applySupport(state: LessonState): LessonState {
+  const next = clone(state)
+  next.answered += 1
+  return next
+}
+
 /** Mục bị bỏ khỏi bài (đánh dấu đã biết, lưu trữ Card…). */
 export function dropItem(state: LessonState, key: string): LessonState {
   const next = clone(state)
