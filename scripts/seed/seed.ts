@@ -7,11 +7,12 @@
 //   SUPABASE_SECRET_KEY        secret key (sb_secret_...) — KHÔNG có prefix NEXT_PUBLIC_
 //                              (tên cũ SUPABASE_SERVICE_ROLE_KEY vẫn đọc được)
 
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { runSeed, type SeedDb } from './run'
 
 const DATA_DIR = join(process.cwd(), 'data', 'n5')
+const GRAMMAR_DIR = join(process.cwd(), 'data', 'grammar')
 
 async function main() {
   const args = new Set(process.argv.slice(2))
@@ -69,7 +70,53 @@ async function main() {
     console.log(`\nKanji trực quan: ${data.visuals.size} chữ, ${data.radicals.length} bộ thủ, ${data.pairs.length} cặp gần giống. Validate: OK`)
     if (db) await seedVisual(db, data, dryRun, (s) => console.log(s))
   }
+
+  // Grammar G2: nội dung ngữ pháp (tuỳ chọn), mỗi bài một file data/grammar/lesson-NN.json
+  const grammarFiles = existsSync(GRAMMAR_DIR)
+    ? readdirSync(GRAMMAR_DIR).filter((f) => /^lesson-\d{2}\.json$/.test(f)).sort().map((f) => ({ name: f, text: readFileSync(join(GRAMMAR_DIR, f), 'utf8') }))
+    : []
+  if (grammarFiles.length > 0) {
+    const { validateGrammar, seedGrammar } = await import('./grammar')
+    const { parseCsv } = await import('./csv')
+    const kanjiUpTo = vocabKanjiByLesson(parseCsv(files.vocabularies.text).records.map((r) => r.cells))
+    const data = validateGrammar(grammarFiles, kanjiUpTo)
+    if (data.warnings.length > 0) {
+      console.log(`\nCảnh báo ngữ pháp (không chặn): ${data.warnings.length}`)
+      for (const w of data.warnings.slice(0, 15)) console.log(`  - ${w.file} ${w.where}: ${w.message}`)
+      if (data.warnings.length > 15) console.log(`  … và ${data.warnings.length - 15} cảnh báo khác`)
+    }
+    if (data.errors.length > 0) {
+      console.log(`\nLỖI dữ liệu ngữ pháp: ${data.errors.length}. Không ghi phần này.`)
+      for (const e of data.errors.slice(0, 30)) console.log(`  ✗ ${e.file} ${e.where}: ${e.message}`)
+      process.exitCode = 1
+      return
+    }
+    const approved = data.points.filter((p) => p.approved).length
+    console.log(`\nNgữ pháp: ${grammarFiles.length} bài, ${data.points.length} mẫu (${approved} đã duyệt), ${data.points.reduce((n, p) => n + p.sentences.length, 0)} câu gốc. Validate: OK`)
+    if (db) await seedGrammar(db, data, dryRun, (s) => console.log(s))
+  }
   process.exitCode = 0
+}
+
+/** Chữ Kanji có trong từ vựng của bài ≤ n (hàng CSV: code,…,expression ở cột 3, lesson ở cột cuối). */
+function vocabKanjiByLesson(rows: string[][]): (lesson: number) => ReadonlySet<string> {
+  const header = rows[0] ?? []
+  const exprAt = header.indexOf('expression')
+  const lessonAt = header.indexOf('lesson')
+  const byLesson = new Map<number, string[]>()
+  for (const r of rows.slice(1)) {
+    const lesson = Number(r[lessonAt])
+    byLesson.set(lesson, [...(byLesson.get(lesson) ?? []), r[exprAt] ?? ''])
+  }
+  const cache = new Map<number, Set<string>>()
+  return (lesson) => {
+    if (!cache.has(lesson)) {
+      const set = new Set<string>()
+      for (const [l, exprs] of byLesson) if (l <= lesson) for (const e of exprs) for (const ch of e) set.add(ch)
+      cache.set(lesson, set)
+    }
+    return cache.get(lesson)!
+  }
 }
 
 main().catch((e: unknown) => {
