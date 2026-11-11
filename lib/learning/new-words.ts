@@ -32,8 +32,8 @@ export function remainingNewToday(limit: number, metToday: number): number {
 
 /** Các giới hạn khối lượng trong Settings. Khoảng cho phép: docs/PROJECT_SPEC.md §18.5. */
 export const STUDY_LIMITS = {
-  stage_cap: { label: 'Stage questions per day', hint: 'Learn stops for the day at this number.', min: 20, max: 1000 },
-  word_kanji_cap: { label: 'Kanji word questions per day', hint: 'Kanji words stop for the day at this number.', min: 10, max: 1000 },
+  lesson_size: { label: 'Questions per lesson', hint: 'Each Learn lesson has this many questions, including quick checks.', min: 20, max: 100 },
+  learn_cap: { label: 'Learn questions per day', hint: 'Shared by Vocabulary, Kanji words and Kanji learning. Quick checks and Kanji cards do not count.', min: 20, max: 1000 },
   review_cap: { label: 'Vocabulary cards per day', hint: 'Review · Vocabulary. Extra cards move to the next day.', min: 10, max: 500 },
   word_kanji_review_cap: { label: 'Kanji word cards per day', hint: 'Review · Kanji words. Extra cards move to the next day.', min: 10, max: 500 },
   unlock_threshold: { label: 'Cards before pausing new words', hint: 'New words pause when this many cards are due.', min: 0, max: 500 },

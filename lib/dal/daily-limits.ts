@@ -10,6 +10,7 @@ const PAGE = 1000
 
 export interface DailyLimits {
   newPerDay: number
+  /** V9: ngân sách Learn chung (learn_cap). Tên giữ từ V8. */
   stageCap: number
   reviewCap: number
   unlockThreshold: number
@@ -101,24 +102,27 @@ async function todayPlan(supabase: Supabase, userId: string, today: string) {
 
 export async function readDailyLimits(supabase: Supabase, userId: string): Promise<DailyLimits> {
   const today = studyDate(new Date())
-  const [settings, plan, yesterday, answered] = await Promise.all([
-    supabase.from('learner_settings').select('daily_new_limit, stage_cap, review_cap, unlock_threshold').eq('user_id', userId).maybeSingle(),
+  const [settings, plan, yesterday, answered, kanjiAnswered] = await Promise.all([
+    supabase.from('learner_settings').select('daily_new_limit, learn_cap, review_cap, unlock_threshold').eq('user_id', userId).maybeSingle(),
     todayPlan(supabase, userId, today),
     supabase.from('learner_daily_plans').select('borrowed_for_next').eq('user_id', userId).eq('study_date', addStudyDays(today, -1)).maybeSingle(),
-    supabase.from('exercise_logs').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('study_date', today).eq('source', 'lesson').in('stage_number', [2, 3]),
+    // V9 R7: ngân sách Learn chung đếm mọi câu tính điểm: câu Stage (mọi stage) và câu Học Kanji. Không tính câu kiểm tra nhanh, câu Card.
+    supabase.from('exercise_logs').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('study_date', today).eq('source', 'lesson'),
+    supabase.from('kanji_logs').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('study_date', today).eq('phase', 'learning').is('learner_kanji_card_id', null),
   ])
   if (settings.error) throw new Error(`Không đọc được learner_settings: ${settings.error.message}`)
   if (yesterday.error) throw new Error(`Không đọc được learner_daily_plans: ${yesterday.error.message}`)
   if (answered.error) throw new Error(`Không đọc được exercise_logs: ${answered.error.message}`)
+  if (kanjiAnswered.error) throw new Error(`Không đọc được kanji_logs: ${kanjiAnswered.error.message}`)
   const { defaults } = RULES_V9
   return {
     newPerDay: settings.data?.daily_new_limit ?? defaults.newPerDay,
-    stageCap: settings.data?.stage_cap ?? defaults.stageCap,
+    stageCap: settings.data?.learn_cap ?? defaults.learnCap,
     reviewCap: settings.data?.review_cap ?? defaults.reviewCap,
     unlockThreshold: settings.data?.unlock_threshold ?? defaults.unlockThreshold,
     cardsDueToday: plan.due_snapshot,
     stageDueToday: plan.stage_snapshot,
-    answeredToday: answered.count ?? 0,
+    answeredToday: (answered.count ?? 0) + (kanjiAnswered.count ?? 0),
     borrowedForToday: yesterday.data?.borrowed_for_next ?? 0,
     borrowedForNext: plan.borrowed_for_next,
   }

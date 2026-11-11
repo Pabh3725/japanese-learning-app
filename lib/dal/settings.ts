@@ -29,14 +29,14 @@ export async function getStudyLimits(): Promise<Record<StudyLimitKey, number>> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('learner_settings')
-    .select('stage_cap, word_kanji_cap, review_cap, word_kanji_review_cap, unlock_threshold, kanji_new_per_day, kanji_cap, kanji_review_cap')
+    .select('lesson_size, learn_cap, review_cap, word_kanji_review_cap, unlock_threshold, kanji_new_per_day, kanji_cap, kanji_review_cap')
     .eq('user_id', user.id)
     .maybeSingle()
   if (error) throw new Error(`Không đọc được learner_settings: ${error.message}`)
   const { defaults } = RULES_V9
   return {
-    stage_cap: data?.stage_cap ?? defaults.stageCap,
-    word_kanji_cap: data?.word_kanji_cap ?? defaults.wordKanjiCap,
+    lesson_size: data?.lesson_size ?? defaults.lessonSize,
+    learn_cap: data?.learn_cap ?? defaults.learnCap,
     review_cap: data?.review_cap ?? defaults.reviewCap,
     word_kanji_review_cap: data?.word_kanji_review_cap ?? defaults.wordKanjiReviewCap,
     unlock_threshold: data?.unlock_threshold ?? defaults.unlockThreshold,

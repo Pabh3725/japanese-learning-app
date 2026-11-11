@@ -55,7 +55,7 @@ export default async function KanjiPage() {
             {!hasWork && overview.nextDueAt && <p className="mt-2 text-sm text-subtle">Next question at {formatVnDateTime(new Date(overview.nextDueAt))}.</p>}
           </div>
           {hasWork && (
-            <Link href="/learn/kanji/session" className={cn(actionButton({ size: 'lg' }), 'w-full md:w-auto md:px-10')}>
+            <Link href="/learn/lesson?groups=kanji" className={cn(actionButton({ size: 'lg' }), 'w-full md:w-auto md:px-10')}>
               <Play className="fill-current" aria-hidden="true" />
               Start Kanji
             </Link>

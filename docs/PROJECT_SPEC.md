@@ -1482,6 +1482,7 @@ Chủ dự án chốt ngày 2026-11-10. Luật đầy đủ: `docs/learning-rule
 - **Kanji riêng lẻ:** giữ 12 câu trong 4 buổi; On/Kun không bắt buộc; thêm bộ thủ, thành phần, hoạt hình thứ tự nét (chỉ xem, không chấm), các dạng bài ghép thành phần, phân biệt chữ gần giống (script đề xuất, chủ dự án duyệt), ghép cặp. Không có mẹo ghi nhớ. Cấp chữ theo danh sách Jonathan Waller; từ "thường viết Kana" theo JMdict.
 - **Archive:** nút "Đã học xong" lưu trữ riêng một Card, có kho lưu trữ, khôi phục giữ tiến độ hoặc học lại từ đầu.
 - **Prod:** tiến độ từ vựng thử nghiệm bị xóa khi lên V9 (chủ dự án chọn 2026-11-10).
+- **Bài Learn (gói 5, 2026-11-13):** nút Learn và "Practice only this" chạy bài `/learn/lesson` (mặc định 50 câu, chỉnh 20–100 trong Settings). AIS chọn từng câu: thẻ giới thiệu xen trong bài, câu kiểm tra nhanh ngay sau thẻ, gọi lại sau 4–6 và 8–12 câu, sai thì kiểm tra lại sau 2 câu. Ngân sách Learn chung 200 câu/ngày (Settings "Learn questions per day"), trần phụ câu Học Kanji 100; câu kiểm tra nhanh và Card Kanji không tính. Bài dở được lưu, tải lại trang hay đổi máy vẫn tiếp tục. Vòng boss mỗi 25 câu, vòng ghép ô Stage 3 cuối bài, tối đa 3 câu sao mỗi bài.
 - **Learn và Home (2026-11-12):** một ô trên cùng có nút **Learn** trộn cả ba nhóm; ba ô song song Vocabulary, Kanji words, Kanji để theo dõi và học riêng. Bỏ 3 tab trong Learn. Bỏ trang tổng kết ngày `/learn/summary`; tổng kết hôm nay (số câu, tỷ lệ đúng, stage và chữ Kanji xong theo từng nhóm) hiện ngay ở màn kết thúc mỗi phiên Learn, Kanji và phiên hỗn hợp.
 
 ---

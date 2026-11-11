@@ -60,7 +60,25 @@ export const RULES_V9 = {
   },
   /** Học lại Stage: còn thiếu từng này điểm so với mốc hoàn tất. */
   relearn: { pointsToComplete: 3 },
-  defaults: { newPerDay: 5, stageCap: 200, reviewCap: 120, unlockThreshold: 80, kanjiNewPerDay: 10, kanjiCap: 100, wordKanjiCap: 100, wordKanjiReviewCap: 60, kanjiReviewCap: 60 },
+  /** V9 R7: bài Learn. Câu kiểm tra nhanh tính vào số câu của bài nhưng không tính vào ngân sách ngày. */
+  lesson: { defaultQuestions: 50, minQuestions: 20, maxQuestions: 100 },
+  /** V9 R11: Adaptive Interleaving Scheduler. Mọi khoảng cách đếm bằng câu tính điểm (câu Stage, câu Học Kanji). */
+  ais: {
+    firstRecallGap: [4, 6],
+    secondRecallGap: [8, 12],
+    wrongRecheckAfter: 2,
+    maxPerItemPerLesson: 6,
+    maxItemsInLadder: 2,
+    introduceEvery: 5,
+    minDueShare: 0.4,
+    minGroupShare: 0.15,
+    topK: 3,
+    priority: { ladderDue: 100, recheck: 150, perOverdueDay: 10, maxOverdue: 100, dueToday: 1, intro: 20, star: 5 },
+    /** Câu học thêm của từ có sao: tối đa mỗi bài, và cách nhau ít nhất từng này câu tính điểm. */
+    starPerLesson: 3,
+    starEvery: 10,
+  },
+  defaults: { newPerDay: 5, learnCap: 200, lessonSize: 50, reviewCap: 120, unlockThreshold: 80, kanjiNewPerDay: 10, kanjiCap: 100, wordKanjiReviewCap: 60, kanjiReviewCap: 60 },
   borrow: { maxDaysAhead: 1 },
 } as const
 

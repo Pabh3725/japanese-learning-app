@@ -3,6 +3,7 @@ import 'server-only'
 import { randomUUID } from 'node:crypto'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
+import { getNextDaySeq } from '@/lib/dal/day-seq'
 import { readSkillLevels } from '@/lib/dal/skill-levels'
 import { inLevel, nextLevel } from '@/lib/learn/levels'
 import {
@@ -17,13 +18,13 @@ import {
 import {
   applyLearningAnswer,
   CARD_CHOICE_OPTIONS,
+  chooseLearningExercise,
   chooseCardExercise,
   KANJI_CARD_EXERCISES,
   isKanjiExercise,
   kanjiLoadAdvice,
   newKanjiToday,
   nextSittingAt,
-  planSitting,
   type KanjiCardType,
   type KanjiCounts,
   type KanjiExercise,
@@ -40,8 +41,6 @@ type Supabase = Awaited<ReturnType<typeof createClient>>
 const PAGE = 1000
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const DAY_MS = 86_400_000
-const QUESTIONS_PER_SESSION = 20
-const INTROS_PER_SESSION = 5
 const KANJI_COLUMNS = 'id, character, han_viet, meaning_vi, onyomi, kunyomi, jlpt_level'
 const LEARNER_COLUMNS =
   'id, kanji_id, phase, points, points_today, points_date, state, due_at, stability, difficulty, scheduled_days, learning_steps, reps, lapses, last_review_at, version, created_at'
@@ -266,12 +265,6 @@ export type KanjiSessionQuestion = KanjiQuestionData & {
   wrongStreak: number
 }
 
-export interface KanjiSessionData {
-  intros: KanjiIntroItem[]
-  questions: KanjiSessionQuestion[]
-  capReached: boolean
-  nextDueAt: string | null
-}
 
 type WordRow = { kanji_id: string; vocabularies: { id: string; expression: string; reading_kana: string; meaning_vi: string; sort_order: number } }
 
@@ -330,91 +323,6 @@ function countsFrom(logs: readonly LogRow[]): KanjiCounts {
     }
   }
   return counts
-}
-
-/** Thứ tự: Card ôn dài hạn (trần riêng), rồi câu đang học (lần lượt mỗi chữ một câu để các câu cùng chữ cách nhau), rồi mới tới chữ mới. */
-export async function getKanjiSession(): Promise<KanjiSessionData> {
-  const user = await requireUser()
-  const supabase = await createClient()
-  const known = await readKnownKanjiIds(supabase, user.id)
-  const [learners, allKanji] = await Promise.all([readLearners(supabase, user.id, known), readAllKanji(supabase)])
-  const levels = await readSkillLevels(supabase, user.id)
-  // Chỉ mở chữ mới trong cấp đang học; hết chữ của cấp thì app hỏi rồi mới mở cấp sau
-  const openedAll = new Set(learners.map((r) => r.kanji_id))
-  const kanji = allKanji.filter((k) => !known.has(k.id) && inLevel(k.jlpt_level ?? null, levels.kanji))
-  const cards = await readCards(supabase, user.id, learners)
-  const today = await readToday(supabase, user.id, learners, cards, kanji.filter((k) => !openedAll.has(k.id)).length)
-  const byId = new Map(allKanji.map((k) => [k.id, k]))
-  const learnerById = new Map(learners.map((r) => [r.id, r]))
-  const byDue = (a: { due_at: string }, b: { due_at: string }) => Date.parse(a.due_at) - Date.parse(b.due_at)
-  const reviews = [...today.dueCards].sort(byDue).slice(0, Math.min(QUESTIONS_PER_SESSION, today.reviewRoom))
-  const learning = [...today.due].sort(byDue)
-  const now = Date.now()
-  const nextDueAt = [...learners.filter((r) => r.phase === 'learning').map((r) => r.due_at), ...cards.map((c) => c.due_at)].filter((due) => Date.parse(due) > now).sort()[0] ?? null
-  const limit = Math.min(QUESTIONS_PER_SESSION, today.room)
-
-  if (reviews.length === 0 && (learning.length === 0 || limit === 0)) {
-    const openedIds = new Set(learners.map((r) => r.kanji_id))
-    const next = limit === 0 ? [] : kanji.filter((k) => !openedIds.has(k.id)).slice(0, Math.min(INTROS_PER_SESSION, today.newToday))
-    const examplesOf = next.length > 0 ? await readExamples(supabase, user.id, next.map((k) => k.id)) : () => []
-    return {
-      intros: next.map((k) => ({ ...revealOf(k), kanjiId: k.id, examples: examplesOf(k.id) })),
-      questions: [],
-      capReached: (today.room === 0 && today.due.length > 0) || (today.reviewRoom === 0 && today.dueCards.length > 0),
-      nextDueAt,
-    }
-  }
-
-  const rows = [...reviews.map((c) => learnerById.get(c.learner_kanji_id)!), ...(limit === 0 ? [] : learning)]
-  const [{ data: logs, error }, words] = await Promise.all([
-    supabase
-      .from('kanji_logs')
-      .select('learner_kanji_id, learner_kanji_card_id, exercise_type, outcome, phase')
-      .eq('user_id', user.id)
-      .in('learner_kanji_id', rows.map((r) => r.id))
-      .order('answered_at', { ascending: false })
-      .range(0, PAGE - 1),
-    readWordOptions(supabase, user.id, rows.map((r) => r.kanji_id)),
-  ])
-  if (error) throw new Error(`Không đọc được kanji_logs: ${error.message}`)
-
-  // Câu đang học chỉ xét log giai đoạn Học; câu ôn chỉ xét log của chính Card đó
-  const logsOf = (id: string) => (logs ?? []).filter((l) => l.learner_kanji_id === id && l.learner_kanji_card_id === null)
-  const cardLogsOf = (cardId: string) => (logs ?? []).filter((l) => l.learner_kanji_card_id === cardId)
-  const toQuestion = (row: LearnerRow, exercise: KanjiExercise, wrongStreak: number, options?: number): KanjiSessionQuestion => {
-    const word = words.get(row.kanji_id) ?? null
-    return {
-      ...buildKanjiQuestion(byId.get(row.kanji_id)!, exercise, allKanji, word, Math.random, options),
-      learnerKanjiId: row.id,
-      kanjiId: row.kanji_id,
-      clientEventId: randomUUID(),
-      phase: row.phase,
-      wrongStreak,
-    }
-  }
-  const streakOf = (own: readonly LogRow[]) => {
-    const i = own.findIndex((l) => l.outcome !== 'wrong')
-    return i === -1 ? own.length : i
-  }
-
-  const reviewQuestions: KanjiSessionQuestion[] = reviews.map((card) => {
-    const own = cardLogsOf(card.id)
-    const exercise = chooseCardExercise(card.card_type, own[0]?.exercise_type ?? null)
-    return { ...toQuestion(learnerById.get(card.learner_kanji_id)!, exercise, streakOf(own), CARD_CHOICE_OPTIONS), phase: 'review', cardId: card.id, cardType: card.card_type }
-  })
-  const questions: KanjiSessionQuestion[] = []
-  const plans = (limit === 0 ? [] : learning).map((row) => {
-    const own = logsOf(row.id)
-    return { row, streak: streakOf(own), exercises: planSitting(row.points, countsFrom(own), today.leftInSitting(row), words.has(row.kanji_id)) }
-  })
-  for (let round = 0; plans.some((p) => p.exercises.length > round); round++) {
-    for (const plan of plans) {
-      if (plan.exercises.length > round) questions.push(toQuestion(plan.row, plan.exercises[round], plan.streak))
-    }
-  }
-  // Câu ôn có trần riêng; câu Học lấp phần còn lại của phiên, không vượt trần câu Học
-  const learningRoom = Math.min(limit, QUESTIONS_PER_SESSION - reviewQuestions.length)
-  return { intros: [], questions: [...reviewQuestions, ...questions.slice(0, Math.max(0, learningRoom))], capReached: false, nextDueAt }
 }
 
 /** Xem xong thẻ giới thiệu: tạo đúng một dòng, câu đầu đến hẹn ngay. Đã có thì giữ nguyên. */
@@ -505,6 +413,7 @@ async function submitCardAnswer(supabase: Supabase, userId: string, req: KanjiAn
   const { outcome, answer } = gradeKanjiAnswer(kanji, req.exercise, req.answer)
   const now = new Date()
   const schedule = reviewLongTermSchedule(scheduleOf(card), outcome, now)
+  const daySeq = await getNextDaySeq(studyDate(now))
   const { data: saved, error: rpcError } = await supabase.rpc('submit_kanji_card_answer', {
     p_card_id: card.id,
     p_client_event_id: req.clientEventId,
@@ -523,6 +432,7 @@ async function submitCardAnswer(supabase: Supabase, userId: string, req: KanjiAn
     p_reps: schedule.reps,
     p_lapses: schedule.lapses,
     p_last_review_at: schedule.lastReviewAt?.toISOString() ?? null,
+    p_day_seq: daySeq,
   })
   if (rpcError) throw new Error(`submit_kanji_card_answer lỗi: ${rpcError.message}`)
   const status = (saved as { status: string }).status
@@ -593,6 +503,7 @@ export async function submitKanjiAnswer(input: unknown): Promise<SubmitKanjiResp
     return { status: 'not_active' }
   }
 
+  const daySeq = await getNextDaySeq(today)
   const { data: saved, error: rpcError } = await supabase.rpc('submit_kanji_answer', {
     p_learner_kanji_id: row.id,
     p_client_event_id: req.clientEventId,
@@ -617,6 +528,7 @@ export async function submitKanjiAnswer(input: unknown): Promise<SubmitKanjiResp
     p_lapses: schedule.lapses,
     p_last_review_at: schedule.lastReviewAt?.toISOString() ?? null,
     p_completed: completed,
+    p_day_seq: daySeq,
   })
   if (rpcError) throw new Error(`submit_kanji_answer lỗi: ${rpcError.message}`)
   const status = (saved as { status: string }).status
@@ -634,4 +546,135 @@ export async function checkKanjiAnswer(input: unknown): Promise<SubmitKanjiRespo
   if (!row) return { status: 'not_found' }
   const { outcome, answer } = gradeKanjiAnswer(row.kanji, req.exercise, req.answer, await readWordMeaning(supabase, row.kanji_id, req.wordId))
   return { status: 'graded', outcome, answer, reveal: revealOf(row.kanji), completed: false }
+}
+
+// ---------------------------------------------------------------------------
+// V9 bài Learn (R11): ứng viên cho AIS và dựng từng câu một
+// ---------------------------------------------------------------------------
+
+let kanjiCache: { at: number; value: KanjiRow[] } | null = null
+
+async function readAllKanjiCached(supabase: Supabase): Promise<KanjiRow[]> {
+  if (kanjiCache && Date.now() - kanjiCache.at < 10 * 60_000) return kanjiCache.value
+  const value = await readAllKanji(supabase)
+  kanjiCache = { at: Date.now(), value }
+  return value
+}
+
+export interface KanjiCandidates {
+  /** Chữ đang ở giai đoạn Học, đến hạn. `left`: số câu còn của buổi hôm nay. */
+  learning: { learnerKanjiId: string; kanjiId: string; left: number; overdueDays: number }[]
+  /** Card ôn dài hạn đến hạn, trong trần Card Kanji còn lại. */
+  cards: { cardId: string; learnerKanjiId: string; kanjiId: string; overdueDays: number }[]
+  /** Chữ mới còn mở được hôm nay, theo thứ tự học. */
+  fresh: { kanjiId: string }[]
+  learningLeft: number
+  cardsLeft: number
+}
+
+const daysOverdue = (dueAt: string, now: number) => Math.max(0, Math.floor((now - Date.parse(dueAt)) / DAY_MS))
+
+export async function readKanjiCandidates(supabase: Supabase, userId: string): Promise<KanjiCandidates> {
+  const known = await readKnownKanjiIds(supabase, userId)
+  const [learners, allKanji, levels] = await Promise.all([readLearners(supabase, userId, known), readAllKanjiCached(supabase), readSkillLevels(supabase, userId)])
+  const cards = await readCards(supabase, userId, learners)
+  const opened = new Set(learners.map((r) => r.kanji_id))
+  const inLevelNotOpened = allKanji.filter((k) => !known.has(k.id) && !opened.has(k.id) && inLevel(k.jlpt_level ?? null, levels.kanji))
+  const today = await readToday(supabase, userId, learners, cards, inLevelNotOpened.length)
+  const now = Date.now()
+  const byLk = new Map(learners.map((r) => [r.id, r]))
+  return {
+    learning: today.due.map((r) => ({ learnerKanjiId: r.id, kanjiId: r.kanji_id, left: today.leftInSitting(r), overdueDays: daysOverdue(r.due_at, now) })),
+    cards: today.dueCards.map((c) => ({ cardId: c.id, learnerKanjiId: c.learner_kanji_id, kanjiId: byLk.get(c.learner_kanji_id)!.kanji_id, overdueDays: daysOverdue(c.due_at, now) })),
+    fresh: inLevelNotOpened.slice(0, today.newToday).map((k) => ({ kanjiId: k.id })),
+    learningLeft: today.room,
+    cardsLeft: today.reviewRoom,
+  }
+}
+
+/** Thẻ giới thiệu một chữ mới. */
+export async function buildKanjiIntro(supabase: Supabase, userId: string, kanjiId: string): Promise<KanjiIntroItem | null> {
+  const kanji = (await readAllKanjiCached(supabase)).find((k) => k.id === kanjiId)
+  if (!kanji) return null
+  const examplesOf = await readExamples(supabase, userId, [kanjiId])
+  return { ...revealOf(kanji), kanjiId, examples: examplesOf(kanjiId) }
+}
+
+/** Một câu Kanji: câu giai đoạn Học của chữ, hoặc câu ôn một Card. null khi chữ hoặc Card không còn cần hỏi. */
+export async function buildKanjiQuestionFor(
+  supabase: Supabase,
+  userId: string,
+  target: { learnerKanjiId: string } | { cardId: string },
+  avoid: string | null,
+): Promise<KanjiSessionQuestion | null> {
+  const allKanji = await readAllKanjiCached(supabase)
+  const byId = new Map(allKanji.map((k) => [k.id, k]))
+  const streakOf = (own: readonly { outcome: string }[]) => {
+    const i = own.findIndex((l) => l.outcome !== 'wrong')
+    return i === -1 ? own.length : i
+  }
+
+  if ('cardId' in target) {
+    const { data, error } = await supabase
+      .from('learner_kanji_cards')
+      .select(`${CARD_COLUMNS}, archived_at, learner_kanji!inner(kanji_id)`)
+      .eq('id', target.cardId)
+      .eq('user_id', userId)
+      .maybeSingle()
+    if (error) throw new Error(`Không đọc được learner_kanji_cards: ${error.message}`)
+    const card = data as unknown as (CardRow & { archived_at: string | null; learner_kanji: { kanji_id: string } }) | null
+    if (!card || card.archived_at !== null) return null
+    const { data: logs, error: logsError } = await supabase
+      .from('kanji_logs')
+      .select('exercise_type, outcome')
+      .eq('user_id', userId)
+      .eq('learner_kanji_card_id', card.id)
+      .order('answered_at', { ascending: false })
+      .range(0, 49)
+    if (logsError) throw new Error(`Không đọc được kanji_logs: ${logsError.message}`)
+    const last = logs?.[0]?.exercise_type ?? null
+    let exercise = chooseCardExercise(card.card_type, last)
+    if (exercise === avoid) exercise = chooseCardExercise(card.card_type, avoid)
+    const kanji = byId.get(card.learner_kanji.kanji_id)!
+    return {
+      ...buildKanjiQuestion(kanji, exercise, allKanji, null, Math.random, CARD_CHOICE_OPTIONS),
+      learnerKanjiId: card.learner_kanji_id,
+      kanjiId: kanji.id,
+      cardId: card.id,
+      cardType: card.card_type,
+      clientEventId: randomUUID(),
+      phase: 'review',
+      wrongStreak: streakOf(logs ?? []),
+    }
+  }
+
+  const { data, error } = await supabase.from('learner_kanji').select(LEARNER_COLUMNS).eq('id', target.learnerKanjiId).eq('user_id', userId).maybeSingle()
+  if (error) throw new Error(`Không đọc được learner_kanji: ${error.message}`)
+  const row = data as LearnerRow | null
+  if (!row || row.phase !== 'learning') return null
+  const [{ data: logs, error: logsError }, words] = await Promise.all([
+    supabase
+      .from('kanji_logs')
+      .select('exercise_type, outcome, phase')
+      .eq('user_id', userId)
+      .eq('learner_kanji_id', row.id)
+      .is('learner_kanji_card_id', null)
+      .order('answered_at', { ascending: false })
+      .range(0, PAGE - 1),
+    readWordOptions(supabase, userId, [row.kanji_id]),
+  ])
+  if (logsError) throw new Error(`Không đọc được kanji_logs: ${logsError.message}`)
+  const own = logs ?? []
+  const word = words.get(row.kanji_id) ?? null
+  const counts = countsFrom(own)
+  let exercise = chooseLearningExercise(row.points, counts, word !== null)
+  for (let i = 0; i < 6 && exercise === avoid; i++) exercise = chooseLearningExercise(row.points, counts, word !== null)
+  return {
+    ...buildKanjiQuestion(byId.get(row.kanji_id)!, exercise, allKanji, word),
+    learnerKanjiId: row.id,
+    kanjiId: row.kanji_id,
+    clientEventId: randomUUID(),
+    phase: 'learning',
+    wrongStreak: streakOf(own),
+  }
 }

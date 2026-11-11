@@ -58,7 +58,7 @@ export async function submitExercise(input: unknown): Promise<SubmitExerciseResp
   const today = studyDate(now)
 
   // 3. Đọc song song: các truy vấn không phụ thuộc nhau, chờ nối tiếp sẽ làm người học phải đợi lâu.
-  const [schedule_, earnedLogs, lastExercise, recentLogs] = await Promise.all([
+  const [schedule_, earnedLogs, lastExercise, recentLogs, lastMicro] = await Promise.all([
     // 3a. Lịch (RLS + lọc user_id: chỉ của chính mình)
     supabase
       .from('learner_stage_schedules')
@@ -92,11 +92,20 @@ export async function submitExercise(input: unknown): Promise<SubmitExerciseResp
       .eq('source', 'lesson')
       .order('answered_at', { ascending: false })
       .limit(RULES_V9.completion.correctStreak),
+    // 3e. V9: câu kiểm tra nhanh của từ hôm nay cũng đặt mốc giãn cách (R3)
+    supabase
+      .from('learn_micro_logs')
+      .select('day_seq')
+      .eq('learner_vocabulary_id', lvId)
+      .eq('study_date', today)
+      .order('day_seq', { ascending: false })
+      .limit(1),
   ])
   if (schedule_.error) throw new Error(`Không đọc được learner_stage_schedules: ${schedule_.error.message}`)
   if (earnedLogs.error) throw new Error(`Không đọc được exercise_logs: ${earnedLogs.error.message}`)
   if (lastExercise.error) throw new Error(`Không đọc được exercise_logs: ${lastExercise.error.message}`)
   if (recentLogs.error) throw new Error(`Không đọc được exercise_logs: ${recentLogs.error.message}`)
+  if (lastMicro.error) throw new Error(`Không đọc được learn_micro_logs: ${lastMicro.error.message}`)
 
   if (!schedule_.data) {
     // Không có lịch: hoặc từ không phải của mình, hoặc stage này chưa mở
@@ -114,7 +123,7 @@ export async function submitExercise(input: unknown): Promise<SubmitExerciseResp
 
   const state = rowToStageState(row, {
     earned: deriveEarned(earnedLogs.data ?? []),
-    ...deriveLastSeq((lastExercise.data ?? []).map((l) => l.day_seq as number | null), today),
+    ...deriveLastSeq([...(lastExercise.data ?? []), ...(lastMicro.data ?? [])].map((l) => l.day_seq as number | null), today),
     correctStreak: trailingCount((recentLogs.data ?? []).map((l) => l.outcome as Outcome), 'correct'),
   })
   if (!state) throw new Error(`learner_stage_schedules ${row.id} sai dạng`)
