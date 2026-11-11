@@ -6,7 +6,7 @@ File này do `pnpm kanji:visual` tạo, đừng sửa tay. Nguồn nét viết, 
 
 - Có dữ liệu KanjiVG: 823/823 chữ.
 - Không xác định được bộ thủ: 0.
-- Số nét: điền thêm 823 chữ còn trống trong kanji.csv; 0 chữ có số nét khác KanjiVG (giữ số trong file): không có.
+- Số nét: điền thêm 0 chữ còn trống trong kanji.csv; 0 chữ có số nét khác KanjiVG (giữ số trong file): không có.
 
 ## 2. Tên bộ thủ
 
@@ -14,7 +14,7 @@ Tên tiếng Việt của 214 bộ ở `data/n5/radicals.csv` do Claude soạn, 
 
 ## 3. Cặp chữ gần giống
 
-Script đề xuất 1191 cặp (so hình nét viết trên lưới, số nét chênh ≤ 2, mỗi chữ tối đa 3 cặp). Đã duyệt: 0. Chỉ cặp `approved` = `true` trong `data/n5/kanji_similar.csv` mới được dùng cho câu hỏi.
+Script đề xuất 1191 cặp (so hình nét viết trên lưới, số nét chênh ≤ 2, mỗi chữ tối đa 3 cặp). Đã duyệt: 492. Chỉ cặp `approved` = `true` trong `data/n5/kanji_similar.csv` mới được dùng cho câu hỏi.
 
 20 cặp giống nhất:
 
