@@ -48,7 +48,28 @@ async function main() {
   }
 
   const result = await runSeed({ files, db, dryRun, log: (s) => console.log(s) })
-  process.exitCode = result.ok ? 0 : 1
+  if (!result.ok) {
+    process.exitCode = 1
+    return
+  }
+
+  // V9 gói 6: dữ liệu Kanji trực quan (tuỳ chọn, chạy sau phần chính vì cần id của Kanji)
+  const optional = (name: string) => (existsSync(join(DATA_DIR, name)) ? read(name) : undefined)
+  const visualFiles = { visual: optional('kanji_visual.json'), radicals: optional('radicals.csv'), similar: optional('kanji_similar.csv') }
+  if (visualFiles.visual || visualFiles.radicals || visualFiles.similar) {
+    const { validateVisual, seedVisual } = await import('./visual')
+    const chars = new Set(files.kanji.text.split('\n').slice(1).map((line) => line.slice(0, line.indexOf(','))).filter(Boolean))
+    const data = validateVisual(visualFiles, chars)
+    if (data.errors.length > 0) {
+      console.log(`\nLỖI dữ liệu Kanji trực quan: ${data.errors.length}. Không ghi phần này.`)
+      for (const e of data.errors.slice(0, 20)) console.log(`  ✗ ${e}`)
+      process.exitCode = 1
+      return
+    }
+    console.log(`\nKanji trực quan: ${data.visuals.size} chữ, ${data.radicals.length} bộ thủ, ${data.pairs.length} cặp gần giống. Validate: OK`)
+    if (db) await seedVisual(db, data, dryRun, (s) => console.log(s))
+  }
+  process.exitCode = 0
 }
 
 main().catch((e: unknown) => {
