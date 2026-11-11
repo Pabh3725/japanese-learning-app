@@ -217,7 +217,7 @@ Mỗi từ × Stage 2, 3, 5, 6 có một lịch `ts-fsrs`, tối đa 2 ngày, kh
 | G | Xem hoạt hình thứ tự nét, tự viết ra giấy | Không phải câu hỏi: không chấm, không tính vào số câu | Có dữ liệu nét KanjiVG — CONFIRMED (2026-11-10) |
 
 - **Không** làm dạng D (điền thành phần còn thiếu). — CONFIRMED
-- **Câu hỗ trợ trong bài Learn (gói 7):** C, E, F xen vào bài Learn (CONFIRMED 2026-11-14). Tính vào số câu của bài; không điểm, không lịch, không ghi nhật ký, không tốn ngân sách `learn_cap`; chấm ngay ở trình duyệt. Tối đa 15% số câu của bài (ít nhất 2). — PROPOSED
+- **Câu hỗ trợ trong bài Learn (gói 7):** C, E, F xen vào bài Learn (CONFIRMED 2026-11-14). Tính vào số câu của bài; không điểm, không lịch, không ghi nhật ký, không tốn ngân sách `learn_cap`; chấm ngay ở trình duyệt. Tối đa 30% số câu của bài (ít nhất 2) — CONFIRMED (2026-11-14). Thời điểm hiện từng dạng — PROPOSED:
   - C: sau câu tính điểm đúng đầu tiên của chữ đang ở giai đoạn Học (với chữ mới là lần gọi lại đầu). Chỉ khi chữ có đúng hai thành phần trái–phải hoặc trên–dưới; mảnh nhiễu lấy từ thành phần của chữ khác cùng bố cục.
   - E: khi trả lời sai một câu Kanji, hoặc từ câu tính điểm thứ hai của chữ trong bài (cả câu Card). Tối đa 3 chữ nhiễu, chỉ cặp đã duyệt.
   - F: một lần mỗi bài, khi đã qua nửa bài và đã gặp ít nhất 4 chữ; ghép với nghĩa hoặc Hán Việt (ngẫu nhiên), bỏ chữ trùng nghĩa/Hán Việt.

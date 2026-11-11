@@ -70,7 +70,7 @@ const WORD_KANJI_INTROS_PER_LESSON = 5
 const BOSS_EVERY = 25
 const BOSS_MIN_WORDS = 6
 /** Câu hỗ trợ Kanji trực quan (V9 R12) chiếm tối đa phần này của bài. */
-const SUPPORT_SHARE = 0.15
+const SUPPORT_SHARE = 0.3
 /** Vòng ghép chữ cần từng này chữ đã gặp trong bài. */
 const KANJI_MATCH_MIN = 4
 
