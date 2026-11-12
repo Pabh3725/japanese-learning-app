@@ -114,7 +114,7 @@ export type StageQuestionItem = Extract<StageQuestion, { learnerVocabularyId: st
  * `avoid`: dạng bài của câu ngay trước, tránh hai câu cùng dạng liền nhau (R11), không tránh được thì thôi.
  */
 export async function buildStageQuestionFor(supabase: Supabase, userId: string, lvId: string, stage: ScoredStage, avoid: string | null): Promise<StageQuestionItem | null> {
-  const [rowRes, logsRes, started, pools] = await Promise.all([
+  const [rowRes, logsRes, started, pools, kanjiTier] = await Promise.all([
     supabase
       .from('learner_vocabulary')
       .select(`id, vocabulary_id, current_stage, kanji_intro_seen_at, vocabularies!inner(${WORD_COLUMNS}), learner_stage_schedules(stage_number, stage_points, completed_at)`)
@@ -132,9 +132,9 @@ export async function buildStageQuestionFor(supabase: Supabase, userId: string, 
       .range(0, 199),
     supabase.from('learner_vocabulary').select('vocabulary_id').eq('user_id', userId).range(0, PAGE * 2 - 1),
     loadPoolsCached(supabase),
+    // Câu dính Kanji chỉ lấy đáp án nhiễu từ chữ đã học (chỉ Stage 4–6 hiện chữ Kanji / Hán Việt; Stage 2–3 không cần đọc)
+    stage >= 4 ? readKanjiCharTier(supabase, userId) : undefined,
   ])
-  // Câu dính Kanji chỉ lấy đáp án nhiễu từ chữ đã học (chỉ Stage 4–6 hiện chữ Kanji / Hán Việt; Stage 2–3 không cần đọc)
-  const kanjiTier = stage >= 4 ? await readKanjiCharTier(supabase, userId) : undefined
   if (rowRes.error) throw new Error(`Không đọc được learner_vocabulary: ${rowRes.error.message}`)
   if (logsRes.error) throw new Error(`Không đọc được exercise_logs: ${logsRes.error.message}`)
   if (started.error) throw new Error(`Không đọc được learner_vocabulary: ${started.error.message}`)
