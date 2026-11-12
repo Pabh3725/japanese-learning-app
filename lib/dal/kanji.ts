@@ -30,6 +30,7 @@ import {
   type KanjiExercise,
   type KanjiLoadAdvice,
 } from '@/lib/kanji/rules'
+import { kanjiTier, type KanjiTier } from '@/lib/kanji/distractor-tier'
 import { newLongTermSchedule, reviewLongTermSchedule } from '@/lib/kanji/schedule'
 import { buildPartsQuestion, buildSimilarQuestion, pickMatchItems, type KanjiPart, type KanjiVisualView, type PartsQuestion, type SimilarQuestion } from '@/lib/kanji/visual'
 import type { MatchRoundData } from '@/lib/exercise/match-round'
@@ -105,6 +106,29 @@ export async function readKnownKanjiIds(supabase: Supabase, userId: string): Pro
   const { data, error } = await supabase.from('learner_kanji_exclusions').select('kanji_id').eq('user_id', userId).range(0, PAGE - 1)
   if (error) throw new Error(`Không đọc được learner_kanji_exclusions: ${error.message}`)
   return new Set(data?.map((r) => r.kanji_id))
+}
+
+/**
+ * Bậc ưu tiên làm đáp án nhiễu cho người học này: chữ đã học (đã xem thẻ giới thiệu hoặc đã đánh dấu đã biết) trước,
+ * rồi chữ sắp học cùng cấp. Dùng cho câu Kanji và câu từ vựng có Kanji (Stage 4–6).
+ */
+export async function readKanjiTier(supabase: Supabase, userId: string): Promise<KanjiTier> {
+  const opened: string[] = []
+  const [known, levels, allKanji] = await Promise.all([readKnownKanjiIds(supabase, userId), readSkillLevels(supabase, userId), readAllKanjiCached(supabase)])
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase.from('learner_kanji').select('kanji_id').eq('user_id', userId).order('id').range(from, from + PAGE - 1)
+    if (error) throw new Error(`Không đọc được learner_kanji: ${error.message}`)
+    opened.push(...(data ?? []).map((r) => r.kanji_id as string))
+    if ((data?.length ?? 0) < PAGE) break
+  }
+  return kanjiTier(allKanji, new Set([...known, ...opened]), levels.kanji)
+}
+
+/** Như readKanjiTier nhưng tra theo chữ (kho đáp án nhiễu của câu từ vựng không có id chữ). Chữ không có trong bảng xếp cuối. */
+export async function readKanjiCharTier(supabase: Supabase, userId: string): Promise<(character: string) => number> {
+  const [tierOf, allKanji] = await Promise.all([readKanjiTier(supabase, userId), readAllKanjiCached(supabase)])
+  const byChar = new Map(allKanji.map((k) => [k.character, tierOf(k)]))
+  return (character) => byChar.get(character) ?? Number.POSITIVE_INFINITY
 }
 
 /** Chữ đã đánh dấu là đã biết thì không còn trong khu Kanji; dòng tiến độ vẫn giữ để khôi phục. */
@@ -611,7 +635,7 @@ export async function buildKanjiQuestionFor(
   target: { learnerKanjiId: string } | { cardId: string },
   avoid: string | null,
 ): Promise<KanjiSessionQuestion | null> {
-  const allKanji = await readAllKanjiCached(supabase)
+  const [allKanji, tierOf] = await Promise.all([readAllKanjiCached(supabase), readKanjiTier(supabase, userId)])
   const byId = new Map(allKanji.map((k) => [k.id, k]))
   const streakOf = (own: readonly { outcome: string }[]) => {
     const i = own.findIndex((l) => l.outcome !== 'wrong')
@@ -641,7 +665,7 @@ export async function buildKanjiQuestionFor(
     if (exercise === avoid) exercise = chooseCardExercise(card.card_type, avoid)
     const kanji = byId.get(card.learner_kanji.kanji_id)!
     return {
-      ...(await withVisual(supabase, buildKanjiQuestion(kanji, exercise, allKanji, null, Math.random, CARD_CHOICE_OPTIONS), kanji.id)),
+      ...(await withVisual(supabase, buildKanjiQuestion(kanji, exercise, allKanji, null, Math.random, CARD_CHOICE_OPTIONS, [], tierOf), kanji.id)),
       learnerKanjiId: card.learner_kanji_id,
       kanjiId: kanji.id,
       cardId: card.id,
@@ -676,7 +700,7 @@ export async function buildKanjiQuestionFor(
   let exercise = chooseLearningExercise(row.points, counts, word !== null, Math.random, hasSimilar)
   for (let i = 0; i < 6 && exercise === avoid; i++) exercise = chooseLearningExercise(row.points, counts, word !== null, Math.random, hasSimilar)
   return {
-    ...(await withVisual(supabase, buildKanjiQuestion(byId.get(row.kanji_id)!, exercise, allKanji, word, Math.random, undefined, similar), row.kanji_id)),
+    ...(await withVisual(supabase, buildKanjiQuestion(byId.get(row.kanji_id)!, exercise, allKanji, word, Math.random, undefined, similar, tierOf), row.kanji_id)),
     learnerKanjiId: row.id,
     kanjiId: row.kanji_id,
     clientEventId: randomUUID(),

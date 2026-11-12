@@ -9,6 +9,7 @@ import { isHanVietAnswerCorrect, isKanaAnswerCorrect } from './answer-normalize'
 import { KANA_DISTRACTORS_MAX, mixKanaPieces, pickKanaDistractors, splitKana } from './kana-pieces'
 import { sameMeaning, type Rng } from './questions'
 import { kanaSimilarity, kanjiSimilarity, lookalikeKanji } from './similarity'
+import { rankByTier, TIER_LEARNED } from '../kanji/distractor-tier'
 import { expressionTemplate, hanVietPieces, kanjiPieces, meaningPieces, type ExpressionPart } from './word-parts'
 
 export interface StageWord {
@@ -62,6 +63,11 @@ export interface QuestionPools {
   kanji: readonly KanjiRow[]
   /** Các từ người học đã gặp: được ưu tiên làm đáp án nhiễu. */
   learnedWordIds?: ReadonlySet<string>
+  /**
+   * Bậc ưu tiên của một chữ Kanji khi làm đáp án nhiễu (lib/kanji/distractor-tier.ts): chữ đã học trước, rồi chữ sắp học
+   * cùng cấp. Có thì câu dính tới Kanji chỉ lấy nhiễu theo bậc này, để chữ quen không tự lộ đáp án. Không có thì như cũ.
+   */
+  kanjiTier?: (character: string) => number
 }
 
 export interface PromptData {
@@ -230,6 +236,10 @@ function pickWordDistractors(
   score: DistractorScore,
 ): string[] {
   const learned = pools.learnedWordIds
+  // Lựa chọn hiện chữ Kanji hoặc Hán Việt: từ mà mọi chữ đều đã học được lấy trước (bậc của từ = bậc của chữ khó nhất)
+  const tier = pools.kanjiTier
+  const kanjiText = textOf === KANJI_WORD_TEXT || textOf === HANVIET_TEXT
+  const wordTier = (w: StageWord) => (tier && kanjiText ? Math.max(0, ...kanjiPieces(w.expression).map(tier)) : 0)
   const ordered = pools.words
     .filter(
       (w) =>
@@ -239,8 +249,8 @@ function pickWordDistractors(
         w.expression !== target.expression &&
         (w.han_viet === null || w.han_viet !== target.han_viet),
     )
-    .map((word) => ({ word, value: score(word) + (learned?.has(word.id) ? LEARNED_BONUS : 0) + rng() * JITTER }))
-    .sort((a, b) => b.value - a.value)
+    .map((word) => ({ word, tier: wordTier(word), value: score(word) + (learned?.has(word.id) ? LEARNED_BONUS : 0) + rng() * JITTER }))
+    .sort((a, b) => a.tier - b.tier || b.value - a.value)
 
   const answer = textOf(target)
   const picked: string[] = []
@@ -266,8 +276,8 @@ function kanjiCharMeaning(word: StageWord, pools: QuestionPools, rng: Rng): Choi
   const lookalike = new Set(lookalikeKanji(char))
   const options = pools.kanji
     .filter((k) => !ownMeanings.has(k.meaning_vi) && !chars.includes(k.character))
-    .map((k) => ({ meaning: k.meaning_vi, value: (lookalike.has(k.character) ? 3 : 0) + rng() * JITTER }))
-    .sort((a, b) => b.value - a.value)
+    .map((k) => ({ meaning: k.meaning_vi, tier: pools.kanjiTier?.(k.character) ?? 0, value: (lookalike.has(k.character) ? 3 : 0) + rng() * JITTER }))
+    .sort((a, b) => a.tier - b.tier || b.value - a.value)
     .map((o) => o.meaning)
   return {
     kind: 'choice',
@@ -292,9 +302,19 @@ function pickPieceDistractors(answer: readonly string[], candidates: readonly st
 /** Mảnh Kanji nhiễu: chữ dễ nhầm trước, rồi chữ trong các từ đã học, cuối cùng là bảng Kanji. */
 function kanjiPieceDistractors(pieces: readonly string[], pools: QuestionPools, count: number, rng: Rng): string[] {
   const lookalike = pieces.flatMap((p) => lookalikeKanji(p)).filter((c) => !pieces.includes(c))
+  const tier = pools.kanjiTier
+  const picked: string[] = []
+  if (tier) {
+    // Chữ dễ nhầm đã học trước, rồi chữ đã học, rồi chữ sắp học cùng cấp
+    const learnedLookalike = shuffle(lookalike.filter((c) => tier(c) === TIER_LEARNED), rng)
+    const ranked = rankByTier(pools.kanji.map((k) => k.character), tier, rng)
+    for (const char of [...learnedLookalike, ...ranked]) {
+      if (picked.length < count && !pieces.includes(char) && !picked.includes(char) && char !== '々') picked.push(char)
+    }
+    return picked
+  }
   const learned = pools.learnedWordIds
   const fromLearned = learned ? pools.words.filter((w) => learned.has(w.id)).flatMap((w) => kanjiPieces(w.expression)) : []
-  const picked: string[] = []
   for (const source of [lookalike, fromLearned, pools.kanji.map((k) => k.character)]) {
     for (const char of pickPieceDistractors(pieces, source, count, rng)) {
       if (picked.length < count && !picked.includes(char) && char !== '々') picked.push(char)
@@ -403,7 +423,11 @@ function kanjiAssembly(word: StageWord, pools: QuestionPools, exercise: Exercise
 
 function hanVietAssembly(word: StageWord, pools: QuestionPools, rng: Rng, extra: number): AssemblyQuestionData {
   const pieces = hanVietPieces(word.han_viet ?? '')
-  const others = pickPieceDistractors(pieces, pools.kanji.map((k) => k.han_viet), Math.min(MAX_POOL - pieces.length, Math.max(3, pieces.length) + extra), rng)
+  const count = Math.min(MAX_POOL - pieces.length, Math.max(3, pieces.length) + extra)
+  const tier = pools.kanjiTier
+  const others = tier
+    ? [...new Set(rankByTier(pools.kanji, (k) => tier(k.character), rng).map((k) => k.han_viet))].filter((h) => !pieces.includes(h)).slice(0, count)
+    : pickPieceDistractors(pieces, pools.kanji.map((k) => k.han_viet), count, rng)
   return {
     kind: 'assembly',
     exercise: 'hanviet_assembly',

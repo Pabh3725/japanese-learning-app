@@ -1,6 +1,7 @@
 // Câu hỏi và cách chấm của khu Kanji. Pure. Đáp án nhiễu không được tạo thêm một đáp án đúng.
 import { toHiragana } from 'wanakana'
 import type { Outcome } from '../learning/types'
+import { rankByTier, type KanjiTier } from './distractor-tier'
 import type { KanjiExercise } from './rules'
 import { buildSimilarQuestion, type KanjiVisualView } from './visual'
 
@@ -90,8 +91,9 @@ const sharesMeaning = (a: KanjiRow, b: KanjiRow) => {
 }
 const sharesHanViet = (a: KanjiRow, b: KanjiRow) => plainHanViet(a.han_viet) === plainHanViet(b.han_viet)
 
-function distinct(values: readonly string[], exclude: ReadonlySet<string>, rng: Rng, options = OPTIONS): string[] {
-  return shuffled([...new Set(values)].filter((value) => !exclude.has(value)), rng).slice(0, options - 1)
+/** Lấy đáp án nhiễu theo đúng thứ tự `values` (đã xếp theo bậc ưu tiên), bỏ trùng và bỏ giá trị bị loại. */
+function distinct(values: readonly string[], exclude: ReadonlySet<string>, options = OPTIONS): string[] {
+  return [...new Set(values)].filter((value) => !exclude.has(value)).slice(0, options - 1)
 }
 
 function readingsOf(kanji: KanjiRow): string[] {
@@ -110,6 +112,7 @@ export function revealOf(kanji: KanjiRow): KanjiReveal {
 
 /** `options`: số lựa chọn của câu trắc nghiệm (4 khi Học, 6 khi ôn Card). */
 /** `similar`: chữ gần giống đã duyệt (câu similar_kanji). */
+/** `tierOf`: bậc ưu tiên làm đáp án nhiễu (distractor-tier.ts): chữ đã học trước. Mặc định mọi chữ ngang nhau. */
 export function buildKanjiQuestion(
   kanji: KanjiRow,
   exercise: KanjiExercise,
@@ -118,8 +121,9 @@ export function buildKanjiQuestion(
   rng: Rng = Math.random,
   options = OPTIONS,
   similar: readonly { other: string; explanation: string }[] = [],
+  tierOf: KanjiTier = () => 0,
 ): KanjiQuestionData {
-  const others = pool.filter((other) => other.id !== kanji.id)
+  const others = rankByTier(pool.filter((other) => other.id !== kanji.id), tierOf, rng)
   const speak = readingsOf(kanji)[0] ?? ''
   const base = { exercise, speak, reveal: revealOf(kanji) }
   const character: KanjiPrompt = { display: kanji.character, kind: 'vocab' }
@@ -135,19 +139,19 @@ export function buildKanjiQuestion(
 
   switch (exercise) {
     case 'kanji_to_meaning': {
-      const wrong = distinct(others.filter((o) => !sharesMeaning(kanji, o)).map((o) => o.meaning_vi), new Set([kanji.meaning_vi]), rng)
+      const wrong = distinct(others.filter((o) => !sharesMeaning(kanji, o)).map((o) => o.meaning_vi), new Set([kanji.meaning_vi]))
       return choice('What does this Kanji mean?', character, kanji.meaning_vi, wrong, 'meaning')
     }
     case 'kanji_to_hanviet': {
-      const wrong = distinct(others.filter((o) => !sharesHanViet(kanji, o)).map((o) => o.han_viet), new Set([kanji.han_viet]), rng)
+      const wrong = distinct(others.filter((o) => !sharesHanViet(kanji, o)).map((o) => o.han_viet), new Set([kanji.han_viet]))
       return choice('What is its Sino-Vietnamese reading?', character, kanji.han_viet, wrong, 'meaning')
     }
     case 'pick_kanji': {
-      const wrong = distinct(others.filter((o) => !sharesMeaning(kanji, o)).map((o) => o.character), new Set([kanji.character]), rng, options)
+      const wrong = distinct(others.filter((o) => !sharesMeaning(kanji, o)).map((o) => o.character), new Set([kanji.character]), options)
       return choice('Which Kanji means this?', { display: kanji.meaning_vi, kind: 'meaning' }, kanji.character, wrong, 'vocab')
     }
     case 'hanviet_to_kanji': {
-      const wrong = distinct(others.filter((o) => !sharesHanViet(kanji, o)).map((o) => o.character), new Set([kanji.character]), rng, options)
+      const wrong = distinct(others.filter((o) => !sharesHanViet(kanji, o)).map((o) => o.character), new Set([kanji.character]), options)
       return choice('Which Kanji has this Sino-Vietnamese reading?', { display: kanji.han_viet, kind: 'meaning' }, kanji.character, wrong, 'vocab')
     }
     case 'similar_kanji': {
@@ -163,7 +167,7 @@ export function buildKanjiQuestion(
       const answer = own[Math.floor(rng() * own.length)]
       // Đáp án nhiễu cùng loại âm, và không trùng bất kỳ âm nào của chữ này
       const wrongPool = others.flatMap((o) => (useOn ? o.onyomi : o.kunyomi).map(showReading))
-      const wrong = distinct(wrongPool, new Set(readingsOf(kanji)), rng)
+      const wrong = distinct(wrongPool, new Set(readingsOf(kanji)))
       return choice(useOn ? 'Which is its On reading?' : 'Which is its Kun reading?', character, answer, wrong, 'kana')
     }
     case 'hanviet_typing':
@@ -183,7 +187,7 @@ export function buildKanjiQuestion(
       return { ...base, kind: 'self', question: 'Write this Kanji, then check', prompt: { display: `${kanji.meaning_vi} · ${kanji.han_viet}`, kind: 'meaning' }, answer: kanji.character }
     case 'word_meaning': {
       if (!word) throw new Error('word_meaning cần một từ đã gặp')
-      const wrong = distinct(word.distractors, new Set([word.meaning]), rng)
+      const wrong = distinct(shuffled(word.distractors, rng), new Set([word.meaning]))
       return { ...choice(`What does this word with ${kanji.character} mean?`, { display: word.expression, kind: 'vocab' }, word.meaning, wrong, 'meaning'), speak: word.reading, wordId: word.id }
     }
   }
