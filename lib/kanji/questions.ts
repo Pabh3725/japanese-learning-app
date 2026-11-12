@@ -121,9 +121,11 @@ export function buildKanjiQuestion(
   rng: Rng = Math.random,
   options = OPTIONS,
   similar: readonly { other: string; explanation: string }[] = [],
-  tierOf: KanjiTier = () => 0,
+  tierOf?: KanjiTier,
 ): KanjiQuestionData {
-  const others = rankByTier(pool.filter((other) => other.id !== kanji.id), tierOf, rng)
+  // Không có bậc thì chỉ xáo trộn (sắp xếp cả bảng chữ cho mỗi câu là thừa khi mọi chữ ngang nhau)
+  const rest = pool.filter((other) => other.id !== kanji.id)
+  const others = tierOf ? rankByTier(rest, tierOf, rng) : shuffled(rest, rng)
   const speak = readingsOf(kanji)[0] ?? ''
   const base = { exercise, speak, reveal: revealOf(kanji) }
   const character: KanjiPrompt = { display: kanji.character, kind: 'vocab' }
