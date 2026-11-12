@@ -19,7 +19,21 @@ const MAX_ROWS = 1000
 
 const DAY_MS = 86_400_000
 
+/**
+ * Nội dung từ vựng chỉ đổi khi seed, nên giữ trong bộ nhớ một lúc như kho đáp án nhiễu (loadPoolsCached):
+ * bài Learn gọi getIntroData ở mỗi thẻ từ mới, mỗi lần đọc lại cả bảng là hai trang nối tiếp nhau.
+ */
+let vocabularyCache: { at: number; value: IntroVocabRow[] } | null = null
+const VOCABULARY_TTL_MS = 10 * 60_000
+
 async function readAllVocabulary(supabase: Awaited<ReturnType<typeof createClient>>): Promise<IntroVocabRow[]> {
+  if (vocabularyCache && Date.now() - vocabularyCache.at < VOCABULARY_TTL_MS) return vocabularyCache.value
+  const value = await readAllVocabularyFresh(supabase)
+  vocabularyCache = { at: Date.now(), value }
+  return value
+}
+
+async function readAllVocabularyFresh(supabase: Awaited<ReturnType<typeof createClient>>): Promise<IntroVocabRow[]> {
   const rows: IntroVocabRow[] = []
   for (let from = 0; ; from += MAX_ROWS) {
     const { data, error } = await supabase
