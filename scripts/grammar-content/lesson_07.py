@@ -310,4 +310,7 @@ p5 = point(7, 5, 'もう V ました／まだです', 'Đã … rồi / Chưa',
     ],
     notes='Trả lời "chưa" bằng いいえ、まだです; nói いいえ、まだ食べませんでした là sai.')
 
+# Chủ dự án duyệt bài 7 ngày 2026-11-12
+for p in (p1, p2, p3, p4, p5,):
+    p['approved'] = True
 write(7, [p1, p2, p3, p4, p5])

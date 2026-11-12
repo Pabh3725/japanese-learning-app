@@ -7,7 +7,7 @@
    "pattern": "N は い-adj／な-adj です",
    "meaning": "N thì (tính chất)",
    "explanation": "Tính từ tiếng Nhật có hai loại. Tính từ い kết thúc bằng い: 高い (đắt), おもしろい (thú vị). Tính từ な: 静か (yên tĩnh), 親切 (tử tế). Khẳng định đều thêm です: 高いです, 静かです. Phủ định khác nhau: tính từ い bỏ い thêm くないです (高くないです; いい → よくないです); tính từ な thêm じゃありません như danh từ (静かじゃありません). Nói 高いじゃありません là sai.",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g08-01-s01",
@@ -1476,7 +1476,7 @@
    "pattern": "な-adj な N／い-adj N",
    "meaning": "N (có tính chất)",
    "explanation": "Tính từ đứng trước danh từ để bổ nghĩa. Tính từ い giữ nguyên: 高い時計 (đồng hồ đắt), おもしろい本 (sách hay). Tính từ な thêm な: 静かな町 (thành phố yên tĩnh), 親切な人 (người tử tế). Không thêm の: 静かの町, 高いの時計 đều sai.",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g08-02-s01",
@@ -2894,7 +2894,7 @@
    "pattern": "とても／あまり",
    "meaning": "Rất / không … lắm",
    "explanation": "とても (rất) đứng trước tính từ ở câu khẳng định: とてもおもしろいです. あまり (không … lắm) chỉ đi với câu phủ định: あまりおもしろくないです (không thú vị lắm), あまり静かじゃありません. Nói あまりおもしろいです là sai.",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g08-03-s01",
@@ -4313,7 +4313,7 @@
    "pattern": "N は どうですか",
    "meaning": "N thế nào?",
    "explanation": "どうですか hỏi cảm nhận, ý kiến về một thứ: 日本の生活はどうですか (cuộc sống ở Nhật thế nào?). Trả lời bằng tính từ: とても楽しいです. Cũng dùng để mời: お茶はどうですか (bạn dùng trà nhé?).",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g08-04-s01",
@@ -6058,7 +6058,7 @@
    "pattern": "N1 は どんな N2 ですか",
    "meaning": "N1 là N2 như thế nào?",
    "explanation": "どんな + danh từ hỏi tính chất, đặc điểm của người hay vật: シャンハイはどんな町ですか (Thượng Hải là thành phố như thế nào?). Trả lời bằng tính từ + danh từ: にぎやかな町です. Khác どう: どう đứng một mình (～はどうですか), どんな luôn đi kèm danh từ.",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g08-05-s01",
@@ -7840,7 +7840,7 @@
    "pattern": "S1 が、S2／そして",
    "meaning": "… nhưng … / và, thêm nữa",
    "explanation": "が nối hai câu có ý trái ngược, đặt cuối câu thứ nhất trước dấu phẩy: 日本の食べ物はおいしいですが、高いです (đồ ăn Nhật ngon nhưng đắt). そして đứng đầu câu thứ hai để nối hai ý cùng chiều: この町はきれいです。そして、にぎやかです (thành phố này đẹp. Và nhộn nhịp nữa).",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g08-06-s01",

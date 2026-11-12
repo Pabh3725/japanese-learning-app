@@ -1,12 +1,12 @@
 # Duyệt nội dung ngữ pháp bài 6–10
 
-Gói G6. Giải thích và câu do Claude tự soạn; danh sách mẫu theo các trang tổng hợp ngữ pháp Minna no Nihongo trên mạng. **Còn 26 mẫu chờ chủ dự án duyệt.** Với mỗi mẫu: đọc giải thích và 5 câu tiêu biểu. 25 câu còn lại đã qua kiểm tra tự động; thấy câu nào sai thì ghi mã câu (ví dụ g01-03-s12) để Claude sửa hoặc ẩn.
+Gói G6. Giải thích và câu do Claude tự soạn; danh sách mẫu theo các trang tổng hợp ngữ pháp Minna no Nihongo trên mạng. **Chủ dự án đã duyệt tất cả các mẫu trong file này.** Với mỗi mẫu: đọc giải thích và 5 câu tiêu biểu. 25 câu còn lại đã qua kiểm tra tự động; thấy câu nào sai thì ghi mã câu (ví dụ g01-03-s12) để Claude sửa hoặc ẩn.
 
 Cách đọc: chỗ **in đậm** là chỗ được hỏi (trợ từ, dạng です/động từ, hậu tố); "nhiễu" là các đáp án sai chắc chắn ở chỗ đó.
 
 ## Bài 6
 
-### g06-01 · N を V — Làm V (tác động lên N)  ⏳ chờ duyệt
+### g06-01 · N を V — Làm V (tác động lên N)  ✅ đã duyệt
 
 を (đọc là "o") đứng sau tân ngữ, tức là thứ chịu tác động của động từ: パンを食べます (ăn bánh mì), 水を飲みます (uống nước), 手紙を書きます (viết thư). Với danh từ chỉ hoạt động như サッカー, テニス, 宿題, お花見 thì dùng N をします: サッカーをします (chơi bóng đá), 宿題をします (làm bài tập).
 
@@ -92,7 +92,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 </details>
 
-### g06-02 · 何を しますか — Làm gì?  ⏳ chờ duyệt
+### g06-02 · 何を しますか — Làm gì?  ✅ đã duyệt
 
 何をしますか hỏi người khác làm gì; thay します bằng động từ khác để hỏi ăn gì, uống gì, mua gì: 何を食べますか. Trả lời bằng N を V. Chữ 何 có hai cách đọc: なに khi đứng trước を (何を, 何も); なん khi đứng trước です, の và từ chỉ đơn vị (何ですか, 何の本, 何時). Câu 何も ＋ phủ định nghĩa là "không … gì cả".
 
@@ -191,7 +191,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 </details>
 
-### g06-03 · N (nơi chốn) で V — Làm V ở N  ⏳ chờ duyệt
+### g06-03 · N (nơi chốn) で V — Làm V ở N  ✅ đã duyệt
 
 で đứng sau nơi chốn để chỉ chỗ hành động diễn ra: 図書館で本を読みます (đọc sách ở thư viện), スーパーで肉を買います (mua thịt ở siêu thị). Khác へ／に ở bài 5 là chỉ hướng đi đến. Hỏi bằng どこで: どこで昼ごはんを食べますか.
 
@@ -281,7 +281,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 </details>
 
-### g06-04 · V ませんか — Bạn có … cùng không? (mời)  ⏳ chờ duyệt
+### g06-04 · V ませんか — Bạn có … cùng không? (mời)  ✅ đã duyệt
 
 V ませんか là cách mời lịch sự, nghĩa là "bạn có … (cùng tôi) không?": いっしょに映画を見ませんか. Hay đi với いっしょに (cùng nhau). Nhận lời: ええ、いいですね (vâng, hay quá). Từ chối khéo: ちょっと… (… thì e là không được). Dùng ませんか thay cho ますか để mời vì nó nhường quyền quyết định cho người nghe.
 
@@ -367,7 +367,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 </details>
 
-### g06-05 · V ましょう — Cùng … nhé (rủ)  ⏳ chờ duyệt
+### g06-05 · V ましょう — Cùng … nhé (rủ)  ✅ đã duyệt
 
 V ましょう nghĩa là "chúng ta cùng … nhé", dùng để rủ hoặc chủ động đề nghị: いっしょに行きましょう. Cũng dùng để nhận lời mời: 行きませんか → ええ、行きましょう. Khác ませんか: ませんか hỏi ý người nghe, ましょう là người nói đã muốn làm và kéo người nghe cùng làm.
 
@@ -455,7 +455,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 ## Bài 7
 
-### g07-01 · N (dụng cụ, cách thức) で V — Làm V bằng N  ⏳ chờ duyệt
+### g07-01 · N (dụng cụ, cách thức) で V — Làm V bằng N  ✅ đã duyệt
 
 で đứng sau dụng cụ hoặc cách thức dùng để làm việc: はしでごはんを食べます (ăn cơm bằng đũa), パソコンでレポートを書きます (viết báo cáo bằng máy tính). Ngôn ngữ cũng dùng で: 日本語で手紙を書きます (viết thư bằng tiếng Nhật). Hỏi bằng 何で (なにで): 何でごはんを食べますか.
 
@@ -546,7 +546,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 </details>
 
-### g07-02 · 「từ / câu」は ～語で 何ですか — "…" trong tiếng ~ là gì?  ⏳ chờ duyệt
+### g07-02 · 「từ / câu」は ～語で 何ですか — "…" trong tiếng ~ là gì?  ✅ đã duyệt
 
 Dùng để hỏi một từ hay một câu nói bằng ngôn ngữ khác thế nào: 「ありがとう」は英語で何ですか ("ありがとう" trong tiếng Anh là gì?). で ở đây là "bằng (ngôn ngữ)", giống で ở mẫu trước. Trả lời: 「Thank you」です. Từ được hỏi đặt trong ngoặc 「」.
 
@@ -632,7 +632,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 </details>
 
-### g07-03 · N (người) に あげます／貸します／教えます／送ります — Cho / tặng / cho mượn / dạy / gửi cho N  ⏳ chờ duyệt
+### g07-03 · N (người) に あげます／貸します／教えます／送ります — Cho / tặng / cho mượn / dạy / gửi cho N  ✅ đã duyệt
 
 に đứng sau người nhận khi hành động hướng từ mình (hoặc người khác) sang họ: ミラーさんに花をあげます (tặng hoa cho anh Miller), 友達に本を貸します (cho bạn mượn sách), ワンさんに日本語を教えます (dạy tiếng Nhật cho anh Wang). Mẫu đầy đủ: [người cho] は [người nhận] に [vật] を V. Hỏi người nhận bằng 誰に.
 
@@ -721,7 +721,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 </details>
 
-### g07-04 · N (người) に／から もらいます／借ります／習います — Nhận / mượn / học từ N  ⏳ chờ duyệt
+### g07-04 · N (người) に／から もらいます／借ります／習います — Nhận / mượn / học từ N  ✅ đã duyệt
 
 Ngược với mẫu trước: người nhận làm chủ ngữ, người cho đi với に hoặc から: ミラーさんに花をもらいます (nhận hoa từ anh Miller), 友達に本を借ります (mượn sách của bạn), 先生に日本語を習います (học tiếng Nhật với thầy). Khi người cho là công ty, trường học… thì chỉ dùng から: 会社からお金をもらいます.
 
@@ -813,7 +813,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 </details>
 
-### g07-05 · もう V ました／まだです — Đã … rồi / Chưa  ⏳ chờ duyệt
+### g07-05 · もう V ました／まだです — Đã … rồi / Chưa  ✅ đã duyệt
 
 もう V ましたか hỏi việc gì đó đã làm chưa: もう昼ごはんを食べましたか (bạn đã ăn trưa chưa?). Đã làm: はい、もう食べました. Chưa làm: いいえ、まだです (chưa). Không trả lời bằng ～ませんでした, vì ～ませんでした nghĩa là "đã không làm" (việc đã qua), còn まだです là "chưa, nhưng sẽ làm".
 
@@ -914,7 +914,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 ## Bài 8
 
-### g08-01 · N は い-adj／な-adj です — N thì (tính chất)  ⏳ chờ duyệt
+### g08-01 · N は い-adj／な-adj です — N thì (tính chất)  ✅ đã duyệt
 
 Tính từ tiếng Nhật có hai loại. Tính từ い kết thúc bằng い: 高い (đắt), おもしろい (thú vị). Tính từ な: 静か (yên tĩnh), 親切 (tử tế). Khẳng định đều thêm です: 高いです, 静かです. Phủ định khác nhau: tính từ い bỏ い thêm くないです (高くないです; いい → よくないです); tính từ な thêm じゃありません như danh từ (静かじゃありません). Nói 高いじゃありません là sai.
 
@@ -1006,7 +1006,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 </details>
 
-### g08-02 · な-adj な N／い-adj N — N (có tính chất)  ⏳ chờ duyệt
+### g08-02 · な-adj な N／い-adj N — N (có tính chất)  ✅ đã duyệt
 
 Tính từ đứng trước danh từ để bổ nghĩa. Tính từ い giữ nguyên: 高い時計 (đồng hồ đắt), おもしろい本 (sách hay). Tính từ な thêm な: 静かな町 (thành phố yên tĩnh), 親切な人 (người tử tế). Không thêm の: 静かの町, 高いの時計 đều sai.
 
@@ -1092,7 +1092,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 </details>
 
-### g08-03 · とても／あまり — Rất / không … lắm  ⏳ chờ duyệt
+### g08-03 · とても／あまり — Rất / không … lắm  ✅ đã duyệt
 
 とても (rất) đứng trước tính từ ở câu khẳng định: とてもおもしろいです. あまり (không … lắm) chỉ đi với câu phủ định: あまりおもしろくないです (không thú vị lắm), あまり静かじゃありません. Nói あまりおもしろいです là sai.
 
@@ -1181,7 +1181,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 </details>
 
-### g08-04 · N は どうですか — N thế nào?  ⏳ chờ duyệt
+### g08-04 · N は どうですか — N thế nào?  ✅ đã duyệt
 
 どうですか hỏi cảm nhận, ý kiến về một thứ: 日本の生活はどうですか (cuộc sống ở Nhật thế nào?). Trả lời bằng tính từ: とても楽しいです. Cũng dùng để mời: お茶はどうですか (bạn dùng trà nhé?).
 
@@ -1282,7 +1282,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 </details>
 
-### g08-05 · N1 は どんな N2 ですか — N1 là N2 như thế nào?  ⏳ chờ duyệt
+### g08-05 · N1 は どんな N2 ですか — N1 là N2 như thế nào?  ✅ đã duyệt
 
 どんな + danh từ hỏi tính chất, đặc điểm của người hay vật: シャンハイはどんな町ですか (Thượng Hải là thành phố như thế nào?). Trả lời bằng tính từ + danh từ: にぎやかな町です. Khác どう: どう đứng một mình (～はどうですか), どんな luôn đi kèm danh từ.
 
@@ -1385,7 +1385,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 </details>
 
-### g08-06 · S1 が、S2／そして — … nhưng … / và, thêm nữa  ⏳ chờ duyệt
+### g08-06 · S1 が、S2／そして — … nhưng … / và, thêm nữa  ✅ đã duyệt
 
 が nối hai câu có ý trái ngược, đặt cuối câu thứ nhất trước dấu phẩy: 日本の食べ物はおいしいですが、高いです (đồ ăn Nhật ngon nhưng đắt). そして đứng đầu câu thứ hai để nối hai ý cùng chiều: この町はきれいです。そして、にぎやかです (thành phố này đẹp. Và nhộn nhịp nữa).
 
@@ -1482,7 +1482,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 ## Bài 9
 
-### g09-01 · N が あります／わかります — Có N / hiểu N  ⏳ chờ duyệt
+### g09-01 · N が あります／わかります — Có N / hiểu N  ✅ đã duyệt
 
 あります (có) và わかります (hiểu) dùng が, không dùng を: 私は車があります (tôi có ô tô), ミラーさんは日本語がわかります (anh Miller hiểu tiếng Nhật). Người có / người hiểu đi với は. Phủ định: ありません, わかりません. あります ở đây là "sở hữu" (có tiền, có thời gian, có hẹn).
 
@@ -1572,7 +1572,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 </details>
 
-### g09-02 · N が 好きです／嫌いです／上手です／下手です — Thích / ghét / giỏi / kém N  ⏳ chờ duyệt
+### g09-02 · N が 好きです／嫌いです／上手です／下手です — Thích / ghét / giỏi / kém N  ✅ đã duyệt
 
 好き (thích), 嫌い (ghét), 上手 (giỏi), 下手 (kém) là tính từ な; thứ được thích, thứ mình giỏi đi với が: 私は料理が好きです (tôi thích nấu ăn), カリナさんは絵が上手です (chị Karina vẽ giỏi). Hỏi loại nào bằng どんな: どんなスポーツが好きですか. 上手 dùng để khen người khác, không tự khen mình.
 
@@ -1664,7 +1664,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 </details>
 
-### g09-03 · よく／だいたい／たくさん／少し／あまり／全然 — Mức độ, số lượng  ⏳ chờ duyệt
+### g09-03 · よく／だいたい／たくさん／少し／あまり／全然 — Mức độ, số lượng  ✅ đã duyệt
 
 Các phó từ đứng trước động từ để chỉ mức độ: よくわかります (hiểu rõ), だいたいわかります (hiểu đại khái), 少しわかります (hiểu một chút); chỉ số lượng: お金がたくさんあります (có nhiều tiền), 少しあります. あまり (không … lắm) và 全然 (hoàn toàn không) chỉ đi với phủ định: あまりわかりません, 全然わかりません. よく đi với động từ còn có nghĩa "thường xuyên": よく聞きます.
 
@@ -1764,7 +1764,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 </details>
 
-### g09-04 · S1 から、S2 — Vì S1 nên S2  ⏳ chờ duyệt
+### g09-04 · S1 から、S2 — Vì S1 nên S2  ✅ đã duyệt
 
 から đặt cuối câu thứ nhất để nêu lý do, câu thứ hai là kết quả: 時間がありませんから、新聞を読みません (vì không có thời gian nên tôi không đọc báo). Thứ tự luôn là lý do trước, kết quả sau. Khác から ở bài 4 (từ … đến): ở đây から đứng sau cả một câu.
 
@@ -1864,7 +1864,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 </details>
 
-### g09-05 · どうして ～か — ～から — Tại sao? — Vì …  ⏳ chờ duyệt
+### g09-05 · どうして ～か — ～から — Tại sao? — Vì …  ✅ đã duyệt
 
 どうして hỏi lý do: どうして早く帰りますか (tại sao bạn về sớm?). Trả lời bằng lý do + から: 用事がありますから (vì tôi có việc bận). Câu trả lời có thể bỏ phần kết quả, chỉ giữ lý do + から.
 
@@ -1969,7 +1969,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 ## Bài 10
 
-### g10-01 · N が あります／います — Có N (tồn tại)  ⏳ chờ duyệt
+### g10-01 · N が あります／います — Có N (tồn tại)  ✅ đã duyệt
 
 あります và います đều nghĩa là "có, ở" (tồn tại). あります dùng cho đồ vật, cây cối, nơi chốn: 箱があります. います dùng cho người và động vật (thứ tự cử động được): 犬がいます, 男の人がいます. Thứ tồn tại đi với が. Phủ định: ありません, いません.
 
@@ -2085,7 +2085,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 </details>
 
-### g10-02 · N (nơi chốn) に N が あります／います — Ở N1 có N2  ⏳ chờ duyệt
+### g10-02 · N (nơi chốn) に N が あります／います — Ở N1 có N2  ✅ đã duyệt
 
 Nơi chốn + に + thứ tồn tại + が + あります／います: 公園に木があります (ở công viên có cây), 庭に猫がいます (trong vườn có con mèo). Hỏi có gì bằng 何がありますか, có ai bằng 誰がいますか. Chỉ chỗ tồn tại dùng に, không dùng で (で là chỗ làm hành động, bài 6).
 
@@ -2176,7 +2176,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 </details>
 
-### g10-03 · N は N (nơi chốn) に あります／います — N ở N (nơi chốn)  ⏳ chờ duyệt
+### g10-03 · N は N (nơi chốn) に あります／います — N ở N (nơi chốn)  ✅ đã duyệt
 
 Khi người nghe đã biết thứ đang nói đến, đưa nó lên làm chủ đề với は rồi nói chỗ của nó: ミラーさんは事務所にいます (anh Miller ở văn phòng), トイレは2階にあります (nhà vệ sinh ở tầng 2). Hỏi chỗ bằng どこにありますか／どこにいますか. Có thể nói gọn N は N (nơi chốn) です: トイレは2階です.
 
@@ -2270,7 +2270,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 </details>
 
-### g10-04 · N1 の 上／下／前／後ろ／中／外／隣／近く／間 — Vị trí so với N1  ⏳ chờ duyệt
+### g10-04 · N1 の 上／下／前／後ろ／中／外／隣／近く／間 — Vị trí so với N1  ✅ đã duyệt
 
 Từ chỉ vị trí đứng sau N1 + の để nói chỗ chính xác: 机の上 (trên bàn), 箱の中 (trong hộp), 駅の前 (trước nhà ga), 銀行の隣 (bên cạnh ngân hàng). 間 (giữa) cần hai vật: 銀行と郵便局の間. Cả cụm dùng như danh từ chỉ nơi chốn: 机の上に本があります, 本は机の上にあります.
 
@@ -2357,7 +2357,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 
 </details>
 
-### g10-05 · N1 や N2 (など) — N1, N2 (vân vân)  ⏳ chờ duyệt
+### g10-05 · N1 や N2 (など) — N1, N2 (vân vân)  ✅ đã duyệt
 
 や nối các danh từ khi chỉ nêu vài ví dụ tiêu biểu, ngụ ý còn những thứ khác: 箱の中に手紙や写真があります (trong hộp có thư, ảnh…). Thêm など ở cuối để nói rõ "vân vân": 手紙や写真などがあります. Khác と (bài 4): と kể đủ hết, や chỉ kể một phần.
 

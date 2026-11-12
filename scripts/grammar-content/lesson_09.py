@@ -291,4 +291,7 @@ p5 = point(9, 5, 'どうして ～か — ～から', 'Tại sao? — Vì …',
     ],
     notes='Trả lời どうして bằng ～から. Câu hỏi và câu trả lời phải cùng nói về một việc.')
 
+# Chủ dự án duyệt bài 9 ngày 2026-11-12
+for p in (p1, p2, p3, p4, p5,):
+    p['approved'] = True
 write(9, [p1, p2, p3, p4, p5])

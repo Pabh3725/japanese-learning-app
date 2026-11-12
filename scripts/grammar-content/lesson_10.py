@@ -294,4 +294,7 @@ p5 = point(10, 5, 'N1 や N2 (など)', 'N1, N2 (vân vân)',
     ],
     notes='や: kể vài ví dụ (còn nữa); と: kể đủ. など thường đi sau thứ cuối cùng.')
 
+# Chủ dự án duyệt bài 10 ngày 2026-11-12
+for p in (p1, p2, p3, p4, p5,):
+    p['approved'] = True
 write(10, [p1, p2, p3, p4, p5])
