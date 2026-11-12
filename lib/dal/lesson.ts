@@ -321,7 +321,7 @@ async function readLessonSize(supabase: Supabase, userId: string): Promise<numbe
 const keyParts = (key: string) => key.split(':')
 
 /** Dựng câu hỏi hoặc thẻ cho một kế hoạch của AIS. null khi mục không còn cần hỏi (đã xong ở máy khác…). */
-async function buildForPlan(supabase: Supabase, userId: string, plan: Exclude<StepPlan, { type: 'end' }>, extra: LessonExtra, excluded: ReadonlySet<string>): Promise<LessonStep | null> {
+async function buildForPlan(supabase: Supabase, userId: string, plan: Exclude<StepPlan, { type: 'end' }>, extra: LessonExtra, excluded: () => Promise<ReadonlySet<string>>): Promise<LessonStep | null> {
   const [prefix, a, b] = keyParts(plan.key)
   if (plan.type === 'intro') {
     if (prefix === 'nw') {
@@ -364,7 +364,7 @@ async function buildForPlan(supabase: Supabase, userId: string, plan: Exclude<St
     case 'c':
       return kanjiStep({ cardId: a })
     case 'st': {
-      const question = await buildStarQuestionFor(supabase, userId, a, excluded)
+      const question = await buildStarQuestionFor(supabase, userId, a, await excluded())
       return question ? { kind: 'star', key: plan.key, question } : null
     }
   }
@@ -375,7 +375,9 @@ async function buildForPlan(supabase: Supabase, userId: string, plan: Exclude<St
 async function nextStep(supabase: Supabase, userId: string, stored: StoredState): Promise<{ stored: StoredState; step: LessonStep }> {
   let { ais } = stored
   const extra = { ...stored.extra }
-  const excluded = await readExcluded(supabase, userId)
+  // Chỉ câu sao và vòng ghép ô cần danh sách từ đã loại: đọc khi cần, mỗi lần gọi đọc một lần
+  let excludedRead: Promise<Set<string>> | null = null
+  const excluded = () => (excludedRead ??= readExcluded(supabase, userId))
 
   // Vòng boss: mỗi 25 câu tính điểm trong bài, khi bài đã có đủ từ
   if (Math.floor(ais.counted / BOSS_EVERY) > extra.bossesShown && extra.anchors.length >= BOSS_MIN_WORDS) {
@@ -398,7 +400,7 @@ async function nextStep(supabase: Supabase, userId: string, stored: StoredState)
       if (!extra.matchDone && extra.stage3.length > 0) {
         extra.matchDone = true
         const pools = await loadPoolsCached(supabase)
-        const round = await buildRoundForUser(supabase, userId, excluded, extra.stage3, pools.words)
+        const round = await buildRoundForUser(supabase, userId, await excluded(), extra.stage3, pools.words)
         if (round) return { stored: { ais, extra }, step: { kind: 'match', key: 'match', round } }
       }
       return { stored: { ais, extra }, step: { kind: 'end', key: 'end', reason: plan.reason } }
@@ -613,6 +615,12 @@ export async function answerMicro(input: unknown): Promise<MicroResponse> {
   if ((step.kind !== 'stage' && step.kind !== 'kanji') || !step.micro) return { status: 'invalid' }
   const q = step.question
 
+  // Đọc thứ tự câu trong ngày song song với lúc chấm, khỏi chờ thêm một lượt mạng.
+  // Trả về sớm (chấm không được) thì bỏ kết quả; lỗi thật vẫn ném ở chỗ await bên dưới.
+  const today = studyDate(new Date())
+  const daySeqRead = getLastDaySeq(today)
+  daySeqRead.catch(() => {})
+
   let grade: CheckStageAnswerResponse | SubmitKanjiResponse
   let outcome: Outcome
   if (step.kind === 'stage') {
@@ -629,7 +637,7 @@ export async function answerMicro(input: unknown): Promise<MicroResponse> {
     outcome = res.outcome
   }
 
-  const today = studyDate(new Date())
+  const daySeq = await daySeqRead
   const { error } = await supabase.from('learn_micro_logs').insert({
     user_id: user.id,
     lesson_id: row.id,
@@ -639,7 +647,7 @@ export async function answerMicro(input: unknown): Promise<MicroResponse> {
     exercise_type: q.exercise,
     outcome,
     study_date: today,
-    day_seq: await getLastDaySeq(today),
+    day_seq: daySeq,
     client_event_id: q.clientEventId,
   })
   // Gửi lại cùng câu: đã ghi rồi thì đi tiếp như thường
