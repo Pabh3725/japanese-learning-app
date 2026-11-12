@@ -1,10 +1,12 @@
 'use client'
 
 // Grammar: chọn mẫu đã mở, dạng bài và số câu để Luyện thêm (không đổi điểm hay lịch).
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { actionButton } from '@/components/action-button'
 import { CheckTile } from '@/components/check-tile'
+import { useEnterToStart } from '@/components/use-enter-to-start'
 import { EXERCISE_LABELS } from '@/lib/grammar/labels'
 import { GRAMMAR_EXERCISES, type GrammarExercise } from '@/lib/grammar/types'
 import { cn } from '@/lib/utils'
@@ -19,6 +21,9 @@ export function GrammarPracticeForm({ points }: { points: { code: string; lesson
   const [count, setCount] = useState(10)
   const lessons = [...new Set(points.map((p) => p.lesson))]
   const href = `/grammar/session?mode=practice&points=${chosen.join(',')}&count=${count}${types.length ? `&ex=${types.join(',')}` : ''}`
+  const router = useRouter()
+  const startRef = useRef<HTMLAnchorElement>(null)
+  useEnterToStart(points.length > 0 && chosen.length > 0, () => router.push(href), startRef)
 
   if (points.length === 0) return <p className="text-sm text-muted-foreground">Practice opens once you meet your first pattern in Learn.</p>
 
@@ -66,7 +71,10 @@ export function GrammarPracticeForm({ points }: { points: { code: string; lesson
       </section>
 
       {chosen.length > 0 ? (
-        <Link href={href} className={cn(actionButton({ size: 'lg' }), 'mt-8 w-full md:w-auto md:px-10')}>Start practice</Link>
+        <>
+          <Link ref={startRef} href={href} className={cn(actionButton({ size: 'lg' }), 'mt-8 w-full md:w-auto md:px-10')}>Start practice</Link>
+          <p className="mt-2 hidden text-xs text-muted-foreground md:block">Press Enter to start</p>
+        </>
       ) : (
         <p className="mt-8 text-sm text-muted-foreground">Tick at least one pattern to start.</p>
       )}

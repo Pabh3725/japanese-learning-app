@@ -9,7 +9,7 @@ import { AnswerOption, type AnswerState } from '@/components/learning/answer-opt
 import { ContinueFooter, ExerciseFooter, type CheckStatus } from '@/components/learning/exercise-footer'
 import { ExercisePanel } from '@/components/learning/exercise-panel'
 import { convertAtCaret } from '@/lib/exercise/answer-normalize'
-import type { GrammarQuestion } from '@/lib/grammar/questions'
+import { speakText, type GrammarQuestion } from '@/lib/grammar/questions'
 import type { GrammarPiece } from '@/lib/grammar/types'
 import { isShortcutEvent, pieceIndexForKey, pieceKeyLabel, REPLAY_KEY } from '@/lib/keyboard'
 import { speak } from '@/lib/speech'
@@ -44,6 +44,8 @@ export function GrammarQuestionView({ question: q, stage, furigana, onGrade, onA
   const [error, setError] = useState<string | null>(null)
   const [graded, setGraded] = useState<Exclude<GrammarGrade, { error: string } | null> | null>(null)
   const locked = status !== 'idle' || checking
+  // Câu nghe: đọc câu đang hỏi. Mọi dạng sau khi chấm: đọc cả câu đúng (trước khi chấm thì không, để không lộ đáp án)
+  const replay = graded ? speakText(graded.sentence) : q.speak
 
   // Dạng nghe: đọc ngay khi hiện câu
   useEffect(() => {
@@ -86,11 +88,13 @@ export function GrammarQuestionView({ question: q, stage, furigana, onGrade, onA
     return (q.options ?? []).map((o) => o.id)
   }
   const onKey = useEffectEvent((e: KeyboardEvent) => {
-    if (locked || !isShortcutEvent(e)) return
-    if (q.speak && e.key.toLowerCase() === REPLAY_KEY) {
-      speak(q.speak)
+    if (!isShortcutEvent(e)) return
+    // P chạy cả khi đã chấm (đang khoá), để nghe lại câu trước khi sang câu sau
+    if (replay && e.key.toLowerCase() === REPLAY_KEY) {
+      speak(replay)
       return
     }
+    if (locked) return
     if (e.key === 'Enter') {
       if (onGrade && ready) {
         e.preventDefault()
@@ -154,9 +158,9 @@ export function GrammarQuestionView({ question: q, stage, furigana, onGrade, onA
           <p className="text-sm text-muted-foreground">{q.context.meaning}</p>
         </div>
       )}
-      {q.speak && (
-        <button type="button" onClick={() => speak(q.speak!)} className={cn(actionButton({ variant: 'secondary', size: 'lg' }), 'gap-2')} aria-label="Play the sentence again">
-          <Volume2 aria-hidden="true" /> Listen again <span className="hidden text-xs text-muted-foreground md:inline">(P)</span>
+      {replay && (
+        <button type="button" onClick={() => speak(replay)} className={cn(actionButton({ variant: 'secondary', size: 'lg' }), 'gap-2')} aria-label={q.speak ? 'Play the sentence again' : 'Listen to the sentence'}>
+          <Volume2 aria-hidden="true" /> {q.speak ? 'Listen again' : 'Listen'} <span className="hidden text-xs text-muted-foreground md:inline">(P)</span>
         </button>
       )}
       {q.sentence && (

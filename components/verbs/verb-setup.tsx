@@ -1,11 +1,13 @@
 'use client'
 
 // Thể động từ: chọn thể (chỉ thể đã mở), dạng câu và số câu. Chỉ luyện, không đổi điểm hay lịch.
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Lock } from 'lucide-react'
 import { actionButton } from '@/components/action-button'
 import { CheckTile } from '@/components/check-tile'
+import { useEnterToStart } from '@/components/use-enter-to-start'
 import type { VerbFormSummary } from '@/lib/dal/verbs'
 import { VERB_EXERCISE_LABELS, VERB_EXERCISES, type VerbExercise } from '@/lib/verbs/questions'
 import { cn } from '@/lib/utils'
@@ -19,6 +21,9 @@ export function VerbSetup({ forms }: { forms: VerbFormSummary[] }) {
   const [types, setTypes] = useState<VerbExercise[]>([...VERB_EXERCISES])
   const [count, setCount] = useState(20)
   const href = `/grammar/verbs/session?forms=${chosen.join(',')}&types=${types.join(',')}&count=${count}`
+  const router = useRouter()
+  const startRef = useRef<HTMLAnchorElement>(null)
+  useEnterToStart(chosen.length > 0 && types.length > 0, () => router.push(href), startRef)
 
   const group = (title: string, kind: 'verb' | 'adj') => (
     <div className="mb-6">
@@ -73,7 +78,10 @@ export function VerbSetup({ forms }: { forms: VerbFormSummary[] }) {
       </section>
 
       {chosen.length > 0 && types.length > 0 ? (
-        <Link href={href} className={cn(actionButton({ size: 'lg' }), 'mt-8 w-full md:w-auto md:px-10')}>Start practice</Link>
+        <>
+          <Link ref={startRef} href={href} className={cn(actionButton({ size: 'lg' }), 'mt-8 w-full md:w-auto md:px-10')}>Start practice</Link>
+          <p className="mt-2 hidden text-xs text-muted-foreground md:block">Press Enter to start</p>
+        </>
       ) : (
         <p className="mt-8 text-sm text-muted-foreground">Tick at least one form and one exercise type to start.</p>
       )}

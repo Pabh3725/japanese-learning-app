@@ -3,6 +3,8 @@
 // Thể động từ: phiên luyện chia. Server chấm và ghi nhật ký; không đổi điểm hay lịch nào.
 import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Volume2 } from 'lucide-react'
+import { actionButton } from '@/components/action-button'
 import { submitVerbAnswerAction } from '@/app/grammar/verbs/actions'
 import { AnswerOption, type AnswerState } from '@/components/learning/answer-option'
 import { ExerciseFooter, type CheckStatus } from '@/components/learning/exercise-footer'
@@ -11,7 +13,8 @@ import { SessionComplete } from '@/components/learning/session-complete'
 import { SessionHeader } from '@/components/learning/session-header'
 import type { VerbSession } from '@/lib/dal/verbs'
 import { convertAtCaret } from '@/lib/exercise/answer-normalize'
-import { isShortcutEvent } from '@/lib/keyboard'
+import { isShortcutEvent, REPLAY_KEY } from '@/lib/keyboard'
+import { speak } from '@/lib/speech'
 import { withRetry } from '@/lib/retry'
 import { cn } from '@/lib/utils'
 import type { VerbQuestion } from '@/lib/verbs/questions'
@@ -49,7 +52,13 @@ function Question({ q, onDone }: { q: Q; onDone: (correct: boolean) => void }) {
   }
 
   const onKey = useEffectEvent((e: KeyboardEvent) => {
-    if (locked || !isShortcutEvent(e)) return
+    if (!isShortcutEvent(e)) return
+    // Sau khi chấm: P đọc đáp án đúng
+    if (expected && e.key.toLowerCase() === REPLAY_KEY) {
+      speak(expected.r)
+      return
+    }
+    if (locked) return
     if (e.key === 'Enter' && ready) {
       e.preventDefault()
       void check()
@@ -138,6 +147,11 @@ function Question({ q, onDone }: { q: Q; onDone: (correct: boolean) => void }) {
         {showReading && <p lang="ja" className="font-jp text-lg text-cyan">{q.shown.r}</p>}
         <p className="text-base text-subtle">{q.meaning}</p>
         {q.exercise !== 'recognize' && <p className="mt-2 rounded-full bg-yellow/12 px-3 py-1 text-sm font-semibold text-yellow">→ {q.target}</p>}
+        {expected && (
+          <button type="button" onClick={() => speak(expected.r)} className={cn(actionButton({ variant: 'secondary', size: 'sm' }), 'mt-2 gap-2')} aria-label="Listen to the answer">
+            <Volume2 aria-hidden="true" /> Listen <span className="hidden text-xs text-muted-foreground md:inline">(P)</span>
+          </button>
+        )}
       </div>
     </ExercisePanel>
   )
