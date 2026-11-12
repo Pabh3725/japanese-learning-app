@@ -75,12 +75,47 @@ FUNCTION = {
     8: ['な', 'が'],
     9: ['が', 'から'],
     10: ['や', 'に'],
+    12: ['でした', 'より', 'ほう'],
+    15: ['いけません'],
 }
 # Tính từ い (bài 8+): thêm thể phủ định ～くない. いい → よくない. きれい là tính từ な nên không có ở đây.
 I_ADJ = {'みにくい', '大きい', '小さい', '新しい', '古い', '悪い', '熱い', '冷たい', '暑い', '寒い', '難しい', 'きびしい', 'やさしい',
          '高い', '安い', '低い', 'おもしろい', 'おいしい', '忙しい', '楽しい', '白い', '黒い', '赤い', '青い'}
 NA_ADJ = {'ハンサム', 'きれい', '静か', '賑やか', 'にぎやか', '有名', '親切', '元気', '暇', '便利', 'すてき', '好き', '嫌い', '上手', '下手', 'いろいろ'}
 I_ADJ_NEG = {'いい': ('よくない', 'よくない'), 'いい2': ('よくありません', 'よくありません')}
+
+# Nhóm động từ / tính từ (G5, JMdict): chia thể て, ～たい, quá khứ tính từ đúng theo nhóm.
+# Cùng cách viết có thể là hai từ (降ります: ふります / おります): duyệt VERB_LIST, tra VERBS lấy từ đầu tiên
+VERB_LIST = json.load(open(ROOT / 'data' / 'n5' / 'verbs.json', encoding='utf-8'))['words']
+VERBS = {}
+for _w in VERB_LIST:
+    VERBS.setdefault(_w['expression'], _w)
+I_ADJ |= {w['expression'] for w in VERB_LIST if w['kind'] == 'adj-i'}
+NA_ADJ |= {w['expression'] for w in VERB_LIST if w['kind'] == 'adj-na'}
+VERB_KINDS = ('v5', 'v1', 'suru', 'kuru', 'v5-iku', 'v5-aru')
+GODAN_TE = {'う': 'って', 'つ': 'って', 'る': 'って', 'む': 'んで', 'ぶ': 'んで', 'ぬ': 'んで', 'く': 'いて', 'ぐ': 'いで', 'す': 'して'}
+
+
+def te_of(dict_form, kind):
+    """Thể て từ thể từ điển (chữ hoặc cách đọc)."""
+    if kind == 'v1':
+        return dict_form[:-1] + 'て'
+    if kind == 'suru':
+        return dict_form[:-2] + 'して'
+    if kind == 'kuru':
+        return dict_form[:-2] + ('来て' if dict_form.endswith('来る') else 'きて')
+    if kind == 'v5-iku':
+        return dict_form[:-1] + 'って'
+    return dict_form[:-1] + GODAN_TE[dict_form[-1]]
+
+
+def ta_of(dict_form, kind):
+    te = te_of(dict_form, kind)
+    return te[:-1] + ('だ' if te.endswith('で') else 'た')
+
+
+# Thể て đã học → thể ます (để biết chỗ [F] là thể て của động từ nào)
+TE_FORMS = {}
 
 
 class Vocab:
@@ -110,6 +145,29 @@ class Vocab:
                         neg_t, neg_r = expr[:-1] + tail, kana[:-1] + tail
                         tokens.update([neg_t, neg_r])
                         self.reading.setdefault(neg_t, neg_r)
+        # Bài 12+: quá khứ tính từ い (～かった, ～くなかった, ～くありませんでした)
+        # Bài 13+: ～たい và gốc động từ (買いに行きます). Bài 14+: thể て.
+        for w in VERB_LIST:
+            expr = w['expression']
+            if w['lesson'] > lesson:
+                continue
+            kana = w['reading']
+            if lesson >= 12 and w['kind'] in ('adj-i', 'adj-ii'):
+                st, sr = (expr[:-2] + 'よ', kana[:-2] + 'よ') if w['kind'] == 'adj-ii' else (expr[:-1], kana[:-1])
+                for tail in ('かった', 'くなかった', 'くありませんでした'):
+                    self.add(tokens, st + tail, sr + tail)
+            if w['kind'] in VERB_KINDS and expr.endswith('ます'):
+                if lesson >= 13:
+                    self.add(tokens, expr[:-2], kana[:-2])
+                    # Danh từ của động từ ～します dùng một mình: 散歩に行きます, 食事に行きます
+                    if w['kind'] == 'suru' and len(expr) > 3:
+                        self.add(tokens, expr[:-3], kana[:-3])
+                    for tail in ('たい', 'たくない', 'たかった', 'たくなかった'):
+                        self.add(tokens, expr[:-2] + tail, kana[:-2] + tail)
+                if lesson >= 14:
+                    te_w, te_r = te_of(w['dict'], w['kind']), te_of(w['dictReading'], w['kind'])
+                    self.add(tokens, te_w, te_r)
+                    TE_FORMS.setdefault(te_w, (expr, w))
         if lesson >= 8:
             for neg_t, neg_r in I_ADJ_NEG.values():
                 tokens.update([neg_t, neg_r])
@@ -117,6 +175,10 @@ class Vocab:
         self.tokens = tokens
         self.maxlen = max(len(t) for t in tokens)
         self.errors = []
+
+    def add(self, tokens, written, reading):
+        tokens.update([written, reading])
+        self.reading.setdefault(written, reading)
 
     @staticmethod
     def is_adj(r):
@@ -193,12 +255,45 @@ def special_slot(text):
     if text.endswith('ましょう'):
         stem = text[:-4]
         return [stem + 'ました', stem + 'ませんでした', stem + 'ましたか'], 'rủ (ましょう)', stem + 'ます'
+    for tail, label in (('たくない', 'không muốn (たくない)'), ('たい', 'muốn (たい)')):
+        if text.endswith(tail) and text[:-len(tail)] + 'ます' in VERBS:
+            stem = text[:-len(tail)]
+            w = VERBS[stem + 'ます']
+            # Câu luôn có です sau chỗ này: 食べますです, 食べたくです, 食べるたいです đều sai
+            return [stem + 'ます', '*' + stem + 'たく', '*' + w['dict'] + 'たい'], label, stem + 'ます'
+    if text in TE_FORMS:
+        masu, w = TE_FORMS[text]
+        return te_distractors(text, masu, w), 'thể て', masu
     return None
+
+
+def te_distractors(te, masu, w):
+    """Thể て sai thường gặp: gốc ます + て (書きて), và các đuôi て của nhóm I khác (書って, 書んで)."""
+    stem = masu[:-2]
+    base = w['dict'][:-1]
+    wrong = [w['dict'] + 'て', stem + 'て', stem + 'って'] + [base + e for e in ('って', 'んで', 'いて', 'して')]
+    out = []
+    for x in wrong:
+        if x != te and x not in out:
+            out.append(x)
+    return ['*' + x for x in out[:3]]
 
 
 def adj_form(text):
     """Thể và dạng từ điển của tính từ ở chỗ [F] (bài 8+): 高いです, 高くないです, 静かです, 静かじゃありません."""
+    if text == 'でした':
+        return 'quá khứ', 'です'
+    if text == 'じゃありませんでした':
+        return 'quá khứ phủ định', 'です'
     body = text[:-2] if text.endswith('です') and not text.endswith('じゃありません') else text
+    # Tra danh sách tính từ để không nhầm với ～たかった của động từ (食べたかった), và vẫn đúng với 冷たかった
+    for tail, label in (('くなかった', 'quá khứ phủ định'), ('かった', 'quá khứ')):
+        if body.endswith(tail):
+            st = body[:-len(tail)]
+            if st == 'よ':
+                return label, 'いい'
+            if st + 'い' in I_ADJ:
+                return label, st + 'い'
     if body in ('よくない',):
         return 'phủ định', 'いい'
     if body.endswith('くない') and body[:-3] + 'い' in I_ADJ:
