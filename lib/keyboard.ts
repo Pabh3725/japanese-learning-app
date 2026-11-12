@@ -32,7 +32,9 @@ export function isShortcutEvent(e: KeyboardEvent): boolean {
   if (e.repeat || e.isComposing || e.ctrlKey || e.metaKey || e.altKey) return false
   const target = e.target
   if (target instanceof HTMLElement) {
-    if (target.isContentEditable || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') return false
+    // Ô nhập đã khoá (readOnly, sau khi chấm câu gõ) thì không gõ được nữa: để phím tắt (P nghe lại) chạy
+    const editable = (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) && !target.readOnly
+    if (target.isContentEditable || editable || target.tagName === 'SELECT') return false
   }
   return true
 }
