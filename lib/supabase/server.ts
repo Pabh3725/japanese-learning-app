@@ -5,12 +5,15 @@ import 'server-only'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { supabaseEnv } from './env'
+import { supabaseFetch } from './fetch'
 
 export async function createClient() {
   const { url, key } = supabaseEnv()
   const cookieStore = await cookies()
 
   return createServerClient(url, key, {
+    // Giữ kết nối, dùng HTTP/2: xem lib/supabase/fetch.ts
+    global: { fetch: supabaseFetch },
     cookies: {
       getAll() {
         return cookieStore.getAll()
