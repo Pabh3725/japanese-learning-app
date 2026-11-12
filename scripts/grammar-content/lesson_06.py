@@ -288,4 +288,7 @@ p5 = point(6, 5, 'V ましょう', 'Cùng … nhé (rủ)',
     ],
     notes='Rủ ở tương lai nên dạng quá khứ (会いました) là sai. Nhận lời mời ～ませんか có thể trả lời ええ、～ましょう.')
 
+# Chủ dự án duyệt bài 6 ngày 2026-11-12
+for p in (p1, p2, p3, p4, p5,):
+    p['approved'] = True
 write(6, [p1, p2, p3, p4, p5])

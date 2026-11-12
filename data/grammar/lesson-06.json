@@ -7,7 +7,7 @@
    "pattern": "N を V",
    "meaning": "Làm V (tác động lên N)",
    "explanation": "を (đọc là \"o\") đứng sau tân ngữ, tức là thứ chịu tác động của động từ: パンを食べます (ăn bánh mì), 水を飲みます (uống nước), 手紙を書きます (viết thư). Với danh từ chỉ hoạt động như サッカー, テニス, 宿題, お花見 thì dùng N をします: サッカーをします (chơi bóng đá), 宿題をします (làm bài tập).",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g06-01-s01",
@@ -1409,7 +1409,7 @@
    "pattern": "何を しますか",
    "meaning": "Làm gì?",
    "explanation": "何をしますか hỏi người khác làm gì; thay します bằng động từ khác để hỏi ăn gì, uống gì, mua gì: 何を食べますか. Trả lời bằng N を V. Chữ 何 có hai cách đọc: なに khi đứng trước を (何を, 何も); なん khi đứng trước です, の và từ chỉ đơn vị (何ですか, 何の本, 何時). Câu 何も ＋ phủ định nghĩa là \"không … gì cả\".",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g06-02-s01",
@@ -3156,7 +3156,7 @@
    "pattern": "N (nơi chốn) で V",
    "meaning": "Làm V ở N",
    "explanation": "で đứng sau nơi chốn để chỉ chỗ hành động diễn ra: 図書館で本を読みます (đọc sách ở thư viện), スーパーで肉を買います (mua thịt ở siêu thị). Khác へ／に ở bài 5 là chỉ hướng đi đến. Hỏi bằng どこで: どこで昼ごはんを食べますか.",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g06-03-s01",
@@ -4789,7 +4789,7 @@
    "pattern": "V ませんか",
    "meaning": "Bạn có … cùng không? (mời)",
    "explanation": "V ませんか là cách mời lịch sự, nghĩa là \"bạn có … (cùng tôi) không?\": いっしょに映画を見ませんか. Hay đi với いっしょに (cùng nhau). Nhận lời: ええ、いいですね (vâng, hay quá). Từ chối khéo: ちょっと… (… thì e là không được). Dùng ませんか thay cho ますか để mời vì nó nhường quyền quyết định cho người nghe.",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g06-04-s01",
@@ -6400,7 +6400,7 @@
    "pattern": "V ましょう",
    "meaning": "Cùng … nhé (rủ)",
    "explanation": "V ましょう nghĩa là \"chúng ta cùng … nhé\", dùng để rủ hoặc chủ động đề nghị: いっしょに行きましょう. Cũng dùng để nhận lời mời: 行きませんか → ええ、行きましょう. Khác ませんか: ませんか hỏi ý người nghe, ましょう là người nói đã muốn làm và kéo người nghe cùng làm.",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g06-05-s01",

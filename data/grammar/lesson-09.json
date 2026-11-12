@@ -7,7 +7,7 @@
    "pattern": "N が あります／わかります",
    "meaning": "Có N / hiểu N",
    "explanation": "あります (có) và わかります (hiểu) dùng が, không dùng を: 私は車があります (tôi có ô tô), ミラーさんは日本語がわかります (anh Miller hiểu tiếng Nhật). Người có / người hiểu đi với は. Phủ định: ありません, わかりません. あります ở đây là \"sở hữu\" (có tiền, có thời gian, có hẹn).",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g09-01-s01",
@@ -1434,7 +1434,7 @@
    "pattern": "N が 好きです／嫌いです／上手です／下手です",
    "meaning": "Thích / ghét / giỏi / kém N",
    "explanation": "好き (thích), 嫌い (ghét), 上手 (giỏi), 下手 (kém) là tính từ な; thứ được thích, thứ mình giỏi đi với が: 私は料理が好きです (tôi thích nấu ăn), カリナさんは絵が上手です (chị Karina vẽ giỏi). Hỏi loại nào bằng どんな: どんなスポーツが好きですか. 上手 dùng để khen người khác, không tự khen mình.",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g09-02-s01",
@@ -3066,7 +3066,7 @@
    "pattern": "よく／だいたい／たくさん／少し／あまり／全然",
    "meaning": "Mức độ, số lượng",
    "explanation": "Các phó từ đứng trước động từ để chỉ mức độ: よくわかります (hiểu rõ), だいたいわかります (hiểu đại khái), 少しわかります (hiểu một chút); chỉ số lượng: お金がたくさんあります (có nhiều tiền), 少しあります. あまり (không … lắm) và 全然 (hoàn toàn không) chỉ đi với phủ định: あまりわかりません, 全然わかりません. よく đi với động từ còn có nghĩa \"thường xuyên\": よく聞きます.",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g09-03-s01",
@@ -4692,7 +4692,7 @@
    "pattern": "S1 から、S2",
    "meaning": "Vì S1 nên S2",
    "explanation": "から đặt cuối câu thứ nhất để nêu lý do, câu thứ hai là kết quả: 時間がありませんから、新聞を読みません (vì không có thời gian nên tôi không đọc báo). Thứ tự luôn là lý do trước, kết quả sau. Khác から ở bài 4 (từ … đến): ở đây から đứng sau cả một câu.",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g09-04-s01",
@@ -6659,7 +6659,7 @@
    "pattern": "どうして ～か — ～から",
    "meaning": "Tại sao? — Vì …",
    "explanation": "どうして hỏi lý do: どうして早く帰りますか (tại sao bạn về sớm?). Trả lời bằng lý do + から: 用事がありますから (vì tôi có việc bận). Câu trả lời có thể bỏ phần kết quả, chỉ giữ lý do + から.",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g09-05-s01",

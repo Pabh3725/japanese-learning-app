@@ -7,7 +7,7 @@
    "pattern": "N が あります／います",
    "meaning": "Có N (tồn tại)",
    "explanation": "あります và います đều nghĩa là \"có, ở\" (tồn tại). あります dùng cho đồ vật, cây cối, nơi chốn: 箱があります. います dùng cho người và động vật (thứ tự cử động được): 犬がいます, 男の人がいます. Thứ tồn tại đi với が. Phủ định: ありません, いません.",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g10-01-s01",
@@ -1478,7 +1478,7 @@
    "pattern": "N (nơi chốn) に N が あります／います",
    "meaning": "Ở N1 có N2",
    "explanation": "Nơi chốn + に + thứ tồn tại + が + あります／います: 公園に木があります (ở công viên có cây), 庭に猫がいます (trong vườn có con mèo). Hỏi có gì bằng 何がありますか, có ai bằng 誰がいますか. Chỉ chỗ tồn tại dùng に, không dùng で (で là chỗ làm hành động, bài 6).",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g10-02-s01",
@@ -3000,7 +3000,7 @@
    "pattern": "N は N (nơi chốn) に あります／います",
    "meaning": "N ở N (nơi chốn)",
    "explanation": "Khi người nghe đã biết thứ đang nói đến, đưa nó lên làm chủ đề với は rồi nói chỗ của nó: ミラーさんは事務所にいます (anh Miller ở văn phòng), トイレは2階にあります (nhà vệ sinh ở tầng 2). Hỏi chỗ bằng どこにありますか／どこにいますか. Có thể nói gọn N は N (nơi chốn) です: トイレは2階です.",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g10-03-s01",
@@ -4623,7 +4623,7 @@
    "pattern": "N1 の 上／下／前／後ろ／中／外／隣／近く／間",
    "meaning": "Vị trí so với N1",
    "explanation": "Từ chỉ vị trí đứng sau N1 + の để nói chỗ chính xác: 机の上 (trên bàn), 箱の中 (trong hộp), 駅の前 (trước nhà ga), 銀行の隣 (bên cạnh ngân hàng). 間 (giữa) cần hai vật: 銀行と郵便局の間. Cả cụm dùng như danh từ chỉ nơi chốn: 机の上に本があります, 本は机の上にあります.",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g10-04-s01",
@@ -6192,7 +6192,7 @@
    "pattern": "N1 や N2 (など)",
    "meaning": "N1, N2 (vân vân)",
    "explanation": "や nối các danh từ khi chỉ nêu vài ví dụ tiêu biểu, ngụ ý còn những thứ khác: 箱の中に手紙や写真があります (trong hộp có thư, ảnh…). Thêm など ở cuối để nói rõ \"vân vân\": 手紙や写真などがあります. Khác と (bài 4): と kể đủ hết, や chỉ kể một phần.",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g10-05-s01",

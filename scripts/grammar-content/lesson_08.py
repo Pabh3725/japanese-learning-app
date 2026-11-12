@@ -372,4 +372,7 @@ p6 = point(8, 6, 'S1 が、S2／そして', '… nhưng … / và, thêm nữa',
     ],
     notes='が nối hai ý trái ngược (… nhưng …); そして nối hai ý cùng chiều, đứng đầu câu sau.')
 
+# Chủ dự án duyệt bài 8 ngày 2026-11-12
+for p in (p1, p2, p3, p4, p5, p6,):
+    p['approved'] = True
 write(8, [p1, p2, p3, p4, p5, p6])

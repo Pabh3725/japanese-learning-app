@@ -7,7 +7,7 @@
    "pattern": "N (dụng cụ, cách thức) で V",
    "meaning": "Làm V bằng N",
    "explanation": "で đứng sau dụng cụ hoặc cách thức dùng để làm việc: はしでごはんを食べます (ăn cơm bằng đũa), パソコンでレポートを書きます (viết báo cáo bằng máy tính). Ngôn ngữ cũng dùng で: 日本語で手紙を書きます (viết thư bằng tiếng Nhật). Hỏi bằng 何で (なにで): 何でごはんを食べますか.",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g07-01-s01",
@@ -1602,7 +1602,7 @@
    "pattern": "「từ / câu」は ～語で 何ですか",
    "meaning": "\"…\" trong tiếng ~ là gì?",
    "explanation": "Dùng để hỏi một từ hay một câu nói bằng ngôn ngữ khác thế nào: 「ありがとう」は英語で何ですか (\"ありがとう\" trong tiếng Anh là gì?). で ở đây là \"bằng (ngôn ngữ)\", giống で ở mẫu trước. Trả lời: 「Thank you」です. Từ được hỏi đặt trong ngoặc 「」.",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g07-02-s01",
@@ -3407,7 +3407,7 @@
    "pattern": "N (người) に あげます／貸します／教えます／送ります",
    "meaning": "Cho / tặng / cho mượn / dạy / gửi cho N",
    "explanation": "に đứng sau người nhận khi hành động hướng từ mình (hoặc người khác) sang họ: ミラーさんに花をあげます (tặng hoa cho anh Miller), 友達に本を貸します (cho bạn mượn sách), ワンさんに日本語を教えます (dạy tiếng Nhật cho anh Wang). Mẫu đầy đủ: [người cho] は [người nhận] に [vật] を V. Hỏi người nhận bằng 誰に.",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g07-03-s01",
@@ -5035,7 +5035,7 @@
    "pattern": "N (người) に／から もらいます／借ります／習います",
    "meaning": "Nhận / mượn / học từ N",
    "explanation": "Ngược với mẫu trước: người nhận làm chủ ngữ, người cho đi với に hoặc から: ミラーさんに花をもらいます (nhận hoa từ anh Miller), 友達に本を借ります (mượn sách của bạn), 先生に日本語を習います (học tiếng Nhật với thầy). Khi người cho là công ty, trường học… thì chỉ dùng から: 会社からお金をもらいます.",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g07-04-s01",
@@ -6765,7 +6765,7 @@
    "pattern": "もう V ました／まだです",
    "meaning": "Đã … rồi / Chưa",
    "explanation": "もう V ましたか hỏi việc gì đó đã làm chưa: もう昼ごはんを食べましたか (bạn đã ăn trưa chưa?). Đã làm: はい、もう食べました. Chưa làm: いいえ、まだです (chưa). Không trả lời bằng ～ませんでした, vì ～ませんでした nghĩa là \"đã không làm\" (việc đã qua), còn まだです là \"chưa, nhưng sẽ làm\".",
-   "approved": false,
+   "approved": true,
    "sentences": [
     {
      "code": "g07-05-s01",
