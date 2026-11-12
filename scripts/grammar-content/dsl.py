@@ -53,6 +53,9 @@ DISTRACTORS = {
     ('W', '半'): (['時', '分', '歳'], [], None, None),
     ('W', 'いつ'): (['どこ', '何', '誰'], [], None, None),
     ('P', 'よ'): (['か', 'は', 'も'], [], None, None),
+    ('P', 'を'): (['へ', 'の', 'か'], [], None, None),  # không dùng に: 手紙に書きます, 朝ごはんに食べます vẫn đúng
+    ('P', 'が'): (['を', 'に', 'の'], [], None, None),
+    ('P', 'や'): (['を', 'に', 'で'], [], None, None),
 }
 KIND = {'P': 'particle', 'F': 'form', 'W': 'word'}
 PIECE = re.compile(r'^(?:\[(P|F|W)(?::([^\]]*))?\])?([^{}]+?)(?:\{([^{}]+)\})?$')
@@ -67,7 +70,17 @@ FUNCTION = {
     3: ['円', 'えん'],
     4: ['に', 'から', 'まで', 'と', 'ね', 'ます', 'ません', 'ました', 'ませんでした', '時', 'じ', '分', 'ふん', 'ぷん', '半', 'はん'],
     5: ['へ', 'で', 'よ', '月', 'がつ', '日', 'にち', 'か'],
+    6: ['を', 'ましょう'],
+    7: ['語', 'ご'],
+    8: ['な', 'が'],
+    9: ['が', 'から'],
+    10: ['や', 'に'],
 }
+# Tính từ い (bài 8+): thêm thể phủ định ～くない. いい → よくない. きれい là tính từ な nên không có ở đây.
+I_ADJ = {'みにくい', '大きい', '小さい', '新しい', '古い', '悪い', '熱い', '冷たい', '暑い', '寒い', '難しい', 'きびしい', 'やさしい',
+         '高い', '安い', '低い', 'おもしろい', 'おいしい', '忙しい', '楽しい', '白い', '黒い', '赤い', '青い'}
+NA_ADJ = {'ハンサム', 'きれい', '静か', '賑やか', 'にぎやか', '有名', '親切', '元気', '暇', '便利', 'すてき', '好き', '嫌い', '上手', '下手', 'いろいろ'}
+I_ADJ_NEG = {'いい': ('よくない', 'よくない'), 'いい2': ('よくありません', 'よくありません')}
 
 
 class Vocab:
@@ -85,14 +98,30 @@ class Vocab:
                 expr, kana = r['expression'], r['reading_kana']
                 self.reading.setdefault(expr, kana)
                 tokens.update([expr, kana])
-                # Động từ thể ます: thêm 3 thể còn lại
+                # Động từ thể ます: thêm 3 thể còn lại (bài 6+: thêm ～ましょう)
                 if expr.endswith('ます') and lesson >= 4:
-                    for suffix, _ in VERB_FORMS[1:]:
+                    suffixes = [x for x, _ in VERB_FORMS[1:]] + (['ましょう'] if lesson >= 6 else [])
+                    for suffix in suffixes:
                         tokens.update([expr[:-2] + suffix, kana[:-2] + suffix])
                         self.reading.setdefault(expr[:-2] + suffix, kana[:-2] + suffix)
+                # Tính từ い: thêm ～くない
+                if lesson >= 8 and int(r['lesson']) >= 7 and kana.endswith('い') and kana != 'きれい' and r['expression'] not in ('いい',) and self.is_adj(r):
+                    for tail in ('くない', 'くありません'):
+                        neg_t, neg_r = expr[:-1] + tail, kana[:-1] + tail
+                        tokens.update([neg_t, neg_r])
+                        self.reading.setdefault(neg_t, neg_r)
+        if lesson >= 8:
+            for neg_t, neg_r in I_ADJ_NEG.values():
+                tokens.update([neg_t, neg_r])
+                self.reading.setdefault(neg_t, neg_r)
         self.tokens = tokens
         self.maxlen = max(len(t) for t in tokens)
         self.errors = []
+
+    @staticmethod
+    def is_adj(r):
+        # Tính từ い của bài 7–8 (nghĩa là tính chất, không phải danh từ/câu chào kết thúc bằng い)
+        return r['expression'] in I_ADJ
 
     def read(self, text):
         """Cách đọc của mảnh có Kanji: tra từ vựng, hoặc tách thành các từ rồi ghép cách đọc."""
@@ -120,7 +149,8 @@ class Vocab:
         for i in range(n):
             if best[i] is None:
                 continue
-            m = re.match(r'[0-9０-９,]+', text[i:])
+            # Số; từ Latin (đáp án của 「～」は英語で何ですか, bài 7+)
+            m = re.match(r'[0-9０-９,]+', text[i:]) or (re.match(r"[A-Za-zÀ-ỹ'’.!?]+", text[i:]) if self.lesson >= 7 else None)
             if m:
                 j = i + len(m.group(0))
                 if best[j] is None:
@@ -152,6 +182,36 @@ def verb_slot(text):
     return None
 
 
+def special_slot(text):
+    """Thể của bài 6+ (đáp án nhiễu là thể quá khứ: câu phải có từ chỉ tương lai như あした, 来週).
+    - ～ませんか (mời), ～ましょう (rủ): nhiễu là 3 dạng quá khứ của cùng động từ.
+    - ～くない (phủ định tính từ い): nhiễu là dạng sai thường gặp, soạn trong câu.
+    """
+    if text.endswith('ませんか'):
+        stem = text[:-4]
+        return [stem + 'ましたか', stem + 'ませんでしたか', stem + 'ましたよ'], 'lời mời (ませんか)', stem + 'ます'
+    if text.endswith('ましょう'):
+        stem = text[:-4]
+        return [stem + 'ました', stem + 'ませんでした', stem + 'ましたか'], 'rủ (ましょう)', stem + 'ます'
+    return None
+
+
+def adj_form(text):
+    """Thể và dạng từ điển của tính từ ở chỗ [F] (bài 8+): 高いです, 高くないです, 静かです, 静かじゃありません."""
+    body = text[:-2] if text.endswith('です') and not text.endswith('じゃありません') else text
+    if body in ('よくない',):
+        return 'phủ định', 'いい'
+    if body.endswith('くない') and body[:-3] + 'い' in I_ADJ:
+        return 'phủ định', body[:-3] + 'い'
+    if body in I_ADJ or body == 'いい':
+        return 'khẳng định', body
+    if body.endswith('じゃありません') and body[:-7] in NA_ADJ:
+        return 'phủ định', body[:-7]
+    if body in NA_ADJ:
+        return 'khẳng định', body
+    return None
+
+
 def parse(src, where):
     pieces, slots = [], []
     for i, raw in enumerate(src.split('|')):
@@ -175,14 +235,25 @@ def parse(src, where):
                 accepted = [x for x in acc.split(',') if x]
             elif (mark, text) in DISTRACTORS:
                 distractors, accepted, form, dict_form = DISTRACTORS[(mark, text)]
+            elif mark == 'F' and special_slot(text):
+                distractors, form, dict_form = special_slot(text)
             elif mark == 'F' and verb_slot(text):
                 distractors, form, dict_form = verb_slot(text)
             else:
                 raise ValueError(f'{where}: chưa có đáp án nhiễu cho {(mark, text)}')
+            # Tính từ xét trước động từ: きれいじゃありません không phải động từ ～ません
+            if mark == 'F' and form is None and adj_form(text):
+                form, dict_form = adj_form(text)
+            if mark == 'F' and form is None and special_slot(text):
+                _, form, dict_form = special_slot(text)
             if mark == 'F' and form is None and verb_slot(text):
                 _, form, dict_form = verb_slot(text)
-            for d in distractors + accepted:
+            if mark == 'F' and form is None:
+                raise ValueError(f'{where}: chỗ [F] "{text}" không suy được thể; ghi thể vào bảng hoặc dùng [W]')
+            # Nhiễu bắt đầu bằng * là dạng sai cố ý (高いじゃありません): không kiểm tra từ vựng
+            for d in [x for x in distractors if not x.startswith('*')] + accepted:
                 VOCAB.check(f'{where} nhiễu', d)
+            distractors = [x.lstrip('*') for x in distractors]
             slot = {'kind': KIND[mark], 'piece': i, 'distractors': list(distractors)}
             if accepted:
                 slot['accepted'] = list(accepted)
@@ -205,7 +276,9 @@ def sentence(point_code, n, level, src, meaning, uses=None, prompt=None, sample=
         p_src, p_meaning, wrong = prompt
         p_pieces, _ = parse(p_src, f'{code} câu hỏi')
         for w in wrong:
-            VOCAB.check(f'{code} câu đáp sai', w)
+            if not w.startswith('*'):  # * là câu sai dạng cố ý (いいえ、きれいくないです。)
+                VOCAB.check(f'{code} câu đáp sai', w)
+        wrong = [w.lstrip('*') for w in wrong]
         s['prompt'] = {'pieces': p_pieces, 'meaning': p_meaning, 'distractors': wrong}
     if sample:
         s['sample'] = True

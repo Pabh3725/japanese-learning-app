@@ -56,7 +56,7 @@ def line(s):
 
 def main(a, b):
     L = [f'# Duyệt nội dung ngữ pháp bài {a}–{b}\n',
-         'Gói G3. Giải thích và câu do Claude tự soạn; danh sách mẫu theo các trang tổng hợp ngữ pháp Minna no Nihongo trên mạng. '
+         f'Gói {"G3" if a <= 5 else "G6"}. Giải thích và câu do Claude tự soạn; danh sách mẫu theo các trang tổng hợp ngữ pháp Minna no Nihongo trên mạng. '
          '{STATUS} Với mỗi mẫu: đọc giải thích và 5 câu tiêu biểu. 25 câu còn lại đã qua kiểm tra tự động; '
          'thấy câu nào sai thì ghi mã câu (ví dụ g01-03-s12) để Claude sửa hoặc ẩn.\n',
          'Cách đọc: chỗ **in đậm** là chỗ được hỏi (trợ từ, dạng です/động từ, hậu tố); "nhiễu" là các đáp án sai chắc chắn ở chỗ đó.\n']
