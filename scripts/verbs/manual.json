@@ -1,0 +1,54 @@
+{
+ "n5-0136": {
+  "kind": "v1",
+  "dict": "おきる",
+  "dictReading": "おきる",
+  "note": "thức dậy = 起きる (nhóm II), không phải 置く"
+ },
+ "n5-0291": {
+  "kind": "v1",
+  "dict": "借りる",
+  "dictReading": "かりる",
+  "note": "mượn = 借りる (nhóm II)"
+ },
+ "n5-0805": {
+  "kind": "v1",
+  "dict": "足りる",
+  "dictReading": "たりる",
+  "note": "đủ = 足りる (nhóm II)"
+ },
+ "n5-0718": {
+  "kind": "v1",
+  "dict": "できる",
+  "dictReading": "できる",
+  "note": "có thể = できる (nhóm II)"
+ },
+ "n5-0616": {
+  "skip": true,
+  "note": "cụm cố định khi trả tiền"
+ },
+ "n4-0425": {
+  "skip": true,
+  "note": "cụm cố định khi kết thúc"
+ },
+ "n4-0434": {
+  "kind": "suru",
+  "dict": "仲良くする",
+  "dictReading": "なかよくする",
+  "note": "仲良く + する"
+ },
+ "n4-0820": {
+  "kind": "kuru",
+  "dict": "帰ってくる",
+  "dictReading": "かえってくる",
+  "note": "帰って + くる"
+ },
+ "n5-0324": {
+  "skip": true,
+  "note": "lỗi chính tả trong dữ liệu (しつれします)"
+ },
+ "n5-0627": {
+  "skip": true,
+  "note": "đã ở dạng ～ています"
+ }
+}

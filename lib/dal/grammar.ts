@@ -218,6 +218,22 @@ async function readVocabProgress(supabase: Supabase, userId: string, lessons: re
   return out
 }
 
+/**
+ * Bài nào đã mở (§3): ≥ 50% từ của bài xong Stage 3 và ≥ 50% mẫu ngữ pháp bài trước học xong.
+ * Bài trước chưa có nội dung ngữ pháp thì chỉ xét từ vựng. Dùng cho khu Thể động từ (thể mở theo bài).
+ */
+export async function readLessonOpen(supabase: Supabase, userId: string, lessons: readonly number[]): Promise<Map<number, LessonUnlock>> {
+  const [content, learners, vocab] = await Promise.all([readContent(supabase), readLearners(supabase, userId), readVocabProgress(supabase, userId, lessons)])
+  const done = new Set(learners.filter((l) => l.phase === 'review').map((l) => l.point_id))
+  const out = new Map<number, LessonUnlock>()
+  for (const lesson of lessons) {
+    const prev = content.filter((p) => p.lesson === lesson - 1)
+    const v = vocab.get(lesson) ?? { total: 0, done: 0 }
+    out.set(lesson, lessonUnlock({ vocabTotal: v.total, vocabDone: v.done, previousTotal: prev.length, previousDone: prev.filter((p) => done.has(p.id)).length }))
+  }
+  return out
+}
+
 // ---------------------------------------------------------------------------
 // Tổng quan
 // ---------------------------------------------------------------------------

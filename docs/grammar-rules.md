@@ -173,31 +173,37 @@ Kết quả: theo thời gian mọi dạng hợp lệ xuất hiện gần đều
 - **Không đổi điểm Học hay lịch FSRS.** Lưu lịch sử kiểm tra (ngày, bài, số câu, điểm). Mẫu có từ một nửa số câu sai trong bài kiểm tra được gợi ý vào Luyện thêm. — PROPOSED
 - Tải lại trang giữa bài kiểm tra thì làm tiếp từ câu đang dở, đáp án đã chọn được giữ. — PROPOSED
 
-## 10. Thể động từ (trong tab Grammar) — CONFIRMED (2026-11-15), chi tiết PROPOSED
+## 10. Thể động từ (trong tab Grammar) — CONFIRMED (2026-11-15), làm ở G5
 
-- **Chỉ luyện, không lịch:** không có điểm Học, Card hay FSRS. Ghi nhật ký luyện tập và thống kê đúng/sai theo thể và theo động từ.
-- **Theo từng thể**, mỗi thể mở khi bài dạy thể đó đã mở trong khu Grammar (§3). Danh sách dự kiến (xác minh khi soạn nội dung):
+- **Chỉ luyện, không lịch:** không điểm Học, Card hay FSRS. Ghi `verb_practice_logs`; trang Verb forms hiện tỉ lệ đúng theo thể. Trang: `/grammar/verbs`.
+- **Phạm vi** (chủ dự án chọn): động từ N5–N4 và tính từ い/な. Không làm kính ngữ bài 49–50 (đã có trong Grammar).
+- **Danh sách từ:** `pnpm verbs:build` đọc từ vựng + JMdict (EDRDG, CC BY-SA 4.0), ghi `data/n5/verbs.json` và `docs/verbs-review.md`. Nhóm động từ theo từ loại JMdict, không suy từ thể ます; trường hợp đặc biệt sửa ở `scripts/verbs/manual.json`. Tính từ な theo danh sách chọn tay (JMdict xác nhận adj-na). Bỏ câu chào, cụm cố định, dạng ～ています.
+- **Thể và bài mở** (mỗi thể mở khi bài của nó mở: ≥ 50% từ của bài xong Stage 3, và ≥ 50% mẫu ngữ pháp bài trước học xong nếu bài trước đã có nội dung — PROPOSED cho bài chưa có nội dung ngữ pháp):
 
 | Thể | Bài |
 | --- | --- |
-| ます / ません / ました / ませんでした | 4–5 |
-| て形 | 14 |
-| ない形 | 17 |
-| 辞書形 | 18 |
-| た形 | 19 |
-| 普通形 | 20 |
-| 可能形 | 27 |
-| 意向形 | 31 |
-| 命令形 / 禁止形 | 33 |
-| 条件形 (ば) | 35 |
-| 受身形 | 37 |
-| 使役形 | 48 |
-| 尊敬語 / 謙譲語 | 49–50 |
+| ます / ません / ました / ませんでした | 4 |
+| Tính từ phủ định lịch sự (くないです / じゃありません) | 8 |
+| Tính từ quá khứ, quá khứ phủ định lịch sự | 12 |
+| たい | 13 |
+| て | 14 |
+| Tính từ て (くて / で) | 16 |
+| ない | 17 |
+| Từ điển | 18 |
+| た | 19 |
+| なかった; tính từ thể thường (くない, かった, くなかった / じゃない, だった, じゃなかった) | 20 |
+| Khả năng | 27 |
+| Ý định | 31 |
+| Mệnh lệnh, cấm đoán | 33 |
+| ば | 35 |
+| Bị động | 37 |
+| Sai khiến | 48 |
 
-- **Động từ được hỏi:** ưu tiên động từ người học **đã xong Stage 2**; khi chưa đủ thì lấy động từ của các bài ≤ bài đang học, theo thứ tự lộ trình. — PROPOSED (mốc Stage 2)
-- **Nhóm động từ** I / II / III lấy từ JMdict (EDRDG, CC BY-SA 4.0), không suy từ dạng ます; trường hợp đặc biệt (行きます → 行って, ある → ない…) ghi riêng và có test cho từng động từ.
-- **Dạng bài:** gõ dạng đã chia (romaji tự đổi kana; chấp nhận Kanji hoặc kana) hoặc chọn dạng đúng trong 4. Đáp án sinh bằng quy tắc chia, không soạn tay.
-- Chọn thể và động từ: thể người học chọn (hoặc trộn các thể đã mở); trong đó ưu tiên động từ hay sai và lâu chưa luyện. — PROPOSED
+- **Quy tắc chia** ở `lib/verbs/conjugate.ts`, có test cho từng từ và từng thể. Ngoại lệ: 行く (って/った), ある (ない, không có khả năng/bị động…), 来る (来 giữ chữ, đổi cách đọc), する (khả năng できる), いい (よくない, よかった). Không nhận ら抜き (食べれる). ある, できる, わかる, いる, 要る không có các thể khả năng, ý định, mệnh lệnh, bị động, sai khiến.
+- **Cách viết khác cũng đúng:** ではありません, ではない…; くありません, くありませんでした.
+- **4 dạng câu** (chủ dự án chọn cả 4): gõ dạng đã chia; chọn trong 4 (đáp án nhiễu là lỗi hay gặp: nhầm nhóm, sai âm て/た, あない thay vì わない…, rồi các thể khác của cùng từ, không bao giờ trùng cách viết đúng); nhận diện thể (bỏ qua chữ ứng với hai thể đã mở, vd. 食べられる khả năng = bị động); đổi ngược về thể ます / từ điển.
+- **Chấm gõ:** chấp nhận Kanji hoặc kana; romaji tự đổi kana; じ/ぢ và ず/づ coi như nhau; "tch" và "cch" đều đúng.
+- **Chọn từ:** từ đã học (xong Stage 2 hoặc đã đánh dấu đã biết) trước; trong đó ưu tiên từ hay sai và lâu chưa luyện; thiếu thì lấy từ của các bài đã mở. Các thể đã chọn xoay vòng đều.
 
 ## 11. Settings
 
@@ -240,7 +246,7 @@ export const GRAMMAR_V1 = {
 | G2 | Database: `grammar_points`, `grammar_sentences`, tiến độ, nhật ký Học/Ôn/Luyện thêm, RLS; định dạng `data/grammar/*.json`; seed và kiểm tra §4.4 |
 | G3 | Nội dung bài 1–5 + file duyệt |
 | G4 | Engine (sinh 13 dạng, chọn dạng §8, Học §6, Ôn §7, Kiểm tra §9a) và giao diện tab Grammar (lên điều hướng chính); phần Ngữ pháp trong Library; bỏ bản xem trước |
-| G5 | Thể động từ trong tab Grammar: nhóm động từ từ JMdict, engine chia động từ có test, giao diện; bỏ `/verbs` riêng |
+| G5 | Thể động từ trong tab Grammar: nhóm động từ từ JMdict, engine chia có test, giao diện `/grammar/verbs`; `/verbs` cũ chuyển hướng |
 | G6 | Nội dung bài 6–50, mỗi đợt 5 bài |
 
 ## 14. Ví dụ tính tay
