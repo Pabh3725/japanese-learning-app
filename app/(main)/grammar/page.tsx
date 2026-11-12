@@ -93,9 +93,9 @@ export default async function GrammarPage() {
           <BookOpenCheck className="size-5 text-success" aria-hidden="true" />
           <span><span className="block font-medium">Test</span><span className="block text-xs text-muted-foreground">{g.testable.length ? `${g.testable.length} ${g.testable.length === 1 ? 'lesson' : 'lessons'} ready` : 'Learn every pattern of a lesson first'}</span></span>
         </Link>
-        <Link href="/verbs" className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 hover:border-[#3b4250]">
+        <Link href="/grammar/verbs" className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 hover:border-[#3b4250]">
           <Languages className="size-5 text-cyan" aria-hidden="true" />
-          <span><span className="block font-medium">Verb forms</span><span className="block text-xs text-muted-foreground">Coming soon · preview</span></span>
+          <span><span className="block font-medium">Verb forms</span><span className="block text-xs text-muted-foreground">Conjugation practice</span></span>
         </Link>
       </div>
 
