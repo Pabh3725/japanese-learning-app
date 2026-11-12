@@ -6,6 +6,7 @@ import { randomUUID } from 'node:crypto'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { getNextDaySeq } from '@/lib/dal/day-seq'
+import { readKanjiCharTier } from '@/lib/dal/kanji'
 import { submitExercise, type SubmitExerciseResponse } from '@/lib/dal/exercise'
 import { buildMatchRound, parseMatchPenalties, type MatchRoundData } from '@/lib/exercise/match-round'
 import type { LearnSkill } from '@/lib/learn/levels'
@@ -132,6 +133,8 @@ export async function buildStageQuestionFor(supabase: Supabase, userId: string, 
     supabase.from('learner_vocabulary').select('vocabulary_id').eq('user_id', userId).range(0, PAGE * 2 - 1),
     loadPoolsCached(supabase),
   ])
+  // Câu dính Kanji chỉ lấy đáp án nhiễu từ chữ đã học (chỉ Stage 4–6 hiện chữ Kanji / Hán Việt; Stage 2–3 không cần đọc)
+  const kanjiTier = stage >= 4 ? await readKanjiCharTier(supabase, userId) : undefined
   if (rowRes.error) throw new Error(`Không đọc được learner_vocabulary: ${rowRes.error.message}`)
   if (logsRes.error) throw new Error(`Không đọc được exercise_logs: ${logsRes.error.message}`)
   if (started.error) throw new Error(`Không đọc được learner_vocabulary: ${started.error.message}`)
@@ -144,7 +147,7 @@ export async function buildStageQuestionFor(supabase: Supabase, userId: string, 
   let exercise = chooseStageExercise(row.vocabularies, stage, earned, schedule.stage_points)
   for (let i = 0; i < 6 && exercise === avoid; i++) exercise = chooseStageExercise(row.vocabularies, stage, earned, schedule.stage_points)
   const word = stage === 2 || stage === 3 ? kanaView(row.vocabularies) : row.vocabularies
-  const question = buildStageQuestion(word, exercise, { ...pools, learnedWordIds: new Set(started.data?.map((r) => r.vocabulary_id)) }, undefined, { blind: stage === 3 || stage === 6 })
+  const question = buildStageQuestion(word, exercise, { ...pools, learnedWordIds: new Set(started.data?.map((r) => r.vocabulary_id)), kanjiTier }, undefined, { blind: stage === 3 || stage === 6 })
   const known = { currentStage: row.current_stage, kanjiIntroSeen: row.kanji_intro_seen_at !== null }
   return {
     ...question,
