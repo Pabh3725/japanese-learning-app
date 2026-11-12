@@ -65,7 +65,7 @@ export function KanjiPractice({ questions: initialQuestions, onDone, lesson }: {
   const rootClass = lesson ? 'flex flex-1 flex-col' : 'flex min-h-dvh flex-col'
   // Câu kiểm tra nhanh lưu ở bài (không điểm, không lịch); câu thường lưu như cũ
   const submitAnswer = async (payload: { answer: string } & Record<string, unknown>): Promise<SubmitKanjiResponse> =>
-    lesson?.micro ? ((await lesson.submitMicro(payload.answer)) ?? { status: 'invalid' }) : submitAnswer(payload)
+    lesson?.micro ? ((await lesson.submitMicro(payload.answer)) ?? { status: 'invalid' }) : submitKanjiAnswerAction(payload)
   const [index, setIndex] = useState(0)
   const [results, setResults] = useState<boolean[]>([])
   const [learned, setLearned] = useState(0)
