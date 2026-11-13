@@ -77,6 +77,9 @@ FUNCTION = {
     10: ['や', 'に'],
     12: ['でした', 'より', 'ほう'],
     15: ['いけません'],
+    17: ['なりません'],
+    18: ['こと'],
+    20: ['だ', 'じゃない', 'だった', 'じゃなかった', 'ね', 'よ', 'の', '？', 'いけない'],
 }
 # Tính từ い (bài 8+): thêm thể phủ định ～くない. いい → よくない. きれい là tính từ な nên không có ở đây.
 I_ADJ = {'みにくい', '大きい', '小さい', '新しい', '古い', '悪い', '熱い', '冷たい', '暑い', '寒い', '難しい', 'きびしい', 'やさしい',
@@ -114,8 +117,65 @@ def ta_of(dict_form, kind):
     return te[:-1] + ('だ' if te.endswith('で') else 'た')
 
 
+GODAN_A = {'う': 'わ', 'く': 'か', 'ぐ': 'が', 'す': 'さ', 'つ': 'た', 'ぬ': 'な', 'ぶ': 'ば', 'む': 'ま', 'る': 'ら'}
+
+
+def nai_of(dict_form, kind):
+    """Thể ない từ thể từ điển (chữ hoặc cách đọc)."""
+    if kind == 'v1':
+        return dict_form[:-1] + 'ない'
+    if kind == 'suru':
+        return dict_form[:-2] + 'しない'
+    if kind == 'kuru':
+        return dict_form[:-2] + ('来ない' if dict_form.endswith('来る') else 'こない')
+    if kind == 'v5-aru':
+        return dict_form[:-2] + 'ない'
+    return dict_form[:-1] + GODAN_A[dict_form[-1]] + 'ない'
+
+
 # Thể て đã học → thể ます (để biết chỗ [F] là thể て của động từ nào)
 TE_FORMS = {}
+# Các thể khác (bài 17+): chữ → (tên thể, thể ます, từ, nhiễu)
+CONJ_FORMS = {}
+
+
+def conj_forms(w, lesson):
+    """Các thể (chữ, cách đọc, tên thể, nhiễu) của động từ w đã mở tới bài lesson."""
+    out = []
+    d, dr, k = w['dict'], w['dictReading'], w['kind']
+    masu, stem = w['expression'], w['expression'][:-2]
+    nai, nair = nai_of(d, k), nai_of(dr, k)
+    te = te_of(d, k)
+    ta, tar = ta_of(d, k), ta_of(dr, k)
+    if lesson >= 17:
+        out += [
+            (nai, nair, 'thể ない', [stem + 'ない', d + 'ない', stem + 'らない', d + 'らない']),
+            (nai[:-1] + 'ければ', nair[:-1] + 'ければ', 'なければ', [stem + 'なければ', d + 'なければ', nai + 'ければ', stem + 'らなければ']),
+            (nai[:-1] + 'くても', nair[:-1] + 'くても', 'なくても', [stem + 'なくても', d + 'なくても', nai + 'ても', stem + 'らなくても']),
+        ]
+    if lesson >= 18:
+        # Thể た chưa học ở bài 18: nhiễu là thể ます, thể て và dạng chia sai (書くる)
+        out.append((d, dr, 'thể từ điển', ['=' + masu, '=' + te, stem + 'る', d + 'る']))
+    if lesson >= 19:
+        out += [
+            (ta, tar, 'thể た', [stem + 'た', d + 'た', stem + 'った', '=' + te]),
+            (ta + 'り', tar + 'り', 'thể たり', [stem + 'たり', d + 'たり', te + 'り', stem + 'ったり']),
+        ]
+    if lesson >= 20:
+        out.append((nai[:-1] + 'かった', nair[:-1] + 'かった', 'thể なかった', [stem + 'なかった', d + 'なかった', nai + 'かった', stem + 'らなかった']))
+    return out
+
+
+def adj_conj(w, lesson):
+    """Thể nối ～くて (bài 16) và phó từ ～く (bài 19) của tính từ い."""
+    expr, kana = w['expression'], w['reading']
+    st, sr = (expr[:-2] + 'よ', kana[:-2] + 'よ') if w['kind'] == 'adj-ii' else (expr[:-1], kana[:-1])
+    out = []
+    if lesson >= 16:
+        out.append((st + 'くて', sr + 'くて', 'nối (くて)', [expr + 'て', expr + 'で', st + 'くで']))
+    if lesson >= 19:
+        out.append((st + 'く', sr + 'く', 'phó từ (く)', [expr + 'く', st + 'に', '=' + expr]))
+    return out
 
 
 class Vocab:
@@ -168,6 +228,18 @@ class Vocab:
                     te_w, te_r = te_of(w['dict'], w['kind']), te_of(w['dictReading'], w['kind'])
                     self.add(tokens, te_w, te_r)
                     TE_FORMS.setdefault(te_w, (expr, w))
+                for written, reading, form, wrong in conj_forms(w, lesson):
+                    self.add(tokens, written, reading)
+                    CONJ_FORMS.setdefault(written, (form, expr, wrong))
+                # Viết bằng kana (わかる cho 分かる): tra được thể, nhiễu cũng bằng kana
+                if kana != expr:
+                    kw = {**w, 'expression': kana, 'dict': w['dictReading']}
+                    for written, _reading, form, wrong in conj_forms(kw, lesson):
+                        CONJ_FORMS.setdefault(written, (form, kana, wrong))
+            if w['kind'] in ('adj-i', 'adj-ii'):
+                for written, reading, form, wrong in adj_conj(w, lesson):
+                    self.add(tokens, written, reading)
+                    CONJ_FORMS.setdefault(written, (form, expr, wrong))
         if lesson >= 8:
             for neg_t, neg_r in I_ADJ_NEG.values():
                 tokens.update([neg_t, neg_r])
@@ -264,6 +336,16 @@ def special_slot(text):
     if text in TE_FORMS:
         masu, w = TE_FORMS[text]
         return te_distractors(text, masu, w), 'thể て', masu
+    if text in CONJ_FORMS:
+        form, base, wrong = CONJ_FORMS[text]
+        # Nhiễu có '=' là thể có thật (chỉ sai trong câu này); còn lại là dạng chia sai: đánh * để không kiểm tra từ vựng
+        out = []
+        for x in wrong:
+            real = x.startswith('=')
+            x = x.lstrip('=')
+            if x != text and x not in [o.lstrip('*') for o in out]:
+                out.append(x if real else '*' + x)
+        return out[:3], form, base
     return None
 
 
@@ -285,6 +367,10 @@ def adj_form(text):
         return 'quá khứ', 'です'
     if text == 'じゃありませんでした':
         return 'quá khứ phủ định', 'です'
+    # Thể thông thường của です (bài 20)
+    plain = {'だ': 'thông thường', 'じゃない': 'thông thường phủ định', 'だった': 'thông thường quá khứ', 'じゃなかった': 'thông thường quá khứ phủ định'}
+    if text in plain:
+        return plain[text], 'です'
     body = text[:-2] if text.endswith('です') and not text.endswith('じゃありません') else text
     # Tra danh sách tính từ để không nhầm với ～たかった của động từ (食べたかった), và vẫn đúng với 冷たかった
     for tail, label in (('くなかった', 'quá khứ phủ định'), ('かった', 'quá khứ')):
@@ -396,6 +482,19 @@ def point(lesson, order, pattern, meaning, explanation, rows, notes=None, approv
     if notes:
         p['notes'] = notes
     return p
+
+
+def add_uses(points, extra):
+    """Bổ sung mẫu cũ mà câu (theo mã) có dùng nhưng chưa ghi: {'g16-01-s29': ['g06-03']}."""
+    found = set()
+    for p in points:
+        for sen in p['sentences']:
+            if sen['code'] in extra:
+                sen['uses'] = list(dict.fromkeys([*sen.get('uses', []), *extra[sen['code']]]))
+                found.add(sen['code'])
+    missing = set(extra) - found
+    if missing:
+        raise ValueError(f'add_uses: không có câu {sorted(missing)}')
 
 
 def write(lesson, points):
