@@ -56,7 +56,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
   Hỏi **な** (word) · nhiễu: だ, の, に  
   Hỏi **んです** (word) · nhiễu: ます, ません, でした
 - `s10` mức 1 · どうして日本語を勉強して**いる**んですか。 — Sao bạn lại học tiếng Nhật?  
-  Hỏi **いる** (form, thể từ điển) · nhiễu: いるる, いった, いるた
+  Hỏi **いる** (form, thể từ điển) · nhiễu: いるる, いるた, いりる
 - `s11` mức 1 · 日本の会社で**働きたい****んです**。 — Vì tôi muốn làm việc ở công ty Nhật.  
   Hỏi **働きたい** (form, muốn (たい)) · nhiễu: 働きます, 働きたく, 働くたい  
   Hỏi **んです** (word) · nhiễu: ます, ません, でした
@@ -100,7 +100,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
 - `s24` mức 2 · どうして**食べない**んですか。 — Sao bạn không ăn?  
   Hỏi **食べない** (form, thể ない) · nhiễu: 食べるない, 食べらない, 食べるらない
 - `s25` mức 2 · ダイエットをして**いる****んです**。 — Tôi đang ăn kiêng.  
-  Hỏi **いる** (form, thể từ điển) · nhiễu: いるる, いった, いるた  
+  Hỏi **いる** (form, thể từ điển) · nhiễu: いるる, いるた, いりる  
   Hỏi **んです** (word) · nhiễu: ます, ません, でした
 - `s26` mức 2 · いつ日本へ**来た****んですか**。 — Bạn sang Nhật khi nào vậy?  
   Hỏi **来た** (form, thể た) · nhiễu: 来るた, 来った, 来たた  
@@ -363,7 +363,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
 - `s16` mức 2 · 日本語を勉強したいんですが、どこで**勉強したら**いいですか。 — Tôi muốn học tiếng Nhật, nên học ở đâu?  
   Hỏi **勉強したら** (form, thể たら) · nhiễu: 勉強するたら, 勉強してら, 勉強しったら
 - `s17` mức 2 · パソコンが動かないんですが、どう**したら**いいですか。 — Máy tính không chạy, tôi nên làm thế nào?  
-  Hỏi **したら** (form, thể たら) · nhiễu: するたら, してら, しったら
+  Hỏi **したら** (form, thể たら) · nhiễu: するたら, してら, したりら
 - `s18` mức 2 · 燃えるごみはいつ**出したら**いいですか。 — Rác cháy được thì nên đổ khi nào?  
   Hỏi **出したら** (form, thể たら) · nhiễu: 出すたら, 出してら, 出しったら
 - `s19` mức 2 · 缶や瓶はどこに**出したら**いいですか。 — Lon và chai thì nên bỏ ở đâu?  
@@ -391,13 +391,13 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
 - `s30` mức 3 · 新しいアパートを探しているんですが、どこで**聞いたら**いいですか。 — Tôi đang tìm căn hộ mới, nên hỏi ở đâu?  
   Hỏi **聞いたら** (form, thể たら) · nhiễu: 聞きたら, 聞くたら, 聞いてら
 - `s31` mức 3 · このボタンを押しても、動かないんですが、どう**したら**いいですか。 — Ấn nút này mà máy không chạy, tôi nên làm thế nào?  
-  Hỏi **したら** (form, thể たら) · nhiễu: するたら, してら, しったら
+  Hỏi **したら** (form, thể たら) · nhiễu: するたら, してら, したりら
 - `s32` mức 3 · 友達の誕生日に何を**あげたら**いいですか。 — Sinh nhật bạn tôi nên tặng gì?  
   Hỏi **あげたら** (form, thể たら) · nhiễu: あげるたら, あげてら, あげったら
 - `s33` mức 3 · 漢字を覚えたいんですが、どう**やったら**いいですか。 — Tôi muốn nhớ chữ Hán, nên làm thế nào?  
   Hỏi **やったら** (form, thể たら) · nhiễu: やりたら, やるたら, やってら
 - `s34` mức 3 · ミラーさんが来なかったら、どう**したら**いいですか。 — Nếu anh Miller không đến thì nên làm sao?  
-  Hỏi **したら** (form, thể たら) · nhiễu: するたら, してら, しったら
+  Hỏi **したら** (form, thể たら) · nhiễu: するたら, してら, したりら
 - `s35` mức 3 · ごみを出す日がわからないんですが、誰に**聞いたら**いいですか。 — Tôi không biết ngày đổ rác, nên hỏi ai?  
   Hỏi **聞いたら** (form, thể たら) · nhiễu: 聞きたら, 聞くたら, 聞いてら
 - `s36` mức 3 · 雨が降ったら、運動会はどこで**やったら**いいですか。 — Nếu trời mưa thì nên tổ chức hội thao ở đâu?  
@@ -409,7 +409,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
 - `s39` mức 3 · 駅に着いたら、どこで**待ったら**いいですか。 — Đến ga rồi thì nên đợi ở đâu?  
   Hỏi **待ったら** (form, thể たら) · nhiễu: 待ちたら, 待つたら, 待ってら
 - `s40` mức 3 · お金が足りないときは、どう**したら**いいですか。 — Khi không đủ tiền thì nên làm thế nào?  
-  Hỏi **したら** (form, thể たら) · nhiễu: するたら, してら, しったら
+  Hỏi **したら** (form, thể たら) · nhiễu: するたら, してら, したりら
 
 </details>
 
@@ -1208,7 +1208,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
 **5 câu tiêu biểu**
 
 - `s01` mức 1 · 毎朝ジョギングを**して**います。 — Sáng nào tôi cũng chạy bộ.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s08` mức 1 · 毎日日記を**書いて**います。 — Ngày nào tôi cũng viết nhật ký.  
   Hỏi **書いて** (form, thể て) · nhiễu: 書くて, 書きて, 書きって
 - `s16` mức 2 · たいてい自転車で学校に**通って**います。 — Tôi thường đi học bằng xe đạp.  
@@ -1216,12 +1216,12 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
 - `s23` mức 2 · 両親にお金を**送って**います。 — Tôi gửi tiền cho bố mẹ đều đặn.  
   Hỏi **送って** (form, thể て) · nhiễu: 送るて, 送りて, 送りって
 - `s33` mức 3 · 週末はボランティアをしたり、子どもと遊んだり**して**います。 — Cuối tuần tôi làm tình nguyện, chơi với con…  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 
 <details><summary>Toàn bộ 40 câu</summary>
 
 - `s01` mức 1 · 毎朝ジョギングを**して**います。 — Sáng nào tôi cũng chạy bộ.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s02` mức 1 · 息子は大学に**通って**います。 — Con trai tôi đang học đại học.  
   Hỏi **通って** (form, thể て) · nhiễu: 通うて, 通いて, 通いって
 - `s03` mức 1 · 毎晩日本語を**勉強して**います。 — Tối nào tôi cũng học tiếng Nhật.  
@@ -1237,18 +1237,18 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
 - `s08` mức 1 · 毎日日記を**書いて**います。 — Ngày nào tôi cũng viết nhật ký.  
   Hỏi **書いて** (form, thể て) · nhiễu: 書くて, 書きて, 書きって
 - `s09` mức 1 · 週末はボランティアを**して**います。 — Cuối tuần tôi làm tình nguyện.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s10` mức 1 · 毎朝新聞を**読んで**います。 — Sáng nào tôi cũng đọc báo.  
   Hỏi **読んで** (form, thể て) · nhiễu: 読むて, 読みて, 読みって
 - `s11` mức 1 · ミラーさんは毎晩お酒を**飲んで**います。 — Tối nào anh Miller cũng uống rượu.  
   Hỏi **飲んで** (form, thể て) · nhiễu: 飲むて, 飲みて, 飲みって
 - `s12` mức 1 · 土曜日にはいつもテニスを**して**います。 — Thứ bảy tôi luôn chơi tennis.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s13` mức 1 · 父は毎朝散歩を**して**います。 — Sáng nào bố tôi cũng đi dạo.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s14` mức 2 · ええ、毎朝ジョギングを**して**います。 — Vâng, sáng nào tôi cũng chạy bộ.  
   Câu hỏi: 何かスポーツをしていますか。 (Bạn có chơi môn thể thao nào không?) · câu đáp sai: いいえ、毎朝ジョギングをしています。 / ええ、毎朝ジョギングをしていますか。 / ええ、毎朝ジョギングをしるています。  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s15` mức 2 · 子どもと公園で**遊んで**います。 — Tôi chơi với con ở công viên.  
   Câu hỏi: 週末は何をしていますか。 (Cuối tuần bạn thường làm gì?) · câu đáp sai: 子どもと公園で遊んでいますか。 / はい、遊んでいます。 / 子どもと公園で遊びています。  
   Hỏi **遊んで** (form, thể て) · nhiễu: 遊ぶて, 遊びて, 遊びって
@@ -1277,9 +1277,9 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
 - `s27` mức 2 · 私は毎朝コーヒーを**飲んで**います。 — Sáng nào tôi cũng uống cà phê.  
   Hỏi **飲んで** (form, thể て) · nhiễu: 飲むて, 飲みて, 飲みって
 - `s28` mức 3 · 毎朝ジョギングを**して**いるから、体の調子がいいです。 — Vì sáng nào cũng chạy bộ nên tôi thấy khỏe.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s29` mức 3 · 大学に通いながら、アルバイトを**して**います。 — Tôi vừa học đại học vừa làm thêm.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s30` mức 3 · 毎日日本語のドラマを**見て**いるから、会話が上手になりました。 — Vì ngày nào cũng xem phim tiếng Nhật nên hội thoại đã giỏi lên.  
   Hỏi **見て** (form, thể て) · nhiễu: 見るて, 見って, 見んで
 - `s31` mức 3 · 娘はピアノを**習って**いるけど、あまり上手じゃない。 — Con gái tôi học piano nhưng không giỏi lắm.  
@@ -1287,19 +1287,19 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
 - `s32` mức 3 · ミラーさんは毎朝**走って**いると言いました。 — Anh Miller nói sáng nào cũng chạy.  
   Hỏi **走って** (form, thể て) · nhiễu: 走るて, 走りて, 走りって
 - `s33` mức 3 · 週末はボランティアをしたり、子どもと遊んだり**して**います。 — Cuối tuần tôi làm tình nguyện, chơi với con…  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s34` mức 3 · 毎晩寝る前に日本語の本を**読んで**います。 — Tối nào trước khi ngủ tôi cũng đọc sách tiếng Nhật.  
   Hỏi **読んで** (form, thể て) · nhiễu: 読むて, 読みて, 読みって
 - `s35` mức 3 · 両親によく手紙を**書いて**いるんです。 — Tôi hay viết thư cho bố mẹ đấy.  
   Hỏi **書いて** (form, thể て) · nhiễu: 書くて, 書きて, 書きって
 - `s36` mức 3 · 雨が降っても、毎朝散歩を**して**います。 — Dù trời mưa sáng nào tôi cũng đi dạo.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s37` mức 3 · 毎朝コーヒーを飲みながら新聞を**読んで**います。 — Sáng nào tôi cũng vừa uống cà phê vừa đọc báo.  
   Hỏi **読んで** (form, thể て) · nhiễu: 読むて, 読みて, 読みって
 - `s38` mức 3 · 会社に入ってから、ずっと日本語を**勉強して**います。 — Từ khi vào công ty tôi luôn học tiếng Nhật.  
   Hỏi **勉強して** (form, thể て) · nhiễu: 勉強するて, 勉強しって, 勉強すって
 - `s39` mức 3 · 時間があるときは、いつも料理を**して**います。 — Lúc có thời gian tôi luôn nấu ăn.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s40` mức 3 · 息子は毎日学校まで30分歩いて**通って**いるでしょう？ — Ngày nào con trai bạn cũng đi bộ 30 phút đến trường phải không?  
   Hỏi **通って** (form, thể て) · nhiễu: 通うて, 通いて, 通いって
 
@@ -1341,7 +1341,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
   Hỏi **広い** (form, khẳng định) · nhiễu: 広いだ, 広く, 広くて  
   Hỏi **し** (word) · nhiễu: けど, と, か
 - `s04` mức 1 · 雨も降って**いる****し**、今日は出かけません。 — Trời lại đang mưa nên hôm nay tôi không ra ngoài.  
-  Hỏi **いる** (form, thể từ điển) · nhiễu: いるる, いった, いるた  
+  Hỏi **いる** (form, thể từ điển) · nhiễu: いるる, いるた, いりる  
   Hỏi **し** (word) · nhiễu: けど, と, か
 - `s05` mức 1 · 値段も**安い**し、味もいいです。 — Giá vừa rẻ, vị lại ngon.  
   Hỏi **安い** (form, khẳng định) · nhiễu: 安いだ, 安く, 安くて
@@ -1408,7 +1408,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
   Hỏi **いい** (form, khẳng định) · nhiễu: いいだ, よく, よくて  
   Hỏi **し** (word) · nhiễu: けど, と, か
 - `s28` mức 3 · 雨も降って**いる****し**、寒いから、タクシーで帰りましょう。 — Trời vừa mưa lại lạnh nên mình về bằng taxi nhé.  
-  Hỏi **いる** (form, thể từ điển) · nhiễu: いるる, いった, いるた  
+  Hỏi **いる** (form, thể từ điển) · nhiễu: いるる, いるた, いりる  
   Hỏi **し** (word) · nhiễu: けど, と, か
 - `s29` mức 3 · この店は**安い****し**、おいしいと思います。 — Tôi nghĩ cửa hàng này vừa rẻ vừa ngon.  
   Hỏi **安い** (form, khẳng định) · nhiễu: 安いだ, 安く, 安くて  
@@ -1486,7 +1486,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
   Hỏi **それで** (word) · nhiễu: それに, でも, それから
 - `s07` mức 1 · 給料が安いです。**それで**、アルバイトも**して**います。 — Lương thấp. Vì thế tôi làm thêm nữa.  
   Hỏi **それで** (word) · nhiễu: それに, でも, それから  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s08` mức 1 · 道がわかりませんでした。**それで**、駅の人**に**聞きました。 — Tôi không biết đường. Vì thế tôi đã hỏi nhân viên nhà ga.  
   Hỏi **それで** (word) · nhiễu: それに, でも, それから  
   Hỏi **に** (particle) · nhiễu: を, で, へ
@@ -1873,7 +1873,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
   Hỏi **飲んで** (form, thể て) · nhiễu: 飲むて, 飲みて, 飲みって  
   Hỏi **しまいましょう** (word) · nhiễu: おきましょう, ありましょう, しまりましょう
 - `s33` mức 3 · 晩ごはんを作る前に、部屋の掃除を**して****しまいます**。 — Trước khi nấu bữa tối tôi sẽ dọn xong phòng.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって  
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら  
   Hỏi **しまいます** (word) · nhiễu: おきます, あります, しまります
 
 <details><summary>Toàn bộ 40 câu</summary>
@@ -1894,7 +1894,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
   Hỏi **食べて** (form, thể て) · nhiễu: 食べるて, 食べって, 食べんで  
   Hỏi **しまいました** (word) · nhiễu: おきました, ありました, しまりました
 - `s06` mức 1 · 部屋の掃除はもう**して****しまいました**。 — Phòng thì tôi đã dọn xong rồi.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって  
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら  
   Hỏi **しまいました** (word) · nhiễu: おきました, ありました, しまりました
 - `s07` mức 1 · この漢字は全部**覚えて****しまいました**。 — Chỗ chữ Hán này tôi đã thuộc hết rồi.  
   Hỏi **覚えて** (form, thể て) · nhiễu: 覚えるて, 覚えって, 覚えんで  
@@ -1906,10 +1906,10 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
   Hỏi **払って** (form, thể て) · nhiễu: 払うて, 払いて, 払いって  
   Hỏi **しまいました** (word) · nhiễu: おきました, ありました, しまりました
 - `s10` mức 1 · 洗濯は朝**して****しまいます**。 — Giặt giũ thì buổi sáng tôi sẽ làm xong.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって  
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら  
   Hỏi **しまいます** (word) · nhiễu: おきます, あります, しまります
 - `s11` mức 1 · 引越しの準備はもう**して****しまいました**。 — Việc chuẩn bị chuyển nhà tôi đã làm xong rồi.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって  
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら  
   Hỏi **しまいました** (word) · nhiễu: おきました, ありました, しまりました
 - `s12` mức 1 · この小説は1日で**読んで****しまいました**。 — Cuốn tiểu thuyết này tôi đọc xong trong một ngày.  
   Hỏi **読んで** (form, thể て) · nhiễu: 読むて, 読みて, 読みって  
@@ -1932,7 +1932,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
   Hỏi **書いて** (form, thể て) · nhiễu: 書くて, 書きて, 書きって  
   Hỏi **しまいます** (word) · nhiễu: おきます, あります, しまります
 - `s18` mức 2 · 台所の掃除を**して****しまいます**。 — Tôi sẽ dọn xong nhà bếp.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって  
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら  
   Hỏi **しまいます** (word) · nhiễu: おきます, あります, しまります
 - `s19` mức 2 · お弁当はもう**作って****しまいました**。 — Cơm hộp tôi đã làm xong rồi.  
   Hỏi **作って** (form, thể て) · nhiễu: 作るて, 作りて, 作りって  
@@ -1971,19 +1971,19 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
   Hỏi **書いて** (form, thể て) · nhiễu: 書くて, 書きて, 書きって  
   Hỏi **しまって** (word) · nhiễu: おいて, あって, しまりて
 - `s31` mức 3 · 引越しの準備はもう**して****しまった**と言いました。 — Người đó nói đã chuẩn bị chuyển nhà xong rồi.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって  
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら  
   Hỏi **しまった** (word) · nhiễu: おいた, あった, しまりた
 - `s32` mức 3 · 会議の資料は今日**読んで****しまいたい**です。 — Tài liệu cuộc họp tôi muốn đọc xong trong hôm nay.  
   Hỏi **読んで** (form, thể て) · nhiễu: 読むて, 読みて, 読みって  
   Hỏi **しまいたい** (word) · nhiễu: おきたい, ありたい, しまりたい
 - `s33` mức 3 · 晩ごはんを作る前に、部屋の掃除を**して****しまいます**。 — Trước khi nấu bữa tối tôi sẽ dọn xong phòng.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって  
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら  
   Hỏi **しまいます** (word) · nhiễu: おきます, あります, しまります
 - `s34` mức 3 · 宿題はもう**やって****しまった**から、遊びに行けます。 — Bài tập làm xong rồi nên tôi đi chơi được.  
   Hỏi **やって** (form, thể て) · nhiễu: やるて, やりて, やりって  
   Hỏi **しまった** (word) · nhiễu: おいた, あった, しまりた
 - `s35` mức 3 · 雨が降る前に、洗濯を**して****しまいましょう**。 — Trước khi mưa mình giặt xong đồ đi.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって  
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら  
   Hỏi **しまいましょう** (word) · nhiễu: おきましょう, ありましょう, しまりましょう
 - `s36` mức 3 · この資料を**コピーして****しまったら**、帰ってもいいです。 — Photo xong tài liệu này thì bạn về được rồi.  
   Hỏi **コピーして** (form, thể て) · nhiễu: コピーするて, コピーしって, コピーすって  
@@ -2227,7 +2227,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
   Hỏi **置いて** (form, thể て) · nhiễu: 置くて, 置きて, 置きって
 - `s15` mức 2 · いいえ、まだです。あした**して****おきます**。 — Chưa, mai tôi sẽ chuẩn bị.  
   Câu hỏi: 旅行の準備はもうしましたか。 (Bạn đã chuẩn bị cho chuyến đi chưa?) · câu đáp sai: いいえ、まだです。あしたしてありました。 / はい、まだです。 / いいえ、まだです。あしたするておきます。  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって  
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら  
   Hỏi **おきます** (word) · nhiễu: あります, しまいます, おきります
 - `s16` mức 2 · 会議の前に部長と**相談して****おきます**。 — Trước cuộc họp tôi bàn trước với trưởng phòng.  
   Hỏi **相談して** (form, thể て) · nhiễu: 相談するて, 相談しって, 相談すって  
@@ -2294,7 +2294,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
 - `s38` mức 3 · 旅行の前に、お金を銀行から**出して**おいてもいいですか。 — Trước chuyến đi tôi rút tiền ở ngân hàng sẵn có được không?  
   Hỏi **出して** (form, thể て) · nhiễu: 出すて, 出しって, 出って
 - `s39` mức 3 · 寝る前に、あしたの準備を**して****おく**ことが大切です。 — Trước khi ngủ chuẩn bị sẵn cho ngày mai là điều quan trọng.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって  
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら  
   Hỏi **おく** (word) · nhiễu: ある, しまう, おきりる
 - `s40` mức 3 · 冷蔵庫にビールが入れてあるでしょう？ジュースも**入れて**おいてください。 — Trong tủ lạnh có bia rồi phải không? Để sẵn cả nước ngọt nữa nhé.  
   Hỏi **入れて** (form, thể て) · nhiễu: 入れるて, 入れって, 入れんで
@@ -2319,7 +2319,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
   Hỏi **開いて** (form, thể て) · nhiễu: 開けて, 開きて, 開くて
 - `s16` mức 2 · **まだ**宿題を**して**います。 — Tôi vẫn đang làm bài tập.  
   Hỏi **まだ** (word) · nhiễu: もう, すぐ, よく  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s23` mức 2 · **まだ**あの店は**開いて**います。 — Cửa hàng kia vẫn còn mở.  
   Hỏi **まだ** (word) · nhiễu: もう, すぐ, よく  
   Hỏi **開いて** (form, thể て) · nhiễu: 開けて, 開きて, 開くて
@@ -2340,7 +2340,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
   Hỏi **働いて** (form, thể て) · nhiễu: 働くて, 働きて, 働きって
 - `s04` mức 1 · 部長は**まだ**会議を**して**います。 — Trưởng phòng vẫn đang họp.  
   Hỏi **まだ** (word) · nhiễu: もう, すぐ, よく  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s05` mức 1 · **まだ**電気が**ついて**います。 — Đèn vẫn còn bật.  
   Hỏi **まだ** (word) · nhiễu: もう, すぐ, よく  
   Hỏi **ついて** (form, thể て) · nhiễu: つけて, つきて, つくて
@@ -2378,7 +2378,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
   Hỏi **働いて** (form, thể て) · nhiễu: 働くて, 働きて, 働きって
 - `s16` mức 2 · **まだ**宿題を**して**います。 — Tôi vẫn đang làm bài tập.  
   Hỏi **まだ** (word) · nhiễu: もう, すぐ, よく  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s17` mức 2 · 娘は**まだ**ピアノを**習って**います。 — Con gái tôi vẫn đang học piano.  
   Hỏi **まだ** (word) · nhiễu: もう, すぐ, よく  
   Hỏi **習って** (form, thể て) · nhiễu: 習うて, 習いて, 習いって
@@ -2426,7 +2426,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
   Hỏi **ついて** (form, thể て) · nhiễu: つけて, つきて, つくて
 - `s32` mức 3 · **まだ**宿題を**して**いるんですか。 — Bạn vẫn đang làm bài tập à?  
   Hỏi **まだ** (word) · nhiễu: もう, すぐ, よく  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s33` mức 3 · 会議はもう終わったけど、部長は**まだ****話して**いる。 — Cuộc họp xong rồi nhưng trưởng phòng vẫn đang nói.  
   Hỏi **まだ** (word) · nhiễu: もう, すぐ, よく  
   Hỏi **話して** (form, thể て) · nhiễu: 話すて, 話しって, 話って

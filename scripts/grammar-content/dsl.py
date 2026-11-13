@@ -799,13 +799,38 @@ def write(lesson, points):
     print(f'Đã ghi {path.relative_to(ROOT)}: {len(points)} mẫu, {sum(len(p["sentences"]) for p in points)} câu')
 
 
+def lemma(text):
+    """Từ gốc (cách đọc thể ます) của một dạng chia: 見ました → みます, 寒く → 寒い, わかって → わかります.
+    Không tra được thì là chính nó."""
+    base = text
+    if text in CONJ_FORMS:
+        base = CONJ_FORMS[text][1]
+    elif text in TE_FORMS:
+        base = TE_FORMS[text][0]
+    else:
+        te_kana = {te_of(w['dictReading'], w['kind']): w['reading'] for w in VERB_LIST if w['kind'] in VERB_KINDS}
+        if text in te_kana:
+            return te_kana[text]
+        for tail in ('ませんでした', 'ましょう', 'ました', 'ません', 'たくなかった', 'たくない', 'たかった', 'たい'):
+            if text.endswith(tail):
+                base = text[:-len(tail)] + 'ます'
+                break
+    return VOCAB.reading.get(base, base)
+
+
 def not_real(text, wrong):
-    """Bài 31+: bỏ nhiễu tình cờ là một từ có thật (しって = 知って, しらない = 知らない, いった = 行った),
-    rồi bù bằng dạng sai rõ ràng cho đủ 3. Bài 1–30 đã duyệt giữ nguyên."""
+    """Bỏ nhiễu tình cờ là một từ có thật (しって = 知って, しらない = 知らない, いった = 行った),
+    rồi bù bằng dạng sai rõ ràng cho đủ 3. Bài 1–30 (đã duyệt): giữ nhiễu là thể khác của cùng từ
+    (見ました cho 見ましょう, 寒く cho 寒い), chỉ bỏ từ có thật của từ khác."""
     if VOCAB.lesson < 31:
-        return wrong
-    keep = [x for x in wrong if x.lstrip('*') not in VOCAB.tokens and x.lstrip('*') != text]
-    for extra in (text + 'る', text + 'た', text + 'ら', text + 'て'):
+        keep = [x for x in wrong if x.lstrip('*') not in VOCAB.tokens or lemma(x.lstrip('*')) == lemma(text)]
+    else:
+        keep = [x for x in wrong if x.lstrip('*') not in VOCAB.tokens and x.lstrip('*') != text]
+    extras = (text + 'る', text + 'た', text + 'ら', text + 'て')
+    if VOCAB.lesson < 31:
+        # してる／してた là thể nói tắt có thật của している: bù bằng dạng sai rõ ràng (しりて, したりり)
+        extras = (text[:-1] + 'り' + text[-1], text + 'ら', text + 'り', text + 'る')
+    for extra in extras:
         if len(keep) >= 3:
             break
         if extra not in VOCAB.tokens and '*' + extra not in keep and extra not in keep:
