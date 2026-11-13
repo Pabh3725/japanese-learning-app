@@ -1,6 +1,6 @@
 # Duyệt nội dung ngữ pháp bài 11–15
 
-Gói G6. Giải thích và câu do Claude tự soạn; danh sách mẫu theo các trang tổng hợp ngữ pháp Minna no Nihongo trên mạng. **Chủ dự án đã duyệt tất cả các mẫu trong file này.** Với mỗi mẫu: đọc giải thích và 5 câu tiêu biểu. 25 câu còn lại đã qua kiểm tra tự động; thấy câu nào sai thì ghi mã câu (ví dụ g01-03-s12) để Claude sửa hoặc ẩn.
+Gói G6. Giải thích và câu do Claude tự soạn; danh sách mẫu theo các trang tổng hợp ngữ pháp Minna no Nihongo trên mạng. **Chủ dự án đã duyệt tất cả các mẫu trong file này.** Với mỗi mẫu: đọc giải thích và 5 câu tiêu biểu. Các câu còn lại đã qua kiểm tra tự động; thấy câu nào sai thì ghi mã câu (ví dụ g01-03-s12) để Claude sửa hoặc ẩn.
 
 Cách đọc: chỗ **in đậm** là chỗ được hỏi (trợ từ, dạng です/động từ, hậu tố); "nhiễu" là các đáp án sai chắc chắn ở chỗ đó.
 

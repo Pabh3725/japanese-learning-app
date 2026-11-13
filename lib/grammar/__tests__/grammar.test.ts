@@ -58,7 +58,7 @@ describe('Mọi câu, mọi dạng: đáp án đúng chấm đúng, đáp án sa
       }
     }
     expect(checked).toBeGreaterThan(15000)
-  })
+  }, 60_000) // duyệt mọi câu × mọi dạng × 3 seed; dữ liệu càng nhiều bài càng lâu
 
   it('★: mọi cách điền đúng đều cho cùng một mảnh ở ★', () => {
     for (const p of points) {

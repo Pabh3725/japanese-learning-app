@@ -57,7 +57,7 @@ def line(s):
 def main(a, b):
     L = [f'# Duyệt nội dung ngữ pháp bài {a}–{b}\n',
          f'Gói {"G3" if a <= 5 else "G6"}. Giải thích và câu do Claude tự soạn; danh sách mẫu theo các trang tổng hợp ngữ pháp Minna no Nihongo trên mạng. '
-         '{STATUS} Với mỗi mẫu: đọc giải thích và 5 câu tiêu biểu. 25 câu còn lại đã qua kiểm tra tự động; '
+         '{STATUS} Với mỗi mẫu: đọc giải thích và 5 câu tiêu biểu. Các câu còn lại đã qua kiểm tra tự động; '
          'thấy câu nào sai thì ghi mã câu (ví dụ g01-03-s12) để Claude sửa hoặc ẩn.\n',
          'Cách đọc: chỗ **in đậm** là chỗ được hỏi (trợ từ, dạng です/động từ, hậu tố); "nhiễu" là các đáp án sai chắc chắn ở chỗ đó.\n']
     for lesson in range(a, b + 1):
@@ -78,7 +78,7 @@ def main(a, b):
                      f"Dạng bài làm được ({len(types)}/13): {', '.join(NAMES[t] for t in ORDER if t in types)}.\n")
             L.append('**5 câu tiêu biểu**\n')
             L += [line(s) for s in ss if s.get('sample')]
-            L.append('\n<details><summary>Toàn bộ 30 câu</summary>\n')
+            L.append(f'\n<details><summary>Toàn bộ {len(ss)} câu</summary>\n')
             L += [line(s) for s in ss]
             L.append('\n</details>\n')
     pending = sum(1 for line in L if '⏳ chờ duyệt' in line)

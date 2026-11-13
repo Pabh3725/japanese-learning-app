@@ -80,6 +80,14 @@ FUNCTION = {
     17: ['なりません'],
     18: ['こと'],
     20: ['だ', 'じゃない', 'だった', 'じゃなかった', 'ね', 'よ', 'の', '？', 'いけない'],
+    21: ['と', 'でしょう', 'でも'],
+    23: ['とき', 'と'],
+    25: ['ら', 'たら', 'ても', 'でも', 'だったら', 'じゃなかったら'],
+    26: ['ん', 'んです', 'んですか', 'んですが', 'いただけませんか', 'いいですか'],
+    27: ['しか', 'は'],
+    28: ['ながら', 'し'],
+    29: ['しまいます', 'しまいました', 'しまいません', 'しまう', 'しまった', 'しまって', 'しまったら', 'しまいたい', 'しまいましょう'],
+    30: ['おきます', 'おきました', 'おきましょう', 'おく', 'おいた', 'おいて', 'おかなければ', 'あります', 'ある'],
 }
 # Tính từ い (bài 8+): thêm thể phủ định ～くない. いい → よくない. きれい là tính từ な nên không có ở đây.
 I_ADJ = {'みにくい', '大きい', '小さい', '新しい', '古い', '悪い', '熱い', '冷たい', '暑い', '寒い', '難しい', 'きびしい', 'やさしい',
@@ -139,6 +147,37 @@ TE_FORMS = {}
 CONJ_FORMS = {}
 
 
+GODAN_E = {'う': 'え', 'く': 'け', 'ぐ': 'げ', 'す': 'せ', 'つ': 'て', 'ぬ': 'ね', 'ぶ': 'べ', 'む': 'め', 'る': 'れ'}
+
+
+def pot_of(dict_form, kind):
+    """Gốc thể khả năng (bài 27): 書け, 食べられ, 勉強でき, 来られ. None nếu không có (ある)."""
+    if kind == 'v1':
+        return dict_form[:-1] + 'られ'
+    if kind == 'suru':
+        return dict_form[:-2] + 'でき'
+    if kind == 'kuru':
+        return dict_form[:-2] + ('来られ' if dict_form.endswith('来る') else 'こられ')
+    if kind == 'v5-aru':
+        return None
+    return dict_form[:-1] + GODAN_E[dict_form[-1]]
+
+
+def pot_wrong(w):
+    """Gốc khả năng chia sai thường gặp (không dùng ら抜き 食べれ vì văn nói vẫn gặp)."""
+    d, k, stem = w['dict'], w['kind'], w['expression'][:-2]
+    if k == 'v1':
+        return [d + 'られ', stem + 'らえ', d + 'れ']
+    if k == 'suru':
+        return [d[:-2] + 'しられ', d[:-2] + 'すられ', d[:-2] + 'しえ']
+    if k == 'kuru':
+        return [d + 'られ', stem + 'れれ', d + 'れ']
+    return [stem + 'られ', d + 'られ', d + 'れ']
+
+
+POT_TAILS = ['ます', 'ません', 'ました', 'ませんでした', 'る', 'ない', 'なかった', 'た']
+
+
 def conj_forms(w, lesson):
     """Các thể (chữ, cách đọc, tên thể, nhiễu) của động từ w đã mở tới bài lesson."""
     out = []
@@ -163,6 +202,21 @@ def conj_forms(w, lesson):
         ]
     if lesson >= 20:
         out.append((nai[:-1] + 'かった', nair[:-1] + 'かった', 'thể なかった', [stem + 'なかった', d + 'なかった', nai + 'かった', stem + 'らなかった']))
+    if lesson >= 25:
+        ter = te_of(dr, k)
+        out += [
+            (ta + 'ら', tar + 'ら', 'thể たら', [stem + 'たら', d + 'たら', te + 'ら', stem + 'ったら']),
+            (te + 'も', ter + 'も', 'thể ても', [stem + 'ても', d + 'ても', ta + 'も', stem + 'っても']),
+            (nai[:-1] + 'かったら', nair[:-1] + 'かったら', 'thể なかったら', [stem + 'なかったら', d + 'なかったら', nai + 'かったら', stem + 'らなかったら']),
+        ]
+    if lesson >= 27:
+        ps, psr = pot_of(d, k), pot_of(dr, k)
+        if ps:
+            for tail in POT_TAILS:
+                out.append((ps + tail, psr + tail, 'khả năng', [x + tail for x in pot_wrong(w)]))
+            out.append((ps + 'て', psr + 'て', 'khả năng (て)', [x + 'て' for x in pot_wrong(w)]))
+    if lesson >= 28:
+        out.append((stem + 'ながら', w['reading'][:-2] + 'ながら', 'ながら', [d + 'ながら', te + 'ながら', ta + 'ながら']))
     return out
 
 
@@ -175,6 +229,12 @@ def adj_conj(w, lesson):
         out.append((st + 'くて', sr + 'くて', 'nối (くて)', [expr + 'て', expr + 'で', st + 'くで']))
     if lesson >= 19:
         out.append((st + 'く', sr + 'く', 'phó từ (く)', [expr + 'く', st + 'に', '=' + expr]))
+    if lesson >= 25:
+        out += [
+            (st + 'かったら', sr + 'かったら', 'thể たら', [expr + 'たら', expr + 'かったら', st + 'くたら']),
+            (st + 'くても', sr + 'くても', 'thể ても', [expr + 'ても', expr + 'でも', st + 'かっても']),
+            (st + 'くなかったら', sr + 'くなかったら', 'thể なかったら', [expr + 'なかったら', st + 'なかったら', expr + 'くなかったら']),
+        ]
     return out
 
 
@@ -205,6 +265,7 @@ class Vocab:
                         neg_t, neg_r = expr[:-1] + tail, kana[:-1] + tail
                         tokens.update([neg_t, neg_r])
                         self.reading.setdefault(neg_t, neg_r)
+        potential = []
         # Bài 12+: quá khứ tính từ い (～かった, ～くなかった, ～くありませんでした)
         # Bài 13+: ～たい và gốc động từ (買いに行きます). Bài 14+: thể て.
         for w in VERB_LIST:
@@ -229,6 +290,10 @@ class Vocab:
                     self.add(tokens, te_w, te_r)
                     TE_FORMS.setdefault(te_w, (expr, w))
                 for written, reading, form, wrong in conj_forms(w, lesson):
+                    # Thể khả năng thêm sau cùng: 入れて của 入れます (いれて) không bị cách đọc はいれて của 入ります che mất
+                    if form.startswith('khả năng'):
+                        potential.append((written, reading, form, expr, wrong))
+                        continue
                     self.add(tokens, written, reading)
                     CONJ_FORMS.setdefault(written, (form, expr, wrong))
                 # Viết bằng kana (わかる cho 分かる): tra được thể, nhiễu cũng bằng kana
@@ -240,6 +305,9 @@ class Vocab:
                 for written, reading, form, wrong in adj_conj(w, lesson):
                     self.add(tokens, written, reading)
                     CONJ_FORMS.setdefault(written, (form, expr, wrong))
+        for written, reading, form, expr, wrong in potential:
+            self.add(tokens, written, reading)
+            CONJ_FORMS.setdefault(written, (form, expr, wrong))
         if lesson >= 8:
             for neg_t, neg_r in I_ADJ_NEG.values():
                 tokens.update([neg_t, neg_r])
@@ -404,7 +472,9 @@ def parse(src, where):
         if KANJI.search(text):
             reading = reading or VOCAB.read(text)
             if not reading:
-                raise ValueError(f'{where}: không biết cách đọc của "{text}", ghi {{...}}')
+                # Ghi lỗi rồi chạy tiếp, để write() báo một lần mọi chỗ sai
+                VOCAB.errors.append(f'{where}: không biết cách đọc của "{text}", ghi {{...}}')
+                reading = '?'
             piece['r'] = reading
         pieces.append(piece)
         VOCAB.check(where, text)
@@ -442,7 +512,28 @@ def parse(src, where):
                 slot['form'] = form
                 slot['dict'] = dict_form
             slots.append(slot)
+    fix_counter_readings(pieces)
     return pieces, slots
+
+
+NATIONALITY = {'アメリカ', 'イギリス', 'インド', 'インドネシア', 'ドイツ', 'フランス', 'ブラジル', '中国', '日本', '韓国', 'ベトナム', 'タイ', '外国'}
+
+
+def fix_counter_readings(pieces):
+    """Cách đọc theo chữ đứng trước:
+    人: sau số / 何 → にん, sau tên nước → じん, còn lại → ひと (あの人). 分: sau số tận cùng 1,3,4,6,8,0 → ぷん.
+    日: sau số → にち (1日で = いちにち). 1人, 2人 đọc bất quy tắc: viết 一人, 二人."""
+    for i, piece in enumerate(pieces):
+        prev = pieces[i - 1]['t'] if i else ''
+        digit = re.fullmatch(r'[0-9]+', prev)
+        if piece['t'] == '人':
+            if digit and prev in ('1', '2'):
+                raise ValueError(f'{prev}人 đọc bất quy tắc: viết 一人／二人')
+            piece['r'] = 'にん' if digit or prev == '何' else 'じん' if prev in NATIONALITY else 'ひと'
+        elif piece['t'] == '分' and digit:
+            piece['r'] = 'ぷん' if prev[-1] in '134680' else 'ふん'
+        elif piece['t'] == '日' and digit:
+            piece['r'] = 'にち'
 
 
 def sentence(point_code, n, level, src, meaning, uses=None, prompt=None, sample=False):
@@ -467,16 +558,21 @@ def sentence(point_code, n, level, src, meaning, uses=None, prompt=None, sample=
 
 
 def point(lesson, order, pattern, meaning, explanation, rows, notes=None, approved=False, samples=(1, 6, 12, 18, 25)):
-    """rows: [(src, meaning, uses?, prompt?)], 30 dòng; mức 1 = dòng 1–10, mức 2 = 11–20, mức 3 = 21–30."""
+    """rows: [(src, meaning, uses?, prompt?)].
+    30 dòng (bài 1–20): mức 1 = dòng 1–10, mức 2 = 11–20, mức 3 = 21–30.
+    40 dòng (bài 21+, chủ dự án 2026-11-13): mức 1 = dòng 1–13, mức 2 = 14–27, mức 3 = 28–40; câu tiêu biểu 1, 8, 16, 23, 33."""
     code = f'g{lesson:02d}-{order:02d}'
-    if len(rows) != 30:
-        raise ValueError(f'{code}: có {len(rows)} câu, cần 30')
+    if len(rows) not in (30, 40):
+        raise ValueError(f'{code}: có {len(rows)} câu, cần 30 hoặc 40')
+    cut = (10, 20) if len(rows) == 30 else (13, 27)
+    if len(rows) == 40 and samples == (1, 6, 12, 18, 25):
+        samples = (1, 8, 16, 23, 33)
     sentences = []
     for i, row in enumerate(rows, start=1):
         src, mean = row[0], row[1]
         uses = row[2] if len(row) > 2 else None
         prompt = row[3] if len(row) > 3 else None
-        level = 1 if i <= 10 else 2 if i <= 20 else 3
+        level = 1 if i <= cut[0] else 2 if i <= cut[1] else 3
         sentences.append(sentence(code, i, level, src, mean, uses, prompt, i in samples))
     p = {'code': code, 'order': order, 'pattern': pattern, 'meaning': meaning, 'explanation': explanation, 'approved': approved, 'sentences': sentences}
     if notes:
@@ -505,3 +601,48 @@ def write(lesson, points):
         json.dump({'lesson': lesson, 'points': points}, f, ensure_ascii=False, indent=1)
         f.write('\n')
     print(f'Đã ghi {path.relative_to(ROOT)}: {len(points)} mẫu, {sum(len(p["sentences"]) for p in points)} câu')
+
+
+def plain(text, te=True):
+    """Chỗ hỏi [F] ở thể thông thường (bài 21+: と思います, でしょう, んです…): nhiễu là dạng chia sai,
+    không bao giờ là thể ます (行きますでしょう, 行きますと思います tuy lạ nhưng có người dùng)."""
+    wrong = []
+    if text in CONJ_FORMS:
+        _form, base, ws = CONJ_FORMS[text]
+        # Dạng chia sai trước, thể có thật (thể て) sau: 行ってんです là dạng nói tắt của 行っているんです
+        # te=False: bỏ thể て (押して、音が… vẫn đúng ngữ pháp trong câu ～と)
+        ws = [x for x in ws if not x.startswith('=')] + ([x for x in ws if x.startswith('=')] if te else [])
+        wrong = [x.lstrip('=') for x in ws if not x.lstrip('=').endswith('ます') and x.lstrip('=') != text]
+        stem = base[:-2]
+        wrong += [stem + 'った', base[:-2] + 'る', text + 'た', text + 'る']
+        # Không lấy thể có thật làm nhiễu dự phòng: gốc ます + る của động từ nhóm II là thể từ điển (忘れる)
+        w = VERBS.get(base)
+        if w:
+            real = {w['dict'], te_of(w['dict'], w['kind']), ta_of(w['dict'], w['kind']), nai_of(w['dict'], w['kind'])}
+            wrong = [x for x in wrong if x not in real]
+    else:
+        neg = text.endswith('くない') and not text.endswith('じゃない')
+        if text.endswith('くなかった'):
+            st = text[:-5]
+            wrong = [st + 'いくなかった', st + 'くないかった', text + 'だ']
+        elif text.endswith('かった') and text != 'よかった':
+            st = text[:-3]
+            wrong = [st + 'いだった', st + 'いかった', text + 'だ']
+        elif text == 'よかった':
+            wrong = ['いいだった', 'いいかった', 'よかっただ']
+        elif text == 'よくない':
+            wrong = ['いいくない', 'いいじゃない', 'よくないだ']
+        elif neg:
+            st = text[:-3]
+            wrong = [st + 'いくない', st + 'いじゃない', text + 'だ']
+        elif text == 'いい':
+            wrong = ['いいだ', 'よく', 'よくて']
+        elif text in I_ADJ:
+            wrong = [text + 'だ', text[:-1] + 'く', text[:-1] + 'くて']
+        else:
+            raise ValueError(f'plain: chưa biết nhiễu cho "{text}"')
+    out = []
+    for x in wrong:
+        if x != text and x not in out:
+            out.append(x)
+    return f"[F:{','.join('*' + x for x in out[:3])}]{text}"
