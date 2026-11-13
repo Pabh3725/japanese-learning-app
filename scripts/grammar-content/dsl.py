@@ -88,6 +88,14 @@ FUNCTION = {
     28: ['ながら', 'し'],
     29: ['しまいます', 'しまいました', 'しまいません', 'しまう', 'しまった', 'しまって', 'しまったら', 'しまいたい', 'しまいましょう'],
     30: ['おきます', 'おきました', 'おきましょう', 'おく', 'おいた', 'おいて', 'おかなければ', 'あります', 'ある'],
+    31: ['つもり'],
+    32: ['かもしれません', 'かもしれない', 'でしょう'],
+    33: ['という', 'と'],
+    34: ['とおり', 'とおりに', 'あと', 'あとで'],
+    35: ['なら', 'ほど'],
+    36: ['よう', 'ように'],
+    39: ['ので', 'なので'],
+    40: ['か', 'かどうか', 'どうか', 'みます', 'みました', 'みましょう', 'みたい', 'みて', 'みる', 'みた', 'みても', 'さ'],
 }
 # Tính từ い (bài 8+): thêm thể phủ định ～くない. いい → よくない. きれい là tính từ な nên không có ở đây.
 I_ADJ = {'みにくい', '大きい', '小さい', '新しい', '古い', '悪い', '熱い', '冷たい', '暑い', '寒い', '難しい', 'きびしい', 'やさしい',
@@ -175,7 +183,7 @@ def pot_wrong(w):
     return [stem + 'られ', d + 'られ', d + 'れ']
 
 
-POT_TAILS = ['ます', 'ません', 'ました', 'ませんでした', 'る', 'ない', 'なかった', 'た']
+POT_TAILS = ['ます', 'ません', 'ました', 'ませんでした', 'る', 'ない', 'なかった', 'た', 'なくて', 'ても', 'たら']
 
 
 def conj_forms(w, lesson):
@@ -217,7 +225,121 @@ def conj_forms(w, lesson):
             out.append((ps + 'て', psr + 'て', 'khả năng (て)', [x + 'て' for x in pot_wrong(w)]))
     if lesson >= 28:
         out.append((stem + 'ながら', w['reading'][:-2] + 'ながら', 'ながら', [d + 'ながら', te + 'ながら', ta + 'ながら']))
+    if lesson >= 31 and k != 'v5-aru':
+        out.append((vol_of(d, k), vol_of(dr, k), 'ý chí', vol_wrong(w)))
+    if lesson >= 33 and k != 'v5-aru':
+        out += [
+            (imp_of(d, k), imp_of(dr, k), 'mệnh lệnh', imp_wrong(w)),
+            (d + 'な', dr + 'な', 'cấm (な)', [d + 'るな', stem + 'るな', stem + 'ろな', stem + 'らな']),
+        ]
+    if lesson >= 34:
+        out.append((nai + 'で', nair + 'で', 'ないで', [stem + 'ないで', d + 'ないで', nai + 'て', stem + 'らないで']))
+    if lesson >= 35:
+        out.append((ba_of(d, k), ba_of(dr, k), 'thể ば', ba_wrong(w)))
+    if lesson >= 37 and k != 'v5-aru':
+        ps, psr = pass_of(d, k), pass_of(dr, k)
+        for tail in PASS_TAILS:
+            out.append((ps + tail, psr + tail, 'bị động', [x + tail for x in pass_wrong(w)]))
+    if lesson >= 39:
+        out.append((nai[:-1] + 'くて', nair[:-1] + 'くて', 'なくて', [stem + 'なくて', d + 'なくて', nai + 'て', stem + 'らなくて']))
     return out
+
+
+GODAN_O = {'う': 'お', 'く': 'こ', 'ぐ': 'ご', 'す': 'そ', 'つ': 'と', 'ぬ': 'の', 'ぶ': 'ぼ', 'む': 'も', 'る': 'ろ'}
+PASS_TAILS = ['ます', 'ません', 'ました', 'ませんでした', 'る', 'た', 'て', 'ない', 'ても', 'たら']
+
+
+def _godan(dict_form, kind):
+    return kind in ('v5', 'v5-iku', 'v5-aru')
+
+
+def vol_of(dict_form, kind):
+    """Thể ý chí (bài 31): 行こう, 食べよう, しよう, 来よう."""
+    if kind == 'v1':
+        return dict_form[:-1] + 'よう'
+    if kind == 'suru':
+        return dict_form[:-2] + 'しよう'
+    if kind == 'kuru':
+        return dict_form[:-2] + ('来よう' if dict_form.endswith('来る') else 'こよう')
+    return dict_form[:-1] + GODAN_O[dict_form[-1]] + 'う'
+
+
+def vol_wrong(w):
+    d, k, stem = w['dict'], w['kind'], w['expression'][:-2]
+    if k == 'v1':
+        return [d + 'よう', stem + 'ろう', stem + 'おう']
+    if k == 'suru':
+        return [d + 'よう', d[:-2] + 'しろう', d[:-2] + 'すろう']
+    if k == 'kuru':
+        return [d + 'よう', stem + 'ろう', stem + 'おう']
+    return [stem + 'よう', d + 'よう', stem + 'ろう']
+
+
+def imp_of(dict_form, kind):
+    """Thể mệnh lệnh (bài 33): 行け, 食べろ, しろ, 来い."""
+    if kind == 'v1':
+        return dict_form[:-1] + 'ろ'
+    if kind == 'suru':
+        return dict_form[:-2] + 'しろ'
+    if kind == 'kuru':
+        return dict_form[:-2] + ('来い' if dict_form.endswith('来る') else 'こい')
+    return dict_form[:-1] + GODAN_E[dict_form[-1]]
+
+
+def imp_wrong(w):
+    # Không dùng 食べれ (văn nói vùng Kansai), すれ
+    d, k, stem = w['dict'], w['kind'], w['expression'][:-2]
+    if k == 'v1':
+        return [d + 'ろ', stem + 'え', stem + 'り']
+    if k == 'suru':
+        return [d[:-2] + 'すろ', d[:-2] + 'しえ', d[:-2] + 'するろ']
+    if k == 'kuru':
+        return [d + 'ろ', stem + 'ろ', d + 'い']
+    return [stem + 'ろ', d + 'ろ', stem + 'え']
+
+
+def ba_of(dict_form, kind):
+    """Thể ば (bài 35): 行けば, 食べれば, すれば, 来れば, あれば."""
+    if kind == 'v1':
+        return dict_form[:-1] + 'れば'
+    if kind == 'suru':
+        return dict_form[:-2] + 'すれば'
+    if kind == 'kuru':
+        return dict_form[:-2] + ('来れば' if dict_form.endswith('来る') else 'くれば')
+    return dict_form[:-1] + GODAN_E[dict_form[-1]] + 'ば'
+
+
+def ba_wrong(w):
+    d, k, stem = w['dict'], w['kind'], w['expression'][:-2]
+    if k == 'v1':
+        return [d + 'ば', d + 'れば', stem + 'ば']
+    if k == 'suru':
+        return [d[:-2] + 'すりば', d[:-2] + 'するば', d[:-2] + 'しれれば']
+    if k == 'kuru':
+        return [d + 'ば', d + 'れば', stem + 'ば']
+    return [stem + 'ば', d + 'ば', stem + 'れば']
+
+
+def pass_of(dict_form, kind):
+    """Gốc bị động (bài 37): 書かれ, 食べられ, され, 来られ."""
+    if kind == 'v1':
+        return dict_form[:-1] + 'られ'
+    if kind == 'suru':
+        return dict_form[:-2] + 'され'
+    if kind == 'kuru':
+        return dict_form[:-2] + ('来られ' if dict_form.endswith('来る') else 'こられ')
+    return dict_form[:-1] + GODAN_A[dict_form[-1]] + 'れ'
+
+
+def pass_wrong(w):
+    d, k, stem = w['dict'], w['kind'], w['expression'][:-2]
+    if k == 'v1':
+        return [d + 'られ', d + 'れ', stem + 'さられ']
+    if k == 'suru':
+        return [d[:-2] + 'しられ', d[:-2] + 'すられ', d[:-2] + 'しれ']
+    if k == 'kuru':
+        return [d + 'られ', stem + 'れれ', d + 'れ']
+    return [stem + 'れ', d + 'れ', stem + 'られ']
 
 
 def adj_conj(w, lesson):
@@ -235,6 +357,10 @@ def adj_conj(w, lesson):
             (st + 'くても', sr + 'くても', 'thể ても', [expr + 'ても', expr + 'でも', st + 'かっても']),
             (st + 'くなかったら', sr + 'くなかったら', 'thể なかったら', [expr + 'なかったら', st + 'なかったら', expr + 'くなかったら']),
         ]
+    if lesson >= 35:
+        out.append((st + 'ければ', sr + 'ければ', 'thể ば', [expr + 'ば', expr + 'ければ', st + 'くば']))
+    if lesson >= 40 and w['kind'] == 'adj-i':
+        out.append((st + 'さ', sr + 'さ', 'danh từ (さ)', [expr + 'さ', st + 'くさ', st + 'さい']))
     return out
 
 
@@ -291,7 +417,7 @@ class Vocab:
                     TE_FORMS.setdefault(te_w, (expr, w))
                 for written, reading, form, wrong in conj_forms(w, lesson):
                     # Thể khả năng thêm sau cùng: 入れて của 入れます (いれて) không bị cách đọc はいれて của 入ります che mất
-                    if form.startswith('khả năng'):
+                    if form.startswith('khả năng') or form == 'bị động':
                         potential.append((written, reading, form, expr, wrong))
                         continue
                     self.add(tokens, written, reading)
@@ -307,7 +433,12 @@ class Vocab:
                     CONJ_FORMS.setdefault(written, (form, expr, wrong))
         for written, reading, form, expr, wrong in potential:
             self.add(tokens, written, reading)
-            CONJ_FORMS.setdefault(written, (form, expr, wrong))
+            old = CONJ_FORMS.get(written)
+            # Nhóm II: 食べられます vừa là khả năng vừa là bị động (bài 37+)
+            if old and old[0] != form and {old[0], form} == {'khả năng', 'bị động'}:
+                CONJ_FORMS[written] = ('khả năng / bị động', expr, old[2])
+            else:
+                CONJ_FORMS.setdefault(written, (form, expr, wrong))
         if lesson >= 8:
             for neg_t, neg_r in I_ADJ_NEG.values():
                 tokens.update([neg_t, neg_r])
@@ -488,6 +619,7 @@ def parse(src, where):
                 distractors, accepted, form, dict_form = DISTRACTORS[(mark, text)]
             elif mark == 'F' and special_slot(text):
                 distractors, form, dict_form = special_slot(text)
+                distractors = not_real(text, distractors)
             elif mark == 'F' and verb_slot(text):
                 distractors, form, dict_form = verb_slot(text)
             else:
@@ -603,6 +735,20 @@ def write(lesson, points):
     print(f'Đã ghi {path.relative_to(ROOT)}: {len(points)} mẫu, {sum(len(p["sentences"]) for p in points)} câu')
 
 
+def not_real(text, wrong):
+    """Bài 31+: bỏ nhiễu tình cờ là một từ có thật (しって = 知って, しらない = 知らない, いった = 行った),
+    rồi bù bằng dạng sai rõ ràng cho đủ 3. Bài 1–30 đã duyệt giữ nguyên."""
+    if VOCAB.lesson < 31:
+        return wrong
+    keep = [x for x in wrong if x.lstrip('*') not in VOCAB.tokens and x.lstrip('*') != text]
+    for extra in (text + 'る', text + 'た', text + 'ら', text + 'て'):
+        if len(keep) >= 3:
+            break
+        if extra not in VOCAB.tokens and '*' + extra not in keep and extra not in keep:
+            keep.append('*' + extra)
+    return keep
+
+
 def plain(text, te=True):
     """Chỗ hỏi [F] ở thể thông thường (bài 21+: と思います, でしょう, んです…): nhiễu là dạng chia sai,
     không bao giờ là thể ます (行きますでしょう, 行きますと思います tuy lạ nhưng có người dùng)."""
@@ -645,4 +791,5 @@ def plain(text, te=True):
     for x in wrong:
         if x != text and x not in out:
             out.append(x)
+    out = [x.lstrip('*') for x in not_real(text, ['*' + x for x in out])]
     return f"[F:{','.join('*' + x for x in out[:3])}]{text}"
