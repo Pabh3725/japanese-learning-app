@@ -1,4 +1,4 @@
-import { BarChart3, BookOpen, Gamepad2, GraduationCap, Home, Library, RotateCcw, ScrollText, Settings } from 'lucide-react'
+import { BarChart3, BookOpen, Gamepad2, GraduationCap, Hash, Home, Library, RotateCcw, ScrollText, Settings } from 'lucide-react'
 
 export const primaryNav = [
   { href: '/', label: 'Home', icon: Home },
@@ -11,6 +11,8 @@ export const primaryNav = [
 
 export const secondaryNav = [
   { href: '/library', label: 'Library', icon: Library },
+  // Bảng tra và luyện từ đếm, ngày tháng, giờ phút
+  { href: '/counters', label: 'Counters', icon: Hash },
   { href: '/progress', label: 'Progress', icon: BarChart3 },
   { href: '/settings', label: 'Settings', icon: Settings },
 ]
