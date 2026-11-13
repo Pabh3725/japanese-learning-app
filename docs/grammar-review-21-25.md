@@ -112,7 +112,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
 - `s35` mức 3 · この部屋は広くて**明るい**と思います。 — Tôi nghĩ căn phòng này rộng và sáng sủa.  
   Hỏi **明るい** (form, khẳng định) · nhiễu: 明るいだ, 明るく, 明るくて
 - `s36` mức 3 · ワンさんはもううちへ帰って寝て**いる**と思います。 — Tôi nghĩ anh Wang đã về nhà và đang ngủ.  
-  Hỏi **いる** (form, thể từ điển) · nhiễu: いるる, いった, いるた
+  Hỏi **いる** (form, thể từ điển) · nhiễu: いるる, いるた, いりる
 - `s37` mức 3 · あしたは日曜日だから、銀行は休み**だ**と思います。 — Vì mai là chủ nhật nên tôi nghĩ ngân hàng nghỉ.  
   Hỏi **だ** (word) · nhiễu: な, の, に
 - `s38` mức 3 · このパソコンは古いけど、まだ大丈夫**だ**と思います。 — Cái máy tính này cũ nhưng tôi nghĩ vẫn dùng được.  
@@ -120,7 +120,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
 - `s39` mức 3 · ミラーさんは会議が終わってから、プールへ**行く**と思います。 — Tôi nghĩ anh Miller sẽ đi bể bơi sau khi họp xong.  
   Hỏi **行く** (form, thể từ điển) · nhiễu: 行きる, 行くる, 行きった
 - `s40` mức 3 · 首相は来月の会議でスピーチを**しなければ**ならないと思います。 — Tôi nghĩ thủ tướng phải phát biểu ở hội nghị tháng sau.  
-  Hỏi **しなければ** (form, なければ) · nhiễu: するなければ, しないければ, しらなければ
+  Hỏi **しなければ** (form, なければ) · nhiễu: するなければ, しないければ, しなければた
 
 </details>
 
@@ -223,7 +223,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
 - `s35` mức 3 · マリアさんは日本の冬は寒くて好きじゃない**と**言いました。 — Chị Maria nói mùa đông ở Nhật lạnh nên không thích.  
   Hỏi **と** (particle) · nhiễu: の, は, に
 - `s36` mức 3 · ミラーさんは毎朝ジョギングをして**いる**と言いました。 — Anh Miller nói sáng nào cũng chạy bộ.  
-  Hỏi **いる** (form, thể từ điển) · nhiễu: いるる, いった, いるた
+  Hỏi **いる** (form, thể từ điển) · nhiễu: いるる, いるた, いりる
 - `s37` mức 3 · 先生は試験で辞書を使っても**いい**と言いました。 — Thầy giáo nói trong giờ thi được dùng từ điển.  
   Hỏi **いい** (form, khẳng định) · nhiễu: いいだ, よく, よくて
 - `s38` mức 3 · グプタさんは来週の会議に**出なくても**いいと言いました。 — Anh Gupta nói tôi không cần dự cuộc họp tuần sau.  
@@ -255,7 +255,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
 - `s23` mức 2 · このニュースを**知って**いるでしょう？ — Bạn biết tin này chứ?  
   Hỏi **知って** (form, thể て) · nhiễu: 知るて, 知りて, 知りって
 - `s33` mức 3 · ミラーさんはもう会議室に**いる**でしょう？ — Anh Miller đã ở phòng họp rồi phải không?  
-  Hỏi **いる** (form, thể từ điển) · nhiễu: いるる, いった, いるた
+  Hỏi **いる** (form, thể từ điển) · nhiễu: いるる, いるた, いりる
 
 <details><summary>Toàn bộ 40 câu</summary>
 
@@ -280,7 +280,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
 - `s10` mức 1 · サントスさんはサッカーが上手**でしょう**？ — Anh Santos đá bóng giỏi nhỉ?  
   Hỏi **でしょう** (word) · nhiễu: ましょう, ません, ませんか
 - `s11` mức 1 · もう宿題を**した**でしょう？ — Bạn làm bài tập rồi chứ?  
-  Hỏi **した** (form, thể た) · nhiễu: するた, しった, しる
+  Hỏi **した** (form, thể た) · nhiễu: するた, したた, したる
 - `s12` mức 1 · このケーキは**おいしい**でしょう？ — Cái bánh này ngon nhỉ?  
   Hỏi **おいしい** (form, khẳng định) · nhiễu: おいしいだ, おいしく, おいしくて
 - `s13` mức 1 · ラッシュの電車は大変**でしょう**？ — Tàu giờ cao điểm vất vả nhỉ?  
@@ -329,7 +329,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
 - `s32` mức 3 · 日曜日は掃除をしたり、洗濯をしたりして、忙しかった**でしょう**？ — Chủ nhật bạn dọn dẹp, giặt giũ… bận lắm nhỉ?  
   Hỏi **でしょう** (word) · nhiễu: ましょう, ません, ませんか
 - `s33` mức 3 · ミラーさんはもう会議室に**いる**でしょう？ — Anh Miller đã ở phòng họp rồi phải không?  
-  Hỏi **いる** (form, thể từ điển) · nhiễu: いるる, いった, いるた
+  Hỏi **いる** (form, thể từ điển) · nhiễu: いるる, いるた, いりる
 - `s34` mức 3 · この部屋は広くて明るい**でしょう**？ — Căn phòng này rộng và sáng nhỉ?  
   Hỏi **でしょう** (word) · nhiễu: ましょう, ません, ませんか
 - `s35` mức 3 · テレサちゃんは大きく**なった**でしょう？ — Bé Teresa lớn rồi nhỉ?  
@@ -671,7 +671,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
 - `s37` mức 3 · **わからない**言葉を先生に聞いてもいいですか。 — Tôi hỏi thầy những từ không hiểu có được không?  
   Hỏi **わからない** (form, thể ない) · nhiễu: わかりない, わかるない, わかりらない
 - `s38` mức 3 · スーツを着て、ネクタイを**して**いる人は部長でしょう？ — Người mặc com-lê, đeo cà vạt là trưởng phòng phải không?  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s39` mức 3 · きのう**買った**セーターは大きくて、着ることができません。 — Cái áo len mua hôm qua to quá, không mặc được.  
   Hỏi **買った** (form, thể た) · nhiễu: 買いた, 買うた, 買いった
 - `s40` mức 3 · パーティーに**来る**人は20人ぐらいだと思います。 — Tôi nghĩ người đến bữa tiệc khoảng 20 người.  
@@ -830,7 +830,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
 - `s04` mức 1 · 本を**読む**時間がありません。 — Tôi không có thời gian đọc sách.  
   Hỏi **読む** (form, thể từ điển) · nhiễu: 読みる, 読むる, 読みった
 - `s05` mức 1 · 今晩はミラーさんと食事を**する**約束があります。 — Tối nay tôi có hẹn ăn tối với anh Miller.  
-  Hỏi **する** (form, thể từ điển) · nhiễu: しる, するる, しった
+  Hỏi **する** (form, thể từ điển) · nhiễu: するる, するた, すりる
 - `s06` mức 1 · 今日は**遊ぶ**時間**が**ありません。 — Hôm nay không có thời gian chơi.  
   Hỏi **遊ぶ** (form, thể từ điển) · nhiễu: 遊びる, 遊ぶる, 遊びった  
   Hỏi **が** (particle) · nhiễu: を, へ, と
@@ -845,7 +845,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
 - `s11` mức 1 · 今日はうちへ早く**帰る**用事があります。 — Hôm nay tôi có việc phải về nhà sớm.  
   Hỏi **帰る** (form, thể từ điển) · nhiễu: 帰りる, 帰るる, 帰りった
 - `s12` mức 1 · 友達とテニスを**する**約束があります。 — Tôi có hẹn chơi tennis với bạn.  
-  Hỏi **する** (form, thể từ điển) · nhiễu: しる, するる, しった
+  Hỏi **する** (form, thể từ điển) · nhiễu: するる, するた, すりる
 - `s13` mức 1 · 料理を**作る**時間**が**ありません。 — Tôi không có thời gian nấu ăn.  
   Hỏi **作る** (form, thể từ điển) · nhiễu: 作りる, 作るる, 作りった  
   Hỏi **が** (particle) · nhiễu: を, へ, と
@@ -1150,7 +1150,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
   Hỏi **わからない** (form, thể ない) · nhiễu: わかりない, わかるない, わかりらない  
   Hỏi **と** (particle) · nhiễu: に, を, の
 - `s35` mức 3 · 宿題を**しない****と**、テレビを見ることができない。 — Không làm bài tập thì không được xem tivi.  
-  Hỏi **しない** (form, thể ない) · nhiễu: するない, しらない, するらない  
+  Hỏi **しない** (form, thể ない) · nhiễu: するない, するらない, しないた  
   Hỏi **と** (particle) · nhiễu: に, を, の
 - `s36` mức 3 · ミラーさんは**疲れる****と**、いつも甘いコーヒーを飲むと言いました。 — Anh Miller nói hễ mệt là luôn uống cà phê ngọt.  
   Hỏi **疲れる** (form, thể từ điển) · nhiễu: 疲れるる, 疲れった, 疲れるた  
@@ -2190,7 +2190,7 @@ Số câu: 40 (mức 1: 13, mức 2: 14, mức 3: 13). Dạng bài làm được
 - `s25` mức 2 · お正月に**なったら**、家族でお寺へ行きます。 — Đến Tết cả nhà sẽ đi chùa.  
   Hỏi **なったら** (form, thể たら) · nhiễu: なりたら, なるたら, なってら
 - `s26` mức 2 · 掃除を**したら**、部屋がきれいになりました。 — Dọn dẹp xong thì phòng đã sạch đẹp.  
-  Hỏi **したら** (form, thể たら) · nhiễu: するたら, してら, しったら
+  Hỏi **したら** (form, thể たら) · nhiễu: するたら, してら, したりら
 - `s27` mức 2 · 漢字を**覚えたら**、試験をします。 — Học thuộc chữ Hán xong thì sẽ kiểm tra.  
   Hỏi **覚えたら** (form, thể たら) · nhiễu: 覚えるたら, 覚えてら, 覚えったら
 - `s28` mức 3 · 大学を**出たら**、日本へ留学すると思います。 — Tôi nghĩ ra trường xong tôi sẽ đi du học Nhật.  

@@ -45,7 +45,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 - `s08` mức 1 · キャッシュカードを**入れて**、暗証番号を押します。 — Tôi cho thẻ ATM vào rồi bấm mã số bí mật.  
   Hỏi **入れて** (form, thể て) · nhiễu: 入れるて, 入れって, 入れんで
 - `s09` mức 1 · 日曜日はテニスを**して**、買い物をしました。 — Chủ nhật tôi chơi quần vợt rồi đi mua sắm.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s10` mức 1 · 友達に**会って**、いっしょに昼ごはんを食べました。 — Tôi gặp bạn rồi cùng ăn trưa.  
   Hỏi **会って** (form, thể て) · nhiễu: 会うて, 会いて, 会いって
 - `s11` mức 2 · きのうはお寺を**見て**、神社へ行きました。 — Hôm qua tôi xem chùa rồi đi đền thần đạo.  
@@ -59,7 +59,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 - `s15` mức 2 · 9時に会社へ**来て**、会議をしました。 — Tôi đến công ty lúc 9 giờ rồi họp.  
   Hỏi **来て** (form, thể て) · nhiễu: 来るて, 来って, 来んで
 - `s16` mức 2 · ジョギングを**して**、シャワーを浴びます。 — Tôi chạy bộ rồi tắm vòi sen.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s17` mức 2 · 駅まで歩いて、電車に**乗って**、会社へ行きます。 — Tôi đi bộ ra ga, lên tàu rồi đi đến công ty.  
   Hỏi **乗って** (form, thể て) · nhiễu: 乗るて, 乗りて, 乗りって
 - `s18` mức 2 · ミラーさんは銀行でお金を**出して**、デパートへ行きました。 — Anh Miller rút tiền ở ngân hàng rồi đi cửa hàng bách hóa.  
@@ -85,7 +85,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 - `s28` mức 3 · あしたは何をしますか。 — Ngày mai bạn làm gì?
 - `s29` mức 3 · 朝ジョギングを**して**、午後は図書館で勉強します。 — Buổi sáng tôi chạy bộ, buổi chiều học ở thư viện.  
   Câu hỏi: あしたは何をしますか。 (Ngày mai bạn làm gì?) · câu đáp sai: はい、朝ジョギングをして、午後は図書館で勉強します。 / 朝ジョギングをして、午後は図書館で勉強しますか。 / 朝ジョギングをします、午後は図書館で勉強します。  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s30` mức 3 · うちへ**帰って**、シャワーを浴びて、すぐ寝ました。 — Tôi về nhà, tắm vòi sen rồi ngủ ngay.  
   Hỏi **帰って** (form, thể て) · nhiễu: 帰るて, 帰りて, 帰りって
 
@@ -197,7 +197,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
   Hỏi **から** (particle) · nhiễu: に, を, の
 - `s12` mức 2 · 宿題を**して****から**、します。 — Làm bài tập xong tôi mới chơi quần vợt.  
   Câu hỏi: いつテニスをしますか。 (Khi nào bạn chơi quần vợt?) · câu đáp sai: はい、宿題をしてから、します。 / 宿題をしてから、しますか。 / 宿題をしますから、します。  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって  
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら  
   Hỏi **から** (particle) · nhiễu: に, を, の
 - `s18` mức 2 · キャッシュカードを**入れて****から**、暗証番号を押してください。 — Hãy cho thẻ ATM vào rồi bấm mã số bí mật.  
   Hỏi **入れて** (form, thể て) · nhiễu: 入れるて, 入れって, 入れんで  
@@ -216,7 +216,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
   Hỏi **入れて** (form, thể て) · nhiễu: 入れるて, 入れって, 入れんで  
   Hỏi **から** (particle) · nhiễu: に, を, の
 - `s03` mức 1 · 宿題を**して****から**、遊びます。 — Làm bài tập xong tôi mới chơi.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって  
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら  
   Hỏi **から** (particle) · nhiễu: に, を, の
 - `s04` mức 1 · シャワーを**浴びて****から**、寝ます。 — Tắm xong tôi mới đi ngủ.  
   Hỏi **浴びて** (form, thể て) · nhiễu: 浴びるて, 浴びって, 浴びんで  
@@ -242,7 +242,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 - `s11` mức 2 · いつテニスをしますか。 — Khi nào bạn chơi quần vợt?
 - `s12` mức 2 · 宿題を**して****から**、します。 — Làm bài tập xong tôi mới chơi quần vợt.  
   Câu hỏi: いつテニスをしますか。 (Khi nào bạn chơi quần vợt?) · câu đáp sai: はい、宿題をしてから、します。 / 宿題をしてから、しますか。 / 宿題をしますから、します。  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, すって  
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら  
   Hỏi **から** (particle) · nhiễu: に, を, の
 - `s13` mức 2 · 手紙を**書いて****から**、郵便局へ行きます。 — Viết thư xong tôi đi bưu điện.  
   Hỏi **書いて** (form, thể て) · nhiễu: 書くて, 書きて, 書きって  
@@ -1076,7 +1076,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 - `s06` mức 1 · ワンさんは料理**が**できます。 — Anh Wang biết nấu ăn.  
   Hỏi **が** (particle) · nhiễu: を, に, で
 - `s07` mức 1 · このホテルでは食事を**する**こと**が**できます。 — Ở khách sạn này có thể dùng bữa.  
-  Hỏi **する** (form, thể từ điển) · nhiễu: します, して, しる  
+  Hỏi **する** (form, thể từ điển) · nhiễu: します, して, すりる  
   Hỏi **が** (particle) · nhiễu: を, に, で
 - `s08` mức 1 · 私は車を**運転する**こと**が**できません。 — Tôi không biết lái ô tô.  
   Hỏi **運転する** (form, thể từ điển) · nhiễu: 運転します, 運転して, 運転しる  
@@ -1189,11 +1189,11 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
   Câu hỏi: 趣味は何ですか。 (Sở thích của bạn là gì?) · câu đáp sai: はい、音楽を聞くことです。 / 音楽を聞きますことです。 / 音楽を聞いたことです。  
   Hỏi **聞く** (form, thể từ điển) · nhiễu: 聞きます, 聞いて, 聞きる
 - `s13` mức 2 · 私の趣味はサッカーを**する**ことです。 — Sở thích của tôi là chơi bóng đá.  
-  Hỏi **する** (form, thể từ điển) · nhiễu: します, して, しる
+  Hỏi **する** (form, thể từ điển) · nhiễu: します, して, すりる
 - `s14` mức 2 · ミラーさんの趣味は何ですか。 — Sở thích của anh Miller là gì?
 - `s15` mức 2 · 旅行を**する**ことです。 — Là đi du lịch.  
   Câu hỏi: ミラーさんの趣味は何ですか。 (Sở thích của anh Miller là gì?) · câu đáp sai: はい、旅行をすることです。 / 旅行をしますことです。 / 旅行をしたことです。  
-  Hỏi **する** (form, thể từ điển) · nhiễu: します, して, しる
+  Hỏi **する** (form, thể từ điển) · nhiễu: します, して, すりる
 - `s16` mức 2 · 私の趣味は日本の料理を**食べる**ことです。 — Sở thích của tôi là ăn món Nhật.  
   Hỏi **食べる** (form, thể từ điển) · nhiễu: 食べます, 食べて, 食べるる
 - `s17` mức 2 · 部長の趣味はカラオケで**歌う**ことです。 — Sở thích của trưởng phòng là hát karaoke.  
@@ -1352,7 +1352,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
   Hỏi **食べた** (form, thể た) · nhiễu: 食べるた, 食べった, 食べて  
   Hỏi **が** (particle) · nhiễu: を, に, で
 - `s04` mức 1 · 日曜日は掃除を**したり**、洗濯をしたりします。 — Chủ nhật tôi dọn dẹp, giặt giũ…  
-  Hỏi **したり** (form, thể たり) · nhiễu: するたり, してり, しったり
+  Hỏi **したり** (form, thể たり) · nhiễu: するたり, してり, したりり
 - `s05` mức 1 · 私は馬に**乗った**こと**が**あります。 — Tôi đã từng cưỡi ngựa.  
   Hỏi **乗った** (form, thể た) · nhiễu: 乗りた, 乗るた, 乗りった  
   Hỏi **が** (particle) · nhiễu: を, に, で
@@ -1360,7 +1360,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
   Hỏi **泊まった** (form, thể た) · nhiễu: 泊まりた, 泊まるた, 泊まりった  
   Hỏi **が** (particle) · nhiễu: を, に, で
 - `s07` mức 1 · 週末はテニスを**したり**、映画を見たりします。 — Cuối tuần tôi chơi quần vợt, xem phim…  
-  Hỏi **したり** (form, thể たり) · nhiễu: するたり, してり, しったり
+  Hỏi **したり** (form, thể たり) · nhiễu: するたり, してり, したりり
 - `s08` mức 1 · お寺を**見学した**こと**が**あります。 — Tôi đã từng tham quan chùa.  
   Hỏi **見学した** (form, thể た) · nhiễu: 見学するた, 見学しった, 見学して  
   Hỏi **が** (particle) · nhiễu: を, に, で
@@ -1375,11 +1375,11 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 - `s12` mức 2 · パチンコをしたことがありますか。 — Bạn đã từng chơi pachinko chưa?
 - `s13` mức 2 · はい、一度**した**ことがあります。 — Có, tôi đã chơi một lần.  
   Câu hỏi: パチンコをしたことがありますか。 (Bạn đã từng chơi pachinko chưa?) · câu đáp sai: いいえ、一度したことがあります。 / はい、一度すたことがあります。 / はい、一度しますことがあります。  
-  Hỏi **した** (form, thể た) · nhiễu: するた, しった, して
+  Hỏi **した** (form, thể た) · nhiễu: するた, して, しりた
 - `s14` mức 2 · 休みの日はうちで**寝たり**、テレビを見たりします。 — Ngày nghỉ tôi ngủ ở nhà, xem tivi…  
   Hỏi **寝たり** (form, thể たり) · nhiễu: 寝るたり, 寝てり, 寝ったり
 - `s15` mức 2 · 私は一度もゴルフを**した**こと**が**ありません。 — Tôi chưa từng chơi gôn lần nào.  
-  Hỏi **した** (form, thể た) · nhiễu: するた, しった, して  
+  Hỏi **した** (form, thể た) · nhiễu: するた, して, しりた  
   Hỏi **が** (particle) · nhiễu: を, に, で
 - `s16` mức 2 · 日本で運転したことがありますか。 — Bạn đã từng lái xe ở Nhật chưa?
 - `s17` mức 2 · いいえ、まだ**運転した**ことがありません。 — Chưa, tôi chưa từng lái.  
@@ -1400,7 +1400,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
   Hỏi **見た** (form, thể た) · nhiễu: 見るた, 見った, 見て  
   Hỏi **が** (particle) · nhiễu: を, に, で
 - `s24` mức 3 · 週末は洗濯を**したり**、部屋を掃除したりして、忙しいです。 — Cuối tuần tôi giặt giũ, dọn phòng… nên bận.  
-  Hỏi **したり** (form, thể たり) · nhiễu: するたり, してり, しったり
+  Hỏi **したり** (form, thể たり) · nhiễu: するたり, してり, したりり
 - `s25` mức 3 · きのうは友達とカラオケで**歌ったり**、ビールを飲んだりしました。 — Hôm qua tôi hát karaoke với bạn, uống bia…  
   Hỏi **歌ったり** (form, thể たり) · nhiễu: 歌いたり, 歌うたり, 歌ってり
 - `s26` mức 3 · 馬に**乗った**ことがありますが、あまり上手じゃありません。 — Tôi đã từng cưỡi ngựa nhưng không giỏi lắm.  
@@ -1457,7 +1457,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
   Hỏi **見た** (form, thể た) · nhiễu: 見るた, 見った, 見て  
   Hỏi **が** (particle) · nhiễu: を, に, で
 - `s04` mức 1 · カリナさんは生け花を**した**こと**が**あります。 — Chị Karina đã từng cắm hoa.  
-  Hỏi **した** (form, thể た) · nhiễu: するた, しった, して  
+  Hỏi **した** (form, thể た) · nhiễu: するた, して, しりた  
   Hỏi **が** (particle) · nhiễu: を, に, で
 - `s05` mức 1 · 私はピアノを**弾いた**こと**が**ありません。 — Tôi chưa từng chơi piano.  
   Hỏi **弾いた** (form, thể た) · nhiễu: 弾きた, 弾くた, 弾きった  
@@ -1472,7 +1472,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
   Hỏi **行った** (form, thể た) · nhiễu: 行きた, 行くた, 行きった  
   Hỏi **が** (particle) · nhiễu: を, に, で
 - `s09` mức 1 · サントスさんはゴルフを**した**こと**が**あります。 — Anh Santos đã từng chơi gôn.  
-  Hỏi **した** (form, thể た) · nhiễu: するた, しった, して  
+  Hỏi **した** (form, thể た) · nhiễu: するた, して, しりた  
   Hỏi **が** (particle) · nhiễu: を, に, で
 - `s10` mức 1 · 私はホンコンで**買い物した**こと**が**あります。 — Tôi đã từng mua sắm ở Hồng Kông.  
   Hỏi **買い物した** (form, thể た) · nhiễu: 買い物するた, 買い物しった, 買い物して  
@@ -1502,7 +1502,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
   Hỏi **歌った** (form, thể た) · nhiễu: 歌いた, 歌うた, 歌いった  
   Hỏi **が** (particle) · nhiễu: を, に, で
 - `s20` mức 2 · イーさんはダイエットを**した**こと**が**あります。 — Chị Lee đã từng ăn kiêng.  
-  Hỏi **した** (form, thể た) · nhiễu: するた, しった, して  
+  Hỏi **した** (form, thể た) · nhiễu: するた, して, しりた  
   Hỏi **が** (particle) · nhiễu: を, に, で
 - `s21` mức 3 · 私は日本へ来る前に、日本語を**勉強した**こと**が**ありませんでした。 — Trước khi đến Nhật tôi chưa từng học tiếng Nhật.  
   Hỏi **勉強した** (form, thể た) · nhiễu: 勉強するた, 勉強しった, 勉強して  
@@ -1513,7 +1513,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
   Hỏi **泊まった** (form, thể た) · nhiễu: 泊まりた, 泊まるた, 泊まりった  
   Hỏi **が** (particle) · nhiễu: を, に, で
 - `s24` mức 3 · 課長は社長とゴルフを**した**こと**が**ありますよ。 — Tổ trưởng đã từng chơi gôn với giám đốc đấy.  
-  Hỏi **した** (form, thể た) · nhiễu: するた, しった, して  
+  Hỏi **した** (form, thể た) · nhiễu: するた, して, しりた  
   Hỏi **が** (particle) · nhiễu: を, に, で
 - `s25` mức 3 · 歌舞伎を**見た**こと**が**ありますが、全然わかりませんでした。 — Tôi đã từng xem kabuki nhưng hoàn toàn không hiểu.  
   Hỏi **見た** (form, thể た) · nhiễu: 見るた, 見った, 見て  
@@ -1527,7 +1527,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 - `s28` mức 3 · パチンコをしたことがありますか。 — Bạn đã từng chơi pachinko chưa?
 - `s29` mức 3 · はい、一度だけ**した**こと**が**あります。 — Có, tôi đã chơi đúng một lần.  
   Câu hỏi: パチンコをしたことがありますか。 (Bạn đã từng chơi pachinko chưa?) · câu đáp sai: いいえ、一度だけしたことがあります。 / はい、一度だけすたことがあります。 / はい、一度だけしたことをあります。  
-  Hỏi **した** (form, thể た) · nhiễu: するた, しった, して  
+  Hỏi **した** (form, thể た) · nhiễu: するた, して, しりた  
   Hỏi **が** (particle) · nhiễu: を, に, で
 - `s30` mức 3 · 実は、私は一度も飛行機に**乗った**こと**が**ありません。 — Thật ra tôi chưa từng đi máy bay lần nào.  
   Hỏi **乗った** (form, thể た) · nhiễu: 乗りた, 乗るた, 乗りった  
@@ -1554,7 +1554,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
   Hỏi **泳いだり** (form, thể たり) · nhiễu: 泳ぎたり, 泳ぐたり, 泳いでり
 - `s18` mức 2 · 洗濯を**したり**、部屋を掃除したりしました。 — Tôi giặt giũ, dọn phòng…  
   Câu hỏi: 週末は何をしましたか。 (Cuối tuần bạn đã làm gì?) · câu đáp sai: はい、洗濯をしたり、部屋を掃除したりしました。 / 洗濯をしたり、部屋を掃除したりしましたか。 / 洗濯をして、部屋を掃除したりしました。  
-  Hỏi **したり** (form, thể たり) · nhiễu: するたり, してり, しったり
+  Hỏi **したり** (form, thể たり) · nhiễu: するたり, してり, したりり
 - `s25` mức 3 · 病気ですから、今日はおふろに**入ったり**、出かけたりしないでください。 — Vì bị ốm nên hôm nay đừng tắm bồn, ra ngoài…  
   Hỏi **入ったり** (form, thể たり) · nhiễu: 入りたり, 入るたり, 入ってり
 
@@ -1575,7 +1575,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 - `s07` mức 1 · うちではピアノを**弾いたり**、歌を歌ったりします。 — Ở nhà tôi chơi piano, hát…  
   Hỏi **弾いたり** (form, thể たり) · nhiễu: 弾きたり, 弾くたり, 弾いてり
 - `s08` mức 1 · 公園ではジョギングを**したり**、テニスをしたりします。 — Ở công viên tôi chạy bộ, chơi quần vợt…  
-  Hỏi **したり** (form, thể たり) · nhiễu: するたり, してり, しったり
+  Hỏi **したり** (form, thể たり) · nhiễu: するたり, してり, したりり
 - `s09` mức 1 · きのうは友達に**会ったり**、買い物をしたりしました。 — Hôm qua tôi gặp bạn, mua sắm…  
   Hỏi **会ったり** (form, thể たり) · nhiễu: 会いたり, 会うたり, 会ってり
 - `s10` mức 1 · 休みの日はうちで本を**読んだり**、寝たりします。 — Ngày nghỉ tôi ở nhà đọc sách, ngủ…  
@@ -1595,15 +1595,15 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 - `s17` mức 2 · 週末は何をしましたか。 — Cuối tuần bạn đã làm gì?
 - `s18` mức 2 · 洗濯を**したり**、部屋を掃除したりしました。 — Tôi giặt giũ, dọn phòng…  
   Câu hỏi: 週末は何をしましたか。 (Cuối tuần bạn đã làm gì?) · câu đáp sai: はい、洗濯をしたり、部屋を掃除したりしました。 / 洗濯をしたり、部屋を掃除したりしましたか。 / 洗濯をして、部屋を掃除したりしました。  
-  Hỏi **したり** (form, thể たり) · nhiễu: するたり, してり, しったり
+  Hỏi **したり** (form, thể たり) · nhiễu: するたり, してり, したりり
 - `s19` mức 2 · 日本では相撲を**見たり**、歌舞伎を見たりしたいです。 — Ở Nhật tôi muốn xem sumo, xem kabuki…  
   Hỏi **見たり** (form, thể たり) · nhiễu: 見るたり, 見てり, 見ったり
 - `s20` mức 2 · ダイエットをしていますから、毎朝**泳いだり**、ジョギングをしたりしています。 — Vì đang ăn kiêng nên sáng nào tôi cũng bơi, chạy bộ…  
   Hỏi **泳いだり** (form, thể たり) · nhiễu: 泳ぎたり, 泳ぐたり, 泳いでり
 - `s21` mức 3 · あしたは会社で会議を**したり**、資料を作ったりしなければなりません。 — Ngày mai ở công ty tôi phải họp, làm tài liệu…  
-  Hỏi **したり** (form, thể たり) · nhiễu: するたり, してり, しったり
+  Hỏi **したり** (form, thể たり) · nhiễu: するたり, してり, したりり
 - `s22` mức 3 · 休みには家族と旅行を**したり**、友達に会ったりしたいです。 — Kỳ nghỉ tôi muốn đi du lịch với gia đình, gặp bạn bè…  
-  Hỏi **したり** (form, thể たり) · nhiễu: するたり, してり, しったり
+  Hỏi **したり** (form, thể たり) · nhiễu: するたり, してり, したりり
 - `s23` mức 3 · 休みの日は何をしていますか。 — Ngày nghỉ bạn thường làm gì?
 - `s24` mức 3 · 本を**読んだり**、料理を作ったりしています。 — Tôi đọc sách, nấu ăn…  
   Câu hỏi: 休みの日は何をしていますか。 (Ngày nghỉ bạn thường làm gì?) · câu đáp sai: はい、本を読んだり、料理を作ったりしています。 / 本を読んだり、料理を作ったりしていますか。 / 本を読んだり、料理を作ってしています。  
@@ -1615,7 +1615,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 - `s27` mức 3 · パーティーでは**歌ったり**、ダンスをしたりして、とても楽しかったです。 — Ở bữa tiệc chúng tôi hát, nhảy… rất vui.  
   Hỏi **歌ったり** (form, thể たり) · nhiễu: 歌いたり, 歌うたり, 歌ってり
 - `s28` mức 3 · 晩ごはんの前に、宿題を**したり**、ピアノを練習したりします。 — Trước bữa tối tôi làm bài tập, tập piano…  
-  Hỏi **したり** (form, thể たり) · nhiễu: するたり, してり, しったり
+  Hỏi **したり** (form, thể たり) · nhiễu: するたり, してり, したりり
 - `s29` mức 3 · きのうは何をしましたか。 — Hôm qua bạn đã làm gì?
 - `s30` mức 3 · 友達とカラオケで**歌ったり**、お酒を飲んだりしました。 — Tôi hát karaoke, uống rượu… với bạn.  
   Câu hỏi: きのうは何をしましたか。 (Hôm qua bạn đã làm gì?) · câu đáp sai: はい、友達とカラオケで歌ったり、お酒を飲んだりしました。 / 友達とカラオケで歌ったり、お酒を飲んだりしましたか。 / 友達とカラオケで歌って、お酒を飲んだりしました。  
@@ -1792,7 +1792,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 - `s28` mức 3 · きのうの試験は**難しかった**。でも、たくさん書いた。 — Bài thi hôm qua khó. Nhưng tớ đã viết được nhiều.  
   Hỏi **難しかった** (form, quá khứ) · nhiễu: 難しいだった, 難しかっただ, 難しい
 - `s29` mức 3 · 日曜日は掃除を**したり**、洗濯をしたりする。 — Chủ nhật tớ dọn dẹp, giặt giũ…  
-  Hỏi **したり** (form, thể たり) · nhiễu: するたり, してり, しったり
+  Hỏi **したり** (form, thể たり) · nhiễu: するたり, してり, したりり
 - `s30` mức 3 · 僕はもうすぐ20歳に**なる**。 — Tớ sắp 20 tuổi.  
   Hỏi **なる** (form, thể từ điển) · nhiễu: なりる, なるる, なった
 
