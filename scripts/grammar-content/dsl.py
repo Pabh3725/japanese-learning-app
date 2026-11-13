@@ -96,6 +96,17 @@ FUNCTION = {
     36: ['よう', 'ように'],
     39: ['ので', 'なので'],
     40: ['か', 'かどうか', 'どうか', 'みます', 'みました', 'みましょう', 'みたい', 'みて', 'みる', 'みた', 'みても', 'さ'],
+    41: ['くださいませんか', 'やります', 'やりました', 'くださる', 'くださった', 'くださって', 'いただく', 'いただいた', 'いただいて', 'いただける', 'いただきたい', 'いただいたら'],
+    42: ['ため', 'ために', 'のに'],
+    43: ['そう', 'そうな', 'そうに', 'きます', 'きました', 'きて', 'くる', 'きた', 'きましょう'],
+    44: ['すぎ'],
+    45: ['場合', 'ばあい', 'のに'],
+    46: ['ところ', 'ばかり', 'はず'],
+    47: ['よう', 'ようです', 'ような', 'ように', 'そうです'],
+    49: ['お', 'ご', 'になります', 'になりました', 'ください', 'いらっしゃる', 'いらっしゃった', 'いらっしゃったら', 'いらっしゃって',
+         'おっしゃる', 'おっしゃった', 'なさる', 'なさって', 'なさった', 'ご覧になった', 'ご存じ', '召し上がらない', '召し上がって', '召し上がった'],
+    50: ['お', 'ご', 'します', 'しました', 'しましょう', 'しましょうか', 'でございます', 'ございます', '存じて', 'お目にかかった',
+         'お目にかかりたい'],
 }
 # Tính từ い (bài 8+): thêm thể phủ định ～くない. いい → よくない. きれい là tính từ な nên không có ở đây.
 I_ADJ = {'みにくい', '大きい', '小さい', '新しい', '古い', '悪い', '熱い', '冷たい', '暑い', '寒い', '難しい', 'きびしい', 'やさしい',
@@ -242,7 +253,48 @@ def conj_forms(w, lesson):
             out.append((ps + tail, psr + tail, 'bị động', [x + tail for x in pass_wrong(w)]))
     if lesson >= 39:
         out.append((nai[:-1] + 'くて', nair[:-1] + 'くて', 'なくて', [stem + 'なくて', d + 'なくて', nai + 'て', stem + 'らなくて']))
+    rstem = w['reading'][:-2]
+    if lesson >= 43:
+        # Không dùng 降るそう, 降ったそう (nghe nói, bài 47), 降らなそう (văn nói) làm nhiễu
+        out.append((stem + 'そう', rstem + 'そう', 'そう (trông có vẻ)', [d + 'りそう', stem + 'さそう', d + 'さそう']))
+    if lesson >= 44:
+        for tail in ('ます', 'ました', 'ません', 'て', 'る', 'た', 'ない', 'たら'):
+            out.append((stem + 'すぎ' + tail, rstem + 'すぎ' + tail, 'すぎます', [d + 'すぎ' + tail, te + 'すぎ' + tail, stem + 'りすぎ' + tail]))
+        for tail in ('やすい', 'にくい', 'やすく', 'にくく', 'やすかった', 'にくかった'):
+            out.append((stem + tail, rstem + tail, tail[:3] if tail.startswith('やす') else tail[:3], [d + tail, te + tail, stem + 'り' + tail]))
+    if lesson >= 48 and k != 'v5-aru':
+        cs, csr = caus_of(d, k), caus_of(dr, k)
+        for tail in CAUS_TAILS:
+            out.append((cs + tail, csr + tail, 'sai khiến', [x + tail for x in caus_wrong(w)]))
+    if lesson >= 49 and k in ('v5', 'v5-iku', 'v1'):
+        for tail in ('になります', 'になりました', 'ください', 'します', 'しました', 'しましょうか', 'になって', 'になった', 'になったら', 'になる', 'になりますか', 'しましょう', 'する', 'した'):
+            out.append(('お' + stem + tail, 'お' + rstem + tail, ('khiêm nhường (お～)' if tail.startswith('し') or tail in ('する', 'した') else 'kính ngữ (お～)'), ['お' + d + tail, 'お' + te + tail, 'お' + stem + 'り' + tail]))
     return out
+
+
+CAUS_TAILS = ['ます', 'ません', 'ました', 'る', 'た', 'て', 'ない', 'てください', 'たい', 'よう']
+
+
+def caus_of(dict_form, kind):
+    """Gốc sai khiến (bài 48): 行かせ, 食べさせ, させ, 来させ."""
+    if kind == 'v1':
+        return dict_form[:-1] + 'させ'
+    if kind == 'suru':
+        return dict_form[:-2] + 'させ'
+    if kind == 'kuru':
+        return dict_form[:-2] + ('来させ' if dict_form.endswith('来る') else 'こさせ')
+    return dict_form[:-1] + GODAN_A[dict_form[-1]] + 'せ'
+
+
+def caus_wrong(w):
+    d, k, stem = w['dict'], w['kind'], w['expression'][:-2]
+    if k == 'v1':
+        return [d + 'させ', stem + 'せ', stem + 'らせ']
+    if k == 'suru':
+        return [d[:-2] + 'しさせ', d[:-2] + 'するさせ', d[:-2] + 'させさせ']
+    if k == 'kuru':
+        return [d + 'させ', stem + 'せ', stem + 'らせ']
+    return [stem + 'させ', d + 'させ', stem + 'せ']
 
 
 GODAN_O = {'う': 'お', 'く': 'こ', 'ぐ': 'ご', 'す': 'そ', 'つ': 'と', 'ぬ': 'の', 'ぶ': 'ぼ', 'む': 'も', 'る': 'ろ'}
@@ -361,6 +413,15 @@ def adj_conj(w, lesson):
         out.append((st + 'ければ', sr + 'ければ', 'thể ば', [expr + 'ば', expr + 'ければ', st + 'くば']))
     if lesson >= 40 and w['kind'] == 'adj-i':
         out.append((st + 'さ', sr + 'さ', 'danh từ (さ)', [expr + 'さ', st + 'くさ', st + 'さい']))
+    if lesson >= 43:
+        sou, soum = (('よさそう', 'よさそう') if w['kind'] == 'adj-ii' and expr == 'いい' else (st + 'そう', sr + 'そう'))
+        if w['kind'] == 'adj-ii' and expr != 'いい':
+            sou, soum = expr[:-2] + 'よさそう', kana[:-2] + 'よさそう'
+        # Không dùng 高いそう (nghe nói, bài 47) làm nhiễu
+        out.append((sou, soum, 'そう (trông có vẻ)', [st + 'くそう', st + 'さいそう', expr + 'さそう']))
+    if lesson >= 44:
+        for tail in ('すぎます', 'すぎました', 'すぎて', 'すぎる', 'すぎた'):
+            out.append((st + tail, sr + tail, 'すぎます', [expr + tail, st + 'く' + tail, st + 'さ' + tail]))
     return out
 
 
@@ -417,7 +478,7 @@ class Vocab:
                     TE_FORMS.setdefault(te_w, (expr, w))
                 for written, reading, form, wrong in conj_forms(w, lesson):
                     # Thể khả năng thêm sau cùng: 入れて của 入れます (いれて) không bị cách đọc はいれて của 入ります che mất
-                    if form.startswith('khả năng') or form == 'bị động':
+                    if form.startswith('khả năng') or form in ('bị động', 'sai khiến'):
                         potential.append((written, reading, form, expr, wrong))
                         continue
                     self.add(tokens, written, reading)
@@ -437,6 +498,9 @@ class Vocab:
             # Nhóm II: 食べられます vừa là khả năng vừa là bị động (bài 37+)
             if old and old[0] != form and {old[0], form} == {'khả năng', 'bị động'}:
                 CONJ_FORMS[written] = ('khả năng / bị động', expr, old[2])
+            elif old and form == 'sai khiến' and old[0] == 'khả năng':
+                # させます: sai khiến của します trùng khả năng của さします (che ô, bài 47); ưu tiên sai khiến
+                CONJ_FORMS[written] = (form, expr, wrong)
             else:
                 CONJ_FORMS.setdefault(written, (form, expr, wrong))
         if lesson >= 8:
