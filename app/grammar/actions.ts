@@ -1,17 +1,8 @@
 'use server'
 
 // Grammar: Server Function mỏng, mọi logic ở lib/dal/grammar.ts.
-import {
-  checkGrammarAnswer,
-  finishGrammarTest,
-  openGrammarPoint,
-  saveTestAnswer,
-  startGrammarTest,
-  submitGrammarAnswer,
-  type GrammarAnswerResponse,
-  type GrammarTestResult,
-  type GrammarTestView,
-} from '@/lib/dal/grammar'
+import { checkGrammarAnswer, openGrammarPoint, submitGrammarAnswer, type GrammarAnswerResponse } from '@/lib/dal/grammar'
+import { finishGrammarTest, saveTestAnswer, startGrammarTest, type GrammarTestResult, type GrammarTestView } from '@/lib/dal/grammar-test'
 import { markGrammarLearned } from '@/lib/dal/mark-learned'
 
 export async function openGrammarPointAction(code: unknown): Promise<{ status: 'saved' | 'invalid' | 'locked' }> {

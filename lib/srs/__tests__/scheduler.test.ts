@@ -9,9 +9,6 @@ const vn = (local: string) => new Date(local.replace(' ', 'T') + ':00+07:00')
 const s = createScheduler({ enableFuzz: false })
 
 
-/** Làm tròn 2 chữ số để so với bảng trong tài liệu. */
-const r2 = (n: number) => Math.round(n * 100) / 100
-
 describe('createScheduler', () => {
   it('tạo Card theo stage: Stage 3 có Card Kana, Stage 6 có Card Kanji, còn lại không', () => {
     const now = vn('2026-11-05 20:00')

@@ -83,7 +83,7 @@ export type SpeedPairResponse = { status: 'saved' | 'invalid' }
 export async function submitSpeedPair(input: unknown): Promise<SpeedPairResponse> {
   const req = parseRequest(input)
   if (!req) return { status: 'invalid' }
-  const user = await requireUser()
+  await requireUser()
   const supabase = await createClient()
   const correct = req.wordId === req.meaningId
   const attempts = correct

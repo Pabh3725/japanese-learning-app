@@ -13,7 +13,7 @@ const DAY1 = '2026-11-01'
 describe('VD1 — giãn cách chặn spam (R3)', () => {
   it('chỉ câu cách ≥ 4 câu mới được +1', () => {
     const now = vn('2026-11-01 20:00')
-    let s = word({ stage: 2, points: 2, plusDate: DAY1, lastSeq: 3, lastSeqDate: DAY1 })
+    const s = word({ stage: 2, points: 2, plusDate: DAY1, lastSeq: 3, lastSeqDate: DAY1 })
 
     let r = applyStageAttempt(s, { exercise: 'kana_to_meaning', outcome: 'correct', seq: 10, now })
     expect(r.delta).toBe(1)
@@ -53,7 +53,7 @@ describe('VD2 — đủ điểm nhưng thiếu dạng bắt buộc; mở stage s
 
 describe('VD3 — trần 3 điểm cộng mỗi ngày (R3)', () => {
   it('chạm trần thì đúng không cộng, sai vẫn trừ; sang ngày mới được cộng lại', () => {
-    let s: StageState = word({
+    const s: StageState = word({
       stage: 5,
       points: 3,
       plusToday: 3,
@@ -79,7 +79,7 @@ describe('VD3 — trần 3 điểm cộng mỗi ngày (R3)', () => {
 describe('VD4 — điểm âm và sai liên tiếp (R3)', () => {
   it('trong vòng 4 câu chỉ bị trừ một lần; điểm xuống dưới 0', () => {
     const now = vn('2026-11-01 20:00')
-    let s = word({ stage: 2, points: 0, lastSeq: 14, lastSeqDate: DAY1 })
+    const s = word({ stage: 2, points: 0, lastSeq: 14, lastSeqDate: DAY1 })
 
     let r = applyStageAttempt(s, { exercise: 'kana_to_meaning', outcome: 'wrong', seq: 20, now })
     expect(r.state.points).toBe(-2)

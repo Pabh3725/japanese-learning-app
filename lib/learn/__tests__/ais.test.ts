@@ -4,17 +4,6 @@ import { RULES_V9 } from '../../learning/rules'
 import type { Outcome } from '../../learning/types'
 import { applyIntro, applyResult, applySupport, planNext, startLesson, type Candidate, type EndReason, type LessonGroup, type LessonLimits, type LessonState, type StepPlan } from '../ais'
 
-function seeded(seed: number) {
-  let a = seed >>> 0
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0
-    let t = a
-    t = Math.imul(t ^ (t >>> 15), t | 1)
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
-
 interface PoolSize {
   vocabDue?: number
   wordKanjiDue?: number

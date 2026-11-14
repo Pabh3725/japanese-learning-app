@@ -20,7 +20,6 @@ import { speak } from '@/lib/speech'
 import type { RecallStep } from '@/lib/types'
 
 const SAVE_ERROR = "Couldn't check your answer. Check your connection and try again."
-const SAVE_WARNING = "Some answers couldn't be saved. They'll come up again."
 
 export function ReviewSession({ questions: initialQuestions, capReached, cardsLeft }: { questions: ReviewQuestion[]; capReached: boolean; cardsLeft: number }) {
   const [questions, setQuestions] = useState(initialQuestions)
@@ -28,7 +27,6 @@ export function ReviewSession({ questions: initialQuestions, capReached, cardsLe
   const [index, setIndex] = useState(0)
   const [results, setResults] = useState<boolean[]>([])
   const pending = 0
-  const [warning] = useState<string | null>(null)
   const shownAt = useRef(0)
   // Lưu tuần tự để hai câu của cùng một từ không ghi đè nhau
   const saveQueue = useRef<Promise<void>>(Promise.resolve())
@@ -59,7 +57,7 @@ export function ReviewSession({ questions: initialQuestions, capReached, cardsLe
       <div className="flex min-h-dvh flex-col">
         <SessionComplete
           title={pending > 0 ? 'Saving…' : 'Review done!'}
-          subtitle={warning ?? `You reviewed ${results.length} ${results.length === 1 ? 'card' : 'cards'}. ${cardsLeft > 0 ? `${cardsLeft} more ${cardsLeft === 1 ? 'card is' : 'cards are'} waiting.` : 'No more cards for now.'}`}
+          subtitle={`You reviewed ${results.length} ${results.length === 1 ? 'card' : 'cards'}. ${cardsLeft > 0 ? `${cardsLeft} more ${cardsLeft === 1 ? 'card is' : 'cards are'} waiting.` : 'No more cards for now.'}`}
           stats={[
             { label: 'Correct', value: String(correct), tone: 'text-success' },
             { label: 'Wrong', value: String(wrong), tone: 'text-error' },
@@ -168,7 +166,6 @@ export function ReviewSession({ questions: initialQuestions, capReached, cardsLe
       <SessionHeader backHref="/review" label="Daily Review" sublabel={`${index + 1} / ${questions.length}`} current={index} total={questions.length} />
       <KnownWordBar vocabularyId={q.vocabularyId} onKnown={removeWord} />
       <ArchiveCardBar kind="vocab" cardId={q.cardId} onArchived={removeCard} />
-      {warning && <p role="alert" className="mx-auto mt-3 w-full max-w-2xl px-4 text-sm text-error">{warning}</p>}
       {body}
     </div>
   )

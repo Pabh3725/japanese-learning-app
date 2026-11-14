@@ -80,7 +80,7 @@ export function LibraryBrowser({ vocabulary, kanji, grammar = [], initialTab = '
   const [lesson, setLesson] = useState<number | 'all'>('all')
   const [level, setLevel] = useState<string>('all')
   const levels = useMemo(() => [...new Set(vocabulary.map((v) => v.jlpt))].sort().reverse(), [vocabulary])
-  const lessons = useMemo(() => [...new Set(vocabulary.filter((v) => level === 'all' || v.jlpt === level).flatMap((v) => (v.lesson === null ? [] : [v.lesson])))].sort((a, b) => a - b), [vocabulary])
+  const lessons = useMemo(() => [...new Set(vocabulary.filter((v) => level === 'all' || v.jlpt === level).flatMap((v) => (v.lesson === null ? [] : [v.lesson])))].sort((a, b) => a - b), [vocabulary, level])
   const [selecting, setSelecting] = useState(false)
   const [selected, setSelected] = useState<ReadonlySet<string>>(() => new Set())
   const [error, setError] = useState<string | null>(null)

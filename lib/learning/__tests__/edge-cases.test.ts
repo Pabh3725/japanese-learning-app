@@ -7,7 +7,6 @@ import {
   canUnlockNext,
   completeAt,
   shouldRelearn,
-  stageStep,
   trailingCount,
   nextStudyDayStart,
   studyDate,
