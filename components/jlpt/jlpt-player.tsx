@@ -11,17 +11,27 @@ import { SessionComplete } from '@/components/learning/session-complete'
 import { SessionHeader } from '@/components/learning/session-header'
 import type { JlptAnswerResult, JlptSessionView, JlptSummary } from '@/lib/dal/jlpt'
 import { JLPT_TYPES } from '@/lib/jlpt/catalog'
+import { isContentType } from '@/lib/jlpt/content'
 import type { PublicJlptQuestion, StemPiece } from '@/lib/jlpt/questions'
-import { speak } from '@/lib/speech'
+import { speak, speakScript } from '@/lib/speech'
 import { cn } from '@/lib/utils'
 
 const SAVE_ERROR = "Couldn't check your answer. Check your connection and try again."
 const typeName = (id: string) => JLPT_TYPES.find((t) => t.id === id)
 
-function Stem({ pieces }: { pieces: StemPiece[] }) {
+const BLANK_MARKS = '①②③④⑤'
+
+/** Các mảnh chữ (ruby, gạch chân, ô trống). `current`: ô đánh số đang hỏi trong đoạn văn. */
+function Pieces({ pieces, current }: { pieces: StemPiece[]; current?: string }) {
   return (
-    <p lang="ja" className="font-jp text-2xl leading-loose">
+    <>
       {pieces.map((p, i) => {
+        if (p.t.length === 1 && BLANK_MARKS.includes(p.t))
+          return (
+            <span key={i} className={cn('mx-0.5 inline-block min-w-12 rounded-md border px-1.5 text-center', p.t === current ? 'border-primary bg-primary/12 text-primary' : 'border-border text-muted-foreground')}>
+              {p.t}
+            </span>
+          )
         if (p.mark === 'blank') return <span key={i} className="mx-1 inline-block min-w-16 border-b-2 border-primary text-center">（　）</span>
         if (p.mark === 'hidden') return <span key={i} className="mx-0.5 inline-block w-12 border-b-2 border-muted-foreground" aria-label="blank" />
         if (p.mark === 'star') return <span key={i} className="mx-0.5 inline-block w-12 border-b-2 border-yellow text-center text-base text-yellow">★</span>
@@ -35,7 +45,53 @@ function Stem({ pieces }: { pieces: StemPiece[] }) {
           <span key={i}>{p.t}</span>
         )
       })}
+    </>
+  )
+}
+
+function Stem({ pieces, size = 'lg' }: { pieces: StemPiece[]; size?: 'lg' | 'md' }) {
+  return (
+    <p lang="ja" className={cn('font-jp leading-loose whitespace-pre-line', size === 'lg' ? 'text-2xl' : 'text-xl')}>
+      <Pieces pieces={pieces} />
     </p>
+  )
+}
+
+/** 文章の文法, 読解: tiêu đề và các đoạn văn. */
+function Passage({ q }: { q: PublicJlptQuestion }) {
+  return (
+    <section lang="ja" className="rounded-2xl border border-border bg-secondary/40 p-4 font-jp md:p-5">
+      {q.title && (
+        <h2 className="mb-3 text-center text-lg font-semibold">
+          <Pieces pieces={q.title} />
+        </h2>
+      )}
+      <div className="flex flex-col gap-3 text-lg leading-loose">
+        {q.passage!.map((para, i) => (
+          <p key={i} className="whitespace-pre-line">
+            <Pieces pieces={para} current={q.blankMark} />
+          </p>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+/** 課題理解・ポイント理解, 発話表現: máy đọc lời theo thứ tự, hai giọng nam/nữ. */
+function ScriptPlayer({ script }: { script: NonNullable<PublicJlptQuestion['script']> }) {
+  useEffect(() => {
+    speakScript(script)
+    return () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) window.speechSynthesis.cancel()
+    }
+  }, [script])
+  return (
+    <div className="flex justify-center">
+      <button type="button" onClick={() => speakScript(script)} className={actionButton({ size: 'lg', variant: 'secondary' })}>
+        <Volume2 aria-hidden="true" />
+        Play again
+      </button>
+    </div>
   )
 }
 
@@ -70,6 +126,7 @@ export function JlptPlayer({ session }: { session: JlptSessionView }) {
   const [error, setError] = useState<string | null>(null)
   const [summary, setSummary] = useState<JlptSummary | null>(null)
   const [busy, start] = useTransition()
+  const [shownText, setShownText] = useState<ReadonlySet<number>>(() => new Set())
   const total = session.questions.length
   const done = index >= total
 
@@ -117,6 +174,10 @@ export function JlptPlayer({ session }: { session: JlptSessionView }) {
 
   const q = session.questions[index]
   const result = answered[index]
+  // 発話表現: như đề thật, lựa chọn chỉ được đọc; hiện chữ sau khi trả lời hoặc khi người học bấm "Show text"
+  const hideOptions = q.type === 'verbal_expressions' && !result && !shownText.has(index)
+  // Đợt 2: lựa chọn thường là câu, cỡ chữ nhỏ hơn
+  const sentenceOptions = isContentType(q.type) && (!!q.optionStems || q.options.some((o) => o.length > 6))
   const info = typeName(q.type)
   const choose = (choice: number) => {
     if (result || busy) return
@@ -146,13 +207,27 @@ export function JlptPlayer({ session }: { session: JlptSessionView }) {
           <p className="text-xs font-medium text-primary">{info ? `${info.nameJa} · ${info.name}` : q.type}</p>
           <h1 className="mt-1 text-lg font-semibold">{q.instruction}</h1>
         </div>
-        {q.stem && <Stem pieces={q.stem} />}
+        {q.passage && <Passage q={q} />}
+        {q.situation && <p className="rounded-2xl border border-border bg-card p-4 text-lg">{q.situation}</p>}
+        {q.stem && <Stem pieces={q.stem} size={q.passage || q.script ? 'md' : 'lg'} />}
         {q.type === 'quick_response' && <Listening key={index} q={q} />}
+        {q.script && <ScriptPlayer key={index} script={q.script} />}
         <div className="grid gap-3">
           {q.options.map((o, i) => (
-            <AnswerOption key={`${index}-${i}`} label={o} kind="vocab" state={stateOf(i)} index={i} disabled={!!result || busy} onSelect={() => choose(i)} />
+            <AnswerOption key={`${index}-${i}`} label={hideOptions ? String(i + 1) : o} kind={hideOptions ? 'meaning' : 'vocab'} state={stateOf(i)} index={i} disabled={!!result || busy} onSelect={() => choose(i)}>
+              {!hideOptions && sentenceOptions && (
+                <span lang="ja" className="font-jp text-lg leading-relaxed">
+                  {q.optionStems ? <Pieces pieces={q.optionStems[i]} /> : o}
+                </span>
+              )}
+            </AnswerOption>
           ))}
         </div>
+        {hideOptions && (
+          <button type="button" onClick={() => setShownText((cur) => new Set(cur).add(index))} className="self-center text-sm text-muted-foreground underline underline-offset-2 hover:text-foreground">
+            Show text
+          </button>
+        )}
         {error && <p role="alert" className="text-sm text-error">{error}</p>}
         {result && (
           <div className={cn('rounded-2xl border p-4', result.correct ? 'border-success/40 bg-success/5' : 'border-error/40 bg-error/5')}>

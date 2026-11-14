@@ -26,6 +26,17 @@ export interface JlptQuestion {
   audio?: string
   /** 即時応答: chữ của câu được đọc, hiện khi người học bấm "Show text". */
   audioText?: string
+  /** Đợt 2 — 文章の文法, 読解: đoạn văn (mỗi phần tử một đoạn) và tiêu đề. */
+  passage?: StemPiece[][]
+  title?: StemPiece[]
+  /** 文章の文法: ô trống đang hỏi (①…⑤), tô đậm trong đoạn văn. */
+  blankMark?: string
+  /** 用法: 4 câu (có gạch chân từ được hỏi) thay cho lựa chọn chữ thường. */
+  optionStems?: StemPiece[][]
+  /** 聴解: lời đọc theo thứ tự, mỗi dòng một người nói (M nam, F nữ, N người dẫn). */
+  script?: { sp: 'M' | 'F' | 'N'; text: string }[]
+  /** 発話表現: tình huống thay cho tranh. */
+  situation?: string
 }
 
 export interface JlptWord {

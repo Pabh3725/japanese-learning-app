@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Check, X } from 'lucide-react'
 import type { DisplayKind } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -11,9 +12,11 @@ interface AnswerOptionProps {
   index: number
   disabled?: boolean
   onSelect: () => void
+  /** Nội dung thay cho `label` khi lựa chọn là câu dài (cỡ chữ nhỏ hơn, có furigana…). */
+  children?: ReactNode
 }
 
-export function AnswerOption({ label, kind, state, index, disabled, onSelect }: AnswerOptionProps) {
+export function AnswerOption({ label, kind, state, index, disabled, onSelect, children }: AnswerOptionProps) {
   const isJapanese = kind !== 'meaning'
   return (
     <button
@@ -39,18 +42,22 @@ export function AnswerOption({ label, kind, state, index, disabled, onSelect }: 
       >
         {state === 'correct' ? <Check className="size-3.5 text-success" /> : state === 'incorrect' ? <X className="size-3.5 text-error" /> : index + 1}
       </span>
-      <span
-        lang={isJapanese ? 'ja' : undefined}
-        className={cn(
-          isJapanese ? 'font-jp' : 'font-medium',
-          kind === 'kana' && 'text-[26px] md:text-[28px]',
-          kind === 'vocab' && 'text-[28px]',
-          kind === 'kanji' && 'text-[32px]',
-          kind === 'meaning' && 'text-[20px] md:text-[22px]',
-        )}
-      >
-        {label}
-      </span>
+      {children ? (
+        <span className="w-full px-6 text-left md:px-8">{children}</span>
+      ) : (
+        <span
+          lang={isJapanese ? 'ja' : undefined}
+          className={cn(
+            isJapanese ? 'font-jp' : 'font-medium',
+            kind === 'kana' && 'text-[26px] md:text-[28px]',
+            kind === 'vocab' && 'text-[28px]',
+            kind === 'kanji' && 'text-[32px]',
+            kind === 'meaning' && 'text-[20px] md:text-[22px]',
+          )}
+        >
+          {label}
+        </span>
+      )}
     </button>
   )
 }

@@ -28,7 +28,7 @@
 | Nghe hiểu | 課題理解・ポイント理解 | 2 | Soạn mới, máy đọc |
 | Nghe hiểu | 発話表現 — nhìn tình huống, chọn câu nói | 2 | Cần tranh hoặc mô tả tình huống |
 
-Dạng đợt 2 hiện "Coming soon".
+Dạng đợt 2 bật khi có nội dung đã duyệt (§3b); chưa có thì hiện "Coming soon".
 
 ## 3. Dựng câu (đợt 1) — PROPOSED, đã đối chiếu định dạng với jlpt.jp (bảng dạng bài N5/N4 và Official Practice Workbook Vol.2, 2018) ngày 2026-11-14
 
@@ -38,6 +38,18 @@ Dạng đợt 2 hiện "Coming soon".
 - **文法形式の判断:** một chỗ hỏi của câu ngữ pháp (trợ từ, từ, thể); 3 nhiễu lấy đúng nhiễu soạn sẵn của chỗ đó. Giải thích: mẫu, nghĩa mẫu, nghĩa câu.
 - **文の組み立て:** câu sắp xếp được (một câu, không dấu phẩy, ít nhất 4 mảnh). Che 4 mảnh liền nhau, ★ ở một ô bất kỳ (đề thật đổi vị trí ★); lựa chọn là 4 mảnh bị che (chữ khác nhau).
 - **即時応答:** máy đọc câu hỏi (giọng Nhật của thiết bị), chọn câu đáp; mặc định không hiện chữ, có nút hiện chữ. Nhiễu là câu đáp sai soạn sẵn cho đúng câu hỏi đó.
+
+## 3b. Nội dung soạn sẵn (đợt 2) — CONFIRMED, chủ dự án duyệt toàn bộ nội dung 2026-11-14 (`docs/jlpt-review-v2.md`)
+
+Chủ dự án chọn 2026-11-14: soạn đủ cả hai cấp một lần, nghe bằng máy đọc 2 giọng, 発話表現 mô tả tình huống bằng chữ.
+
+- **Soạn:** script Python `scripts/jlpt-content/n5_*.py`, `n4_*.py` (công cụ `jdsl.py`). Công cụ tách từ, chỉ cho phép từ của cấp (N5: bài 1–25, N4: bài 1–50, cộng danh sách từ JLPT thông dụng `EXTRA`), gắn furigana, báo lỗi cách đọc bất quy tắc (số đếm, ngày) để ghi tay. `combine.py` gộp thành `data/jlpt/n5.json`, `n4.json`; app nhập hai file này ở server, không cần bảng database.
+- **Duyệt:** mỗi mục có `approved`; app chỉ dùng mục đã duyệt. Bật duyệt: `write(..., approved=True)` trong script của dạng đó, chạy lại script và `combine.py`.
+- **Định dạng:** 4 lựa chọn (発話表現: 3), lựa chọn đúng soạn ở vị trí đầu, app xáo khi dựng câu. Mục có đoạn văn (文章の文法, 読解) cho ra nhiều câu đi liền nhau trong phiên, mỗi câu kèm đoạn văn; 文章の文法 tô ô đang hỏi (①–④).
+- **用法 (N4):** một từ, 4 câu có từ đó gạch chân, đúng một câu dùng đúng; giải thích ghi từ đúng cho các câu sai.
+- **聴解:** máy đọc câu hỏi, hội thoại (giọng nam / nữ khác nhau; thiết bị chỉ có một giọng Nhật thì đổi cao độ), rồi đọc lại câu hỏi. Lựa chọn hiện bằng chữ. Sau khi trả lời, giải thích kèm toàn bộ lời thoại.
+- **発話表現:** tình huống tiếng Việt kèm emoji thay cho tranh; máy đọc 3 câu nói đánh số; chữ của 3 câu ẩn cho tới khi trả lời hoặc bấm "Show text".
+- **Số lượng:** N5 248 câu, N4 288 câu (bảng trong `docs/jlpt-review-v2.md`).
 
 ## 4. Phiên ôn
 

@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils'
 const EMPTY_ERROR = 'Not enough material for this choice yet. Try "Whole level", or learn more first.'
 const SAVE_ERROR = "Couldn't start. Check your connection and try again."
 
-export function JlptHome({ stats, initialLevel }: { stats: JlptStats; initialLevel: JlptLevel }) {
+export function JlptHome({ stats, ready: readyByLevel, initialLevel }: { stats: JlptStats; ready: Record<JlptLevel, JlptType[]>; initialLevel: JlptLevel }) {
   const router = useRouter()
   const [level, setLevel] = useState<JlptLevel>(initialLevel)
   const [scope, setScope] = useState<'all' | 'learned'>('all')
@@ -22,6 +22,7 @@ export function JlptHome({ stats, initialLevel }: { stats: JlptStats; initialLev
   const [error, setError] = useState<string | null>(null)
   const [starting, start] = useTransition()
 
+  const isReady = (id: JlptType) => readyByLevel[level].includes(id)
   const typesOf = (area: JlptArea) => JLPT_TYPES.filter((t) => t.area === area && t.levels.includes(level))
   const toggle = (id: JlptType) =>
     setSelected((cur) => {
@@ -95,7 +96,7 @@ export function JlptHome({ stats, initialLevel }: { stats: JlptStats; initialLev
 
       {JLPT_AREAS.map((area) => {
         const types = typesOf(area.id)
-        const ready = types.filter((t) => t.available).map((t) => t.id)
+        const ready = types.filter((t) => isReady(t.id)).map((t) => t.id)
         return (
           <section key={area.id} aria-labelledby={`area-${area.id}`} className="rounded-3xl border border-border bg-card px-6 pt-5 pb-2">
             <div className="flex items-center justify-between gap-3">
@@ -111,11 +112,11 @@ export function JlptHome({ stats, initialLevel }: { stats: JlptStats; initialLev
             </div>
             <ul className="mt-2 divide-y divide-border">
               {types.map((t) => (
-                <li key={t.id} className={cn('flex items-center gap-3 py-3', !t.available && 'opacity-60')}>
+                <li key={t.id} className={cn('flex items-center gap-3 py-3', !isReady(t.id) && 'opacity-60')}>
                   <input
                     type="checkbox"
                     aria-label={`Select ${t.name}`}
-                    disabled={!t.available}
+                    disabled={!isReady(t.id)}
                     checked={selected.has(t.id)}
                     onChange={() => toggle(t.id)}
                     className="size-4 shrink-0 accent-[var(--primary)]"
@@ -126,9 +127,9 @@ export function JlptHome({ stats, initialLevel }: { stats: JlptStats; initialLev
                       {t.name}
                     </p>
                     <p className="text-xs text-muted-foreground">{t.description}</p>
-                    <p className="text-xs text-subtle">{t.available ? accuracy(t.id) : 'Coming soon'}</p>
+                    <p className="text-xs text-subtle">{isReady(t.id) ? accuracy(t.id) : 'Coming soon'}</p>
                   </div>
-                  {t.available && (
+                  {isReady(t.id) && (
                     <button type="button" disabled={starting} onClick={() => run([t.id])} className={actionButton({ size: 'sm' })}>
                       Practice
                     </button>
