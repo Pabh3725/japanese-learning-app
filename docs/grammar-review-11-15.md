@@ -1391,7 +1391,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 - `s25` mức 3 · まっすぐ**行って**ください。それから、右へ曲がってください。 — Hãy đi thẳng. Sau đó rẽ phải.  
   Hỏi **行って** (form, thể て) · nhiễu: 行くて, 行きて, 行きって
 - `s26` mức 3 · ワンさんは会議室で会議を**して**います。 — Anh Wang đang họp ở phòng họp.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, しりて
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s27` mức 3 · すみません、もう少し**待って**ください。すぐ行きますから。 — Xin lỗi, hãy đợi thêm một chút. Vì tôi đến ngay.  
   Hỏi **待って** (form, thể て) · nhiễu: 待つて, 待ちて, 待ちって
 - `s28` mức 3 · この荷物は重いですから、いっしょに**持って**ください。 — Vì hành lý này nặng nên hãy cầm cùng tôi.  
@@ -1510,7 +1510,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
   Câu hỏi: 雨が降っていますか。 (Trời có đang mưa không?) · câu đáp sai: はい、降っていません。でも、曇りです。 / いいえ、降っています。でも、曇りです。 / いいえ、降りていません。でも、曇りです。  
   Hỏi **いません** (form, phủ định) · nhiễu: います, いました, いませんでした
 - `s25` mức 3 · 今会議を**して**いますから、あとで電話をかけます。 — Vì bây giờ đang họp nên lát nữa tôi sẽ gọi điện.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, しりて
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 
 <details><summary>Toàn bộ 30 câu</summary>
 
@@ -1523,7 +1523,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 - `s04` mức 1 · 子どもは庭で**遊んで**います。 — Bọn trẻ đang chơi trong vườn.  
   Hỏi **遊んで** (form, thể て) · nhiễu: 遊ぶて, 遊びて, 遊びって
 - `s05` mức 1 · 母は今買い物を**して**います。 — Bây giờ mẹ tôi đang mua sắm.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, しりて
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s06` mức 1 · 父は今テレビを**見て**います。 — Bây giờ bố tôi đang xem tivi.  
   Hỏi **見て** (form, thể て) · nhiễu: 見るて, 見って, 見んで
 - `s07` mức 1 · 学生は教室で先生を**待って**います。 — Học sinh đang đợi giáo viên trong lớp.  
@@ -1531,7 +1531,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 - `s08` mức 1 · イーさんはプールで**泳いで**います。 — Chị Lee đang bơi ở bể bơi.  
   Hỏi **泳いで** (form, thể て) · nhiễu: 泳ぐて, 泳ぎて, 泳ぎって
 - `s09` mức 1 · ミラーさんは今コピーを**して**います。 — Bây giờ anh Miller đang photo.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, しりて
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s10` mức 1 · サントスさんは公園で**散歩して**います。 — Anh Santos đang đi dạo ở công viên.  
   Hỏi **散歩して** (form, thể て) · nhiễu: 散歩するて, 散歩しって, 散歩すって
 - `s11` mức 2 · 今何をしていますか。 — Bây giờ bạn đang làm gì?
@@ -1563,7 +1563,7 @@ Số câu: 30 (mức 1: 10, mức 2: 10, mức 3: 10). Dạng bài làm được
 - `s24` mức 3 · 男の子が川で**泳いで**います。私も泳ぎたいです。 — Cậu bé đang bơi ở sông. Tôi cũng muốn bơi.  
   Hỏi **泳いで** (form, thể て) · nhiễu: 泳ぐて, 泳ぎて, 泳ぎって
 - `s25` mức 3 · 今会議を**して**いますから、あとで電話をかけます。 — Vì bây giờ đang họp nên lát nữa tôi sẽ gọi điện.  
-  Hỏi **して** (form, thể て) · nhiễu: するて, しって, しりて
+  Hỏi **して** (form, thể て) · nhiễu: するて, しりて, してら
 - `s26` mức 3 · 先生は今教室で学生と**話して**います。 — Bây giờ giáo viên đang nói chuyện với học sinh trong lớp.  
   Hỏi **話して** (form, thể て) · nhiễu: 話すて, 話しって, 話って
 - `s27` mức 3 · カリナさんは窓の近くで写真を**撮って**います。 — Chị Karina đang chụp ảnh ở gần cửa sổ.  

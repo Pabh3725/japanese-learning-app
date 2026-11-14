@@ -1,4 +1,4 @@
-# Kiểm tra mỗi lần push và Pull Request: typecheck, test, validate dữ liệu seed.
+# Kiểm tra mỗi lần push và Pull Request: typecheck, lint, test, validate dữ liệu seed.
 # Không cần secret: seed --check chỉ đọc file, test không chạm database (test RLS chạy riêng bằng pnpm test:rls).
 name: CI
 
@@ -21,6 +21,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Typecheck
         run: pnpm exec tsc --noEmit -p .
+      - name: Lint
+        run: pnpm lint
       - name: Test
         run: pnpm test
       - name: Validate dữ liệu seed

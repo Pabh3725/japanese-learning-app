@@ -10,12 +10,10 @@ import { requireUser } from '@/lib/dal/auth'
 import { readDailyLimits } from '@/lib/dal/daily-limits'
 import { getLastDaySeq } from '@/lib/dal/day-seq'
 import { completeWordIntro, getIntroData } from '@/lib/dal/intro'
+import { buildKanjiMatchRound, buildKanjiPartsFor, buildKanjiSimilarFor } from '@/lib/dal/kanji-content'
 import {
   buildKanjiIntro,
-  buildKanjiMatchRound,
-  buildKanjiPartsFor,
   buildKanjiQuestionFor,
-  buildKanjiSimilarFor,
   checkKanjiAnswer,
   openKanji,
   readKanjiCandidates,

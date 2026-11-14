@@ -96,6 +96,7 @@ export function SpeedMatchingGame({ words, mode, seconds, onBossDone, onChangeMo
     const id = sessionId.current
     saveQueue.current = saveQueue.current.then(() => finishSpeedSessionAction(id, score)).catch(() => undefined)
     // Chỉ chạy khi vừa hết giờ; lúc đó điểm đã chốt
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [over])
 
   const savePair = (wordId: string, meaningId: string) => {

@@ -133,6 +133,8 @@ export interface LessonEmbed {
 function FinishSegment({ pending, onDone }: { pending: number; onDone: () => void }) {
   useEffect(() => {
     if (pending === 0) onDone()
+    // Chỉ báo một lần khi lưu xong; onDone là hàm mới mỗi lần render nên không đưa vào danh sách phụ thuộc
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pending])
   return <p className="m-auto text-sm text-muted-foreground">Saving…</p>
 }

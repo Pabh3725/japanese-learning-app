@@ -818,12 +818,17 @@ def lemma(text):
     return VOCAB.reading.get(base, base)
 
 
+# Kana của thể chia các từ hay trùng với nhiễu chia sai của する／いる: 知る (しって…), 吸う (すって), 行く (いった)
+REAL_LATER = {'しって', 'しった', 'しったり', 'しったら', 'しる', 'しらない', 'しらなければ', 'すって', 'いった'}
+
+
 def not_real(text, wrong):
     """Bỏ nhiễu tình cờ là một từ có thật (しって = 知って, しらない = 知らない, いった = 行った),
     rồi bù bằng dạng sai rõ ràng cho đủ 3. Bài 1–30 (đã duyệt): giữ nhiễu là thể khác của cùng từ
     (見ました cho 見ましょう, 寒く cho 寒い), chỉ bỏ từ có thật của từ khác."""
     if VOCAB.lesson < 31:
-        keep = [x for x in wrong if x.lstrip('*') not in VOCAB.tokens or lemma(x.lstrip('*')) == lemma(text)]
+        # REAL_LATER: từ có thật nhưng chưa học tới ở bài này nên VOCAB.tokens chưa có (しって ở bài 14, 知ります bài 15)
+        keep = [x for x in wrong if x.lstrip('*') not in REAL_LATER and (x.lstrip('*') not in VOCAB.tokens or lemma(x.lstrip('*')) == lemma(text))]
     else:
         keep = [x for x in wrong if x.lstrip('*') not in VOCAB.tokens and x.lstrip('*') != text]
     extras = (text + 'る', text + 'た', text + 'ら', text + 'て')

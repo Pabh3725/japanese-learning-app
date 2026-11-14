@@ -4,8 +4,6 @@ import { parseSubmitReviewResult, rowToReviewCard, toSubmitReviewParams, type Re
 import { createScheduler } from '../scheduler'
 
 const vn = (local: string) => new Date(local.replace(' ', 'T') + ':00+07:00')
-const s = createScheduler({ enableFuzz: false })
-
 /** Dòng review_cards của card 学校 nghĩa→Kanji vừa tạo (chưa ôn lần nào). */
 const newRow: ReviewCardRow = {
   id: 'card-1',
