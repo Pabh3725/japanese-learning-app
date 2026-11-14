@@ -26,7 +26,7 @@ export function KanjiKnownToggle({ kanjiId, known }: { kanjiId: string; known: b
   return (
     <div>
       <button type="button" onClick={toggle} disabled={saving} className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground">
-        {known ? 'Put back in Kanji' : 'I already know this'}
+        {known ? 'Put back in Kanji' : 'Mark as learned (Not review)'}
       </button>
       {error && <p role="alert" className="mt-1 text-xs text-error">Couldn&apos;t save.</p>}
     </div>

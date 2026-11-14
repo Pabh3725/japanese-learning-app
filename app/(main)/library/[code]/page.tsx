@@ -89,7 +89,7 @@ export default async function WordDetailPage({ params }: { params: Promise<{ cod
 
       <section aria-labelledby="progress-title" className="rounded-3xl border border-border bg-card p-6">
         <h2 id="progress-title" className="font-semibold">Your progress</h2>
-        {word.known && <p className="mt-2 text-sm text-success">Marked as already known. This word is not on your path.</p>}
+        {word.known && <p className="mt-2 text-sm text-success">Learned. This word needs no review and is not on your path.</p>}
         {!word.progress && !word.known && <p className="mt-2 text-sm text-muted-foreground">You haven&apos;t met this word yet. It will come up in lesson order.</p>}
         {word.progress && (
           <>

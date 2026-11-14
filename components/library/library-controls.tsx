@@ -81,10 +81,10 @@ export function UnitActions({ unit, count, onLearned, onKnown, saving }: { unit:
         {unit} · {count} {count === 1 ? 'item' : 'items'}
       </span>
       <button type="button" disabled={saving || count === 0} onClick={onLearned} className={actionButton({ size: 'sm' })}>
-        Mark unit as learned (It still can be reviewed)
+        Move unit to Reviewing (It still can be reviewed)
       </button>
       <button type="button" disabled={saving || count === 0} onClick={onKnown} className={actionButton({ size: 'sm', variant: 'secondary' })}>
-        I already know this unit (Not review)
+        Mark unit as learned (Not review)
       </button>
     </div>
   )

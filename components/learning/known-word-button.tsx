@@ -51,13 +51,13 @@ export function KnownWordBar({ vocabularyId, onKnown }: { vocabularyId: string |
       {vocabularyId && <StarButton vocabularyId={vocabularyId} />}
       {last && (
         <p role="status" className="mr-auto text-muted-foreground">
-          Removed from your path.{' '}
+          Marked as learned.{' '}
           <button type="button" onClick={undo} className="font-medium text-primary underline-offset-2 hover:underline">Undo</button>
         </p>
       )}
       {vocabularyId && (
         <button type="button" onClick={mark} title="Remove this word from your path (K)" className="text-muted-foreground underline-offset-2 hover:text-foreground hover:underline">
-          I already know this
+          Learned · no review
         </button>
       )}
     </div>

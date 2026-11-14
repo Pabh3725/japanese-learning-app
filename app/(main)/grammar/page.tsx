@@ -51,7 +51,7 @@ function LessonCard({ l }: { l: GrammarLessonSummary }) {
         ))}
       </ul>
       {l.points.some((p) => p.status !== 'review') && (
-        <MarkGrammarLearned codes={l.points.filter((p) => p.status !== 'review').map((p) => p.code)} label={`Mark lesson ${l.lesson} as learned`} className="mt-2" />
+        <MarkGrammarLearned codes={l.points.filter((p) => p.status !== 'review').map((p) => p.code)} label={`Skip unit ${l.lesson}…`} className="mt-2" />
       )}
     </section>
   )

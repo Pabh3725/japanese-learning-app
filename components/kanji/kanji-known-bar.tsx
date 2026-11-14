@@ -47,7 +47,7 @@ export function KanjiKnownBar({ kanjiId, onKnown }: { kanjiId: string | null; on
       {error && <p role="alert" className="mr-auto text-error">{error}</p>}
       {last && (
         <p role="status" className="mr-auto text-muted-foreground">
-          Removed from Kanji.{' '}
+          Marked as learned.{' '}
           <button type="button" onClick={undo} className="font-medium text-primary underline-offset-2 hover:underline">Undo</button>
         </p>
       )}
@@ -56,7 +56,7 @@ export function KanjiKnownBar({ kanjiId, onKnown }: { kanjiId: string | null; on
           {/* V10: gắn sao chữ ngay trong lúc học (cần StarredKanjiProvider ở trang) */}
           <KanjiStarButton kanjiId={kanjiId} className="size-8" />
           <button type="button" onClick={mark} title="Remove this Kanji from your list (K)" className="text-muted-foreground underline-offset-2 hover:text-foreground hover:underline">
-            I already know this
+            Learned · no review
           </button>
         </>
       )}

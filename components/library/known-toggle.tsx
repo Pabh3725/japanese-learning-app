@@ -28,7 +28,7 @@ export function KnownToggle({ vocabularyId, known }: { vocabularyId: string; kno
   return (
     <div>
       <button type="button" onClick={toggle} disabled={saving} className={actionButton({ variant: 'secondary', size: 'sm' })}>
-        {known ? 'Put back on my path' : 'I already know this'}
+        {known ? 'Put back on my path' : 'Mark as learned (Not review)'}
       </button>
       {error && <p role="alert" className="mt-2 text-sm text-error">{error}</p>}
     </div>
