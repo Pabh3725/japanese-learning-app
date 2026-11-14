@@ -1,3 +1,5 @@
+import { BookText, Layers, Languages } from 'lucide-react'
+import { DashboardStatCard } from '@/components/dashboard/dashboard-stat-card'
 import { PageHeader } from '@/components/page-header'
 import { getLearnOverview } from '@/lib/dal/learn-overview'
 import { getProgressStats } from '@/lib/dal/progress'
@@ -9,8 +11,6 @@ export default async function ProgressPage() {
   const cards = Object.values(review.byType).reduce((sum, n) => sum + n, 0)
   const stats = [
     { label: 'Day streak', value: String(progress.streak), tone: 'text-yellow' },
-    { label: 'Words completed', value: String(learn.completed), tone: 'text-cyan' },
-    { label: 'Review cards', value: String(cards), tone: 'text-pink' },
     { label: 'Retention (30 days)', value: progress.retention === null ? '—' : `${Math.round(progress.retention * 100)}%`, tone: 'text-success' },
   ]
   const maxAnswered = Math.max(...progress.week.map((d) => d.answered))
@@ -20,7 +20,7 @@ export default async function ProgressPage() {
     <>
       <PageHeader eyebrow="進歩" title="Progress" description="Small daily steps add up. Here's how far you've come." />
 
-      <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <dl className="grid grid-cols-2 gap-3">
         {stats.map((s) => (
           <div key={s.label} className="rounded-2xl border border-border bg-card p-5">
             <dt className="text-sm text-muted-foreground">{s.label}</dt>
@@ -28,6 +28,15 @@ export default async function ProgressPage() {
           </div>
         ))}
       </dl>
+
+      {/* Chuyển từ Home sang (2026-11-14): tiến độ theo cấp, từ đang học, Card đã tạo */}
+      <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {learn.levels.map((level) => (
+          <DashboardStatCard key={level.level} label={`${level.level} completed`} value={level.completed} total={level.total} icon={BookText} tone={level.level === 'N5' ? 'cyan' : 'primary'} jp={level.level === 'N5' ? '語' : '話'} />
+        ))}
+        <DashboardStatCard label="Words in progress" value={learn.inProgress} icon={Languages} tone="yellow" jp="習" />
+        <DashboardStatCard label="Cards created" value={cards} icon={Layers} tone="pink" jp="札" />
+      </div>
 
       <section aria-labelledby="week-title" className="mt-6 rounded-3xl border border-border bg-card p-6">
         <div className="flex items-baseline justify-between">
