@@ -1,6 +1,6 @@
 'use client'
 
-// Đánh dấu mẫu ngữ pháp đã học: chọn có ôn (Card ôn từ ngày mai) hoặc không ôn (lưu trữ, khôi phục được).
+// Đưa mẫu ngữ pháp ra khỏi Learn: Move to Reviewing (ôn từ ngày mai) hoặc Mark as learned (không ôn, khôi phục được).
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { markGrammarLearnedAction } from '@/app/grammar/actions'
@@ -10,7 +10,6 @@ import { cn } from '@/lib/utils'
 export function MarkGrammarLearned({ codes, label, className }: { codes: string[]; label: string; className?: string }) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
-  const [review, setReview] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [busy, start] = useTransition()
 
@@ -21,7 +20,7 @@ export function MarkGrammarLearned({ codes, label, className }: { codes: string[
       </button>
     )
   }
-  const save = () =>
+  const save = (review: boolean) =>
     start(async () => {
       setError(null)
       const res = await markGrammarLearnedAction({ codes, review })
@@ -31,16 +30,11 @@ export function MarkGrammarLearned({ codes, label, className }: { codes: string[
     })
   return (
     <div className={cn('flex flex-col gap-3 rounded-2xl border border-border bg-secondary/40 p-4', className)}>
-      <p className="text-sm">
-        {codes.length === 1 ? 'This pattern' : `These ${codes.length} patterns`} will count as learned and leave Learn.
-      </p>
-      <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" checked={review} onChange={(e) => setReview(e.target.checked)} className="size-4 accent-[var(--primary)]" />
-        Also review {codes.length === 1 ? 'it' : 'them'} (first review tomorrow)
-      </label>
+      <p className="text-sm">{codes.length === 1 ? 'This pattern' : `These ${codes.length} patterns`} will leave Learn.</p>
       {error && <p role="alert" className="text-sm text-error">{error}</p>}
-      <div className="flex gap-2">
-        <button type="button" onClick={save} disabled={busy} className={actionButton({ size: 'sm' })}>{busy ? 'Saving…' : 'Mark as learned'}</button>
+      <div className="flex flex-wrap gap-2">
+        <button type="button" onClick={() => save(true)} disabled={busy} className={actionButton({ size: 'sm' })}>Move to Reviewing (It still can be reviewed)</button>
+        <button type="button" onClick={() => save(false)} disabled={busy} className={actionButton({ size: 'sm', variant: 'secondary' })}>Mark as learned (Not review)</button>
         <button type="button" onClick={() => setOpen(false)} disabled={busy} className={actionButton({ size: 'sm', variant: 'ghost' })}>Cancel</button>
       </div>
     </div>
@@ -58,7 +52,7 @@ export function GrammarReviewToggle({ code, archived }: { code: string; archived
       onClick={() => start(async () => { await markGrammarLearnedAction({ codes: [code], review: archived }); router.refresh() })}
       className={actionButton({ size: 'sm', variant: 'secondary' })}
     >
-      {busy ? 'Saving…' : archived ? 'Add back to review' : 'Stop reviewing'}
+      {busy ? 'Saving…' : archived ? 'Move back to Reviewing' : 'Mark as learned (Not review)'}
     </button>
   )
 }

@@ -25,19 +25,19 @@ type GrammarStatus = 'not_started' | 'learning' | 'reviewing' | 'known'
 const statusOf = (i: LibraryGrammarItem): GrammarStatus =>
   i.status === 'review' ? (i.archived ? 'known' : 'reviewing') : i.status === 'learning' ? 'learning' : 'not_started'
 
-const LABELS: Record<GrammarStatus, string> = { not_started: 'Not started', learning: 'Learning', reviewing: 'Reviewing', known: 'Already known' }
+const LABELS: Record<GrammarStatus, string> = { not_started: 'Not started', learning: 'Learning', reviewing: 'Reviewing', known: 'Learned' }
 
 const FILTERS: { id: 'all' | GrammarStatus; label: string }[] = [
   { id: 'all', label: 'All' },
   { id: 'not_started', label: 'Not started' },
   { id: 'learning', label: 'Learning' },
   { id: 'reviewing', label: 'Reviewing' },
-  { id: 'known', label: 'Already known' },
+  { id: 'known', label: 'Learned' },
 ]
 
 const plain = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').replace(/đ/gi, 'd').toLowerCase()
 
-const UNDO_CONFIRM = 'Undo "Mark as learned"? These patterns go back to how they were before.'
+const UNDO_CONFIRM = 'Undo "Move to Reviewing"? These patterns go back to how they were before.'
 
 export function GrammarLibrary({ items, query }: { items: LibraryGrammarItem[]; query: string }) {
   const [level, setLevel] = useState<'all' | 'N5' | 'N4'>('all')
@@ -52,7 +52,7 @@ export function GrammarLibrary({ items, query }: { items: LibraryGrammarItem[]; 
   const patterns = (n: number) => `${n} ${n === 1 ? 'pattern' : 'patterns'}`
   const mark = (codes: string[], review: boolean) =>
     save.run(() => markGrammarLearnedAction({ codes, review }), {
-      message: review ? `${patterns(codes.length)} marked as learned.` : `${patterns(codes.length)} marked as already known.`,
+      message: review ? `${patterns(codes.length)} moved to Reviewing.` : `${patterns(codes.length)} marked as learned. No review needed.`,
       undo: () => undoGrammarLearnedAction({ codes }),
       confirm: review ? UNDO_CONFIRM : undefined,
     })
@@ -108,7 +108,7 @@ export function GrammarLibrary({ items, query }: { items: LibraryGrammarItem[]; 
                   <KnownTick
                     on={i.archived}
                     disabled={save.saving}
-                    label="I already know this pattern (Not review)"
+                    label="Mark as learned (Not review)"
                     onToggle={() => (i.archived ? save.run(() => undoGrammarLearnedAction({ codes: [i.code] })) : mark([i.code], false))}
                   />
                 }

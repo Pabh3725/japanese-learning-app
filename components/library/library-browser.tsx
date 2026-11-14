@@ -20,9 +20,9 @@ type Tab = 'vocab' | 'kanji' | 'grammar'
 /** Hiển thị từng đợt để trang nhẹ trên điện thoại. */
 const PAGE_SIZE = 60
 
-const UNDO_LEARNED_CONFIRM = 'Undo "Mark as learned"? Their progress goes back to how it was before. Review cards created by marking, and their review history, are removed.'
+const UNDO_LEARNED_CONFIRM = 'Undo "Move to Reviewing"? Their progress goes back to how it was before. Review cards created by this, and their review history, are removed.'
 
-type StatusFilter = 'all' | LibraryStatus | 'starred' | 'known' | 'marked'
+type StatusFilter = 'all' | LibraryStatus | 'starred' | 'marked'
 
 const VOCAB_FILTERS: { id: StatusFilter; label: string }[] = [
   { id: 'all', label: 'All' },
@@ -31,8 +31,7 @@ const VOCAB_FILTERS: { id: StatusFilter; label: string }[] = [
   { id: 'reviewing', label: 'Reviewing' },
   { id: 'learned', label: 'Learned' },
   { id: 'starred', label: 'Starred' },
-  { id: 'known', label: 'Already known' },
-  { id: 'marked', label: 'Marked as learned' },
+  { id: 'marked', label: 'Moved to Reviewing' },
 ]
 
 const KANJI_FILTERS = VOCAB_FILTERS.filter((f) => f.id !== 'marked')
@@ -82,8 +81,9 @@ function EmptyState({ query }: { query: string }) {
 function matchesStatus(item: { id: string; status: LibraryStatus; known?: boolean; marked?: boolean }, status: StatusFilter, starred: ReadonlySet<string>): boolean {
   if (status === 'all') return true
   if (status === 'starred') return starred.has(item.id)
-  if (status === 'known') return item.known === true
   if (status === 'marked') return item.marked === true
+  // Learned = không cần ôn: đã đánh dấu (✓) hoặc mọi Card đã lưu trữ
+  if (status === 'learned') return item.known === true || item.status === 'learned'
   return item.known !== true && item.status === status
 }
 
@@ -123,12 +123,12 @@ function VocabTab({ vocabulary, query }: { vocabulary: VocabListItem[]; query: s
 
   const words = (n: number) => `${n} ${n === 1 ? 'word' : 'words'}`
   const markLearned = (ids: string[]) =>
-    save.run(() => markWordsLearnedAction(ids), { message: `${words(ids.length)} marked as learned.`, undo: () => undoWordsLearnedAction(ids), confirm: UNDO_LEARNED_CONFIRM })
+    save.run(() => markWordsLearnedAction(ids), { message: `${words(ids.length)} moved to Reviewing.`, undo: () => undoWordsLearnedAction(ids), confirm: UNDO_LEARNED_CONFIRM })
   // Chỉ đánh dấu (và hoàn tác) những từ chưa đánh dấu từ trước, để Undo không đưa nhầm từ cũ trở lại
   const markKnown = (all: string[]) => {
     const known = new Set(vocabulary.filter((v) => v.known).map((v) => v.id))
     const ids = all.filter((id) => !known.has(id))
-    save.run(() => markWordsKnownAction(ids), { message: `${words(ids.length)} marked as already known.`, undo: () => unmarkWordsKnownAction(ids) })
+    save.run(() => markWordsKnownAction(ids), { message: `${words(ids.length)} marked as learned. No review needed.`, undo: () => unmarkWordsKnownAction(ids) })
   }
   const finishSelection = (action: () => void) => {
     action()
@@ -166,7 +166,7 @@ function VocabTab({ vocabulary, query }: { vocabulary: VocabListItem[]; query: s
             <button type="button" onClick={toggleAllShown} className="text-primary">{allShownSelected ? 'Clear shown' : `Select ${shown.length} shown`}</button>
           </div>
           <div className="flex flex-wrap gap-2">
-            {status === 'known' ? (
+            {status === 'learned' ? (
               <button type="button" disabled={selected.size === 0 || save.saving} onClick={() => finishSelection(() => save.run(() => unmarkWordsKnownAction([...selected])))} className={actionButton({ size: 'sm' })}>
                 Put back on my path
               </button>
@@ -179,15 +179,15 @@ function VocabTab({ vocabulary, query }: { vocabulary: VocabListItem[]; query: s
                 }}
                 className={actionButton({ size: 'sm' })}
               >
-                Undo mark
+                Undo move to Reviewing
               </button>
             ) : (
               <>
                 <button type="button" disabled={selected.size === 0 || save.saving} onClick={() => finishSelection(() => markLearned([...selected]))} className={actionButton({ size: 'sm' })}>
-                  Mark as learned (It still can be reviewed)
+                  Move to Reviewing (It still can be reviewed)
                 </button>
                 <button type="button" disabled={selected.size === 0 || save.saving} onClick={() => finishSelection(() => markKnown([...selected]))} className={actionButton({ size: 'sm', variant: 'secondary' })}>
-                  I already know these (Not review)
+                  Mark as learned (Not review)
                 </button>
               </>
             )}
@@ -209,7 +209,7 @@ function VocabTab({ vocabulary, query }: { vocabulary: VocabListItem[]; query: s
                 hanViet={v.hanViet}
                 meaning={v.meaning}
                 unit={unitLabel(v.jlpt, v.lesson)}
-                status={v.known ? 'Already known' : STATUS_LABELS[v.status]}
+                status={v.known ? STATUS_LABELS.learned : STATUS_LABELS[v.status]}
                 selected={selecting && selected.has(v.id)}
                 actions={
                   <>
@@ -217,7 +217,7 @@ function VocabTab({ vocabulary, query }: { vocabulary: VocabListItem[]; query: s
                     <KnownTick
                       on={v.known === true}
                       disabled={save.saving}
-                      label="I already know this word"
+                      label="Mark as learned (Not review)"
                       onToggle={() => save.run(() => (v.known ? unmarkWordsKnownAction([v.id]) : markWordsKnownAction([v.id])))}
                     />
                   </>
@@ -286,11 +286,11 @@ function KanjiTab({ kanji, query }: { kanji: KanjiListItem[]; query: string }) {
                     hanViet={k.hanViet}
                     meaning={k.meaning}
                     unit={k.jlpt ?? ''}
-                    status={k.known ? 'Already known' : STATUS_LABELS[k.status]}
+                    status={k.known ? STATUS_LABELS.learned : STATUS_LABELS[k.status]}
                     actions={
                       <>
                         <KanjiStarButton kanjiId={k.id} />
-                        <KnownTick on={k.known === true} disabled={save.saving} label="I already know this Kanji" onToggle={() => save.run(() => setKanjiKnownAction(k.id, !k.known))} />
+                        <KnownTick on={k.known === true} disabled={save.saving} label="Mark as learned (Not review)" onToggle={() => save.run(() => setKanjiKnownAction(k.id, !k.known))} />
                       </>
                     }
                   />

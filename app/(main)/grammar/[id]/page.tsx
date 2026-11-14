@@ -46,7 +46,7 @@ export default async function GrammarPointPage({ params, searchParams }: { param
           {p.status === 'review' && (p.archived ? ' · not in review' : p.dueAt ? ` · next review ${formatVnDateTime(new Date(p.dueAt))}` : '')}
         </p>
         <div className="mt-4">
-          {p.status === 'review' ? <GrammarReviewToggle code={p.code} archived={p.archived} /> : <MarkGrammarLearned codes={[p.code]} label="Mark as learned" />}
+          {p.status === 'review' ? <GrammarReviewToggle code={p.code} archived={p.archived} /> : <MarkGrammarLearned codes={[p.code]} label="Skip this pattern…" />}
         </div>
       </section>
     </div>

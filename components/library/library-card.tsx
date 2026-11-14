@@ -12,7 +12,6 @@ const STATUS_CLASS: Record<string, string> = {
   Learning: 'text-yellow',
   Reviewing: 'text-cyan',
   Learned: 'text-success',
-  'Already known': 'text-success',
 }
 
 /** Nút "đã biết": bật là đã biết, bấm lại là hoàn tác. */
