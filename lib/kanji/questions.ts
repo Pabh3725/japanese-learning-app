@@ -13,6 +13,8 @@ export interface KanjiRow {
   onyomi: string[]
   kunyomi: string[]
   jlpt_level?: number | null
+  /** Số nét (KanjiVG); chỉ có khi đọc danh sách chữ để xếp thứ tự mở chữ mới. */
+  stroke_count?: number | null
 }
 
 export interface KanjiReveal {
