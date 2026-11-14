@@ -45,6 +45,7 @@ describe('toVocabListItem', () => {
       isKanaOnly: false,
       jlpt: 'N5',
       progress: { kind: 'not_started' },
+      status: 'not_started',
     })
   })
   it('từ chỉ có kana: hanViet = null', () => {
@@ -91,6 +92,7 @@ describe('toKanjiListItem', () => {
       kunyomi: ['まな.ぶ'],
       strokes: null,
       jlpt: null,
+      status: 'not_started',
     })
   })
   it('kunyomi rỗng là dữ liệu đúng', () => {

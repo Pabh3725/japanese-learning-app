@@ -5,19 +5,21 @@ import { actionButton } from '@/components/action-button'
 import { PageHeader } from '@/components/page-header'
 import { NewStarRoundButton } from '@/components/learning/new-star-round-button'
 import { StarButton, StarredWordsProvider } from '@/components/learning/star-button'
+import { KanjiStarButton, StarredKanjiProvider } from '@/components/kanji/kanji-star-button'
 import { getStarredArea } from '@/lib/dal/star-relearn'
+import { getStarredKanji } from '@/lib/dal/kanji-stars'
 import { formatVnDateTime } from '@/lib/learning/time'
 import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Starred words · Nihongo' }
 
-function roundLabel(word: { met: boolean; roundAnswered: number; roundSize: number }) {
-  if (!word.met) return 'Starts when you meet this word'
+function roundLabel(word: { met: boolean; roundAnswered: number; roundSize: number }, what = 'word') {
+  if (!word.met) return `Starts when you meet this ${what}`
   return word.roundAnswered >= word.roundSize ? 'Extra round done' : `Extra round: ${word.roundAnswered} of ${word.roundSize}`
 }
 
 export default async function StarredPage() {
-  const area = await getStarredArea()
+  const [area, kanji] = await Promise.all([getStarredArea(), getStarredKanji()])
 
   return (
     <>
@@ -70,6 +72,30 @@ export default async function StarredPage() {
             </ul>
           </StarredWordsProvider>
         </>
+      )}
+
+      {/* V10: chữ Kanji có sao — câu học thêm xen trong bài Learn, Card riêng ôn trong khu Kanji */}
+      {kanji.length > 0 && (
+        <section aria-labelledby="starred-kanji" className="mt-6">
+          <h2 id="starred-kanji" className="mb-3 font-semibold">Starred Kanji · {kanji.length}</h2>
+          <StarredKanjiProvider ids={kanji.map((k) => k.id)} refreshOnSave>
+            <ul className="flex flex-col divide-y divide-border rounded-3xl border border-border bg-card px-6">
+              {kanji.map((k) => (
+                <li key={k.id} className="flex items-center gap-4 py-4">
+                  <div className="min-w-0 flex-1">
+                    <Link href={`/library/kanji/${encodeURIComponent(k.character)}`} lang="ja" className="font-jp text-2xl hover:text-primary">{k.character}</Link>
+                    <p className="text-sm text-subtle">{k.hanViet} · {k.meaning}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {roundLabel(k, 'Kanji')}
+                      {k.cardDueAt && ` · Card next ${formatVnDateTime(new Date(k.cardDueAt))}`}
+                    </p>
+                  </div>
+                  <KanjiStarButton kanjiId={k.id} />
+                </li>
+              ))}
+            </ul>
+          </StarredKanjiProvider>
+        </section>
       )}
     </>
   )

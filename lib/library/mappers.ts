@@ -3,6 +3,7 @@
 // không làm vỡ cả trang; DAL đếm và ghi cảnh báo.
 
 import type { KanjiListItem, VocabListItem, VocabProgress } from './types'
+import type { LibraryStatus } from './status'
 
 function isNonEmptyString(v: unknown): v is string {
   return typeof v === 'string' && v.trim().length > 0
@@ -58,7 +59,13 @@ export function toVocabListItem(row: unknown, progressRow?: unknown): VocabListI
     jlpt: jlptLabel(r.jlpt_level) ?? 'N5',
     progress: toProgress(progressRow),
     lesson: typeof r.lesson === 'number' ? r.lesson : null,
+    // Mặc định theo tiến độ; DAL tính lại Reviewing / Learned theo Card (lib/library/status.ts)
+    status: progressStatus(toProgress(progressRow)),
   }
+}
+
+function progressStatus(p: VocabProgress): LibraryStatus {
+  return p.kind === 'not_started' ? 'not_started' : p.kind === 'learning' ? 'learning' : 'reviewing'
 }
 
 /** Ghép danh sách từ với tiến độ của người học; giữ thứ tự lộ trình. */
@@ -104,6 +111,7 @@ export function toKanjiListItem(row: unknown): KanjiListItem | null {
     kunyomi: stringArray(r.kunyomi),
     strokes: typeof r.stroke_count === 'number' && r.stroke_count > 0 ? r.stroke_count : null,
     jlpt: jlptLabel(r.jlpt_level),
+    status: 'not_started',
   }
 }
 

@@ -1,6 +1,11 @@
 'use server'
 
 import { checkKanjiAnswer, openKanji, setKanjiKnown, submitKanjiAnswer, type SubmitKanjiResponse } from '@/lib/dal/kanji'
+import { setKanjiStarred } from '@/lib/dal/kanji-stars'
+
+export async function setKanjiStarredAction(kanjiId: unknown, starred: unknown): Promise<{ status: 'saved' | 'invalid' }> {
+  return setKanjiStarred(kanjiId, starred)
+}
 
 export async function openKanjiAction(kanjiId: unknown): Promise<{ status: 'saved' | 'invalid' }> {
   return openKanji(kanjiId)

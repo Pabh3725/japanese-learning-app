@@ -21,6 +21,7 @@ import {
   chooseLearningExercise,
   chooseCardExercise,
   KANJI_CARD_EXERCISES,
+  KANJI_STAR_CARD,
   isKanjiExercise,
   kanjiLoadAdvice,
   newKanjiToday,
@@ -37,6 +38,7 @@ import { nextStudyDayStart, studyDate } from '@/lib/learning/time'
 import type { Outcome } from '@/lib/learning/types'
 import type { Schedule, ScheduleState } from '@/lib/srs/scheduler'
 import { readAllPages } from '@/lib/dal/pages'
+import { ensureKanjiStarCard, readStarredKanjiIds } from '@/lib/dal/kanji-stars'
 import { KANJI_COLUMNS, readAllKanji, readAllKanjiCached, readKanjiVisuals, readSimilarFor, withVisual } from '@/lib/dal/kanji-content'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
@@ -141,15 +143,21 @@ async function readLearners(supabase: Supabase, userId: string, known: ReadonlyS
   }
 }
 
-/** Card chưa lưu trữ của các chữ còn trong khu Kanji. */
+/**
+ * Card chưa lưu trữ của các chữ còn trong khu Kanji. V10: Card riêng `kanji.star` chỉ tính khi chữ còn có sao
+ * (bỏ sao thì Card tạm dừng, giữ lịch), và xếp sau Card thường.
+ */
 async function readCards(supabase: Supabase, userId: string, learners: readonly LearnerRow[]): Promise<CardRow[]> {
   const active = new Set(learners.map((r) => r.id))
+  const starred = await readStarredKanjiIds(supabase, userId)
+  const kanjiOf = new Map(learners.map((r) => [r.id, r.kanji_id]))
+  const live = (c: CardRow) => active.has(c.learner_kanji_id) && (c.card_type !== KANJI_STAR_CARD || starred.has(kanjiOf.get(c.learner_kanji_id)!))
   const rows: CardRow[] = []
   for (let from = 0; ; from += PAGE) {
     const { data, error } = await supabase.from('learner_kanji_cards').select(CARD_COLUMNS).eq('user_id', userId).is('archived_at', null).order('id').range(from, from + PAGE - 1)
     if (error) throw new Error(`Không đọc được learner_kanji_cards: ${error.message}`)
     rows.push(...((data ?? []) as CardRow[]))
-    if ((data?.length ?? 0) < PAGE) return rows.filter((c) => active.has(c.learner_kanji_id))
+    if ((data?.length ?? 0) < PAGE) return rows.filter(live).sort((a, b) => Number(a.card_type === KANJI_STAR_CARD) - Number(b.card_type === KANJI_STAR_CARD))
   }
 }
 
@@ -354,6 +362,8 @@ export async function openKanji(kanjiId: unknown): Promise<{ status: 'saved' | '
     .from('learner_kanji')
     .upsert({ user_id: user.id, kanji_id: kanjiId }, { onConflict: 'user_id,kanji_id', ignoreDuplicates: true })
   if (error) throw new Error(`Không ghi được learner_kanji: ${error.message}`)
+  // V10: chữ đã có sao từ trước khi mở thì có Card riêng ngay
+  if ((await readStarredKanjiIds(supabase, user.id)).has(kanjiId)) await ensureKanjiStarCard(supabase, user.id, kanjiId)
   return { status: 'saved' }
 }
 
@@ -705,6 +715,8 @@ export interface KanjiDetail extends KanjiReveal {
   jlpt: number | null
   strokeCount: number | null
   known: boolean
+  /** V10: chữ có sao. */
+  starred: boolean
   /** Chữ gần giống đã duyệt, kèm giải thích điểm khác. */
   similar: { character: string; hanViet: string; meaning: string; explanation: string }[]
   /** Từ trong lộ trình có chứa chữ này. */
@@ -721,9 +733,10 @@ export async function getKanjiDetail(character: string): Promise<KanjiDetail | n
   if (!data) return null
   const kanji = data as KanjiRow & { stroke_count: number | null }
 
-  const [visuals, known, pairs, words] = await Promise.all([
+  const [visuals, known, starred, pairs, words] = await Promise.all([
     readKanjiVisuals(supabase, [kanji.id]),
     readKnownKanjiIds(supabase, user.id),
+    readStarredKanjiIds(supabase, user.id),
     supabase
       .from('kanji_similar_pairs')
       .select('kanji_a, kanji_b, explanation, a:kanji!kanji_similar_pairs_kanji_a_fkey(character, han_viet, meaning_vi), b:kanji!kanji_similar_pairs_kanji_b_fkey(character, han_viet, meaning_vi)')
@@ -756,6 +769,7 @@ export async function getKanjiDetail(character: string): Promise<KanjiDetail | n
     jlpt: kanji.jlpt_level ?? null,
     strokeCount: kanji.stroke_count && kanji.stroke_count > 0 ? kanji.stroke_count : null,
     known: known.has(kanji.id),
+    starred: starred.has(kanji.id),
     similar,
     words: wordRows.map((w) => ({ code: w.code, expression: w.expression, reading: w.reading_kana, meaning: w.meaning_vi })),
   }

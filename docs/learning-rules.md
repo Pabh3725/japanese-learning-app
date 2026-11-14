@@ -20,6 +20,14 @@ Lý do: lịch Stage hẹn lại sau 1–10 phút nên số câu trên Home bị
 8. **Review Kanji words (R5, §7):** bỏ dạng "nhìn nghĩa → viết rồi tự chấm" (`kanji_write_self`); luân phiên "nhìn Kanji → gõ Kana và Hán Việt" và "nhìn nghĩa → chọn Kanji trong 6" (`kanji_recognition_6`).
 9. **Câu ghép thành phần (R12 dạng C):** ngay sau thẻ giới thiệu chữ Kanji mới (trước 3 câu luyện), không điểm, để hiểu cấu tạo chữ. Ghép 2–3 thành phần cấp trên cùng theo vị trí (trái/phải, trên/dưới, ngoài/trong); sau khi ghép hiện giải thích từng thành phần và bộ thủ, lấy từ dữ liệu đã duyệt (tên 214 bộ thủ, bảng Kanji: Hán Việt và nghĩa). Thành phần không có trong hai nguồn này chỉ hiện hình. Không có mẹo ghi nhớ.
 
+### 0b. Library, dấu sao Kanji, hoàn tác đánh dấu — CONFIRMED (chủ dự án duyệt 2026-11-14)
+
+10. **Trạng thái trong Library** (từ vựng, Kanji): Not started → Learning (còn Stage 1–3 / giai đoạn Học) → Reviewing (có Card ôn, còn ít nhất một Card chưa lưu trữ) → Learned (mọi Card chính đã lưu trữ bằng "Đã học xong"). Ngữ pháp: Not started → Learning → Reviewing; mẫu học xong không ôn hiện "Already known". Bỏ chấm mức độ. Định nghĩa Learned theo Card lưu trữ: PROPOSED.
+11. **Một mẫu thẻ** cho cả 3 tab: chữ lớn, ☆ và ✓ (Already known, bấm lại là hoàn tác) ở góc trên; cách đọc, Hán Việt, nghĩa; góc dưới phải "N5 · U1" trên trạng thái. Kanji chia theo cấp, không có unit, bỏ số nét.
+12. **Đánh dấu cả unit** (từ vựng, ngữ pháp): "Mark unit as learned (It still can be reviewed)" và "I already know this unit (Not review)".
+13. **Hoàn tác "Mark as learned"** (từ vựng, ngữ pháp): mỗi lần đánh dấu lưu trạng thái trước đó (`learner_mark_history`); hoàn tác trả tiến độ, Stage, trạng thái loại về như trước và xóa Card do lần đánh dấu tạo ra (kèm lịch sử ôn của Card đó, có hỏi xác nhận). Mục trước đó chưa có tiến độ thì xóa tiến độ. Ngay sau khi đánh dấu có nút Undo; về sau dùng bộ lọc "Marked as learned".
+14. **Dấu sao cho Kanji**, cùng thuật toán với từ vựng: gắn ở Library, trang chi tiết chữ và trong bài. Vòng học thêm tối đa 4 câu mỗi chữ (`KANJI_STAR_ROUND`), là câu luyện không điểm trong bài Learn, tính chung trần 3 câu sao mỗi bài; chữ chưa mở thì chờ tới khi mở. Card riêng `kanji.star` (gõ Hán Việt; nghĩa → chọn chữ), FSRS riêng, ôn trong khu Kanji sau Card thường, tính vào trần Card Kanji; bỏ sao thì Card tạm dừng, gắn sao lại thì chạy tiếp.
+
 ## 1. Ánh xạ luật cũ sang mới
 
 | Luật | V8 / v2 | V9 |

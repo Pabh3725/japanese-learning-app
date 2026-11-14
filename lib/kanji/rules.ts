@@ -88,14 +88,22 @@ export function planSitting(points: number, counts: KanjiCounts, questions: numb
   return plan
 }
 
+/** Hai Card tạo khi chữ hoàn tất giai đoạn Học. */
 export const KANJI_CARD_TYPES = ['kanji.meaning', 'kanji.hanviet'] as const
-export type KanjiCardType = (typeof KANJI_CARD_TYPES)[number]
+/** V10: Card riêng của chữ có sao (như vocab.star_recall), tạo khi đánh sao chữ đã mở. */
+export const KANJI_STAR_CARD = 'kanji.star'
+export type KanjiCardType = (typeof KANJI_CARD_TYPES)[number] | typeof KANJI_STAR_CARD
 
 /** Dạng bài của từng Card khi ôn dài hạn. Chọn chữ trong 6 là câu trắc nghiệm duy nhất được phép khi ôn (R5). */
 export const KANJI_CARD_EXERCISES: Record<KanjiCardType, readonly KanjiExercise[]> = {
   'kanji.meaning': ['meaning_self', 'pick_kanji'],
   'kanji.hanviet': ['hanviet_typing', 'hanviet_to_kanji'],
+  // Nhớ lại từ trí nhớ: gõ Hán Việt, nhìn nghĩa chọn chữ
+  'kanji.star': ['hanviet_typing', 'pick_kanji'],
 }
+
+/** V10: số câu của vòng học thêm mỗi chữ có sao (như từ vựng). */
+export const KANJI_STAR_ROUND = 4
 
 /** Ôn dài hạn: luân phiên hai dạng của Card, không lặp dạng lần trước. */
 export function chooseCardExercise(cardType: KanjiCardType, last: string | null, rng: Rng = Math.random): KanjiExercise {

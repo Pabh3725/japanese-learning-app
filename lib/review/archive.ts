@@ -4,12 +4,13 @@ import type { CardType } from '@/lib/learning/types'
 
 /** vocab: review_cards (Từ vựng, Từ vựng Kanji, Card sao). kanji: learner_kanji_cards. */
 export type CardKind = 'vocab' | 'kanji'
-export type ArchiveCardType = CardType | 'kanji.meaning' | 'kanji.hanviet'
+export type ArchiveCardType = CardType | 'kanji.meaning' | 'kanji.hanviet' | 'kanji.star'
 
 export const ARCHIVE_TYPE_LABELS: Record<ArchiveCardType, string> = {
   ...CARD_LABELS,
   'kanji.meaning': 'Kanji meaning card',
   'kanji.hanviet': 'Kanji Sino-Vietnamese card',
+  'kanji.star': 'Starred Kanji card',
 }
 
 export interface ArchivedCard {

@@ -246,6 +246,8 @@ export interface GrammarPointSummary {
   meaning: string
   status: PointStatus
   points: number
+  /** Mẫu đã học xong nhưng không ôn (đánh dấu "đã biết"). */
+  archived: boolean
 }
 
 export interface GrammarLessonSummary {
@@ -334,7 +336,7 @@ export async function getGrammarOverview(): Promise<GrammarOverview> {
     const unlock = snap.unlock.get(lesson)!
     const points = pts.map((p): GrammarPointSummary => {
       const l = byPoint.get(p.id)
-      return { code: p.code, lesson, pattern: p.pattern, meaning: p.meaning, status: l ? l.phase : unlock.open ? 'new' : 'locked', points: l?.points ?? 0 }
+      return { code: p.code, lesson, pattern: p.pattern, meaning: p.meaning, status: l ? l.phase : unlock.open ? 'new' : 'locked', points: l?.points ?? 0, archived: !!l?.archived_at }
     })
     lessons.push({ lesson, level: lesson <= N5_LAST_LESSON ? 'N5' : 'N4', points, unlock, done: points.filter((p) => p.status === 'review').length })
   }

@@ -20,6 +20,7 @@ import {
   type KanjiIntroItem,
   type KanjiSessionQuestion,
   type SubmitKanjiResponse,
+  readKnownKanjiIds,
 } from '@/lib/dal/kanji'
 import {
   buildBossRound,
@@ -60,6 +61,7 @@ import { studyDate } from '@/lib/learning/time'
 import type { Outcome, ScoredStage } from '@/lib/learning/types'
 import { readKnownWordIds } from '@/lib/dal/known-words'
 import { readStagePool, type StagePoolItem } from '@/lib/dal/stage-pool'
+import { bumpKanjiStarRound, readKanjiStarCandidates, readStarredKanjiIds } from '@/lib/dal/kanji-stars'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 
@@ -286,6 +288,10 @@ async function buildCandidates(supabase: Supabase, userId: string, groups: reado
     for (const r of k.learning) candidates.push({ key: `k:${r.learnerKanjiId}`, group: 'kanji', kind: 'kanji_learning', anchor: `kj:${r.kanjiId}`, overdueDays: r.overdueDays, left: r.left })
     for (const c of k.cards) candidates.push({ key: `c:${c.cardId}`, group: 'kanji', kind: 'kanji_card', anchor: `kj:${c.kanjiId}`, overdueDays: c.overdueDays, left: 1 })
     for (const f of k.fresh) candidates.push({ key: `nk:${f.kanjiId}`, group: 'kanji', kind: 'new_kanji', anchor: `kj:${f.kanjiId}`, overdueDays: 0, left: RULES_V9.kanji.questionsPerSitting })
+    // V10: vòng học thêm của chữ có sao — câu luyện không điểm, tính chung trần câu sao của bài
+    for (const s of await readKanjiStarCandidates(supabase, userId, await readKnownKanjiIds(supabase, userId))) {
+      candidates.push({ key: `sk:${s.kanjiId}:${s.learnerKanjiId}:${s.cardId ?? '-'}`, group: 'kanji', kind: 'star', anchor: `kj:${s.kanjiId}`, overdueDays: 0, left: s.left })
+    }
     kanjiLearning = k.learningLeft
     kanjiCards = k.cardsLeft
   }
@@ -347,6 +353,12 @@ async function buildForPlan(supabase: Supabase, userId: string, plan: Exclude<St
       return kanjiStep(extra.refs[plan.key] ? { learnerKanjiId: extra.refs[plan.key] } : null)
     case 'c':
       return kanjiStep({ cardId: a })
+    case 'sk': {
+      // Chữ có sao: câu Kanji dựng như câu Học (chữ đang học) hoặc như Card (chữ đang ôn), chấm như câu luyện không điểm
+      const cardId = keyParts(plan.key)[3]
+      const question = await buildKanjiQuestionFor(supabase, userId, cardId && cardId !== '-' ? { cardId } : { learnerKanjiId: b }, avoid)
+      return question ? { kind: 'kanji', key: plan.key, micro: true, question } : null
+    }
     case 'st': {
       const question = await buildStarQuestionFor(supabase, userId, a, await excluded())
       return question ? { kind: 'star', key: plan.key, question } : null
@@ -650,6 +662,8 @@ export async function answerMicro(input: unknown): Promise<MicroResponse> {
   // Gửi lại cùng câu: đã ghi rồi thì đi tiếp như thường
   if (error && error.code !== '23505') throw new Error(`Không ghi được learn_micro_logs: ${error.message}`)
 
+  // V10: câu vòng học thêm của chữ có sao
+  if (step.key.startsWith('sk:')) await bumpKanjiStarRound(supabase, user.id, keyParts(step.key)[1])
   const ais = applyResult(row.state.ais, { type: 'question', key: step.key, micro: true }, outcome)
   const next = await nextStep(supabase, user.id, { ais, extra: noteAsked(row.state.extra, step) })
   return { status: 'ok', grade, view: await saveStep(supabase, row, next.stored, next.step) }
@@ -675,4 +689,11 @@ export async function getMyStarredIds(): Promise<string[]> {
   const user = await requireUser()
   const supabase = await createClient()
   return readStarredIds(supabase, user.id)
+}
+
+/** V10: chữ Kanji có sao, cho nút sao trong bài. */
+export async function getMyStarredKanjiIds(): Promise<string[]> {
+  const user = await requireUser()
+  const supabase = await createClient()
+  return [...(await readStarredKanjiIds(supabase, user.id))]
 }

@@ -3,7 +3,7 @@
 // Grammar: Server Function mỏng, mọi logic ở lib/dal/grammar.ts.
 import { checkGrammarAnswer, openGrammarPoint, submitGrammarAnswer, type GrammarAnswerResponse } from '@/lib/dal/grammar'
 import { finishGrammarTest, saveTestAnswer, startGrammarTest, type GrammarTestResult, type GrammarTestView } from '@/lib/dal/grammar-test'
-import { markGrammarLearned } from '@/lib/dal/mark-learned'
+import { markGrammarLearned, undoGrammarLearned } from '@/lib/dal/mark-learned'
 
 export async function openGrammarPointAction(code: unknown): Promise<{ status: 'saved' | 'invalid' | 'locked' }> {
   return openGrammarPoint(code)
@@ -27,6 +27,10 @@ export async function saveTestAnswerAction(input: unknown): Promise<{ status: 's
 
 export async function finishGrammarTestAction(id: unknown): Promise<GrammarTestResult | { status: 'not_found' }> {
   return finishGrammarTest(id)
+}
+
+export async function undoGrammarLearnedAction(input: unknown): Promise<{ status: 'saved' | 'invalid'; undone?: number }> {
+  return undoGrammarLearned(input)
 }
 
 export async function markGrammarLearnedAction(input: unknown): Promise<{ status: 'saved' | 'invalid'; marked?: number }> {

@@ -185,7 +185,7 @@ export function KanjiPractice({ questions: initialQuestions, onDone, lesson }: {
     }
   }
 
-  const baseStage = q.cardType === 'kanji.meaning' ? 'Review · Meaning card' : q.cardType === 'kanji.hanviet' ? 'Review · Sino-Vietnamese card' : 'Learning'
+  const baseStage = q.cardType === 'kanji.meaning' ? 'Review · Meaning card' : q.cardType === 'kanji.hanviet' ? 'Review · Sino-Vietnamese card' : q.cardType === 'kanji.star' ? 'Review · Starred card' : 'Learning'
   const stage = lesson?.micro ? `Kanji ${baseStage} · Quick check` : baseStage
   let body: React.ReactNode
   if (q.kind === 'choice') {

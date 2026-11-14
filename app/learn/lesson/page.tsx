@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { LessonPlayer } from '@/components/learning/lesson-player'
 import { StarredWordsProvider } from '@/components/learning/star-button'
-import { getMyStarredIds, parseGroups, startLesson } from '@/lib/dal/lesson'
+import { StarredKanjiProvider } from '@/components/kanji/kanji-star-button'
+import { getMyStarredIds, getMyStarredKanjiIds, parseGroups, startLesson } from '@/lib/dal/lesson'
 
 export const metadata: Metadata = { title: 'Lesson · Nihongo' }
 
@@ -11,11 +12,13 @@ export default async function LessonPage({ searchParams }: { searchParams: Promi
   const { groups: raw } = await searchParams
   const groups = raw ? parseGroups(raw.split(',')) : ['vocabulary', 'word_kanji', 'kanji']
   if (!groups) redirect('/learn')
-  const [view, starredIds] = await Promise.all([startLesson(groups), getMyStarredIds()])
+  const [view, starredIds, starredKanjiIds] = await Promise.all([startLesson(groups), getMyStarredIds(), getMyStarredKanjiIds()])
   if ('status' in view) redirect('/learn')
   return (
     <StarredWordsProvider ids={starredIds}>
-      <LessonPlayer key={`${view.lessonId}-${view.stepNo}-start`} initial={view} groupsQuery={raw ? `?groups=${groups.join(',')}` : ''} />
+      <StarredKanjiProvider ids={starredKanjiIds}>
+        <LessonPlayer key={`${view.lessonId}-${view.stepNo}-start`} initial={view} groupsQuery={raw ? `?groups=${groups.join(',')}` : ''} />
+      </StarredKanjiProvider>
     </StarredWordsProvider>
   )
 }

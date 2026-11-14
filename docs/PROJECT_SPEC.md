@@ -1488,6 +1488,8 @@ Chủ dự án chốt ngày 2026-11-10. Luật đầy đủ: `docs/learning-rule
 
 - **Lịch học V10 (2026-11-14, CONFIRMED):** chi tiết `docs/learning-rules.md` §0. Lịch Stage bỏ bước tính bằng phút (đúng → 2 ngày, sai → 1 ngày); lặp trong ngày do bài Learn đảm nhận, tối đa 3 câu mỗi mục mỗi ngày, cách 8–12 câu; mọi lịch theo ngày làm tròn về 00:00 giờ VN; bài nạp lại ứng viên khi hết câu. Sau thẻ giới thiệu có 3 câu luyện không điểm (sai thì thêm 1, tối đa 4). Review Kanji words bỏ câu tự viết, thêm chọn Kanji trong 6. Câu ghép thành phần Kanji ngay sau thẻ giới thiệu, 2–3 phần theo vị trí, có giải thích từ dữ liệu đã duyệt. Home: Review là bước 1, Learn là bước 2; "practice" là câu Learn còn lại, "cards" là Card Review.
 
+- **Library V10 (2026-11-14, CONFIRMED):** chi tiết `docs/learning-rules.md` §0b. Một mẫu thẻ cho từ vựng, Kanji, ngữ pháp ("N5 · U1", trạng thái Learning → Reviewing → Learned, ☆ và ✓ Already known); đánh dấu cả unit; hoàn tác "Mark as learned"; dấu sao cho Kanji (vòng học thêm và Card `kanji.star`). Migration `20261121000001`.
+
 ---
 
 ## 20. Ngữ pháp và Thể động từ (2026-11-15) — CONFIRMED, chưa triển khai
