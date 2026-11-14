@@ -9,6 +9,8 @@ import { inLevel, nextLevel } from '@/lib/learn/levels'
 import { newWordsBlockedBy, sessionsFor, type NewWordsBlock, pathLevels, type PathLevel } from '@/lib/learn/session'
 import { countMetToday, newPerDayOf, newWordsForToday, remainingNewToday } from '@/lib/learning/new-words'
 import { nextStudyDayStart } from '@/lib/learning/time'
+import { readAllPages } from '@/lib/dal/pages'
+import { readKnownWordIds } from '@/lib/dal/known-words'
 
 const PAGE = 1000
 
@@ -76,22 +78,17 @@ export async function getLearnOverview(): Promise<LearnOverview> {
   const user = await requireUser()
   const supabase = await createClient()
 
-  const [total, lessons, started, excluded, limits, levels] = await Promise.all([
+  const [total, lessons, started, excludedIds, limits, levels] = await Promise.all([
     supabase.from('vocabularies').select('id', { count: 'exact', head: true }),
     readLessons(supabase),
-    supabase.from('learner_vocabulary').select('vocabulary_id, current_stage, learning_status, created_at').eq('user_id', user.id).range(0, PAGE - 1),
-    supabase
-      .from('learner_vocabulary_exclusions')
-      .select('vocabulary_id')
-      .eq('user_id', user.id)
-      .not('excluded_at', 'is', null)
-      .range(0, PAGE - 1),
+    readAllPages('learner_vocabulary', (from, to) =>
+      supabase.from('learner_vocabulary').select('vocabulary_id, current_stage, learning_status, created_at').eq('user_id', user.id).order('id').range(from, to),
+    ),
+    readKnownWordIds(supabase, user.id),
     readDailyLimits(supabase, user.id),
     readSkillLevels(supabase, user.id),
   ])
   if (total.error) throw new Error(`Không đọc được vocabularies: ${total.error.message}`)
-  if (started.error) throw new Error(`Không đọc được learner_vocabulary: ${started.error.message}`)
-  if (excluded.error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${excluded.error.message}`)
 
   // Mỗi từ có tới 3 dòng lịch, nên số dòng có thể vượt 1000 mỗi lần của Data API
   const dueRows: DueRow[] = []
@@ -111,9 +108,8 @@ export async function getLearnOverview(): Promise<LearnOverview> {
     if ((data?.length ?? 0) < PAGE) break
   }
 
-  const excludedIds = new Set(excluded.data?.map((r) => r.vocabulary_id))
-  const active = (started.data ?? []).filter((r) => !excludedIds.has(r.vocabulary_id))
-  const startedIds = new Set(started.data?.map((r) => r.vocabulary_id))
+  const active = started.filter((r) => !excludedIds.has(r.vocabulary_id))
+  const startedIds = new Set(started.map((r) => r.vocabulary_id))
   // Từ đã biết không còn trong lộ trình
   const count = (total.count ?? 0) - excludedIds.size
 
@@ -124,7 +120,7 @@ export async function getLearnOverview(): Promise<LearnOverview> {
   const completed = active.filter((r) => r.learning_status === 'initial_complete').length
 
   const startOfToday = new Date(nextStudyDayStart(new Date()).getTime() - DAY_MS).toISOString()
-  const metToday = countMetToday(started.data ?? [], excludedIds, startOfToday)
+  const metToday = countMetToday(started, excludedIds, startOfToday)
   const startedIds2 = new Set(active.map((r) => r.vocabulary_id))
   const inLevelWords = lessons.filter((r) => inLevel(r.jlpt_level, levels.vocabulary) && !excludedIds.has(r.id))
   // Chỉ tính từ của cấp đang học; hết từ thì app hỏi rồi mới mở cấp sau

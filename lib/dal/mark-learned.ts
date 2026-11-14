@@ -6,6 +6,8 @@ import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { readSkillLevels } from '@/lib/dal/skill-levels'
+import { readKanjiOptins } from '@/lib/dal/word-kanji'
+import { readInChunks } from '@/lib/dal/pages'
 import { newReviewSchedule } from '@/lib/grammar/rules'
 import { nextStudyDayStart } from '@/lib/learning/time'
 import { kanjiAllowed, type KanjiPolicy } from '@/lib/learn/word-kanji-policy'
@@ -26,16 +28,15 @@ export async function markWordsLearned(input: unknown): Promise<{ status: 'saved
   const user = await requireUser()
   const supabase = await createClient()
   const [words, optins, levels] = await Promise.all([
-    supabase.from('vocabularies').select('id, sort_order, jlpt_level, is_kana_only, kanji_policy, kanji_target_level').in('id', ids),
-    supabase.from('learner_word_kanji_optins').select('vocabulary_id').eq('user_id', user.id),
+    // Tới 1000 từ một lần: chia nhóm để URL truy vấn không quá dài
+    readInChunks('vocabularies', ids, (chunk) => supabase.from('vocabularies').select('id, sort_order, jlpt_level, is_kana_only, kanji_policy, kanji_target_level').in('id', chunk)),
+    readKanjiOptins(supabase, user.id),
     readSkillLevels(supabase, user.id),
   ])
-  if (words.error) throw new Error(`Không đọc được vocabularies: ${words.error.message}`)
-  if (optins.error) throw new Error(`Không đọc được learner_word_kanji_optins: ${optins.error.message}`)
-  const opted = new Set((optins.data ?? []).map((r) => r.vocabulary_id as string))
+  const opted = optins
   const now = new Date()
   let card = 0
-  const items = (words.data ?? [])
+  const items = words
     .sort((a, b) => a.sort_order - b.sort_order)
     .map((w) => {
       const kanji = kanjiAllowed(

@@ -39,6 +39,8 @@ import { RULES_V9 } from '@/lib/learning/rules'
 import { studyDate } from '@/lib/learning/time'
 import { trailingCount } from '@/lib/learning/stage'
 import type { Outcome, ScoredStage } from '@/lib/learning/types'
+import { readAllPages } from '@/lib/dal/pages'
+import { readKnownWordIds } from '@/lib/dal/known-words'
 
 const PAGE = 1000
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -80,6 +82,12 @@ type WordRow = {
 let poolsCache: { at: number; value: QuestionPools } | null = null
 const POOLS_TTL_MS = 10 * 60_000
 
+/** Từ người học đã gặp (có dòng learner_vocabulary): đáp án nhiễu ưu tiên từ đã học. */
+async function readStartedWordIds(supabase: Supabase, userId: string): Promise<Set<string>> {
+  const rows = await readAllPages('learner_vocabulary', (from, to) => supabase.from('learner_vocabulary').select('vocabulary_id').eq('user_id', userId).order('id').range(from, to))
+  return new Set(rows.map((r) => r.vocabulary_id as string))
+}
+
 export async function loadPoolsCached(supabase: Supabase): Promise<QuestionPools> {
   if (poolsCache && Date.now() - poolsCache.at < POOLS_TTL_MS) return poolsCache.value
   const value = await loadPools(supabase)
@@ -100,9 +108,8 @@ export async function loadPools(supabase: Supabase): Promise<QuestionPools> {
     words.push(...((data ?? []) as StageWord[]))
     if ((data?.length ?? 0) < PAGE) break
   }
-  const { data: kanji, error } = await supabase.from('kanji').select('character, han_viet, meaning_vi').range(0, PAGE - 1)
-  if (error) throw new Error(`Không đọc được kanji: ${error.message}`)
-  return { words, kanji: kanji ?? [] }
+  const kanji = await readAllPages('kanji', (from, to) => supabase.from('kanji').select('character, han_viet, meaning_vi').order('character').range(from, to))
+  return { words, kanji }
 }
 
 
@@ -130,14 +137,13 @@ export async function buildStageQuestionFor(supabase: Supabase, userId: string, 
       .eq('source', 'lesson')
       .order('answered_at', { ascending: false })
       .range(0, 199),
-    supabase.from('learner_vocabulary').select('vocabulary_id').eq('user_id', userId).range(0, PAGE * 2 - 1),
+    readStartedWordIds(supabase, userId),
     loadPoolsCached(supabase),
     // Câu dính Kanji chỉ lấy đáp án nhiễu từ chữ đã học (chỉ Stage 4–6 hiện chữ Kanji / Hán Việt; Stage 2–3 không cần đọc)
     stage >= 4 ? readKanjiCharTier(supabase, userId) : undefined,
   ])
   if (rowRes.error) throw new Error(`Không đọc được learner_vocabulary: ${rowRes.error.message}`)
   if (logsRes.error) throw new Error(`Không đọc được exercise_logs: ${logsRes.error.message}`)
-  if (started.error) throw new Error(`Không đọc được learner_vocabulary: ${started.error.message}`)
   const row = rowRes.data as unknown as (Omit<WordRow, 'learner_stage_schedules'> & { learner_stage_schedules: { stage_number: number; stage_points: number; completed_at: string | null }[] }) | null
   const schedule = row?.learner_stage_schedules.find((s) => s.stage_number === stage && s.completed_at === null)
   if (!row || !schedule) return null
@@ -147,7 +153,7 @@ export async function buildStageQuestionFor(supabase: Supabase, userId: string, 
   let exercise = chooseStageExercise(row.vocabularies, stage, earned, schedule.stage_points)
   for (let i = 0; i < 6 && exercise === avoid; i++) exercise = chooseStageExercise(row.vocabularies, stage, earned, schedule.stage_points)
   const word = stage === 2 || stage === 3 ? kanaView(row.vocabularies) : row.vocabularies
-  const question = buildStageQuestion(word, exercise, { ...pools, learnedWordIds: new Set(started.data?.map((r) => r.vocabulary_id)), kanjiTier }, undefined, { blind: stage === 3 || stage === 6 })
+  const question = buildStageQuestion(word, exercise, { ...pools, learnedWordIds: started, kanjiTier }, undefined, { blind: stage === 3 || stage === 6 })
   const known = { currentStage: row.current_stage, kanjiIntroSeen: row.kanji_intro_seen_at !== null }
   return {
     ...question,
@@ -179,15 +185,13 @@ export async function getStarredSession(): Promise<{ questions: StageQuestion[];
   const user = await requireUser()
   const supabase = await createClient()
   const [excluded, starredIds, started, pools] = await Promise.all([
-    supabase.from('learner_vocabulary_exclusions').select('vocabulary_id').eq('user_id', user.id).not('excluded_at', 'is', null).range(0, PAGE - 1),
+    readKnownWordIds(supabase, user.id),
     readStarredIds(supabase, user.id),
-    supabase.from('learner_vocabulary').select('vocabulary_id').eq('user_id', user.id).range(0, PAGE - 1),
+    readStartedWordIds(supabase, user.id),
     loadPools(supabase),
   ])
-  if (excluded.error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${excluded.error.message}`)
-  if (started.error) throw new Error(`Không đọc được learner_vocabulary: ${started.error.message}`)
-  const items = await readStarRound<StageWord>(supabase, user.id, WORD_COLUMNS, new Set(excluded.data?.map((r) => r.vocabulary_id)))
-  const poolsWithLearned = { ...pools, learnedWordIds: new Set(started.data?.map((r) => r.vocabulary_id)) }
+  const items = await readStarRound<StageWord>(supabase, user.id, WORD_COLUMNS, excluded)
+  const poolsWithLearned = { ...pools, learnedWordIds: started }
   return { questions: buildStarQuestions(planStarQuestions(items, QUESTIONS_PER_SESSION), poolsWithLearned), starredIds }
 }
 
@@ -225,15 +229,12 @@ export async function buildRoundForUser(
   dueIds: readonly string[],
   words: readonly StageWord[],
 ): Promise<MatchRoundData | null> {
-  const { data, error } = await supabase
-    .from('learner_vocabulary')
-    .select('id, vocabulary_id, kanji_intro_seen_at, learner_stage_schedules(stage_number, completed_at)')
-    .eq('user_id', userId)
-    .range(0, PAGE - 1)
-  if (error) throw new Error(`Không đọc được learner_vocabulary: ${error.message}`)
+  const data = await readAllPages('learner_vocabulary', (from, to) =>
+    supabase.from('learner_vocabulary').select('id, vocabulary_id, kanji_intro_seen_at, learner_stage_schedules(stage_number, completed_at)').eq('user_id', userId).order('id').range(from, to),
+  )
 
   const byId = new Map(words.map((w) => [w.id, w]))
-  const rows = (data ?? []) as unknown as {
+  const rows = data as unknown as {
     id: string
     vocabulary_id: string
     kanji_intro_seen_at: string | null

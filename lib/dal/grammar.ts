@@ -29,6 +29,8 @@ import { GRAMMAR_EXERCISES, sentenceText, type GrammarExercise, type GrammarPiec
 import { studyDate } from '@/lib/learning/time'
 import type { Outcome } from '@/lib/learning/types'
 import type { Schedule } from '@/lib/srs/scheduler'
+import { readAllPages } from '@/lib/dal/pages'
+import { readKnownWordIds } from '@/lib/dal/known-words'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 
@@ -199,15 +201,12 @@ async function readVocabProgress(supabase: Supabase, userId: string, lessons: re
     if ((data?.length ?? 0) < PAGE) break
   }
   const [stage3, known] = await Promise.all([
-    supabase.from('learner_stage_schedules').select('learner_vocabulary!inner(vocabulary_id)').eq('user_id', userId).eq('stage_number', 3).not('completed_at', 'is', null).range(0, 4 * PAGE),
-    supabase.from('learner_vocabulary_exclusions').select('vocabulary_id').eq('user_id', userId).not('excluded_at', 'is', null).range(0, 4 * PAGE),
+    readAllPages('learner_stage_schedules', (from, to) =>
+      supabase.from('learner_stage_schedules').select('learner_vocabulary!inner(vocabulary_id)').eq('user_id', userId).eq('stage_number', 3).not('completed_at', 'is', null).order('id').range(from, to),
+    ),
+    readKnownWordIds(supabase, userId),
   ])
-  if (stage3.error) throw new Error(`Không đọc được learner_stage_schedules: ${stage3.error.message}`)
-  if (known.error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${known.error.message}`)
-  const done = new Set([
-    ...((stage3.data ?? []) as unknown as { learner_vocabulary: { vocabulary_id: string } }[]).map((r) => r.learner_vocabulary.vocabulary_id),
-    ...(known.data ?? []).map((r) => r.vocabulary_id as string),
-  ])
+  const done = new Set([...(stage3 as unknown as { learner_vocabulary: { vocabulary_id: string } }[]).map((r) => r.learner_vocabulary.vocabulary_id), ...known])
   const out = new Map<number, { total: number; done: number }>()
   for (const w of words) {
     const cur = out.get(w.lesson) ?? { total: 0, done: 0 }

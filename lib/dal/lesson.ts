@@ -59,6 +59,7 @@ import { newWordsBlockedBy } from '@/lib/learn/session'
 import { RULES_V9 } from '@/lib/learning/rules'
 import { studyDate } from '@/lib/learning/time'
 import type { Outcome, ScoredStage } from '@/lib/learning/types'
+import { readKnownWordIds } from '@/lib/dal/known-words'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 
@@ -237,9 +238,7 @@ export function parseGroups(input: unknown): LessonGroup[] | null {
 // ---------------------------------------------------------------------------
 
 async function readExcluded(supabase: Supabase, userId: string): Promise<Set<string>> {
-  const { data, error } = await supabase.from('learner_vocabulary_exclusions').select('vocabulary_id').eq('user_id', userId).not('excluded_at', 'is', null).range(0, PAGE - 1)
-  if (error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${error.message}`)
-  return new Set(data?.map((r) => r.vocabulary_id))
+  return readKnownWordIds(supabase, userId)
 }
 
 async function readDueStages(supabase: Supabase, userId: string, stages: readonly ScoredStage[], excluded: ReadonlySet<string>) {

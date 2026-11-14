@@ -11,6 +11,8 @@ import { ensureStarCard, isWordStarred } from '@/lib/dal/star-relearn'
 import { countMetToday, newPerDayOf, newWordsForToday, remainingNewToday } from '@/lib/learning/new-words'
 import { nextStudyDayStart } from '@/lib/learning/time'
 import { INTRO_WORDS_PER_SESSION, isVocabularyId, pickNewWords, stageAfterIntro, toIntroWord, type IntroVocabRow, type IntroWord } from '@/lib/intro/words'
+import { readAllPages } from '@/lib/dal/pages'
+import { readKnownWordIds } from '@/lib/dal/known-words'
 
 const VOCAB_COLUMNS = 'id, reading_kana, romaji, meaning_vi, han_viet, emoji, jlpt_level'
 
@@ -65,29 +67,21 @@ export async function getIntroData(): Promise<IntroData> {
   const startOfToday = new Date(nextStudyDayStart(new Date()).getTime() - DAY_MS).toISOString()
   const [allVocab, started, excluded, limits, levels] = await Promise.all([
     readAllVocabulary(supabase),
-    supabase.from('learner_vocabulary').select('vocabulary_id, created_at').eq('user_id', user.id).range(0, MAX_ROWS - 1),
-    supabase
-      .from('learner_vocabulary_exclusions')
-      .select('vocabulary_id')
-      .eq('user_id', user.id)
-      .not('excluded_at', 'is', null)
-      .range(0, MAX_ROWS - 1),
+    readAllPages('learner_vocabulary', (from, to) => supabase.from('learner_vocabulary').select('vocabulary_id, created_at').eq('user_id', user.id).order('id').range(from, to)),
+    readKnownWordIds(supabase, user.id),
     readDailyLimits(supabase, user.id),
     readSkillLevels(supabase, user.id),
   ])
   // Chỉ lấy từ mới trong cấp đang học; hết từ của cấp thì app hỏi rồi mới mở cấp sau
   const vocab = allVocab.filter((row) => inLevel(typeof row.jlpt_level === 'number' ? row.jlpt_level : null, levels.vocabulary))
 
-  if (started.error) throw new Error(`Không đọc được learner_vocabulary: ${started.error.message}`)
-  if (excluded.error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${excluded.error.message}`)
-
   const newPerDay = newWordsForToday(newPerDayOf(limits.newPerDay), limits.borrowedForToday, limits.borrowedForNext)
-  const metToday = countMetToday(started.data ?? [], new Set(excluded.data?.map((r) => r.vocabulary_id)), startOfToday)
+  const metToday = countMetToday(started, excluded, startOfToday)
   const remaining = remainingNewToday(newPerDay, metToday)
   const picked = pickNewWords<IntroVocabRow>(
     vocab,
-    new Set(started.data?.map((r) => r.vocabulary_id)),
-    new Set(excluded.data?.map((r) => r.vocabulary_id)),
+    new Set(started.map((r) => r.vocabulary_id)),
+    excluded,
     Math.min(INTRO_WORDS_PER_SESSION, remaining),
   )
   const words = picked.map(toIntroWord).filter((w): w is IntroWord => w !== null)

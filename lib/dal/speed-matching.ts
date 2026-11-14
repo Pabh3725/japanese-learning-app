@@ -4,30 +4,31 @@ import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { studyDate } from '@/lib/learning/time'
 import { isSpeedMode, skillOf, SPEED_MODES, wordsForMode, type SpeedMode, type SpeedModeData, type SpeedWordSource } from '@/lib/speed-matching'
+import { readAllPages } from '@/lib/dal/pages'
+import { readKnownWordIds } from '@/lib/dal/known-words'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 
-const PAGE = 1000
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 async function readExcluded(supabase: Supabase, userId: string): Promise<Set<string>> {
-  const { data, error } = await supabase.from('learner_vocabulary_exclusions').select('vocabulary_id').eq('user_id', userId).not('excluded_at', 'is', null).range(0, PAGE - 1)
-  if (error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${error.message}`)
-  return new Set(data?.map((r) => r.vocabulary_id))
+  return readKnownWordIds(supabase, userId)
 }
 
 /** Mọi chế độ chơi với số từ của từng chế độ. Từ đã đánh dấu là đã biết không vào game. */
 export async function readSpeedModes(supabase: Supabase, userId: string): Promise<SpeedModeData[]> {
   const [excludedIds, rows] = await Promise.all([
     readExcluded(supabase, userId),
-    supabase
-      .from('learner_vocabulary')
-      .select('vocabulary_id, kanji_intro_seen_at, vocabularies!inner(expression, reading_kana, meaning_vi, han_viet, is_kana_only), review_cards(last_review_at)')
-      .eq('user_id', userId)
-      .range(0, PAGE - 1),
+    readAllPages('learner_vocabulary', (from, to) =>
+      supabase
+        .from('learner_vocabulary')
+        .select('vocabulary_id, kanji_intro_seen_at, vocabularies!inner(expression, reading_kana, meaning_vi, han_viet, is_kana_only), review_cards(last_review_at)')
+        .eq('user_id', userId)
+        .order('id')
+        .range(from, to),
+    ),
   ])
-  if (rows.error) throw new Error(`Không đọc được learner_vocabulary: ${rows.error.message}`)
-  const list = (rows.data ?? []) as unknown as {
+  const list = rows as unknown as {
     vocabulary_id: string
     kanji_intro_seen_at: string | null
     vocabularies: { expression: string; reading_kana: string; meaning_vi: string; han_viet: string | null; is_kana_only: boolean }

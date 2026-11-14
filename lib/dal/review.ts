@@ -24,6 +24,8 @@ import {
   type ReviewCardRow,
   type SubmitReviewStatus,
 } from '@/lib/srs/mappers'
+import { readAllPages } from '@/lib/dal/pages'
+import { readKnownWordIds } from '@/lib/dal/known-words'
 
 const isKanjiChar = (c: string) => /[一-鿿㐀-䶿]/.test(c)
 
@@ -155,29 +157,24 @@ async function readReviewCaps(supabase: Awaited<ReturnType<typeof createClient>>
 
 /** Số Card khác nhau đã ôn hôm nay của từng mục. Card Again quay lại trong ngày không tính thêm (R7). */
 async function countReviewedToday(supabase: Awaited<ReturnType<typeof createClient>>, userId: string): Promise<Record<ReviewArea, number>> {
-  const { data, error } = await supabase
-    .from('review_logs')
-    .select('review_card_id, review_cards!inner(card_type)')
-    .eq('user_id', userId)
-    .eq('study_date', studyDate(new Date()))
-    .range(0, PAGE * 5 - 1)
-  if (error) throw new Error(`Không đọc được review_logs: ${error.message}`)
+  const rows = await readAllPages('review_logs', (from, to) =>
+    supabase
+      .from('review_logs')
+      .select('review_card_id, review_cards!inner(card_type)')
+      .eq('user_id', userId)
+      .eq('study_date', studyDate(new Date()))
+      .order('id')
+      .range(from, to),
+  )
   const seen: Record<ReviewArea, Set<string>> = { kana: new Set(), kanji: new Set() }
-  for (const row of (data ?? []) as unknown as { review_card_id: string; review_cards: { card_type: CardType } }[]) {
+  for (const row of rows as unknown as { review_card_id: string; review_cards: { card_type: CardType } }[]) {
     seen[areaOf(row.review_cards.card_type)].add(row.review_card_id)
   }
   return { kana: seen.kana.size, kanji: seen.kanji.size }
 }
 
 async function readExcludedIds(supabase: Awaited<ReturnType<typeof createClient>>, userId: string): Promise<Set<string>> {
-  const { data, error } = await supabase
-    .from('learner_vocabulary_exclusions')
-    .select('vocabulary_id')
-    .eq('user_id', userId)
-    .not('excluded_at', 'is', null)
-    .range(0, PAGE - 1)
-  if (error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${error.message}`)
-  return new Set(data?.map((r) => r.vocabulary_id))
+  return readKnownWordIds(supabase, userId)
 }
 
 export interface ReviewAreaOverview {
