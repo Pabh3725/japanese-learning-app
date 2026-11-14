@@ -163,7 +163,7 @@ export function ExerciseFooter({
                 )}
                 {status === 'incorrect' && wrongNote && <p className="mt-2 text-sm font-medium text-yellow">{wrongNote}</p>}
                 {typingTip && <TypingTipNote tip={typingTip} />}
-                {explanation && <p className="mt-0.5 text-sm text-muted-foreground">{explanation}</p>}
+                {explanation && <p className="mt-0.5 whitespace-pre-line text-sm text-muted-foreground">{explanation}</p>}
               </div>
             </div>
           )}

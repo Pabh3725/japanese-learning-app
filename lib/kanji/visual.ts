@@ -30,39 +30,89 @@ function shuffle<T>(items: readonly T[], rng: Rng): T[] {
   return out
 }
 
-/** Hai thành phần đứng cạnh nhau theo một hướng rõ ràng thì mới ghép được. */
-const LAYOUTS: Record<string, 'row' | 'column'> = { left: 'row', right: 'row', top: 'column', bottom: 'column' }
+/**
+ * Vị trí của thành phần cấp trên cùng trong KanjiVG → thứ tự ghép và nhãn ô. Bao ngoài (广, 辶, 門…) ghép trước phần bên trong.
+ * Thành phần không có vị trí (KanjiVG không ghi) thì chữ đó không có câu ghép.
+ */
+const POSITIONS: Record<string, { order: number; label: string }> = {
+  left: { order: 0, label: 'left' },
+  tare: { order: 0, label: 'outside' },
+  nyo: { order: 0, label: 'outside' },
+  kamae: { order: 0, label: 'outside' },
+  top: { order: 1, label: 'top' },
+  right: { order: 2, label: 'right' },
+  middle: { order: 2, label: 'middle' },
+  bottom: { order: 3, label: 'bottom' },
+  tarec: { order: 4, label: 'inside' },
+  nyoc: { order: 4, label: 'inside' },
+  kamaec: { order: 4, label: 'inside' },
+}
+
+/** Thông tin một thành phần, chỉ lấy từ dữ liệu đã duyệt: tên bộ thủ, Hán Việt và nghĩa của chữ Kanji. */
+export interface PartInfo {
+  /** Tên bộ thủ (đã duyệt) khi thành phần là một bộ hoặc dạng biến thể của bộ. */
+  radicalName: string | null
+  /** Có khi thành phần cũng là một chữ Kanji trong bảng chữ. */
+  hanViet: string | null
+  meaning: string | null
+}
 
 export interface PartsQuestion {
   kind: 'kanji_parts'
   character: string
   hanViet: string
   meaning: string
-  layout: 'row' | 'column'
-  /** Thành phần đúng theo thứ tự trái → phải hoặc trên → dưới. */
+  /** Nhãn vị trí của từng ô theo thứ tự ghép: left, right, top, bottom, outside, inside, middle. */
+  slots: string[]
+  /** Thành phần đúng theo thứ tự ghép. */
   answer: string[]
   /** Mảnh để chọn: thành phần đúng và mảnh nhiễu, đã xáo. */
   pool: string[]
+  /** Giải thích sau khi ghép, mỗi dòng một ý. */
+  explanation: string
 }
 
-/** Dạng C: ghép thành phần theo vị trí. null khi chữ không có đúng hai thành phần trái–phải hoặc trên–dưới. */
+/** Một dòng giải thích của thành phần: "亻 (left): Bộ Nhân, a form of 人" / "木 (right): MỘC · cây". */
+function describePart(part: KanjiPart, slot: string, info: PartInfo): string {
+  const bits: string[] = []
+  if (info.hanViet || info.meaning) bits.push([info.hanViet, info.meaning].filter(Boolean).join(' · '))
+  if (info.radicalName) bits.push(part.original && part.original !== part.c ? `${info.radicalName}, a form of ${part.original}` : info.radicalName)
+  return `${part.c} (${slot})${bits.length > 0 ? `: ${bits.join(' · ')}` : ''}`
+}
+
+/**
+ * Dạng C (V10): ghép 2–3 thành phần cấp trên cùng theo vị trí, có giải thích. null khi chữ không có 2–3 thành phần đều có vị trí.
+ * `info`: tra tên bộ thủ / Hán Việt / nghĩa của một thành phần. `radical`: bộ thủ chính thức của chữ (khi không nằm trong các thành phần).
+ */
 export function buildPartsQuestion(
   kanji: { character: string; hanViet: string; meaning: string; parts: readonly KanjiPart[] },
   others: readonly { character: string; parts: readonly KanjiPart[] }[],
+  info: (part: KanjiPart) => PartInfo = () => ({ radicalName: null, hanViet: null, meaning: null }),
   rng: Rng = Math.random,
+  radical: { character: string; name: string | null } | null = null,
 ): PartsQuestion | null {
   const top = kanji.parts
-  if (top.length !== 2 || !top[0].pos || !top[1].pos) return null
-  const layout = LAYOUTS[top[0].pos]
-  if (!layout || LAYOUTS[top[1].pos] !== layout || top[0].c === top[1].c) return null
-  const answer = top.map((p) => p.c)
-  // Mảnh nhiễu: thành phần của chữ khác cùng kiểu bố cục, không trùng mảnh đúng
-  const fromOthers = others
-    .filter((o) => o.character !== kanji.character && o.parts.length === 2 && o.parts.every((p) => p.pos && LAYOUTS[p.pos] === layout))
-    .flatMap((o) => o.parts.map((p) => p.c))
-  const distractors = shuffle([...new Set(fromOthers)].filter((c) => !answer.includes(c)), rng).slice(0, 4)
+  if (top.length < 2 || top.length > 3 || !top.every((p) => p.pos && POSITIONS[p.pos])) return null
+  const ordered = [...top].sort((a, b) => POSITIONS[a.pos!].order - POSITIONS[b.pos!].order)
+  const answer = ordered.map((p) => p.c)
+  const slots = ordered.map((p) => POSITIONS[p.pos!].label)
+  // Mảnh nhiễu: thành phần cấp trên cùng của chữ khác, không trùng mảnh đúng
+  const fromOthers = others.filter((o) => o.character !== kanji.character).flatMap((o) => o.parts.map((p) => p.c))
+  const distractors = shuffle([...new Set(fromOthers)].filter((c) => !answer.includes(c)), rng).slice(0, 3)
   if (distractors.length < 2) return null
-  return { kind: 'kanji_parts', character: kanji.character, hanViet: kanji.hanViet, meaning: kanji.meaning, layout, answer, pool: shuffle([...answer, ...distractors], rng) }
+  const lines = [`${kanji.character} = ${answer.join(' + ')}`, ...ordered.map((p, i) => describePart(p, slots[i], info(p)))]
+  // Bộ thủ chính thức của chữ khi KanjiVG không đánh dấu thành phần nào là bộ
+  if (radical && !ordered.some((p) => p.radical)) lines.push(`Radical of ${kanji.character}: ${radical.character}${radical.name ? ` (${radical.name})` : ''}`)
+  return {
+    kind: 'kanji_parts',
+    character: kanji.character,
+    hanViet: kanji.hanViet,
+    meaning: kanji.meaning,
+    slots,
+    answer,
+    pool: shuffle([...answer, ...distractors], rng),
+    explanation: lines.join('\n'),
+  }
 }
 
 export function gradeParts(q: Pick<PartsQuestion, 'answer'>, given: readonly string[]): boolean {

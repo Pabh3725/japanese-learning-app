@@ -3,7 +3,7 @@ import { createEmptyCard, fsrs, generatorParameters, Rating } from 'ts-fsrs'
 import { firstDueAt } from '../learning/cards'
 import { RULES_V9 } from '../learning/rules'
 import type { Outcome } from '../learning/types'
-import { capInterval, fromFsrs, toFsrs, type Schedule } from '../srs/scheduler'
+import { alignToStudyDay, capInterval, fromFsrs, toFsrs, type Schedule } from '../srs/scheduler'
 import { kanjiRating } from './rules'
 
 const maxDays = RULES_V9.reviewSchedule.maximumIntervalDays
@@ -18,5 +18,5 @@ export function newLongTermSchedule(now: Date): Schedule {
 
 export function reviewLongTermSchedule(schedule: Schedule, outcome: Outcome, now: Date, fuzz = true): Schedule {
   const scheduler = fuzz ? withFuzz : noFuzz
-  return capInterval(fromFsrs(scheduler.next(toFsrs(schedule), now, GRADE[kanjiRating(outcome)]).card), now, maxDays)
+  return alignToStudyDay(capInterval(fromFsrs(scheduler.next(toFsrs(schedule), now, GRADE[kanjiRating(outcome)]).card), now, maxDays))
 }

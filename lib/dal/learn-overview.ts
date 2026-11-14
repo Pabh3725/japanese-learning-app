@@ -11,13 +11,14 @@ import { countMetToday, newPerDayOf, newWordsForToday, remainingNewToday } from 
 import { nextStudyDayStart } from '@/lib/learning/time'
 import { readAllPages } from '@/lib/dal/pages'
 import { readKnownWordIds } from '@/lib/dal/known-words'
+import { readStagePool } from '@/lib/dal/stage-pool'
 
 const PAGE = 1000
 
 export interface LearnOverview {
   /** Số từ mới còn học được hôm nay: theo giới hạn trong Settings và số từ còn lại. */
   newToday: number
-  /** Số câu đang đến hẹn của từng Stage. */
+  /** Số câu còn hỏi được hôm nay của từng Stage (V10: tối đa 3 câu mỗi mục mỗi ngày). */
   due: { 2: number; 3: number }
   /** Cấp từ vựng đang học. */
   level: number
@@ -47,11 +48,6 @@ export interface LearnOverview {
   currentLesson: { lesson: number; met: number; total: number } | null
 }
 
-type DueRow = {
-  stage_number: 2 | 3
-  stage_points: number
-  learner_vocabulary: { vocabulary_id: string; kanji_intro_seen_at: string | null }
-}
 const DAY_MS = 86_400_000
 
 type LessonRow = { id: string; lesson: number | null; jlpt_level: number | null }
@@ -90,23 +86,8 @@ export async function getLearnOverview(): Promise<LearnOverview> {
   ])
   if (total.error) throw new Error(`Không đọc được vocabularies: ${total.error.message}`)
 
-  // Mỗi từ có tới 3 dòng lịch, nên số dòng có thể vượt 1000 mỗi lần của Data API
-  const dueRows: DueRow[] = []
-  const now = new Date().toISOString()
-  for (let from = 0; ; from += PAGE) {
-    const { data, error } = await supabase
-      .from('learner_stage_schedules')
-      .select('stage_number, stage_points, learner_vocabulary!inner(vocabulary_id, learning_status, kanji_intro_seen_at)')
-      .eq('user_id', user.id)
-      .in('stage_number', [2, 3])
-      .is('completed_at', null)
-      .lte('due_at', now)
-      .order('id')
-      .range(from, from + PAGE - 1)
-    if (error) throw new Error(`Không đọc được learner_stage_schedules: ${error.message}`)
-    dueRows.push(...((data ?? []) as unknown as DueRow[]))
-    if ((data?.length ?? 0) < PAGE) break
-  }
+  // V10: số câu còn hỏi được hôm nay của từng Stage (mục đến hẹn và mục còn câu trong ngày, tối đa 3 câu mỗi mục)
+  const pool = await readStagePool(supabase, user.id, [2, 3], excludedIds)
 
   const active = started.filter((r) => !excludedIds.has(r.vocabulary_id))
   const startedIds = new Set(started.map((r) => r.vocabulary_id))
@@ -114,9 +95,7 @@ export async function getLearnOverview(): Promise<LearnOverview> {
   const count = (total.count ?? 0) - excludedIds.size
 
   const due = { 2: 0, 3: 0 }
-  for (const row of dueRows) {
-    if (!excludedIds.has(row.learner_vocabulary.vocabulary_id)) due[row.stage_number as 2 | 3]++
-  }
+  for (const item of pool) due[item.stage as 2 | 3] += item.left
   const completed = active.filter((r) => r.learning_status === 'initial_complete').length
 
   const startOfToday = new Date(nextStudyDayStart(new Date()).getTime() - DAY_MS).toISOString()

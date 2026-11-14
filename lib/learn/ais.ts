@@ -50,6 +50,9 @@ interface ItemState {
   left: number
   /** Đang đi thang ngắn hạn của mục mới. */
   ladder: boolean
+  /** V10: số câu luyện đã làm sau thẻ giới thiệu, và số câu cần làm (3, sai thì thêm 1, tối đa 4). Bài lưu trước V10 không có. */
+  micros?: number
+  microTarget?: number
 }
 
 export interface LessonLimits {
@@ -163,8 +166,11 @@ interface Option {
   priority: number
 }
 
-/** `idle`: không còn câu nào khác hợp lệ; cho giới thiệu thêm mục mới thay vì kết thúc bài sớm. */
-function options(state: LessonState, idle = false): Option[] {
+/**
+ * `idle`: không còn câu nào khác hợp lệ; cho giới thiệu thêm mục mới thay vì kết thúc bài sớm.
+ * `relaxed` (V10): vẫn không có câu thì mục cũ không cần chờ đủ 8–12 câu, chỉ cần giãn cách tối thiểu của R3.
+ */
+function options(state: LessonState, idle = false, relaxed = false): Option[] {
   const { ais } = RULES_V9
   const p = ais.priority
   const out: Option[] = []
@@ -200,7 +206,8 @@ function options(state: LessonState, idle = false): Option[] {
       out.push({ plan: { type: 'question', key: c.key, micro: true }, group: c.group, priority: Number.MAX_SAFE_INTEGER })
       continue
     }
-    if (state.counted < it.readyAt || !spaced(state, c.anchor) || it.left <= 0) continue
+    const waiting = state.counted < it.readyAt && !(relaxed && !it.ladder)
+    if (waiting || !spaced(state, c.anchor) || it.left <= 0) continue
     const overdue = Math.min(p.maxOverdue, c.overdueDays * p.perOverdueDay)
     const priority = it.ladder ? p.ladderDue : overdue + p.dueToday
     out.push({ plan: { type: 'question', key: c.key, micro: false }, group: c.group, priority })
@@ -220,10 +227,15 @@ export function planNext(state: LessonState): StepPlan {
   let real = all.filter((o) => o !== star)
   // Hết câu xen giữa: giới thiệu thêm mục mới (thẻ mới cũng là câu xen cho các mục đang chờ giãn cách)
   if (real.length === 0) real = options(state, true).filter((o) => o.plan.type === 'intro')
+  if (real.length === 0) real = options(state, false, true).filter((o) => o.plan.type === 'question' && !o.plan.micro)
   if (real.length === 0) {
     const budgetGone = state.limits.budget <= 0 && state.candidates.some((c) => costsBudget(c.kind) && state.items[c.key].step !== 'done')
     return { type: 'end', reason: budgetGone ? 'budget' : 'empty' }
   }
+
+  // Gọi lại của thang ngắn hạn và câu kiểm tra lại đã tới lượt: hỏi ngay, không chờ cân bằng nhóm (giữ đúng 4–6 câu)
+  const urgent = real.filter((o) => o.priority >= RULES_V9.ais.priority.ladderDue)
+  if (urgent.length > 0) return urgent.sort((a, b) => b.priority - a.priority)[0].plan
 
   // Nhóm có thiếu hụt lớn nhất so với tỷ lệ mục tiêu
   const total = state.groupCounts.vocabulary + state.groupCounts.word_kanji + state.groupCounts.kanji
@@ -252,6 +264,8 @@ export function applyIntro(state: LessonState, key: string): LessonState {
   if (!it || it.step !== 'waiting') return next
   it.step = 'micro'
   it.ladder = true
+  it.micros = 0
+  it.microTarget = RULES_V9.ais.microAfterIntro
   next.lastIntroAt = next.answered
   return next
 }
@@ -299,10 +313,17 @@ export function applyResult(state: LessonState, plan: Extract<StepPlan, { type: 
     const wasRecheck = it.recheckAt !== null
     it.recheckAt = null
     if (it.step === 'micro') {
-      it.step = 'recall1'
-      it.readyAt = next.counted + between(ais.firstRecallGap, rng)
+      // V10: các câu luyện sau thẻ giới thiệu đi liền nhau; sai thì thêm một câu, tối đa microMax
+      it.micros = (it.micros ?? 0) + 1
+      const target = it.microTarget ?? 1
+      it.microTarget = outcome === 'wrong' ? Math.min(ais.microMax, target + 1) : target
+      if (it.micros >= it.microTarget) {
+        it.step = 'recall1'
+        it.readyAt = next.counted + between(ais.firstRecallGap, rng)
+      }
+      return next
     }
-    // Sai cả câu kiểm tra nhanh: kiểm tra lại thêm một lần, không quá số câu tối đa của mục
+    // Sai câu kiểm tra lại: kiểm tra thêm một lần, không quá số câu tối đa của mục
     if (outcome === 'wrong' && !wasRecheck && it.asked < ais.maxPerItemPerLesson) it.recheckAt = next.counted + ais.wrongRecheckAfter
     return next
   }
@@ -328,10 +349,13 @@ export function applyResult(state: LessonState, plan: Extract<StepPlan, { type: 
     it.step = 'recall2'
     it.readyAt = next.counted + between(ais.secondRecallGap, rng)
   } else if (it.ladder && it.step === 'recall2') {
-    // Xong thang ngắn hạn; còn câu trong hôm nay (chữ Kanji: buổi 3 câu) thì hỏi tiếp như mục đến hẹn
+    // Xong thang ngắn hạn; còn câu trong hôm nay (V10: tối đa 3 câu mỗi ngày) thì hỏi tiếp như mục đến hẹn
     it.ladder = false
     it.step = 'due'
-    it.readyAt = next.counted + RULES_V9.spacing.minGap
+    it.readyAt = next.counted + between(ais.oldRecallGap, rng)
+  } else if (!it.ladder) {
+    // V10: mục cũ hỏi lại trong cùng bài khi còn câu của hôm nay, cách 8–12 câu
+    it.readyAt = next.counted + between(ais.oldRecallGap, rng)
   }
   if (it.left <= 0 && it.recheckAt === null) it.step = 'done'
   if (it.asked >= ais.maxPerItemPerLesson) it.step = 'done'
@@ -343,5 +367,21 @@ export function askedKeys(state: LessonState): string[] {
   return state.candidates.filter((c) => state.items[c.key].asked > 0).map((c) => c.key)
 }
 
-/** Số câu mục mới cần cho thang ngắn hạn (gọi lại 2 lần), dùng khi dựng ứng viên. */
-export const NEW_ITEM_RECALLS = 2
+/** Số câu tính điểm của mục mới trong ngày giới thiệu: 2 lần gọi lại của thang ngắn hạn, rồi hỏi tiếp như mục đến hẹn (V10: 3 câu mỗi ngày). */
+export const NEW_ITEM_RECALLS = RULES_V9.ais.stagePerDay
+
+/**
+ * V10: nạp thêm ứng viên giữa bài (khi hết câu hợp lệ). Mục đã có trong bài giữ nguyên trạng thái; mục mới vào như
+ * lúc mở bài. Tỷ lệ nhóm không đổi.
+ */
+export function addCandidates(state: LessonState, candidates: readonly Candidate[]): { state: LessonState; added: number } {
+  const next = clone(state)
+  let added = 0
+  for (const c of candidates) {
+    if (!next.groups.includes(c.group) || next.items[c.key]) continue
+    next.candidates.push(c)
+    next.items[c.key] = { step: isNew(c.kind) ? 'waiting' : 'due', readyAt: 0, recheckAt: null, asked: 0, left: c.left, ladder: false }
+    added++
+  }
+  return { state: next, added }
+}

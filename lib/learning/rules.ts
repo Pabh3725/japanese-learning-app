@@ -67,7 +67,14 @@ export const RULES_V9 = {
     firstRecallGap: [4, 6],
     secondRecallGap: [8, 12],
     wrongRecheckAfter: 2,
-    maxPerItemPerLesson: 6,
+    /** V10: câu luyện liền nhau sau thẻ giới thiệu (không điểm); sai thì thêm 1, tối đa microMax. */
+    microAfterIntro: 3,
+    microMax: 4,
+    /** V10: số câu tính điểm tối đa mỗi mục Stage mỗi ngày (khớp trần +3 điểm/ngày), tính qua mọi bài. */
+    stagePerDay: 3,
+    /** V10: khoảng cách giữa hai câu của cùng một mục cũ trong một bài. */
+    oldRecallGap: [8, 12],
+    maxPerItemPerLesson: 9,
     maxItemsInLadder: 2,
     introduceEvery: 5,
     minDueShare: 0.4,

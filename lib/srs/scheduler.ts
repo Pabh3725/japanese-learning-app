@@ -4,6 +4,7 @@
 
 import { createEmptyCard, fsrs, generatorParameters, Rating as FsrsRating, type Card, type Grade } from 'ts-fsrs'
 import { firstDueAt } from '../learning/cards'
+import { startOfStudyDay } from '../learning/time'
 import { RULES_V9 } from '../learning/rules'
 import { ratingOf } from '../learning/scoring'
 import { cardsToCreate } from '../learning/stage'
@@ -79,6 +80,15 @@ export function capInterval(schedule: Schedule, now: Date, maxDays: number): Sch
   return { ...schedule, scheduledDays: maxDays, due: new Date(now.getTime() + maxDays * DAY_MS) }
 }
 
+/**
+ * V10: lịch tính bằng ngày hẹn vào 00:00 giờ VN của ngày đến hạn, để đầu ngày thấy đủ việc và số không tăng dần trong ngày.
+ * Khoảng dưới 1 ngày (Card trả lời Again quay lại trong buổi) giữ nguyên giờ.
+ */
+export function alignToStudyDay(schedule: Schedule): Schedule {
+  if (schedule.scheduledDays < 1) return schedule
+  return { ...schedule, due: startOfStudyDay(schedule.due) }
+}
+
 export function createScheduler({ enableFuzz = true }: SchedulerOptions = {}) {
   const maxDays = RULES_V9.reviewSchedule.maximumIntervalDays
   const f = fsrs(generatorParameters({ enable_fuzz: enableFuzz, maximum_interval: maxDays }))
@@ -104,7 +114,7 @@ export function createScheduler({ enableFuzz = true }: SchedulerOptions = {}) {
     }
     const rating = ratingOf(answer.outcome)
     const { card: next } = f.next(toFsrs(card.schedule), now, RATING_TO_FSRS[rating])
-    const schedule = capInterval(fromFsrs(next), now, maxDays)
+    const schedule = alignToStudyDay(capInterval(fromFsrs(next), now, maxDays))
     return {
       card: { ...card, schedule },
       log: {

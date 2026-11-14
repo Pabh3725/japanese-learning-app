@@ -36,7 +36,8 @@ const SAVE_ERROR = "Couldn't save. Check your connection and try again."
 const END_TEXT = {
   target: { title: 'Lesson complete!', subtitle: 'Nice work. Start another lesson whenever you are ready.' },
   budget: { title: "You've reached today's limit", subtitle: 'The rest will come up tomorrow. You can change the daily limit in Settings.' },
-  empty: { title: 'Nothing more for now', subtitle: 'Every question due today is done, and words that need space between questions will come back later.' },
+  // V10: bài đã nạp lại ứng viên; còn sót thì chỉ là vài câu cần thêm câu khác xen giữa (giãn cách R3)
+  empty: { title: 'All done for now', subtitle: 'Every question you can practice now is done. Anything still left for today shows on Home.' },
 } as const
 
 /** Stage 1: hiện từ là đọc ngay; nút to để dễ bấm nghe lại. */
@@ -189,13 +190,13 @@ export function LessonPlayer({ initial, groupsQuery }: { initial: LessonView; gr
           id: key,
           type: 'assembly',
           stage: 'Kanji parts · practice',
-          question: q.layout === 'row' ? 'Build this Kanji from its parts, left to right' : 'Build this Kanji from its parts, top to bottom',
+          question: `Build this Kanji from its parts: ${q.slots.join(' → ')}`,
           prompt: { display: q.character, kind: 'kanji', hint: `${q.hanViet} · ${q.meaning}` },
           pool: q.pool,
           answer: q.answer,
           pieceKind: 'kanji',
           joiner: '+',
-          explanation: `${q.character} = ${q.answer.join(' + ')}. Practice only, no points.`,
+          explanation: q.explanation,
         }}
         onComplete={() => advance()}
       />

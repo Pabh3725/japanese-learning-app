@@ -45,6 +45,7 @@ import {
   dropItem,
   LESSON_GROUPS,
   NEW_ITEM_RECALLS,
+  addCandidates,
   planNext,
   startLesson as startAis,
   type Candidate,
@@ -58,12 +59,11 @@ import { RULES_V9 } from '@/lib/learning/rules'
 import { studyDate } from '@/lib/learning/time'
 import type { Outcome, ScoredStage } from '@/lib/learning/types'
 import { readKnownWordIds } from '@/lib/dal/known-words'
+import { readStagePool, type StagePoolItem } from '@/lib/dal/stage-pool'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 
-const PAGE = 1000
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-const DAY_MS = 86_400_000
 /** Thẻ Kanji của từ mỗi bài: không có quota ngày nên giới hạn để bài không toàn thẻ. */
 const WORD_KANJI_INTROS_PER_LESSON = 5
 const BOSS_EVERY = 25
@@ -110,6 +110,10 @@ interface LessonExtra {
   matchDone: boolean
   /** Câu hỗ trợ Kanji trực quan. Bài tạo trước gói 7 không có. */
   support?: SupportState
+  /** V10: đã nạp lại ứng viên một lần khi hết câu hợp lệ. */
+  refilled?: boolean
+  /** V10: dạng bài đã dùng cho các câu luyện sau thẻ giới thiệu của từng mục, để mỗi câu một dạng. */
+  microSeen?: Record<string, string[]>
 }
 
 interface SupportState {
@@ -127,8 +131,7 @@ const emptySupport = (): SupportState => ({ queue: [], given: [], scored: {}, sh
 const isSupportStep = (step: LessonStep) => step.kind === 'kanji_parts' || step.kind === 'kanji_similar' || step.kind === 'kanji_match'
 
 /**
- * Sau một câu Kanji tính điểm:
- * - Ghép thành phần (C): sau câu đúng đầu tiên của chữ đang học (lần gọi lại đầu với chữ mới).
+ * Sau một câu Kanji tính điểm (V10: câu ghép thành phần C chuyển lên ngay sau thẻ giới thiệu, xem queueParts):
  * - Phân biệt chữ gần giống (E) dạng không điểm: chỉ cho chữ đang ôn bằng Card, khi trả lời sai.
  *   Chữ đang học thì E là câu Kanji có điểm (similar_kanji), do lịch Học chọn.
  */
@@ -137,15 +140,18 @@ function queueSupport(extra: LessonExtra, step: Extract<LessonStep, { kind: 'kan
   const id = step.question.kanjiId
   const n = (prev.scored[id] ?? 0) + 1
   const support: SupportState = { ...prev, queue: [...prev.queue], given: [...prev.given], scored: { ...prev.scored, [id]: n } }
-  if (step.question.phase === 'learning' && n === 1 && outcome !== 'wrong' && !support.given.includes(`p:${id}`)) {
-    support.given.push(`p:${id}`)
-    support.queue.push({ kind: 'kanji_parts', kanjiId: id })
-  }
   if (step.question.phase === 'review' && outcome === 'wrong' && !support.given.includes(`e:${id}`)) {
     support.given.push(`e:${id}`)
     support.queue.push({ kind: 'kanji_similar', kanjiId: id })
   }
   return { ...extra, support }
+}
+
+/** V10: câu ghép thành phần (C) ngay sau thẻ giới thiệu chữ mới, trước các câu luyện. Không tính vào trần câu hỗ trợ. */
+function queueParts(extra: LessonExtra, kanjiId: string): LessonExtra {
+  const prev = extra.support ?? emptySupport()
+  if (prev.given.includes(`p:${kanjiId}`)) return extra
+  return { ...extra, support: { ...prev, given: [...prev.given, `p:${kanjiId}`], queue: [{ kind: 'kanji_parts', kanjiId }, ...prev.queue] } }
 }
 
 /** Vòng ghép chữ (F), bắt buộc một lần mỗi bài khi đã gặp đủ chữ. Không nằm trong trần câu hỗ trợ. */
@@ -166,15 +172,17 @@ async function nextSupport(supabase: Supabase, ais: LessonState, extra: LessonEx
     extra = match.extra
   }
   const prev = extra.support!
-  if (prev.shown >= Math.max(2, Math.ceil(ais.limits.target * SUPPORT_SHARE))) return { extra, step: null }
+  const capped = prev.shown >= Math.max(2, Math.ceil(ais.limits.target * SUPPORT_SHARE))
   const support: SupportState = { ...prev, queue: [...prev.queue] }
-  const done = (step: LessonStep) => ({ extra: { ...extra, support: { ...support, shown: support.shown + 1 } }, step })
+  const done = (step: LessonStep, counts = true) => ({ extra: { ...extra, support: { ...support, shown: support.shown + (counts ? 1 : 0) } }, step })
   while (support.queue.length > 0) {
+    // V10: câu ghép thành phần (đầu hàng đợi, ngay sau thẻ giới thiệu) không tính vào trần; câu E vẫn theo trần
+    if (support.queue[0].kind !== 'kanji_parts' && capped) break
     const task = support.queue.shift()!
     const key = `${task.kind === 'kanji_parts' ? 'kp' : 'ks'}:${task.kanjiId}`
     if (task.kind === 'kanji_parts') {
       const question = await buildKanjiPartsFor(supabase, task.kanjiId)
-      if (question) return done({ kind: 'kanji_parts', key, question })
+      if (question) return done({ kind: 'kanji_parts', key, question }, false)
     } else {
       const question = await buildKanjiSimilarFor(supabase, task.kanjiId)
       if (question) return done({ kind: 'kanji_similar', key, question })
@@ -239,43 +247,22 @@ async function readExcluded(supabase: Supabase, userId: string): Promise<Set<str
   return readKnownWordIds(supabase, userId)
 }
 
-async function readDueStages(supabase: Supabase, userId: string, stages: readonly ScoredStage[], excluded: ReadonlySet<string>) {
-  const rows: { stage_number: number; due_at: string; learner_vocabulary: { id: string; vocabulary_id: string } }[] = []
-  for (let from = 0; ; from += PAGE) {
-    const { data, error } = await supabase
-      .from('learner_stage_schedules')
-      .select('stage_number, due_at, learner_vocabulary!inner(id, vocabulary_id)')
-      .eq('user_id', userId)
-      .in('stage_number', [...stages])
-      .is('completed_at', null)
-      .lte('due_at', new Date().toISOString())
-      .order('id')
-      .range(from, from + PAGE - 1)
-    if (error) throw new Error(`Không đọc được learner_stage_schedules: ${error.message}`)
-    rows.push(...((data ?? []) as unknown as typeof rows))
-    if ((data?.length ?? 0) < PAGE) break
-  }
-  const now = Date.now()
-  return rows
-    .filter((r) => !excluded.has(r.learner_vocabulary.vocabulary_id))
-    .map((r) => ({ lvId: r.learner_vocabulary.id, vocabularyId: r.learner_vocabulary.vocabulary_id, stage: r.stage_number as ScoredStage, overdueDays: Math.max(0, Math.floor((now - Date.parse(r.due_at)) / DAY_MS)) }))
-}
-
 async function buildCandidates(supabase: Supabase, userId: string, groups: readonly LessonGroup[]) {
   const excluded = await readExcluded(supabase, userId)
   const limits = await readDailyLimits(supabase, userId)
   const candidates: Candidate[] = []
-  const stage = (g: LessonGroup, r: Awaited<ReturnType<typeof readDueStages>>[number]): Candidate => ({
+  // V10: mục đến hẹn và mục đã trả lời hôm nay mà chưa đủ 3 câu (lib/dal/stage-pool.ts)
+  const stage = (g: LessonGroup, r: StagePoolItem): Candidate => ({
     key: `s:${r.lvId}:${r.stage}`,
     group: g,
     kind: 'stage',
     anchor: `w:${r.vocabularyId}`,
     overdueDays: r.overdueDays,
-    left: 1,
+    left: r.left,
   })
 
   if (groups.includes('vocabulary')) {
-    for (const r of await readDueStages(supabase, userId, [2, 3], excluded)) candidates.push(stage('vocabulary', r))
+    for (const r of await readStagePool(supabase, userId, [2, 3], excluded)) candidates.push(stage('vocabulary', r))
     const blocked = newWordsBlockedBy({ cardsDue: limits.cardsDueToday, unlockThreshold: limits.unlockThreshold, stageDue: limits.stageDueToday, stageCap: limits.stageCap })
     if (!blocked) {
       for (const w of (await getIntroData()).words) {
@@ -287,7 +274,7 @@ async function buildCandidates(supabase: Supabase, userId: string, groups: reado
     }
   }
   if (groups.includes('word_kanji')) {
-    for (const r of await readDueStages(supabase, userId, [5, 6], excluded)) candidates.push(stage('word_kanji', r))
+    for (const r of await readStagePool(supabase, userId, [5, 6], excluded)) candidates.push(stage('word_kanji', r))
     for (const w of (await readEligibleWords(supabase, userId)).slice(0, WORD_KANJI_INTROS_PER_LESSON)) {
       candidates.push({ key: `nwk:${w.learnerVocabularyId}`, group: 'word_kanji', kind: 'new_word_kanji', anchor: `w:${w.vocabularyId}`, overdueDays: 0, left: NEW_ITEM_RECALLS })
     }
@@ -336,7 +323,7 @@ async function buildForPlan(supabase: Supabase, userId: string, plan: Exclude<St
     return null
   }
   const micro = plan.micro
-  const avoid = extra.lastExercise
+  const avoid = [extra.lastExercise, ...(micro ? (extra.microSeen?.[plan.key] ?? []) : [])].filter((x): x is string => x !== null)
   const stageStep = async (lvId: string | undefined, stage: ScoredStage): Promise<LessonStep | null> => {
     if (!lvId) return null
     const question = await buildStageQuestionFor(supabase, userId, lvId, stage, avoid)
@@ -389,6 +376,17 @@ async function nextStep(supabase: Supabase, userId: string, stored: StoredState)
 
   for (let attempt = 0; attempt < 40; attempt++) {
     const plan = planNext(ais)
+    if (plan.type === 'end' && plan.reason === 'empty' && !extra.refilled && ais.answered < ais.limits.target) {
+      // V10: hết câu hợp lệ trước khi đủ số câu: đọc lại mục đến hẹn một lần (mục vừa mở, mục còn câu trong ngày)
+      extra.refilled = true
+      const refill = await buildCandidates(supabase, userId, ais.groups)
+      const busy = new Set(ais.candidates.filter((c) => ais.items[c.key].step !== 'done').map((c) => c.anchor))
+      const added = addCandidates(ais, refill.candidates.filter((c) => !busy.has(c.anchor)))
+      if (added.added > 0) {
+        ais = added.state
+        continue
+      }
+    }
     if (plan.type === 'end') {
       // Vòng ghép chữ bắt buộc: bài dừng trước nửa bài thì hiện ngay trước khi kết thúc
       const match = await kanjiMatchStep(supabase, extra)
@@ -522,6 +520,7 @@ function noteAsked(extra: LessonExtra, step: LessonStep): LessonExtra {
   const next = { ...extra, anchors: [...extra.anchors], stage3: [...extra.stage3] }
   if (step.kind === 'stage' || step.kind === 'star' || step.kind === 'kanji') {
     next.lastExercise = step.question.exercise
+    if (step.kind !== 'star' && step.micro) next.microSeen = { ...next.microSeen, [step.key]: [...(next.microSeen?.[step.key] ?? []), step.question.exercise] }
     const anchor = step.kind === 'kanji' ? `kj:${step.question.kanjiId}` : `w:${step.question.vocabularyId}`
     if (!next.anchors.includes(anchor)) next.anchors.push(anchor)
   }
@@ -566,6 +565,7 @@ export async function advanceLesson(input: unknown): Promise<AdvanceResponse> {
     const ref = await saveIntro(supabase, user.id, step)
     if (ref === null) return { status: 'not_saved' }
     if (ref) extra = { ...extra, refs: { ...extra.refs, [step.key]: ref } }
+    if (step.kind === 'intro_kanji') extra = queueParts(extra, step.kanji.kanjiId)
     ais = applyIntro(ais, step.key)
   } else if (step.kind === 'end') {
     return { status: 'stale', view: toView(row, row.state, step) }

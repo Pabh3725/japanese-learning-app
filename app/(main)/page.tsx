@@ -25,10 +25,27 @@ export default async function DashboardPage() {
   const reviewMinutes = Math.max(1, Math.ceil((review.dueNow * 15) / 60))
   // Chỉ một mục Review có Card thì vào thẳng phiên của mục đó
   const reviewHref = review.areas.kana.dueNow > 0 && review.areas.kanji.dueNow === 0 ? '/review/session?type=kana' : review.areas.kanji.dueNow > 0 && review.areas.kana.dueNow === 0 ? '/review/session?type=kanji' : '/review'
+  // V10: mỗi khái niệm một tên — "practice" là câu Learn còn lại hôm nay, "cards" là Card Review đến hạn
+  const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
   const sections = [
-    { title: 'Vocabulary', href: '/learn', due: learn.questionsToday, note: `${learn.newToday} new words · ${learn.inProgress} in progress` },
-    { title: 'Kanji words', href: '/learn/word-kanji', due: wordKanji.questionsToday, note: `${wordKanji.waiting} ready · ${wordKanji.completed} of ${wordKanji.total} learned` },
-    { title: 'Kanji', href: '/learn/kanji', due: kanji.questionsToday, note: `${kanji.newToday} new · ${kanji.longTerm} of ${kanji.total} learned` },
+    {
+      title: 'Vocabulary',
+      href: '/learn',
+      count: `${learn.questionsToday} practice · ${plural(review.areas.kana.dueNow, 'card', 'cards')}`,
+      note: `${plural(learn.newToday, 'new word', 'new words')} left today · ${learn.inProgress} in progress`,
+    },
+    {
+      title: 'Kanji words',
+      href: '/learn/word-kanji',
+      count: `${wordKanji.questionsToday} practice · ${plural(review.areas.kanji.dueNow, 'card', 'cards')}`,
+      note: `${wordKanji.waiting} ready to start · ${wordKanji.completed} of ${wordKanji.total} learned`,
+    },
+    {
+      title: 'Kanji',
+      href: '/learn/kanji',
+      count: `${kanji.questionsToday} practice`,
+      note: `${kanji.learning} learning · ${kanji.newToday} new · ${kanji.longTerm} of ${kanji.total} learned`,
+    },
   ]
 
   return (
@@ -37,19 +54,28 @@ export default async function DashboardPage() {
 
       <div className="flex flex-col gap-4">
         <div className="grid gap-4 md:grid-cols-2">
+          {/* V10: thứ tự trong ngày — ôn Card trước để giữ trí nhớ, rồi mới luyện và học từ mới */}
           <StudyHeroCard
-            eyebrow="Learn"
-            title={questions + fresh > 0 ? `${questions} ${questions === 1 ? 'question' : 'questions'} · ${fresh} new` : 'All caught up'}
-            subtitle={questions + fresh > 0 ? 'Vocabulary, Kanji words and Kanji, mixed into one session.' : 'Your next questions are scheduled. Come back later.'}
-            href={questions + fresh > 0 ? '/learn/lesson' : undefined}
-            cta="Learn"
-          />
-          <StudyHeroCard
-            eyebrow="Review"
-            title={review.dueNow > 0 ? `${review.dueNow} ${review.dueNow === 1 ? 'card' : 'cards'} waiting` : 'No cards due'}
-            subtitle={review.dueNow > 0 ? `Vocabulary ${review.areas.kana.dueNow} · Kanji words ${review.areas.kanji.dueNow} · about ${reviewMinutes} ${reviewMinutes === 1 ? 'minute' : 'minutes'}` : `${review.dueTomorrow} due tomorrow`}
+            eyebrow="Step 1 · Review"
+            title={review.dueNow > 0 ? `${plural(review.dueNow, 'card', 'cards')} to review` : 'Review done for today'}
+            subtitle={
+              review.dueNow > 0
+                ? `Do these first. Vocabulary ${review.areas.kana.dueNow} · Kanji words ${review.areas.kanji.dueNow} · about ${plural(reviewMinutes, 'minute', 'minutes')}`
+                : `${plural(review.dueTomorrow, 'card', 'cards')} tomorrow.`
+            }
             href={review.dueNow > 0 ? reviewHref : undefined}
             cta="Start review"
+          />
+          <StudyHeroCard
+            eyebrow="Step 2 · Learn"
+            title={questions + fresh > 0 ? `${plural(questions, 'practice question', 'practice questions')} · ${fresh} new` : 'Learn done for today'}
+            subtitle={
+              questions + fresh > 0
+                ? 'Practice the words you are learning, then meet new ones. The number goes down as you go.'
+                : 'Everything for today is done. New questions come up tomorrow.'
+            }
+            href={questions + fresh > 0 ? '/learn/lesson' : undefined}
+            cta="Learn"
           />
         </div>
         <div className="grid gap-4 md:grid-cols-3">
@@ -59,7 +85,7 @@ export default async function DashboardPage() {
                 {sec.title}
                 <ArrowRight className="size-4 text-muted-foreground" aria-hidden="true" />
               </span>
-              <span className="mt-2 block text-2xl font-semibold tabular-nums">{sec.due} due</span>
+              <span className="mt-2 block text-2xl font-semibold tabular-nums">{sec.count}</span>
               <span className="mt-1 block text-sm text-muted-foreground">{sec.note}</span>
             </Link>
           ))}
@@ -71,7 +97,7 @@ export default async function DashboardPage() {
           <DashboardStatCard key={level.level} label={`${level.level} completed`} value={level.completed} total={level.total} icon={BookText} tone={level.level === 'N5' ? 'cyan' : 'primary'} jp={level.level === 'N5' ? '語' : '話'} />
         ))}
         <DashboardStatCard label="Words in progress" value={learn.inProgress} icon={Languages} tone="yellow" jp="習" />
-        <DashboardStatCard label="Review cards" value={cards} icon={Layers} tone="pink" jp="札" />
+        <DashboardStatCard label="Cards created" value={cards} icon={Layers} tone="pink" jp="札" />
       </div>
 
       <section aria-labelledby="explore-title" className="flex flex-col gap-4">
