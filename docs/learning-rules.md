@@ -35,6 +35,16 @@ Lý do: lịch Stage hẹn lại sau 1–10 phút nên số câu trên Home bị
 17. **Thứ tự Review** (D): Card dễ quên nhất trước — xếp theo (số ngày từ lần ôn trước ÷ stability) giảm dần, tương đương xác suất nhớ của FSRS tăng dần; Card chưa ôn lần nào sau Card đã ôn; Card sao sau Card thường; hai Card cùng từ cách ít nhất 3 Card khi còn cách khác.
 18. **Learn theo độ khó** (E): số câu Stage mỗi ngày theo stability của lịch Stage: dưới 2 (từ yếu: mới, vừa sai) 3 câu, 2–6 là 2 câu, từ 6 (đúng liên tục) 1 câu; từ yếu được cộng ưu tiên `weak` = 15 trong nhóm. Ngưỡng: PROPOSED, chỉnh được trong `RULES_V9.ais.strength`.
 
+### 0d. Thứ tự mở chữ Kanji mới (V12) — CONFIRMED (chủ dự án duyệt 2026-11-14)
+
+Thay phần "thứ tự chữ mới" của §18.6 / R10. Vẫn chỉ mở chữ trong cấp Kanji đang học, số chữ mỗi ngày theo "New Kanji per day". Thứ tự tính lại mỗi lần theo tiến độ của người học (`lib/kanji/new-order.ts`):
+
+19. **Chữ cần sớm cho từ vựng trước**, theo mức: 1 = chữ trong từ đang ở giai đoạn Kanji (Stage 4–6, chưa xong Stage 6); 2 = trong từ đã xong Stage 3, chờ vào giai đoạn Kanji; 3 = trong từ đang học Kana (Stage 1–3); 4 = còn lại. Chỉ tính từ được học dạng Kanji ở cấp hiện tại (theo chính sách Kanji của từ và nút "Học dạng Kanji"); từ đã đánh dấu Learned không tính.
+20. **Cùng mức: chữ dễ trước** — ít nét trước (số nét từ KanjiVG); bằng nhau thì theo thứ tự cũ (`study_order`: chữ gặp sớm trong lộ trình từ vựng trước); chữ chưa có số nét xếp sau.
+21. **Thành phần trước chữ ghép:** chữ sắp mở có thành phần cấp trên cùng (kể cả dạng gốc, vd. 亻 → 人) cũng là chữ đang chờ mở trong cấp thì mở thành phần đó trước, kể cả khi thành phần ở mức thấp hơn.
+
+Từ vựng Kanji vẫn mở theo thứ tự bài như cũ; luật "không cần học xong chữ thành phần" (V9) giữ nguyên.
+
 ## 1. Ánh xạ luật cũ sang mới
 
 | Luật | V8 / v2 | V9 |

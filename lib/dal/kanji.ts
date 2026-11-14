@@ -39,7 +39,9 @@ import type { Outcome } from '@/lib/learning/types'
 import type { Schedule, ScheduleState } from '@/lib/srs/scheduler'
 import { readAllPages } from '@/lib/dal/pages'
 import { ensureKanjiStarCard, readStarredKanjiIds } from '@/lib/dal/kanji-stars'
-import { KANJI_COLUMNS, readAllKanji, readAllKanjiCached, readKanjiVisuals, readSimilarFor, withVisual } from '@/lib/dal/kanji-content'
+import { KANJI_COLUMNS, readAllKanji, readAllKanjiCached, readComponentsByChar, readKanjiVisuals, readSimilarFor, withVisual } from '@/lib/dal/kanji-content'
+import { readKanjiNeedTiers } from '@/lib/dal/word-kanji'
+import { orderNewKanji } from '@/lib/kanji/new-order'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 
@@ -602,7 +604,15 @@ export async function readKanjiCandidates(supabase: Supabase, userId: string): P
   const [learners, allKanji, levels] = await Promise.all([readLearners(supabase, userId, known), readAllKanjiCached(supabase), readSkillLevels(supabase, userId)])
   const cards = await readCards(supabase, userId, learners)
   const opened = new Set(learners.map((r) => r.kanji_id))
-  const inLevelNotOpened = allKanji.filter((k) => !known.has(k.id) && !opened.has(k.id) && inLevel(k.jlpt_level ?? null, levels.kanji))
+  const waiting = allKanji.filter((k) => !known.has(k.id) && !opened.has(k.id) && inLevel(k.jlpt_level ?? null, levels.kanji))
+  // V12: chữ cần sớm cho từ vựng trước, cùng mức thì ít nét trước, thành phần trước chữ ghép (lib/kanji/new-order.ts)
+  const [tiers, components] = await Promise.all([readKanjiNeedTiers(supabase, userId), readComponentsByChar(supabase)])
+  const studyOrder = new Map(allKanji.map((k, i) => [k.id, i]))
+  const inLevelNotOpened = orderNewKanji(
+    waiting.map((k) => ({ ...k, strokes: k.stroke_count && k.stroke_count > 0 ? k.stroke_count : null, studyOrder: studyOrder.get(k.id)! })),
+    (id) => tiers.get(id) ?? 4,
+    (character) => components.get(character) ?? [],
+  )
   const today = await readToday(supabase, userId, learners, cards, inLevelNotOpened.length)
   const now = Date.now()
   const byLk = new Map(learners.map((r) => [r.id, r]))

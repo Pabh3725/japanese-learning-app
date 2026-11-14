@@ -18,7 +18,8 @@ export const KANJI_COLUMNS = 'id, character, han_viet, meaning_vi, onyomi, kunyo
 
 export async function readAllKanji(supabase: Supabase): Promise<KanjiRow[]> {
   // Kanji hiện dưới 1000 chữ; vẫn đọc từng trang để thêm chữ không bị cắt
-  return (await readAllPages('kanji', (from, to) => supabase.from('kanji').select(KANJI_COLUMNS).order('study_order').order('id').range(from, to))) as KanjiRow[]
+  // Thứ tự trả về là study_order; kèm số nét để xếp thứ tự mở chữ mới (V12)
+  return (await readAllPages('kanji', (from, to) => supabase.from('kanji').select(`${KANJI_COLUMNS}, stroke_count`).order('study_order').order('id').range(from, to))) as KanjiRow[]
 }
 
 let kanjiCache: { at: number; value: KanjiRow[] } | null = null
@@ -75,22 +76,6 @@ export async function withVisual<T extends { reveal: KanjiReveal }>(supabase: Su
   return visual ? { ...question, reveal: { ...question.reveal, visual } } : question
 }
 
-/** Nét viết theo chữ, cho câu "viết rồi tự chấm" của Review. Chữ không có dữ liệu thì bỏ qua. */
-export async function readStrokesByCharacter(supabase: Supabase, characters: readonly string[]): Promise<Map<string, string[]>> {
-  if (characters.length === 0) return new Map()
-  const { data, error } = await supabase.from('kanji').select('character, kanji_visuals(strokes)').in('character', [...new Set(characters)])
-  if (error) {
-    console.error(`Không đọc được nét viết: ${error.message}`)
-    return new Map()
-  }
-  return new Map(
-    ((data ?? []) as unknown as { character: string; kanji_visuals: { strokes: string[] } | { strokes: string[] }[] | null }[]).flatMap((r) => {
-      const v = Array.isArray(r.kanji_visuals) ? r.kanji_visuals[0] : r.kanji_visuals
-      return v?.strokes?.length ? [[r.character, v.strokes] as const] : []
-    }),
-  )
-}
-
 // ---------------------------------------------------------------------------
 // V9 R12: câu hỗ trợ trong bài Learn (không điểm, không lịch)
 // ---------------------------------------------------------------------------
@@ -112,7 +97,13 @@ async function readAllPartsCached(supabase: Supabase): Promise<{ kanjiId: string
   return value
 }
 
-/** Dạng C: ghép thành phần. null khi chữ không có đúng hai thành phần trái–phải hoặc trên–dưới. */
+/** V12: thành phần cấp trên cùng của mỗi chữ (cả dạng gốc, vd. 亻 → 人), để mở thành phần trước chữ ghép. */
+export async function readComponentsByChar(supabase: Supabase): Promise<Map<string, string[]>> {
+  const parts = await readAllPartsCached(supabase)
+  return new Map(parts.map((p) => [p.character, p.parts.flatMap((part) => (part.original && part.original !== part.c ? [part.c, part.original] : [part.c]))]))
+}
+
+/** Dạng C (V10): ghép 2–3 thành phần theo vị trí, có giải thích. null khi chữ không có câu ghép. */
 export async function buildKanjiPartsFor(supabase: Supabase, kanjiId: string): Promise<PartsQuestion | null> {
   const [allKanji, allParts, radicals, visuals] = await Promise.all([readAllKanjiCached(supabase), readAllPartsCached(supabase), readRadicals(supabase), readKanjiVisuals(supabase, [kanjiId])])
   const kanji = allKanji.find((k) => k.id === kanjiId)

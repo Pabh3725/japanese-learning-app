@@ -7,6 +7,7 @@ import { nextLevel } from '@/lib/learn/levels'
 import { kanjiAllowed, kanjiTargetLevel, type KanjiPolicy, type WordPolicy } from '@/lib/learn/word-kanji-policy'
 import { readDailyLimits } from '@/lib/dal/daily-limits'
 import { studyDate } from '@/lib/learning/time'
+import type { NeedTier } from '@/lib/kanji/new-order'
 import { readAllPages } from '@/lib/dal/pages'
 import { readKnownWordIds } from '@/lib/dal/known-words'
 import { readStagePool } from '@/lib/dal/stage-pool'
@@ -103,6 +104,23 @@ function toIntro(row: WordRow): KanjiIntroWord {
 // V9: Từ vựng Kanji mở khi từ đã xong Stage 3 và chính sách cho phép. Không cần học xong chữ thành phần.
 const doneStage3 = (row: WordRow) => row.learner_stage_schedules.some((s) => s.stage_number === 3 && s.completed_at !== null)
 const opened = (row: WordRow) => row.learner_stage_schedules.some((s) => s.stage_number === 5)
+
+/**
+ * V12: chữ Kanji nào sắp cần cho từ vựng (docs/learning-rules.md §0d). Mức 1: từ đang ở giai đoạn Kanji (chưa xong Stage 6);
+ * 2: từ đã xong Stage 3, chờ vào giai đoạn Kanji; 3: từ đang học Kana. Chỉ tính từ được học dạng Kanji ở cấp hiện tại.
+ */
+export async function readKanjiNeedTiers(supabase: Supabase, userId: string): Promise<Map<string, NeedTier>> {
+  const [rows, excluded, levels, optins] = await Promise.all([readWords(supabase, userId), readKnownWordIds(supabase, userId), readSkillLevels(supabase, userId), readKanjiOptins(supabase, userId)])
+  const tiers = new Map<string, NeedTier>()
+  for (const row of rows) {
+    if (excluded.has(row.vocabulary_id)) continue
+    if (!kanjiAllowed(policyOf(row.vocabularies), levels.word_kanji, optins.has(row.vocabulary_id))) continue
+    if (row.learner_stage_schedules.some((s) => s.stage_number === 6 && s.completed_at !== null)) continue
+    const tier: NeedTier = opened(row) ? 1 : doneStage3(row) ? 2 : 3
+    for (const vk of row.vocabularies.vocabulary_kanji) tiers.set(vk.kanji_id, Math.min(tiers.get(vk.kanji_id) ?? 4, tier) as NeedTier)
+  }
+  return tiers
+}
 
 /** Từ đủ điều kiện mở trong cấp đang học, theo thứ tự lộ trình. */
 export async function readEligibleWords(supabase: Supabase, userId: string): Promise<KanjiIntroWord[]> {

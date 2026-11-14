@@ -1492,6 +1492,8 @@ Chủ dự án chốt ngày 2026-11-10. Luật đầy đủ: `docs/learning-rule
 
 - **Review và Learn V11 (2026-11-14, CONFIRMED):** chi tiết `docs/learning-rules.md` §0c. Thẻ sai quay lại trong cùng lượt Review; Progress đo tỷ lệ nhớ thật theo khu, so với mục tiêu 90%; Review xếp Card dễ quên nhất trước và tách Card cùng từ; Learn hỏi từ yếu 3 câu/ngày (ưu tiên), từ vừa 2, từ chắc 1.
 
+- **Thứ tự mở chữ Kanji V12 (2026-11-14, CONFIRMED):** chi tiết `docs/learning-rules.md` §0d. Chữ cần sớm cho từ vựng trước (từ đang ở giai đoạn Kanji → đang chờ → đang học Kana → còn lại); cùng mức thì ít nét trước; thành phần trước chữ ghép.
+
 ---
 
 ## 20. Ngữ pháp và Thể động từ (2026-11-15) — CONFIRMED, chưa triển khai
