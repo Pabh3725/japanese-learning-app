@@ -2,6 +2,7 @@
 
 import { useEffect, useEffectEvent, useState } from 'react'
 import { setKanjiKnownAction } from '@/app/learn/kanji/actions'
+import { KanjiStarButton } from '@/components/kanji/kanji-star-button'
 import { isShortcutEvent } from '@/lib/keyboard'
 import { withRetry } from '@/lib/retry'
 
@@ -51,9 +52,13 @@ export function KanjiKnownBar({ kanjiId, onKnown }: { kanjiId: string | null; on
         </p>
       )}
       {kanjiId && (
-        <button type="button" onClick={mark} title="Remove this Kanji from your list (K)" className="text-muted-foreground underline-offset-2 hover:text-foreground hover:underline">
-          I already know this
-        </button>
+        <>
+          {/* V10: gắn sao chữ ngay trong lúc học (cần StarredKanjiProvider ở trang) */}
+          <KanjiStarButton kanjiId={kanjiId} className="size-8" />
+          <button type="button" onClick={mark} title="Remove this Kanji from your list (K)" className="text-muted-foreground underline-offset-2 hover:text-foreground hover:underline">
+            I already know this
+          </button>
+        </>
       )}
     </div>
   )

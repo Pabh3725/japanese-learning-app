@@ -1,105 +1,117 @@
 'use client'
 
-import { useMemo, useState, useTransition } from 'react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useMemo, useState } from 'react'
+import { Check, Search } from 'lucide-react'
+import { markWordsKnownAction, markWordsLearnedAction, undoWordsLearnedAction, unmarkWordsKnownAction } from '@/app/learn/actions'
+import { setKanjiKnownAction } from '@/app/learn/kanji/actions'
+import { actionButton } from '@/components/action-button'
+import { KanjiStarButton, useStarredKanji } from '@/components/kanji/kanji-star-button'
 import { StarButton, useStarredWords } from '@/components/learning/star-button'
 import { GrammarLibrary, type LibraryGrammarItem } from '@/components/library/grammar-library'
-import { KanjiKnownToggle } from '@/components/library/kanji-known-toggle'
-import { Check, Search } from 'lucide-react'
-import { markWordsKnownAction, markWordsLearnedAction, unmarkWordsKnownAction } from '@/app/learn/actions'
-import { actionButton } from '@/components/action-button'
+import { KnownTick, LibraryCard } from '@/components/library/library-card'
+import { Select, UndoBar, UnitActions, useSave } from '@/components/library/library-controls'
 import { matchesKanji, matchesVocab } from '@/lib/library/search'
-import type { KanjiListItem, VocabListItem, VocabProgress } from '@/lib/library/types'
+import { STATUS_LABELS, unitLabel, type LibraryStatus } from '@/lib/library/status'
+import type { KanjiListItem, VocabListItem } from '@/lib/library/types'
 import { cn } from '@/lib/utils'
 
 type Tab = 'vocab' | 'kanji' | 'grammar'
 
-/** Hiển thị từng đợt để trang nhẹ trên điện thoại (912 từ). */
+/** Hiển thị từng đợt để trang nhẹ trên điện thoại. */
 const PAGE_SIZE = 60
 
-/** Nhánh Từ vựng Kana có 3 Stage; nhánh Từ vựng Kanji xem ở trang chi tiết từ. */
-const VOCAB_STAGE_COUNT = 3
+const UNDO_LEARNED_CONFIRM = 'Undo "Mark as learned"? Their progress goes back to how it was before. Review cards created by marking, and their review history, are removed.'
 
-function progressStage(p: VocabProgress): number {
-  if (p.kind === 'complete') return VOCAB_STAGE_COUNT
-  if (p.kind === 'learning') return p.stage
-  return 0
-}
+type StatusFilter = 'all' | LibraryStatus | 'starred' | 'known' | 'marked'
 
-function progressLabel(p: VocabProgress): string {
-  if (p.kind === 'complete') return 'Learned'
-  if (p.kind === 'learning') return `Stage ${p.stage}`
-  return 'Not started'
-}
-
-const STATUS_FILTERS = [
+const VOCAB_FILTERS: { id: StatusFilter; label: string }[] = [
   { id: 'all', label: 'All' },
   { id: 'not_started', label: 'Not started' },
   { id: 'learning', label: 'Learning' },
-  { id: 'complete', label: 'Learned' },
+  { id: 'reviewing', label: 'Reviewing' },
+  { id: 'learned', label: 'Learned' },
   { id: 'starred', label: 'Starred' },
   { id: 'known', label: 'Already known' },
-] as const
-type StatusFilter = (typeof STATUS_FILTERS)[number]['id']
+  { id: 'marked', label: 'Marked as learned' },
+]
 
-function matchesStatus(v: VocabListItem, status: StatusFilter, starred: ReadonlySet<string>): boolean {
-  if (status === 'all') return true
-  if (status === 'starred') return starred.has(v.id)
-  if (status === 'known') return v.known === true
-  return v.known !== true && v.progress.kind === status
-}
+const KANJI_FILTERS = VOCAB_FILTERS.filter((f) => f.id !== 'marked')
 
-function StageDots({ progress }: { progress: VocabProgress }) {
-  const filled = progressStage(progress)
-  const label = progressLabel(progress)
+function Chips<T extends string>({ options, value, onChange, label }: { options: { id: T; label: string }[]; value: T; onChange: (v: T) => void; label: string }) {
   return (
-    <span className="flex items-center gap-2">
-      <span className="text-xs text-muted-foreground">{label}</span>
-      <span className="flex gap-1" role="img" aria-label={`${label}, ${filled} of ${VOCAB_STAGE_COUNT} stages`}>
-        {Array.from({ length: VOCAB_STAGE_COUNT }, (_, i) => (
-          <span
-            key={i}
-            className={cn(
-              'size-1.5 rounded-full',
-              i < filled ? (progress.kind === 'complete' ? 'bg-success' : 'bg-primary') : 'bg-[#2e3440]',
-            )}
-          />
-        ))}
-      </span>
-    </span>
+    <div role="group" aria-label={label} className="flex flex-wrap gap-2">
+      {options.map((o) => (
+        <button
+          key={o.id}
+          type="button"
+          aria-pressed={value === o.id}
+          onClick={() => onChange(o.id)}
+          className={cn('h-9 rounded-full border px-3.5 text-sm transition-colors', value === o.id ? 'border-primary bg-primary/12 text-primary' : 'border-border text-subtle hover:border-[#3b4250]')}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
   )
 }
 
-export function LibraryBrowser({ vocabulary, kanji, grammar = [], initialTab = 'vocab' }: { vocabulary: VocabListItem[]; kanji: KanjiListItem[]; grammar?: LibraryGrammarItem[]; initialTab?: Tab }) {
-  const [tab, setTab] = useState<Tab>(initialTab)
-  const [query, setQuery] = useState('')
-  const [visible, setVisible] = useState(PAGE_SIZE)
-  const [status, setStatus] = useState<StatusFilter>('all')
+function ShowMore({ total, visible, onMore }: { total: number; visible: number; onMore: () => void }) {
+  if (total <= visible) return null
+  return (
+    <div className="mt-6 flex justify-center">
+      <button type="button" onClick={onMore} className="h-11 rounded-xl border border-border bg-secondary px-5 text-sm font-medium hover:bg-[#252a35]">
+        Show more ({total - visible} left)
+      </button>
+    </div>
+  )
+}
+
+function EmptyState({ query }: { query: string }) {
+  return (
+    <div className="rounded-3xl border border-dashed border-border p-10 text-center">
+      <p className="font-medium">{query ? <>No results for &ldquo;{query}&rdquo;</> : 'Nothing here yet'}</p>
+      <p className="mt-1 text-sm text-muted-foreground">Try a reading, a meaning without accents, or a Sino-Vietnamese word.</p>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Từ vựng
+// ---------------------------------------------------------------------------
+
+function matchesStatus(item: { id: string; status: LibraryStatus; known?: boolean; marked?: boolean }, status: StatusFilter, starred: ReadonlySet<string>): boolean {
+  if (status === 'all') return true
+  if (status === 'starred') return starred.has(item.id)
+  if (status === 'known') return item.known === true
+  if (status === 'marked') return item.marked === true
+  return item.known !== true && item.status === status
+}
+
+function VocabTab({ vocabulary, query }: { vocabulary: VocabListItem[]; query: string }) {
   const starred = useStarredWords()
-  const [lesson, setLesson] = useState<number | 'all'>('all')
-  const [level, setLevel] = useState<string>('all')
-  const levels = useMemo(() => [...new Set(vocabulary.map((v) => v.jlpt))].sort().reverse(), [vocabulary])
-  const lessons = useMemo(() => [...new Set(vocabulary.filter((v) => level === 'all' || v.jlpt === level).flatMap((v) => (v.lesson === null ? [] : [v.lesson])))].sort((a, b) => a - b), [vocabulary, level])
+  const [status, setStatus] = useState<StatusFilter>('all')
+  const [level, setLevel] = useState('all')
+  const [unit, setUnit] = useState('all')
+  const [visible, setVisible] = useState(PAGE_SIZE)
   const [selecting, setSelecting] = useState(false)
   const [selected, setSelected] = useState<ReadonlySet<string>>(() => new Set())
-  const [error, setError] = useState<string | null>(null)
-  const [saving, startSaving] = useTransition()
-  const router = useRouter()
+  const save = useSave()
 
-  const vocabResults = useMemo(() => vocabulary.filter((v) => matchesVocab(v, query) && matchesStatus(v, status, starred) && (level === 'all' || v.jlpt === level) && (lesson === 'all' || v.lesson === lesson)), [vocabulary, query, status, level, lesson, starred])
-  const shown = vocabResults.slice(0, visible)
+  const levels = useMemo(() => [...new Set(vocabulary.map((v) => v.jlpt))].sort().reverse(), [vocabulary])
+  const units = useMemo(() => [...new Set(vocabulary.filter((v) => level === 'all' || v.jlpt === level).flatMap((v) => (v.lesson === null ? [] : [v.lesson])))].sort((a, b) => a - b), [vocabulary, level])
+  const inUnit = useMemo(() => vocabulary.filter((v) => (level === 'all' || v.jlpt === level) && (unit === 'all' || v.lesson === Number(unit))), [vocabulary, level, unit])
+  const results = useMemo(() => inUnit.filter((v) => matchesVocab(v, query) && matchesStatus(v, status, starred)), [inUnit, query, status, starred])
+  const shown = results.slice(0, visible)
   const allShownSelected = shown.length > 0 && shown.every((v) => selected.has(v.id))
 
-  function toggleWord(id: string) {
+  const reset = () => setVisible(PAGE_SIZE)
+  const toggleWord = (id: string) =>
     setSelected((current) => {
       const next = new Set(current)
       if (!next.delete(id)) next.add(id)
       return next
     })
-  }
-
-  function toggleAllShown() {
+  const toggleAllShown = () =>
     setSelected((current) => {
       const next = new Set(current)
       for (const v of shown) {
@@ -108,39 +120,198 @@ export function LibraryBrowser({ vocabulary, kanji, grammar = [], initialTab = '
       }
       return next
     })
+
+  const words = (n: number) => `${n} ${n === 1 ? 'word' : 'words'}`
+  const markLearned = (ids: string[]) =>
+    save.run(() => markWordsLearnedAction(ids), { message: `${words(ids.length)} marked as learned.`, undo: () => undoWordsLearnedAction(ids), confirm: UNDO_LEARNED_CONFIRM })
+  // Chỉ đánh dấu (và hoàn tác) những từ chưa đánh dấu từ trước, để Undo không đưa nhầm từ cũ trở lại
+  const markKnown = (all: string[]) => {
+    const known = new Set(vocabulary.filter((v) => v.known).map((v) => v.id))
+    const ids = all.filter((id) => !known.has(id))
+    save.run(() => markWordsKnownAction(ids), { message: `${words(ids.length)} marked as already known.`, undo: () => unmarkWordsKnownAction(ids) })
+  }
+  const finishSelection = (action: () => void) => {
+    action()
+    setSelected(new Set())
+    setSelecting(false)
   }
 
-  function saveSelection(save: (ids: string[]) => Promise<{ status: string }>) {
-    setError(null)
-    startSaving(async () => {
-      try {
-        const res = await save([...selected])
-        if (res.status !== 'saved') throw new Error(res.status)
-        setSelected(new Set())
-        setSelecting(false)
-        router.refresh()
-      } catch {
-        setError("Couldn't save. Check your connection and try again.")
-      }
-    })
-  }
+  return (
+    <>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <Chips label="Filter by status" options={VOCAB_FILTERS} value={status} onChange={(v) => { setStatus(v); reset() }} />
+        <div className="flex flex-wrap items-center gap-3">
+          <Select label="Level" value={level} onChange={(v) => { setLevel(v); setUnit('all'); reset() }} options={[{ value: 'all', label: 'All' }, ...levels.map((l) => ({ value: l, label: l }))]} />
+          <Select label="Unit" value={unit} onChange={(v) => { setUnit(v); reset() }} options={[{ value: 'all', label: 'All' }, ...units.map((n) => ({ value: String(n), label: `U${n}` }))]} />
+          <button type="button" onClick={() => { setSelecting((on) => !on); setSelected(new Set()) }} className="text-sm font-medium text-primary">
+            {selecting ? 'Cancel' : 'Select words'}
+          </button>
+        </div>
+      </div>
 
-  function changeStatus(value: StatusFilter) {
-    setStatus(value)
-    setVisible(PAGE_SIZE)
-  }
-  const kanjiResults = useMemo(() => kanji.filter((k) => matchesKanji(k, query)), [kanji, query])
-  const total = tab === 'vocab' ? vocabResults.length : tab === 'kanji' ? kanjiResults.length : 0
+      {unit !== 'all' && !selecting && (
+        <UnitActions
+          unit={unitLabel(level === 'all' ? null : level, Number(unit))}
+          count={inUnit.length}
+          saving={save.saving}
+          onLearned={() => markLearned(inUnit.map((v) => v.id))}
+          onKnown={() => markKnown(inUnit.map((v) => v.id))}
+        />
+      )}
 
-  function changeQuery(value: string) {
-    setQuery(value)
-    setVisible(PAGE_SIZE)
-  }
+      {selecting && (
+        <div className="sticky top-2 z-20 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/40 bg-card p-3 shadow-lg">
+          <div className="flex items-center gap-3 text-sm">
+            <span className="font-medium tabular-nums">{selected.size} selected</span>
+            <button type="button" onClick={toggleAllShown} className="text-primary">{allShownSelected ? 'Clear shown' : `Select ${shown.length} shown`}</button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {status === 'known' ? (
+              <button type="button" disabled={selected.size === 0 || save.saving} onClick={() => finishSelection(() => save.run(() => unmarkWordsKnownAction([...selected])))} className={actionButton({ size: 'sm' })}>
+                Put back on my path
+              </button>
+            ) : status === 'marked' ? (
+              <button
+                type="button"
+                disabled={selected.size === 0 || save.saving}
+                onClick={() => {
+                  if (window.confirm(UNDO_LEARNED_CONFIRM)) finishSelection(() => save.run(() => undoWordsLearnedAction([...selected])))
+                }}
+                className={actionButton({ size: 'sm' })}
+              >
+                Undo mark
+              </button>
+            ) : (
+              <>
+                <button type="button" disabled={selected.size === 0 || save.saving} onClick={() => finishSelection(() => markLearned([...selected]))} className={actionButton({ size: 'sm' })}>
+                  Mark as learned (It still can be reviewed)
+                </button>
+                <button type="button" disabled={selected.size === 0 || save.saving} onClick={() => finishSelection(() => markKnown([...selected]))} className={actionButton({ size: 'sm', variant: 'secondary' })}>
+                  I already know these (Not review)
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
-  function changeTab(value: Tab) {
-    setTab(value)
-    setVisible(PAGE_SIZE)
-  }
+      {save.error && <p role="alert" className="mt-3 text-sm text-error">{save.error}</p>}
+
+      <div className="mt-6" role="tabpanel">
+        {results.length ? (
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {shown.map((v) => (
+              <LibraryCard
+                key={v.id}
+                title={v.expression}
+                href={`/library/${v.code}`}
+                reading={v.reading !== v.expression ? v.reading : null}
+                hanViet={v.hanViet}
+                meaning={v.meaning}
+                unit={unitLabel(v.jlpt, v.lesson)}
+                status={v.known ? 'Already known' : STATUS_LABELS[v.status]}
+                selected={selecting && selected.has(v.id)}
+                actions={
+                  <>
+                    <StarButton vocabularyId={v.id} />
+                    <KnownTick
+                      on={v.known === true}
+                      disabled={save.saving}
+                      label="I already know this word"
+                      onToggle={() => save.run(() => (v.known ? unmarkWordsKnownAction([v.id]) : markWordsKnownAction([v.id])))}
+                    />
+                  </>
+                }
+                overlay={
+                  selecting && (
+                    <button type="button" role="checkbox" aria-checked={selected.has(v.id)} aria-label={`Select ${v.expression}`} onClick={() => toggleWord(v.id)} className="absolute inset-0 z-10 rounded-2xl">
+                      <span className={cn('absolute right-3 bottom-3 flex size-6 items-center justify-center rounded-md border-2', selected.has(v.id) ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card')}>
+                        {selected.has(v.id) && <Check className="size-4" aria-hidden="true" />}
+                      </span>
+                    </button>
+                  )
+                }
+              />
+            ))}
+          </ul>
+        ) : (
+          <EmptyState query={query} />
+        )}
+        <ShowMore total={results.length} visible={visible} onMore={() => setVisible((n) => n + PAGE_SIZE)} />
+      </div>
+      <UndoBar notice={save.notice} onUndo={save.undo} onDismiss={save.dismiss} saving={save.saving} />
+    </>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Kanji: chia theo cấp
+// ---------------------------------------------------------------------------
+
+function KanjiTab({ kanji, query }: { kanji: KanjiListItem[]; query: string }) {
+  const starred = useStarredKanji()
+  const [status, setStatus] = useState<StatusFilter>('all')
+  const [level, setLevel] = useState('all')
+  const [visible, setVisible] = useState(PAGE_SIZE)
+  const save = useSave()
+  const levelOf = (k: KanjiListItem) => k.jlpt ?? 'Other'
+  const levels = useMemo(() => [...new Set(kanji.map(levelOf))], [kanji])
+  const results = useMemo(() => kanji.filter((k) => matchesKanji(k, query) && (level === 'all' || levelOf(k) === level) && matchesStatus(k, status, starred)), [kanji, query, level, status, starred])
+  const shown = results.slice(0, visible)
+  // Nhóm theo cấp, giữ thứ tự cấp của dữ liệu (N5 trước)
+  const groups = levels.map((l) => ({ level: l, items: shown.filter((k) => levelOf(k) === l), total: results.filter((k) => levelOf(k) === l).length })).filter((g) => g.items.length > 0)
+
+  return (
+    <>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <Chips label="Filter by status" options={KANJI_FILTERS} value={status} onChange={(v) => { setStatus(v); setVisible(PAGE_SIZE) }} />
+        <Select label="Level" value={level} onChange={(v) => { setLevel(v); setVisible(PAGE_SIZE) }} options={[{ value: 'all', label: 'All' }, ...levels.map((l) => ({ value: l, label: l }))]} />
+      </div>
+      {save.error && <p role="alert" className="mt-3 text-sm text-error">{save.error}</p>}
+      <div className="mt-6 flex flex-col gap-8" role="tabpanel">
+        {groups.length ? (
+          groups.map((g) => (
+            <section key={g.level} aria-labelledby={`kanji-${g.level}`}>
+              <h2 id={`kanji-${g.level}`} className="mb-3 text-sm font-semibold text-subtle">
+                {g.level} <span className="font-normal text-muted-foreground tabular-nums">· {g.total}</span>
+              </h2>
+              <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {g.items.map((k) => (
+                  <LibraryCard
+                    key={k.id}
+                    title={k.character}
+                    titleClassName="text-4xl"
+                    href={`/library/kanji/${encodeURIComponent(k.character)}`}
+                    reading={[...k.onyomi, ...k.kunyomi].join('・') || null}
+                    hanViet={k.hanViet}
+                    meaning={k.meaning}
+                    unit={k.jlpt ?? ''}
+                    status={k.known ? 'Already known' : STATUS_LABELS[k.status]}
+                    actions={
+                      <>
+                        <KanjiStarButton kanjiId={k.id} />
+                        <KnownTick on={k.known === true} disabled={save.saving} label="I already know this Kanji" onToggle={() => save.run(() => setKanjiKnownAction(k.id, !k.known))} />
+                      </>
+                    }
+                  />
+                ))}
+              </ul>
+            </section>
+          ))
+        ) : (
+          <EmptyState query={query} />
+        )}
+        <ShowMore total={results.length} visible={visible} onMore={() => setVisible((n) => n + PAGE_SIZE)} />
+      </div>
+    </>
+  )
+}
+
+// ---------------------------------------------------------------------------
+
+export function LibraryBrowser({ vocabulary, kanji, grammar = [], initialTab = 'vocab' }: { vocabulary: VocabListItem[]; kanji: KanjiListItem[]; grammar?: LibraryGrammarItem[]; initialTab?: Tab }) {
+  const [tab, setTab] = useState<Tab>(initialTab)
+  const [query, setQuery] = useState('')
 
   return (
     <div>
@@ -152,11 +323,8 @@ export function LibraryBrowser({ vocabulary, kanji, grammar = [], initialTab = '
               type="button"
               role="tab"
               aria-selected={tab === t}
-              onClick={() => changeTab(t)}
-              className={cn(
-                'h-10 flex-1 rounded-xl px-5 text-sm font-medium transition-colors sm:flex-none',
-                tab === t ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-subtle',
-              )}
+              onClick={() => setTab(t)}
+              className={cn('h-10 flex-1 rounded-xl px-5 text-sm font-medium transition-colors sm:flex-none', tab === t ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-subtle')}
             >
               {t === 'vocab' ? `Vocabulary (${vocabulary.length})` : t === 'kanji' ? `Kanji (${kanji.length})` : `Grammar (${grammar.length})`}
             </button>
@@ -168,187 +336,16 @@ export function LibraryBrowser({ vocabulary, kanji, grammar = [], initialTab = '
           <input
             type="search"
             value={query}
-            onChange={(e) => changeQuery(e.target.value)}
+            onChange={(e) => setQuery(e.target.value)}
             placeholder={tab === 'grammar' ? 'Search by pattern or meaning' : 'Search by word, reading, meaning or Hán Việt'}
             className="h-13 w-full rounded-2xl border border-border bg-card pr-4 pl-11 text-sm outline-none placeholder:text-muted-foreground focus:border-cyan"
           />
         </label>
       </div>
 
-      {tab === 'vocab' && (
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-          <div role="group" aria-label="Filter by status" className="flex flex-wrap gap-2">
-            {STATUS_FILTERS.map((filter) => (
-              <button
-                key={filter.id}
-                type="button"
-                aria-pressed={status === filter.id}
-                onClick={() => changeStatus(filter.id)}
-                className={cn(
-                  'h-9 rounded-full border px-3.5 text-sm transition-colors',
-                  status === filter.id ? 'border-primary bg-primary/12 text-primary' : 'border-border text-subtle hover:border-[#3b4250]',
-                )}
-              >
-                {filter.label}
-              </button>
-            ))}
-          </div>
-          <label className="flex items-center gap-2 text-sm text-subtle">
-            Level
-            <select
-              value={level}
-              onChange={(e) => {
-                setLevel(e.target.value)
-                setLesson('all')
-                setVisible(PAGE_SIZE)
-              }}
-              className="h-9 rounded-xl border border-border bg-card px-2 text-sm text-foreground"
-            >
-              <option value="all">All</option>
-              {levels.map((l) => <option key={l} value={l}>{l}</option>)}
-            </select>
-          </label>
-          <label className="flex items-center gap-2 text-sm text-subtle">
-            Lesson
-            <select
-              value={lesson}
-              onChange={(e) => {
-                setLesson(e.target.value === 'all' ? 'all' : Number(e.target.value))
-                setVisible(PAGE_SIZE)
-              }}
-              className="h-9 rounded-xl border border-border bg-card px-2 text-sm text-foreground"
-            >
-              <option value="all">All</option>
-              {lessons.map((n) => <option key={n} value={n}>{n}</option>)}
-            </select>
-          </label>
-          <button type="button" onClick={() => { setSelecting((on) => !on); setSelected(new Set()) }} className="text-sm font-medium text-primary">
-            {selecting ? 'Cancel' : 'Select words'}
-          </button>
-        </div>
-      )}
-
-      {tab === 'vocab' && selecting && (
-        <div className="sticky top-2 z-20 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/40 bg-card p-3 shadow-lg">
-          <div className="flex items-center gap-3 text-sm">
-            <span className="font-medium tabular-nums">{selected.size} selected</span>
-            <button type="button" onClick={toggleAllShown} className="text-primary">{allShownSelected ? 'Clear shown' : `Select ${shown.length} shown`}</button>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {status === 'known' ? (
-              <button type="button" disabled={selected.size === 0 || saving} onClick={() => saveSelection(unmarkWordsKnownAction)} className={actionButton({ size: 'sm' })}>
-                Put back on my path
-              </button>
-            ) : (
-              <>
-                <button type="button" disabled={selected.size === 0 || saving} onClick={() => saveSelection(markWordsLearnedAction)} className={actionButton({ size: 'sm' })}>
-                  Mark as learned
-                </button>
-                <button type="button" disabled={selected.size === 0 || saving} onClick={() => saveSelection(markWordsKnownAction)} className={actionButton({ size: 'sm', variant: 'secondary' })}>
-                  I already know these
-                </button>
-              </>
-            )}
-          </div>
-          {error && <p role="alert" className="w-full text-sm text-error">{error}</p>}
-          <p className="w-full text-xs text-muted-foreground">
-            {status === 'known' ? 'These words return to your path with their progress.' : 'Mark as learned: the words leave Learn and get review cards, starting tomorrow. I already know these: the words leave your path with no review; you can put them back here.'}
-          </p>
-        </div>
-      )}
-
+      {tab === 'vocab' && <VocabTab vocabulary={vocabulary} query={query} />}
+      {tab === 'kanji' && <KanjiTab kanji={kanji} query={query} />}
       {tab === 'grammar' && <GrammarLibrary items={grammar} query={query} />}
-
-      <div className={cn('mt-6', tab === 'grammar' && 'hidden')} role="tabpanel">
-        {tab === 'vocab' ? (
-          vocabResults.length ? (
-            <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {shown.map((v) => (
-                <li
-                  key={v.id}
-                  className={cn('relative flex flex-col gap-3 rounded-2xl border bg-card p-5', selecting && selected.has(v.id) ? 'border-primary' : 'border-border')}
-                >
-                  {selecting && (
-                    <button
-                      type="button"
-                      role="checkbox"
-                      aria-checked={selected.has(v.id)}
-                      aria-label={`Select ${v.expression}`}
-                      onClick={() => toggleWord(v.id)}
-                      className="absolute inset-0 z-10 rounded-2xl"
-                    >
-                      <span className={cn('absolute right-3 bottom-3 flex size-6 items-center justify-center rounded-md border-2', selected.has(v.id) ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card')}>
-                        {selected.has(v.id) && <Check className="size-4" aria-hidden="true" />}
-                      </span>
-                    </button>
-                  )}
-                  <div className="flex items-start justify-between gap-2">
-                    <Link href={`/library/${v.code}`} lang="ja" className="font-jp text-3xl font-medium hover:text-primary">{v.expression}</Link>
-                    <span className="flex items-center gap-1">
-                      <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground tabular-nums">
-                        {v.jlpt} · {v.lesson === null ? `#${v.sortOrder}` : `Lesson ${v.lesson}`}
-                      </span>
-                      <StarButton vocabularyId={v.id} />
-                    </span>
-                  </div>
-                  <div>
-                    {v.reading !== v.expression && <p lang="ja" className="font-jp text-cyan">{v.reading}</p>}
-                    {v.hanViet && <p className="text-xs tracking-wider text-yellow uppercase">{v.hanViet}</p>}
-                  </div>
-                  <div className="mt-auto flex flex-wrap items-end justify-between gap-2">
-                    <p className="font-medium">{v.meaning}</p>
-                    {v.known ? <span className="text-xs font-medium text-success">Already known</span> : <StageDots progress={v.progress} />}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <EmptyState query={query} />
-          )
-        ) : kanjiResults.length ? (
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {kanjiResults.slice(0, visible).map((k) => (
-              <li key={k.id} className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-5 text-center">
-                <Link href={`/library/kanji/${encodeURIComponent(k.character)}`} lang="ja" className="font-jp text-5xl font-medium hover:text-primary">
-                  {k.character}
-                </Link>
-                <p className="mt-1 text-sm font-semibold tracking-wider text-yellow">{k.hanViet}</p>
-                <p className="text-sm text-subtle">{k.meaning}</p>
-                {(k.onyomi.length > 0 || k.kunyomi.length > 0) && (
-                  <p lang="ja" className="font-jp text-xs text-muted-foreground">
-                    {[...k.onyomi, ...k.kunyomi].join('・')}
-                  </p>
-                )}
-                {k.strokes !== null && <p className="text-xs text-muted-foreground">{k.strokes} strokes</p>}
-                <KanjiKnownToggle kanjiId={k.id} known={k.known === true} />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <EmptyState query={query} />
-        )}
-
-        {total > visible && (
-          <div className="mt-6 flex justify-center">
-            <button
-              type="button"
-              onClick={() => setVisible((n) => n + PAGE_SIZE)}
-              className="h-11 rounded-xl border border-border bg-secondary px-5 text-sm font-medium hover:bg-[#252a35]"
-            >
-              Show more ({total - visible} left)
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function EmptyState({ query }: { query: string }) {
-  return (
-    <div className="rounded-3xl border border-dashed border-border p-10 text-center">
-      <p className="font-medium">{query ? <>No results for &ldquo;{query}&rdquo;</> : 'No words here yet'}</p>
-      <p className="mt-1 text-sm text-muted-foreground">Try a reading, a meaning without accents, or a Sino-Vietnamese word.</p>
     </div>
   )
 }

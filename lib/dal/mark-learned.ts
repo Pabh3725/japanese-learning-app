@@ -53,6 +53,19 @@ export async function markWordsLearned(input: unknown): Promise<{ status: 'saved
   return { status: 'saved', marked: (data as { marked: number }).marked }
 }
 
+/** V10: hoàn tác "Mark as learned" của các từ (lần đánh dấu gần nhất của mỗi từ). */
+export async function undoWordsLearned(input: unknown): Promise<{ status: 'saved' | 'invalid'; undone?: number }> {
+  if (!Array.isArray(input) || input.length === 0 || input.length > 1000 || !input.every((x) => typeof x === 'string' && UUID.test(x))) return { status: 'invalid' }
+  await requireUser()
+  const supabase = await createClient()
+  const { data, error } = await supabase.rpc('undo_mark_words_learned', { p_vocabulary_ids: [...new Set(input as string[])] })
+  if (error) throw new Error(`undo_mark_words_learned lỗi: ${error.message}`)
+  return { status: 'saved', undone: (data as { undone: number }).undone }
+}
+
+/** Cột của learner_grammar được lưu lại trước khi đánh dấu, để hoàn tác (V10). */
+const GRAMMAR_RESTORE_COLUMNS = ['phase', 'points', 'state', 'due_at', 'stability', 'difficulty', 'scheduled_days', 'learning_steps', 'reps', 'lapses', 'last_review_at', 'completed_at', 'archived_at'] as const
+
 /** Ngữ pháp: đánh dấu học xong các mẫu đã duyệt. review = false thì lưu trữ (không có lịch ôn). */
 export async function markGrammarLearned(input: unknown): Promise<{ status: 'saved' | 'invalid'; marked?: number }> {
   const v = (input ?? {}) as { codes?: unknown; review?: unknown }
@@ -61,7 +74,7 @@ export async function markGrammarLearned(input: unknown): Promise<{ status: 'sav
   const supabase = await createClient()
   const { data: points, error } = await supabase.from('grammar_points').select('id, code, lesson, sort_order').in('code', v.codes as string[])
   if (error) throw new Error(`Không đọc được grammar_points: ${error.message}`)
-  const { data: existing, error: e2 } = await supabase.from('learner_grammar').select('id, point_id, phase, version').eq('user_id', user.id)
+  const { data: existing, error: e2 } = await supabase.from('learner_grammar').select('id, point_id, version, phase, points, state, due_at, stability, difficulty, scheduled_days, learning_steps, reps, lapses, last_review_at, completed_at, archived_at').eq('user_id', user.id)
   if (e2) throw new Error(`Không đọc được learner_grammar: ${e2.message}`)
   const byPoint = new Map((existing ?? []).map((r) => [r.point_id as string, r]))
   const now = new Date()
@@ -69,6 +82,10 @@ export async function markGrammarLearned(input: unknown): Promise<{ status: 'sav
   let marked = 0
   for (const [i, p] of sorted.entries()) {
     const cur = byPoint.get(p.id)
+    // V10: lưu trạng thái trước khi đánh dấu, để hoàn tác
+    const before = cur ? Object.fromEntries(GRAMMAR_RESTORE_COLUMNS.map((c) => [c, (cur as unknown as Record<string, unknown>)[c]])) : { new: true }
+    const { error: he } = await supabase.from('learner_mark_history').insert({ user_id: user.id, kind: 'grammar', item_id: p.id, before, marked_at: now.toISOString() })
+    if (he) throw new Error(`Không ghi được learner_mark_history: ${he.message}`)
     // Mẫu đã ở giai đoạn Ôn: chỉ đổi lưu trữ theo lựa chọn
     if (cur?.phase === 'review') {
       const { error: up } = await supabase.from('learner_grammar').update({ archived_at: v.review ? null : now.toISOString(), version: cur.version + 1 }).eq('id', cur.id).eq('user_id', user.id)
@@ -99,4 +116,17 @@ export async function markGrammarLearned(input: unknown): Promise<{ status: 'sav
     marked++
   }
   return { status: 'saved', marked }
+}
+
+/** V10: hoàn tác lần đánh dấu gần nhất của từng mẫu (đã học, hoặc đã biết không ôn): trả learner_grammar về như trước. */
+export async function undoGrammarLearned(input: unknown): Promise<{ status: 'saved' | 'invalid'; undone?: number }> {
+  const v = (input ?? {}) as { codes?: unknown }
+  if (!Array.isArray(v.codes) || v.codes.length === 0 || v.codes.length > 300 || !v.codes.every((c) => typeof c === 'string' && /^g\d{2}-\d{2}$/.test(c))) return { status: 'invalid' }
+  await requireUser()
+  const supabase = await createClient()
+  const { data: points, error } = await supabase.from('grammar_points').select('id').in('code', v.codes as string[])
+  if (error) throw new Error(`Không đọc được grammar_points: ${error.message}`)
+  const { data, error: re } = await supabase.rpc('undo_mark_grammar_learned', { p_point_ids: (points ?? []).map((p) => p.id) })
+  if (re) throw new Error(`undo_mark_grammar_learned lỗi: ${re.message}`)
+  return { status: 'saved', undone: (data as { undone: number }).undone }
 }

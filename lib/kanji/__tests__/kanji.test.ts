@@ -161,7 +161,7 @@ describe('Ôn dài hạn', () => {
   })
 
   it('2 Card: mỗi Card luân phiên 2 dạng của nó, không lặp dạng lần trước, tối đa 90 ngày', () => {
-    expect(KANJI_CARD_EXERCISES).toEqual({ 'kanji.meaning': ['meaning_self', 'pick_kanji'], 'kanji.hanviet': ['hanviet_typing', 'hanviet_to_kanji'] })
+    expect(KANJI_CARD_EXERCISES).toEqual({ 'kanji.meaning': ['meaning_self', 'pick_kanji'], 'kanji.hanviet': ['hanviet_typing', 'hanviet_to_kanji'], 'kanji.star': ['hanviet_typing', 'pick_kanji'] })
     for (let s = 1; s < 40; s++) {
       expect(chooseCardExercise('kanji.hanviet', 'hanviet_typing', seeded(s))).toBe('hanviet_to_kanji')
       expect(chooseCardExercise('kanji.meaning', 'pick_kanji', seeded(s))).toBe('meaning_self')

@@ -1,4 +1,5 @@
 // DTO cho trang Library (API-01). Chỉ chứa đúng thứ UI cần; component không biết tên bảng hay cột DB.
+import type { LibraryStatus } from './status'
 
 /** Tiến độ một từ của người đang đăng nhập. */
 export type VocabProgress =
@@ -26,6 +27,10 @@ export interface VocabListItem {
   lesson: number | null
   /** Người học đã đánh dấu là đã biết: không còn trong lộ trình. */
   known?: boolean
+  /** V10: Learning → Reviewing → Learned. */
+  status: LibraryStatus
+  /** V10: đang được đánh dấu "đã học" (hoàn tác được). */
+  marked?: boolean
 }
 
 export interface KanjiListItem {
@@ -41,10 +46,14 @@ export interface KanjiListItem {
   strokes: number | null
   /** null với các chữ bổ sung chưa xác định cấp. */
   jlpt: string | null
+  /** V10: Learning → Reviewing → Learned. */
+  status: LibraryStatus
 }
 
 export interface LibraryData {
   vocabulary: VocabListItem[]
   kanji: KanjiListItem[]
   starredIds: string[]
+  /** V10: chữ Kanji có sao. */
+  starredKanjiIds: string[]
 }

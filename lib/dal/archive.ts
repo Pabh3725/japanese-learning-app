@@ -50,7 +50,7 @@ type VocabRow = {
 
 type KanjiCardRow = {
   id: string
-  card_type: 'kanji.meaning' | 'kanji.hanviet'
+  card_type: 'kanji.meaning' | 'kanji.hanviet' | 'kanji.star'
   archived_at: string
   stability: number
   due_at: string

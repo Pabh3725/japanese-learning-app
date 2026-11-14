@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { KanjiPartsInfo } from '@/components/kanji/kanji-parts'
+import { KanjiStarButton, StarredKanjiProvider } from '@/components/kanji/kanji-star-button'
 import { KanjiStrokes } from '@/components/kanji/kanji-strokes'
 import { KanjiKnownToggle } from '@/components/library/kanji-known-toggle'
 import { getKanjiDetail } from '@/lib/dal/kanji'
@@ -39,13 +40,16 @@ export default async function KanjiDetailPage({ params }: { params: Promise<{ ch
           <p className="text-sm font-semibold tracking-wider text-yellow">{kanji.hanViet}</p>
           <p className="text-lg font-medium">{kanji.meaning}</p>
           <p className="text-sm text-muted-foreground">
-            {[kanji.jlpt !== null ? `N${kanji.jlpt}` : null, kanji.strokeCount !== null ? `${kanji.strokeCount} strokes` : null].filter(Boolean).join(' · ')}
+            {kanji.jlpt !== null ? `N${kanji.jlpt}` : ''}
           </p>
           <dl className="flex flex-col gap-2 border-t border-border pt-3">
             <Readings label="On reading" readings={kanji.onyomi} />
             <Readings label="Kun reading" readings={kanji.kunyomi} />
           </dl>
-          <div>
+          <div className="flex items-center gap-3">
+            <StarredKanjiProvider ids={kanji.starred ? [kanji.id] : []}>
+              <KanjiStarButton kanjiId={kanji.id} />
+            </StarredKanjiProvider>
             <KanjiKnownToggle kanjiId={kanji.id} known={kanji.known} />
           </div>
         </div>
