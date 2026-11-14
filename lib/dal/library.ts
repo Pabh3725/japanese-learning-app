@@ -7,6 +7,8 @@ import { readKnownKanjiIds } from '@/lib/dal/kanji'
 import { readStarredIds } from '@/lib/dal/star-relearn'
 import { toKanjiList, toVocabList } from '@/lib/library/mappers'
 import type { LibraryData } from '@/lib/library/types'
+import { readAllPages } from '@/lib/dal/pages'
+import { readKnownWordIds } from '@/lib/dal/known-words'
 
 const VOCAB_COLUMNS = 'id, code, sort_order, expression, reading_kana, meaning_vi, han_viet, is_kana_only, jlpt_level, lesson'
 const PROGRESS_COLUMNS = 'vocabulary_id, current_stage, learning_status'
@@ -39,32 +41,26 @@ export async function getLibraryData(): Promise<LibraryData> {
   const [vocab, progress, kanji, known, starredIds, knownKanji] = await Promise.all([
     readAllVocabulary(supabase),
     // RLS đã chỉ trả dòng của chính user; lọc thêm user_id cho rõ ý và để query dùng index.
-    supabase.from('learner_vocabulary').select(PROGRESS_COLUMNS).eq('user_id', user.id).range(0, MAX_ROWS - 1),
-    supabase
-      .from('kanji')
-      .select(KANJI_COLUMNS)
-      .order('jlpt_level', { ascending: false, nullsFirst: false })
-      .order('character', { ascending: true })
-      .range(0, MAX_ROWS - 1),
-    supabase.from('learner_vocabulary_exclusions').select('vocabulary_id').eq('user_id', user.id).not('excluded_at', 'is', null).range(0, MAX_ROWS - 1),
+    readAllPages('learner_vocabulary', (from, to) => supabase.from('learner_vocabulary').select(PROGRESS_COLUMNS).eq('user_id', user.id).order('id').range(from, to)),
+    readAllPages('kanji', (from, to) =>
+      supabase
+        .from('kanji')
+        .select(KANJI_COLUMNS)
+        .order('jlpt_level', { ascending: false, nullsFirst: false })
+        .order('character', { ascending: true })
+        .range(from, to),
+    ),
+    readKnownWordIds(supabase, user.id),
     readStarredIds(supabase, user.id),
     readKnownKanjiIds(supabase, user.id),
   ])
 
-  if (progress.error) throw new Error(`Không đọc được learner_vocabulary: ${progress.error.message}`)
-  if (kanji.error) throw new Error(`Không đọc được kanji: ${kanji.error.message}`)
-  if (known.error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${known.error.message}`)
-
-  const vocabulary = toVocabList(vocab, progress.data ?? [])
-  const kanjiList = toKanjiList(kanji.data ?? [])
+  const vocabulary = toVocabList(vocab, progress)
+  const kanjiList = toKanjiList(kanji)
 
   if (vocabulary.invalid || kanjiList.invalid) {
     console.warn(`[library] Bỏ qua dòng sai dạng: ${vocabulary.invalid} từ, ${kanjiList.invalid} Kanji`)
   }
-  if ((kanji.data?.length ?? 0) >= MAX_ROWS) {
-    console.warn('[library] Có thể đã chạm giới hạn 1000 dòng — cần phân trang')
-  }
 
-  const knownIds = new Set(known.data?.map((r) => r.vocabulary_id))
-  return { starredIds, vocabulary: vocabulary.items.map((item) => ({ ...item, known: knownIds.has(item.id) })), kanji: kanjiList.items.map((item) => ({ ...item, known: knownKanji.has(item.id) })) }
+  return { starredIds, vocabulary: vocabulary.items.map((item) => ({ ...item, known: known.has(item.id) })), kanji: kanjiList.items.map((item) => ({ ...item, known: knownKanji.has(item.id) })) }
 }

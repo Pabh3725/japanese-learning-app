@@ -3,6 +3,7 @@ import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { RULES_V9 } from '@/lib/learning/rules'
 import { addStudyDays, studyDate } from '@/lib/learning/time'
+import { readKnownWordIds } from '@/lib/dal/known-words'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 
@@ -78,14 +79,7 @@ async function todayPlan(supabase: Supabase, userId: string, today: string) {
   if (error) throw new Error(`Không đọc được learner_daily_plans: ${error.message}`)
   if (data) return data
 
-  const { data: excluded, error: excludedError } = await supabase
-    .from('learner_vocabulary_exclusions')
-    .select('vocabulary_id')
-    .eq('user_id', userId)
-    .not('excluded_at', 'is', null)
-    .range(0, PAGE - 1)
-  if (excludedError) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${excludedError.message}`)
-  const excludedIds = new Set(excluded?.map((r) => r.vocabulary_id))
+  const excludedIds = await readKnownWordIds(supabase, userId)
   const [vocabCardsDue, kanjiCardsDue, stageSnapshot] = await Promise.all([
     countDue(supabase, 'review_cards', userId, excludedIds),
     countKanjiCardsDue(supabase, userId),

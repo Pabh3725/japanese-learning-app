@@ -38,6 +38,7 @@ import { RULES_V9 } from '@/lib/learning/rules'
 import { nextStudyDayStart, studyDate } from '@/lib/learning/time'
 import type { Outcome } from '@/lib/learning/types'
 import type { Schedule, ScheduleState } from '@/lib/srs/scheduler'
+import { readAllPages } from '@/lib/dal/pages'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 
@@ -155,9 +156,8 @@ async function readCards(supabase: Supabase, userId: string, learners: readonly 
 }
 
 async function readAllKanji(supabase: Supabase): Promise<KanjiRow[]> {
-  const { data, error } = await supabase.from('kanji').select(KANJI_COLUMNS).order('study_order').range(0, PAGE - 1)
-  if (error) throw new Error(`Không đọc được kanji: ${error.message}`)
-  return (data ?? []) as KanjiRow[]
+  // Kanji hiện dưới 1000 chữ; vẫn đọc từng trang để thêm chữ không bị cắt
+  return (await readAllPages('kanji', (from, to) => supabase.from('kanji').select(KANJI_COLUMNS).order('study_order').order('id').range(from, to))) as KanjiRow[]
 }
 
 /**
@@ -301,13 +301,14 @@ async function readLinkedWords(supabase: Supabase, userId: string, kanjiIds: rea
       .select('kanji_id, vocabularies!inner(id, expression, reading_kana, meaning_vi, sort_order)')
       .in('kanji_id', [...kanjiIds])
       .range(0, PAGE - 1),
-    supabase.from('learner_vocabulary').select('vocabulary_id, kanji_intro_seen_at, vocabularies!inner(meaning_vi)').eq('user_id', userId).range(0, PAGE - 1),
+    readAllPages('learner_vocabulary', (from, to) =>
+      supabase.from('learner_vocabulary').select('vocabulary_id, kanji_intro_seen_at, vocabularies!inner(meaning_vi)').eq('user_id', userId).order('id').range(from, to),
+    ),
   ])
   if (links.error) throw new Error(`Không đọc được vocabulary_kanji: ${links.error.message}`)
-  if (met.error) throw new Error(`Không đọc được learner_vocabulary: ${met.error.message}`)
   return {
     links: (links.data ?? []) as unknown as WordRow[],
-    met: (met.data ?? []) as unknown as { vocabulary_id: string; kanji_intro_seen_at: string | null; vocabularies: { meaning_vi: string } }[],
+    met: met as unknown as { vocabulary_id: string; kanji_intro_seen_at: string | null; vocabularies: { meaning_vi: string } }[],
   }
 }
 
@@ -840,12 +841,14 @@ let partsCache: { at: number; value: { kanjiId: string; character: string; parts
 /** Thành phần của mọi chữ, để lấy mảnh nhiễu cho câu ghép thành phần. */
 async function readAllPartsCached(supabase: Supabase): Promise<{ kanjiId: string; character: string; parts: KanjiPart[] }[]> {
   if (partsCache && Date.now() - partsCache.at < 10 * 60_000) return partsCache.value
-  const { data, error } = await supabase.from('kanji_visuals').select('kanji_id, parts, kanji!inner(character)').range(0, 2999)
-  if (error) {
-    console.error(`Không đọc được kanji_visuals: ${error.message}`)
+  let data: unknown[]
+  try {
+    data = await readAllPages('kanji_visuals', (from, to) => supabase.from('kanji_visuals').select('kanji_id, parts, kanji!inner(character)').order('kanji_id').range(from, to))
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error)
     return []
   }
-  const value = ((data ?? []) as unknown as { kanji_id: string; parts: KanjiPart[]; kanji: { character: string } }[]).map((r) => ({ kanjiId: r.kanji_id, character: r.kanji.character, parts: r.parts }))
+  const value = (data as unknown as { kanji_id: string; parts: KanjiPart[]; kanji: { character: string } }[]).map((r) => ({ kanjiId: r.kanji_id, character: r.kanji.character, parts: r.parts }))
   partsCache = { at: Date.now(), value }
   return value
 }

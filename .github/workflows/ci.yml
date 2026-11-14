@@ -1,0 +1,27 @@
+# Kiểm tra mỗi lần push và Pull Request: typecheck, test, validate dữ liệu seed.
+# Không cần secret: seed --check chỉ đọc file, test không chạm database (test RLS chạy riêng bằng pnpm test:rls).
+name: CI
+
+on:
+  push:
+    branches: [main, 'feature/**', 'fix/**', 'docs/**']
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Typecheck
+        run: pnpm exec tsc --noEmit -p .
+      - name: Test
+        run: pnpm test
+      - name: Validate dữ liệu seed
+        run: pnpm seed --check

@@ -7,6 +7,8 @@ import { nextLevel } from '@/lib/learn/levels'
 import { kanjiAllowed, kanjiTargetLevel, type KanjiPolicy, type WordPolicy } from '@/lib/learn/word-kanji-policy'
 import { readDailyLimits } from '@/lib/dal/daily-limits'
 import { studyDate } from '@/lib/learning/time'
+import { readAllPages } from '@/lib/dal/pages'
+import { readKnownWordIds } from '@/lib/dal/known-words'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 
@@ -63,17 +65,12 @@ async function readWords(supabase: Supabase, userId: string): Promise<WordRow[]>
   }
 }
 
-async function readExcluded(supabase: Supabase, userId: string): Promise<Set<string>> {
-  const { data, error } = await supabase.from('learner_vocabulary_exclusions').select('vocabulary_id').eq('user_id', userId).not('excluded_at', 'is', null).range(0, PAGE - 1)
-  if (error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${error.message}`)
-  return new Set(data?.map((r) => r.vocabulary_id))
-}
-
 /** Từ KANJI_OPTIONAL người học đã bấm "Học dạng Kanji". */
 export async function readKanjiOptins(supabase: Supabase, userId: string): Promise<Set<string>> {
-  const { data, error } = await supabase.from('learner_word_kanji_optins').select('vocabulary_id').eq('user_id', userId).range(0, PAGE - 1)
-  if (error) throw new Error(`Không đọc được learner_word_kanji_optins: ${error.message}`)
-  return new Set(data?.map((r) => r.vocabulary_id))
+  const rows = await readAllPages('learner_word_kanji_optins', (from, to) =>
+    supabase.from('learner_word_kanji_optins').select('vocabulary_id').eq('user_id', userId).order('vocabulary_id').range(from, to),
+  )
+  return new Set(rows.map((r) => r.vocabulary_id))
 }
 
 const policyOf = (v: { kanji_policy: KanjiPolicy | null; kanji_target_level: number | null; jlpt_level: number; is_kana_only: boolean }): WordPolicy => ({
@@ -110,7 +107,7 @@ const opened = (row: WordRow) => row.learner_stage_schedules.some((s) => s.stage
 export async function readEligibleWords(supabase: Supabase, userId: string): Promise<KanjiIntroWord[]> {
   const [rows, excluded, levels, optins] = await Promise.all([
     readWords(supabase, userId),
-    readExcluded(supabase, userId),
+    readKnownWordIds(supabase, userId),
     readSkillLevels(supabase, userId),
     readKanjiOptins(supabase, userId),
   ])
@@ -146,31 +143,35 @@ export async function getWordKanjiOverview(): Promise<WordKanjiOverview> {
   const now = new Date()
   const [rows, excluded, levels, optins, settings, answered, totals, due] = await Promise.all([
     readWords(supabase, user.id),
-    readExcluded(supabase, user.id),
+    readKnownWordIds(supabase, user.id),
     readSkillLevels(supabase, user.id),
     readKanjiOptins(supabase, user.id),
     readDailyLimits(supabase, user.id),
     supabase.from('exercise_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('study_date', studyDate(now)).eq('source', 'lesson').in('stage_number', [5, 6]),
-    supabase.from('vocabularies').select('id, jlpt_level, is_kana_only, kanji_policy, kanji_target_level').eq('is_kana_only', false).range(0, 1999),
-    supabase
-      .from('learner_stage_schedules')
-      .select('learner_vocabulary!inner(vocabulary_id)')
-      .eq('user_id', user.id)
-      .in('stage_number', [5, 6])
-      .is('completed_at', null)
-      .lte('due_at', now.toISOString())
-      .range(0, PAGE - 1),
+    // 1342 từ có Kanji: phải đọc từng trang (Data API trả tối đa 1000 dòng mỗi lần)
+    readAllPages('vocabularies', (from, to) =>
+      supabase.from('vocabularies').select('id, jlpt_level, is_kana_only, kanji_policy, kanji_target_level').eq('is_kana_only', false).order('id').range(from, to),
+    ),
+    readAllPages('learner_stage_schedules', (from, to) =>
+      supabase
+        .from('learner_stage_schedules')
+        .select('learner_vocabulary!inner(vocabulary_id)')
+        .eq('user_id', user.id)
+        .in('stage_number', [5, 6])
+        .is('completed_at', null)
+        .lte('due_at', now.toISOString())
+        .order('id')
+        .range(from, to),
+    ),
   ])
   if (answered.error) throw new Error(`Không đọc được exercise_logs: ${answered.error.message}`)
-  if (totals.error) throw new Error(`Không đọc được vocabularies: ${totals.error.message}`)
-  if (due.error) throw new Error(`Không đọc được learner_stage_schedules: ${due.error.message}`)
 
   const active = rows.filter((row) => !excluded.has(row.vocabulary_id))
   // V9: ngân sách Learn chung với Từ vựng và câu Học Kanji
   const cap = settings.stageCap
   const answeredToday = answered.count ?? 0
   const room = Math.max(0, settings.stageCap - settings.answeredToday)
-  const dueCount = ((due.data ?? []) as unknown as { learner_vocabulary: { vocabulary_id: string } }[]).filter((r) => !excluded.has(r.learner_vocabulary.vocabulary_id)).length
+  const dueCount = (due as unknown as { learner_vocabulary: { vocabulary_id: string } }[]).filter((r) => !excluded.has(r.learner_vocabulary.vocabulary_id)).length
   const level = levels.word_kanji
   const waitingRows = active.filter((row) => !opened(row) && doneStage3(row) && row.vocabularies.vocabulary_kanji.length > 0)
   const allowed = (row: WordRow) => kanjiAllowed(policyOf(row.vocabularies), level, optins.has(row.vocabulary_id))
@@ -178,7 +179,7 @@ export async function getWordKanjiOverview(): Promise<WordKanjiOverview> {
   const optional = waitingRows.filter((row) => !allowed(row) && row.vocabularies.kanji_policy === 'KANJI_OPTIONAL').length
   const waitingForLevel = waitingRows.length - eligible.length - optional
   // Từ phải học dạng Kanji: có cấp đích theo chính sách, hoặc đã bấm "Học dạng Kanji"
-  const targets = (totals.data ?? []).map((v) => ({ id: v.id, target: kanjiTargetLevel(policyOf(v)) }))
+  const targets = totals.map((v) => ({ id: v.id, target: kanjiTargetLevel(policyOf(v)) }))
   const counted = targets.filter((t) => (t.target !== null || optins.has(t.id)) && !excluded.has(t.id))
   // Học xong từ mới của cấp: mọi từ có cấp đích là cấp này đã mở
   const levelWords = targets.filter((t) => t.target === level)

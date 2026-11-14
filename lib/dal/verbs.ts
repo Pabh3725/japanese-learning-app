@@ -12,6 +12,8 @@ import { conjugate, VERB_FORMS, type VerbFormId } from '@/lib/verbs/conjugate'
 import { buildVerbQuestion, gradeVerbQuestion, VERB_EXERCISES, type VerbExercise, type VerbQuestion } from '@/lib/verbs/questions'
 import { isVerb, type VerbWord } from '@/lib/verbs/types'
 import { studyDate } from '@/lib/learning/time'
+import { readAllPages } from '@/lib/dal/pages'
+import { readKnownWordIds } from '@/lib/dal/known-words'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 
@@ -48,17 +50,17 @@ async function context(supabase: Supabase, userId: string): Promise<Ctx> {
   const codes = WORDS.map((w) => w.code)
   const [open, stage2, known, ids] = await Promise.all([
     readLessonOpen(supabase, userId, Array.from({ length: 50 }, (_, i) => i + 1)),
-    supabase.from('learner_stage_schedules').select('learner_vocabulary!inner(vocabulary_id)').eq('user_id', userId).eq('stage_number', 2).not('completed_at', 'is', null).range(0, 4 * PAGE),
-    supabase.from('learner_vocabulary_exclusions').select('vocabulary_id').eq('user_id', userId).not('excluded_at', 'is', null).range(0, 4 * PAGE),
+    readAllPages('learner_stage_schedules', (from, to) =>
+      supabase.from('learner_stage_schedules').select('learner_vocabulary!inner(vocabulary_id)').eq('user_id', userId).eq('stage_number', 2).not('completed_at', 'is', null).order('id').range(from, to),
+    ),
+    readKnownWordIds(supabase, userId),
     supabase.from('vocabularies').select('id, code').in('code', codes),
   ])
-  if (stage2.error) throw new Error(`Không đọc được learner_stage_schedules: ${stage2.error.message}`)
-  if (known.error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${known.error.message}`)
   if (ids.error) throw new Error(`Không đọc được vocabularies: ${ids.error.message}`)
   const vocabId = new Map((ids.data ?? []).map((r) => [r.code as string, r.id as string]))
   const codeOf = new Map([...vocabId].map(([c, id]) => [id, c]))
   const learned = new Set(
-    [...((stage2.data ?? []) as unknown as { learner_vocabulary: { vocabulary_id: string } }[]).map((r) => r.learner_vocabulary.vocabulary_id), ...(known.data ?? []).map((r) => r.vocabulary_id as string)]
+    [...(stage2 as unknown as { learner_vocabulary: { vocabulary_id: string } }[]).map((r) => r.learner_vocabulary.vocabulary_id), ...known]
       .map((id) => codeOf.get(id))
       .filter((c): c is string => !!c),
   )
@@ -68,8 +70,9 @@ async function context(supabase: Supabase, userId: string): Promise<Ctx> {
   return { unlocked, learned, maxLesson, vocabId }
 }
 
+/** 1000 lượt luyện gần nhất (Data API trả tối đa 1000 dòng mỗi lần). */
 async function readLogs(supabase: Supabase, userId: string) {
-  const { data, error } = await supabase.from('verb_practice_logs').select('vocabulary_id, form, outcome, answered_at').eq('user_id', userId).order('answered_at', { ascending: false }).range(0, 2 * PAGE - 1)
+  const { data, error } = await supabase.from('verb_practice_logs').select('vocabulary_id, form, outcome, answered_at').eq('user_id', userId).order('answered_at', { ascending: false }).range(0, PAGE - 1)
   if (error) throw new Error(`Không đọc được verb_practice_logs: ${error.message}`)
   return (data ?? []) as { vocabulary_id: string; form: VerbFormId; outcome: 'correct' | 'wrong'; answered_at: string }[]
 }

@@ -6,6 +6,8 @@ import { starRoundExercises, type StarRoundItem } from '@/lib/learn/star-round'
 import { firstDueAt } from '@/lib/learning/cards'
 import { relearnStagePoints } from '@/lib/learning/stage'
 import type { ScoredStage } from '@/lib/learning/types'
+import { readAllPages } from '@/lib/dal/pages'
+import { readKnownWordIds } from '@/lib/dal/known-words'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 
@@ -162,27 +164,26 @@ export interface StarredArea {
 export async function getStarredArea(): Promise<StarredArea> {
   const user = await requireUser()
   const supabase = await createClient()
-  const [stars, excluded, learners] = await Promise.all([
+  const [stars, excludedIds, learners] = await Promise.all([
     supabase
       .from('learner_vocabulary_stars')
       .select('vocabulary_id, round_answered, vocabularies!inner(code, expression, reading_kana, meaning_vi, han_viet, is_kana_only)')
       .eq('user_id', user.id)
       .order('starred_at', { ascending: false })
       .range(0, PAGE - 1),
-    supabase.from('learner_vocabulary_exclusions').select('vocabulary_id').eq('user_id', user.id).not('excluded_at', 'is', null).range(0, PAGE - 1),
-    supabase.from('learner_vocabulary').select("vocabulary_id, current_stage, kanji_intro_seen_at, review_cards(card_type, due_at, retired_at)").eq('user_id', user.id).range(0, PAGE - 1),
+    readKnownWordIds(supabase, user.id),
+    readAllPages('learner_vocabulary', (from, to) =>
+      supabase.from('learner_vocabulary').select('vocabulary_id, current_stage, kanji_intro_seen_at, review_cards(card_type, due_at, retired_at)').eq('user_id', user.id).order('id').range(from, to),
+    ),
   ])
   if (stars.error) throw new Error(`Không đọc được learner_vocabulary_stars: ${stars.error.message}`)
-  if (excluded.error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${excluded.error.message}`)
-  if (learners.error) throw new Error(`Không đọc được learner_vocabulary: ${learners.error.message}`)
 
-  const excludedIds = new Set(excluded.data?.map((r) => r.vocabulary_id))
   const rows = (stars.data ?? []) as unknown as {
     vocabulary_id: string
     round_answered: number
     vocabularies: { code: string; expression: string; reading_kana: string; meaning_vi: string; han_viet: string | null; is_kana_only: boolean }
   }[]
-  const learnerRows = (learners.data ?? []) as unknown as {
+  const learnerRows = learners as unknown as {
     vocabulary_id: string
     current_stage: number
     kanji_intro_seen_at: string | null
