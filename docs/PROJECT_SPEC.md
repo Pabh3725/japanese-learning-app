@@ -1494,6 +1494,8 @@ Chủ dự án chốt ngày 2026-11-10. Luật đầy đủ: `docs/learning-rule
 
 - **Thứ tự mở chữ Kanji V12 (2026-11-14, CONFIRMED):** chi tiết `docs/learning-rules.md` §0d. Chữ cần sớm cho từ vựng trước (từ đang ở giai đoạn Kanji → đang chờ → đang học Kana → còn lại); cùng mức thì ít nét trước; thành phần trước chữ ghép.
 
+- **JLPT đợt 1 (2026-11-14, CONFIRMED):** chi tiết `docs/jlpt-rules.md`. Tab chính `/jlpt`: cấp N5/N4, phạm vi toàn bộ hoặc đã học, 5 mảng; đợt 1 có 漢字読み, 表記, 文法形式の判断, 文の組み立て, 即時応答 (dựng từ dữ liệu sẵn có), các dạng khác "Coming soon". Phiên chấm ở server, ghi `jlpt_logs`, không đổi lịch. Migration `20261122000001`.
+
 ---
 
 ## 20. Ngữ pháp và Thể động từ (2026-11-15) — CONFIRMED, chưa triển khai
