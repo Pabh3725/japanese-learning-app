@@ -4,14 +4,28 @@ import { PageHeader } from '@/components/page-header'
 import { getLearnOverview } from '@/lib/dal/learn-overview'
 import { getProgressStats } from '@/lib/dal/progress'
 import { getReviewOverview } from '@/lib/dal/review'
+import { TARGET_RETENTION } from '@/lib/srs/retention'
 import { cn } from '@/lib/utils'
 
 export default async function ProgressPage() {
   const [progress, learn, review] = await Promise.all([getProgressStats(), getLearnOverview(), getReviewOverview()])
   const cards = Object.values(review.byType).reduce((sum, n) => sum + n, 0)
+  const pct = (rate: number | null) => (rate === null ? '—' : `${Math.round(rate * 100)}%`)
+  const { retention } = progress
+  // V11: tỷ lệ nhớ thật theo từng khu, so với mục tiêu của FSRS
+  const areas = [
+    { label: 'Vocabulary', r: retention.byArea.vocabulary },
+    { label: 'Kanji words', r: retention.byArea.kanji_words },
+    { label: 'Kanji', r: retention.byArea.kanji },
+  ].filter((a) => a.r.count > 0)
   const stats = [
-    { label: 'Day streak', value: String(progress.streak), tone: 'text-yellow' },
-    { label: 'Retention (30 days)', value: progress.retention === null ? '—' : `${Math.round(progress.retention * 100)}%`, tone: 'text-success' },
+    { label: 'Day streak', value: String(progress.streak), tone: 'text-yellow', note: null as string | null },
+    {
+      label: 'Retention (30 days)',
+      value: pct(retention.overall.rate),
+      tone: retention.overall.rate !== null && retention.overall.rate < TARGET_RETENTION - 0.05 ? 'text-yellow' : 'text-success',
+      note: retention.overall.count > 0 ? `Target ${pct(TARGET_RETENTION)} · ${areas.map((a) => `${a.label} ${pct(a.r.rate)}`).join(' · ')}` : 'Shows after your first review of a learned card',
+    },
   ]
   const maxAnswered = Math.max(...progress.week.map((d) => d.answered))
   const totalAnswered = progress.week.reduce((sum, d) => sum + d.answered, 0)
@@ -25,6 +39,7 @@ export default async function ProgressPage() {
           <div key={s.label} className="rounded-2xl border border-border bg-card p-5">
             <dt className="text-sm text-muted-foreground">{s.label}</dt>
             <dd className={cn('mt-1 text-3xl font-semibold tabular-nums', s.tone)}>{s.value}</dd>
+            {s.note && <dd className="mt-1 text-xs text-muted-foreground">{s.note}</dd>}
           </div>
         ))}
       </dl>

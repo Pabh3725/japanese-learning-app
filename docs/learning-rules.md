@@ -28,6 +28,13 @@ Lý do: lịch Stage hẹn lại sau 1–10 phút nên số câu trên Home bị
 13. **Hoàn tác "Move to Reviewing"** (từ vựng, ngữ pháp): mỗi lần chuyển lưu trạng thái trước đó (`learner_mark_history`); hoàn tác trả tiến độ, Stage, trạng thái loại về như trước và xóa Card do lần chuyển tạo ra (kèm lịch sử ôn của Card đó, có hỏi xác nhận). Mục trước đó chưa có tiến độ thì xóa tiến độ. Ngay sau thao tác có nút Undo; về sau dùng bộ lọc "Moved to Reviewing". "Mark as learned (Not review)" hoàn tác bằng cách bấm ✓ lần nữa hoặc Undo.
 14. **Dấu sao cho Kanji**, cùng thuật toán với từ vựng: gắn ở Library, trang chi tiết chữ và trong bài. Vòng học thêm tối đa 4 câu mỗi chữ (`KANJI_STAR_ROUND`), là câu luyện không điểm trong bài Learn, tính chung trần 3 câu sao mỗi bài; chữ chưa mở thì chờ tới khi mở. Card riêng `kanji.star` (gõ Hán Việt; nghĩa → chọn chữ), FSRS riêng, ôn trong khu Kanji sau Card thường, tính vào trần Card Kanji; bỏ sao thì Card tạm dừng, gắn sao lại thì chạy tiếp.
 
+### 0c. Review và Learn tối ưu (V11) — CONFIRMED (chủ dự án duyệt 2026-11-14)
+
+15. **Thẻ sai quay lại trong cùng lượt Review** (A): Card trả lời sai được hỏi lại sau 3–5 Card, tối đa 3 lần mỗi Card mỗi lượt, mỗi lần một mã câu mới nên FSRS tính như bước học lại. Chỉ lần đầu tính vào kết quả lượt; câu hỏi lại không tính thêm vào trần Card.
+16. **Tỷ lệ nhớ thật** (B): Progress tính tỷ lệ nhớ 30 ngày chỉ trên lần ôn đầu mỗi ngày của Card đang ở giai đoạn ôn (review_logs.state_before = 2; Card Kanji: lần đầu mỗi ngày trong kanji_logs), tách Vocabulary / Kanji words / Kanji, so với mục tiêu 90% của FSRS. Chỉnh mục tiêu hay tối ưu tham số FSRS (C) để sau khi có số đo.
+17. **Thứ tự Review** (D): Card dễ quên nhất trước — xếp theo (số ngày từ lần ôn trước ÷ stability) giảm dần, tương đương xác suất nhớ của FSRS tăng dần; Card chưa ôn lần nào sau Card đã ôn; Card sao sau Card thường; hai Card cùng từ cách ít nhất 3 Card khi còn cách khác.
+18. **Learn theo độ khó** (E): số câu Stage mỗi ngày theo stability của lịch Stage: dưới 2 (từ yếu: mới, vừa sai) 3 câu, 2–6 là 2 câu, từ 6 (đúng liên tục) 1 câu; từ yếu được cộng ưu tiên `weak` = 15 trong nhóm. Ngưỡng: PROPOSED, chỉnh được trong `RULES_V9.ais.strength`.
+
 ## 1. Ánh xạ luật cũ sang mới
 
 | Luật | V8 / v2 | V9 |

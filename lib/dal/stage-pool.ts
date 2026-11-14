@@ -3,7 +3,7 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { readAllPages, readInChunks } from '@/lib/dal/pages'
-import { RULES_V9 } from '@/lib/learning/rules'
+import { isWeak, stagePerDayFor } from '@/lib/learn/stage-per-day'
 import { studyDate } from '@/lib/learning/time'
 import type { ScoredStage } from '@/lib/learning/types'
 
@@ -19,11 +19,13 @@ export interface StagePoolItem {
   overdueDays: number
   /** Số câu tính điểm còn được hỏi hôm nay. */
   left: number
+  /** V11: từ yếu (stability thấp): được ưu tiên trong bài. */
+  weak: boolean
 }
 
-type ScheduleRow = { stage_number: number; due_at: string; learner_vocabulary: { id: string; vocabulary_id: string } }
+type ScheduleRow = { stage_number: number; due_at: string; stability: number; learner_vocabulary: { id: string; vocabulary_id: string } }
 
-const SCHEDULE_COLUMNS = 'stage_number, due_at, learner_vocabulary!inner(id, vocabulary_id)'
+const SCHEDULE_COLUMNS = 'stage_number, due_at, stability, learner_vocabulary!inner(id, vocabulary_id)'
 
 /** Số câu Stage tính điểm đã trả lời hôm nay, theo `lvId:stage`. */
 async function readAnsweredToday(supabase: Supabase, userId: string, stages: readonly ScoredStage[], today: string): Promise<Map<string, number>> {
@@ -74,11 +76,11 @@ export async function readStagePool(supabase: Supabase, userId: string, stages: 
     if (answered.has(key) && !rows.has(key)) rows.set(key, r)
   }
 
-  const perDay = RULES_V9.ais.stagePerDay
   const items: StagePoolItem[] = []
   for (const [key, r] of rows) {
     if (excluded.has(r.learner_vocabulary.vocabulary_id)) continue
-    const left = perDay - (answered.get(key) ?? 0)
+    // V11: số câu mỗi ngày theo độ chắc (yếu 3, vừa 2, chắc 1), tính theo stability hiện tại
+    const left = stagePerDayFor(r.stability) - (answered.get(key) ?? 0)
     if (left <= 0) continue
     items.push({
       lvId: r.learner_vocabulary.id,
@@ -86,6 +88,7 @@ export async function readStagePool(supabase: Supabase, userId: string, stages: 
       stage: r.stage_number as ScoredStage,
       overdueDays: Math.max(0, Math.floor((now.getTime() - Date.parse(r.due_at)) / DAY_MS)),
       left,
+      weak: isWeak(r.stability),
     })
   }
   return items

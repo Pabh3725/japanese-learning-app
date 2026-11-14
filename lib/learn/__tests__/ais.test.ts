@@ -267,3 +267,19 @@ describe('AIS — công bằng, hết câu, tiếp tục bài', () => {
     expect(planNext(s)).toEqual({ type: 'end', reason: 'target' })
   })
 })
+
+describe('V11: từ yếu được ưu tiên', () => {
+  it('trong cùng nhóm, từ yếu thường được hỏi trước từ chắc', () => {
+    let weakFirst = 0
+    for (let seed = 1; seed <= 60; seed++) {
+      const cands: Candidate[] = [
+        { key: 's:a', group: 'vocabulary', kind: 'stage', anchor: 'w:a', overdueDays: 0, left: 1 },
+        { key: 's:b', group: 'vocabulary', kind: 'stage', anchor: 'w:b', overdueDays: 0, left: 1, weak: true },
+        { key: 's:c', group: 'vocabulary', kind: 'stage', anchor: 'w:c', overdueDays: 0, left: 1 },
+      ]
+      const plan = planNext(startLesson(cands, ['vocabulary'], limits(), seed))
+      if (plan.type === 'question' && plan.key === 's:b') weakFirst++
+    }
+    expect(weakFirst / 60).toBeGreaterThan(0.6)
+  })
+})

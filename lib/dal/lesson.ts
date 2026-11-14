@@ -261,6 +261,7 @@ async function buildCandidates(supabase: Supabase, userId: string, groups: reado
     anchor: `w:${r.vocabularyId}`,
     overdueDays: r.overdueDays,
     left: r.left,
+    weak: r.weak,
   })
 
   if (groups.includes('vocabulary')) {
