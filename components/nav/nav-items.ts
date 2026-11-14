@@ -1,4 +1,4 @@
-import { BarChart3, BookOpen, Gamepad2, GraduationCap, Hash, Home, Library, RotateCcw, ScrollText, Settings } from 'lucide-react'
+import { BarChart3, BookOpen, ClipboardCheck, Gamepad2, GraduationCap, Hash, Home, Library, RotateCcw, ScrollText, Settings } from 'lucide-react'
 
 export const primaryNav = [
   { href: '/', label: 'Home', icon: Home },
@@ -6,6 +6,8 @@ export const primaryNav = [
   // Grammar là tab chính (docs/grammar-rules.md §1); Thể động từ nằm trong tab Grammar
   { href: '/grammar', label: 'Grammar', icon: ScrollText },
   { href: '/review', label: 'Review', icon: RotateCcw },
+  // JLPT: ôn thi theo dạng bài (docs/jlpt-rules.md)
+  { href: '/jlpt', label: 'JLPT', icon: ClipboardCheck },
   { href: '/practice', label: 'Practice', icon: Gamepad2 },
 ]
 
