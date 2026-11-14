@@ -25,10 +25,21 @@ import {
   type PublicJlptQuestion,
 } from '@/lib/jlpt/questions'
 import { shuffle } from '@/lib/jlpt/reading'
+import { approvedItems, contentQuestions, isContentType, type ContentType, type LevelContent } from '@/lib/jlpt/content'
+import n5Content from '@/data/jlpt/n5.json'
+import n4Content from '@/data/jlpt/n4.json'
 import { addStudyDays, studyDate } from '@/lib/learning/time'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 type Scope = 'all' | 'learned'
+
+/** Đợt 2: nội dung soạn sẵn (scripts/jlpt-content → data/jlpt/<cấp>.json), chỉ dùng mục đã duyệt. */
+const CONTENT: Record<JlptLevel, LevelContent> = { N5: n5Content as LevelContent, N4: n4Content as LevelContent }
+
+/** Dạng làm được ở cấp này: dạng đợt 1, và dạng đợt 2 đã có mục được duyệt. */
+export function readyTypes(level: JlptLevel): JlptType[] {
+  return JLPT_TYPES.filter((t) => t.levels.includes(level) && (isContentType(t.id) ? approvedItems(CONTENT[level], t.id).length > 0 : t.available)).map((t) => t.id)
+}
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const STATS_DAYS = 30
@@ -154,6 +165,15 @@ async function readMaterial(supabase: Supabase, userId: string, level: JlptLevel
   }
 }
 
+/** Đợt 2: một mục soạn sẵn chưa dùng trong phiên (mục có đoạn văn cho ra nhiều câu). */
+function buildContent(type: ContentType, level: JlptLevel, used: Set<string>): JlptQuestion[] {
+  const items = shuffle(approvedItems(CONTENT[level], type), Math.random)
+  const item = items.find((i) => !used.has(`${type}:${i.code}`))
+  if (!item) return []
+  used.add(`${type}:${item.code}`)
+  return contentQuestions(type, item as Parameters<typeof contentQuestions>[1], Math.random)
+}
+
 function buildOne(type: JlptType, m: Material, used: Set<string>): JlptQuestion | null {
   const rng = Math.random
   const kanjiWords = m.words.filter((w) => hasKanji(w.expression) && !used.has(`${type}:${w.code}`))
@@ -205,7 +225,8 @@ export async function startJlptSession(input: unknown): Promise<{ status: 'saved
   const scope = v.scope === 'learned' ? 'learned' : 'all'
   if (!isJlptLevel(v.level) || types.length === 0 || !SESSION_SIZES.includes(count as (typeof SESSION_SIZES)[number])) return { status: 'invalid' }
   const level = v.level
-  const ready = types.filter((t) => JLPT_TYPES.find((x) => x.id === t)!.available)
+  const allowed = readyTypes(level)
+  const ready = types.filter((t) => allowed.includes(t))
   if (ready.length === 0) return { status: 'invalid' }
   const user = await requireUser()
   const supabase = await createClient()
@@ -214,15 +235,18 @@ export async function startJlptSession(input: unknown): Promise<{ status: 'saved
   // Chia đều số câu cho các dạng; dạng thiếu câu thì dạng khác bù
   const questions: JlptQuestion[] = []
   const used = new Set<string>()
+  // Mục có đoạn văn giữ các câu đi liền nhau (cùng một đoạn), nên xáo theo nhóm
+  const groups: JlptQuestion[][] = []
   for (let round = 0; questions.length < count && round < count * 2; round++) {
     const type = ready[round % ready.length]
-    const q = buildOne(type, m, used)
-    if (!q) continue
-    used.add(`${type}:${q.ref}`)
-    questions.push(q)
+    const built = isContentType(type) ? buildContent(type, level, used).slice(0, count - questions.length) : [buildOne(type, m, used)].filter((q): q is JlptQuestion => q !== null)
+    if (built.length === 0) continue
+    for (const q of built) used.add(`${type}:${q.ref}`)
+    questions.push(...built)
+    groups.push(built)
   }
   if (questions.length === 0) return { status: 'empty' }
-  const { data, error } = await supabase.from('jlpt_sessions').insert({ user_id: user.id, level, types: ready, scope, questions: shuffle(questions, Math.random) }).select('id').single()
+  const { data, error } = await supabase.from('jlpt_sessions').insert({ user_id: user.id, level, types: ready, scope, questions: shuffle(groups, Math.random).flat() }).select('id').single()
   if (error) throw new Error(`Không tạo được jlpt_sessions: ${error.message}`)
   return { status: 'saved', id: data.id as string }
 }

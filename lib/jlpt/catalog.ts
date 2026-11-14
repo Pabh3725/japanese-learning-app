@@ -25,7 +25,7 @@ export interface JlptTypeInfo {
   nameJa: string
   name: string
   description: string
-  /** Đợt 1 làm được; đợt 2 hiện "Coming soon". */
+  /** Dạng đợt 1 (dựng từ dữ liệu sẵn có). Dạng đợt 2 bật khi có nội dung đã duyệt: xem readyTypes (lib/dal/jlpt.ts). */
   available: boolean
   /** Chỉ có ở các cấp này. */
   levels: readonly JlptLevel[]
