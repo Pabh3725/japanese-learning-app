@@ -9,7 +9,7 @@ import { EXERCISE_TIER, type GrammarExercise } from './types'
 export const GRAMMAR_V1 = {
   lessons: 50,
   unlock: { vocabStage3Share: 0.5, previousLessonDoneShare: 0.5 },
-  newPerDay: { default: 1, min: 1, max: 3 },
+  newPerDay: { default: 1, min: 1, max: 10 },
   learning: {
     completeAt: 40,
     questionsPerSitting: 8,

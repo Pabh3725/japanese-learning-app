@@ -1496,7 +1496,7 @@ Chi tiết: `docs/grammar-rules.md` (GRAMMAR_V1). Thay đoạn "bản xem trư�
 
 - **Grammar là tab chính** trên thanh điều hướng, không trộn vào bài Learn. Trong tab có Bài học, Ôn (FSRS), Luyện thêm, **Thể động từ** (chỉ luyện, không lịch) và **Kiểm tra** (chọn bài Minna đã học xong mọi mẫu và số câu; chỉ câu mức 3; không đổi điểm hay lịch).
 - Phạm vi 50 bài Minna no Nihongo sơ cấp (N5: 1–25, N4: 26–50); bổ sung từ vựng bài 49–50.
-- Mở bài n: ≥ 50% từ bài n xong Stage 3 và ≥ 50% mẫu bài n−1 học xong. 1 mẫu mới mỗi ngày (1–3).
+- Mở bài n: ≥ 50% từ bài n xong Stage 3 và ≥ 50% mẫu bài n−1 học xong. 1 mẫu mới mỗi ngày (1–10, nới từ 1–3 ngày 2026-11-14).
 - Mỗi mẫu 30 câu gốc tự soạn, dễ → khó, có kết hợp mẫu cũ; sinh 13 dạng bài, không vùng xám. Chủ dự án duyệt mẫu + 5 câu tiêu biểu theo nhóm 5 bài.
 - Học: 40 điểm, 5 buổi (ngày 1, 2, 3, 5, 8), 8 câu mỗi buổi, 3 bậc Hiểu / Dùng / Tạo. Ôn: tối đa 20 mẫu mỗi ngày, 2–3 câu mỗi mẫu, gộp thành Good / Hard / Again, tối đa 90 ngày.
 
