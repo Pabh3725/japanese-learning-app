@@ -91,19 +91,48 @@ describe('AIS — bài 20, 50, 100 câu', () => {
 })
 
 describe('AIS — mục mới', () => {
-  it('thẻ giới thiệu → câu kiểm tra nhanh ngay sau → gọi lại sau 4–6 câu → gọi lại sau 8–12 câu', () => {
+  it('V10: thẻ giới thiệu → 3 câu luyện liền nhau → gọi lại sau 4–6 câu → gọi lại sau 8–12 câu', () => {
     const r = run(startLesson(pool(), ALL, limits(), 3))
     const intros = r.events.filter((e) => e.plan.type === 'intro')
     expect(intros.length).toBeGreaterThan(0)
+    const n = RULES_V9.ais.microAfterIntro
     for (const intro of intros) {
       const key = (intro.plan as { key: string }).key
-      const own = r.events.filter((e) => e.plan.type === 'question' && e.plan.key === key)
       const at = r.events.indexOf(intro)
-      expect(r.events[at + 1]?.plan, key).toEqual({ type: 'question', key, micro: true })
-      const [micro, recall1, recall2] = own
-      if (recall1) expect(recall1.counted - micro.counted).toBeGreaterThanOrEqual(4)
-      if (recall1) expect(recall1.counted - micro.counted).toBeLessThanOrEqual(6 + 4)
+      for (let i = 1; i <= n; i++) expect(r.events[at + i]?.plan, `${key} câu luyện ${i}`).toEqual({ type: 'question', key, micro: true })
+      const own = r.events.filter((e) => e.plan.type === 'question' && e.plan.key === key)
+      const lastMicro = own[n - 1]
+      const [recall1, recall2] = own.slice(n)
+      if (recall1) expect(recall1.counted - lastMicro.counted).toBeGreaterThanOrEqual(4)
+      if (recall1) expect(recall1.counted - lastMicro.counted).toBeLessThanOrEqual(6 + 4)
       if (recall2) expect(recall2.counted - (recall1.counted + 1)).toBeGreaterThanOrEqual(8)
+    }
+  })
+
+  it('V10: sai câu luyện thì thêm 1 câu, tối đa 4 câu luyện', () => {
+    // Sai câu luyện đầu tiên của mọi mục mới
+    const r = run(startLesson(pool(), ALL, limits(), 3), (key, n) => key.startsWith('n') && n === 1)
+    for (const intro of r.events.filter((e) => e.plan.type === 'intro')) {
+      const key = (intro.plan as { key: string }).key
+      const at = r.events.indexOf(intro)
+      let micros = 0
+      while (r.events[at + 1 + micros]?.plan.type === 'question' && (r.events[at + 1 + micros].plan as { micro: boolean }).micro) micros++
+      expect(micros, key).toBe(RULES_V9.ais.microMax)
+    }
+  })
+
+  it('V10: mục cũ còn câu trong ngày được hỏi lại trong bài; đủ mục thì cách 8–12 câu, ít mục thì ít nhất 4 câu', () => {
+    for (const [due, minGap] of [[20, RULES_V9.ais.oldRecallGap[0]], [6, RULES_V9.spacing.minGap]] as const) {
+      const r = run(startLesson(pool({ vocabDue: due, newWords: 0, wordKanjiDue: 0, kanjiLearning: 0, kanjiCards: 0 }).map((c) => ({ ...c, left: 3 })), ['vocabulary'], limits({ target: 100 }), 7))
+      const byKey: Record<string, number[]> = {}
+      for (const e of r.events) if (scored(e)) (byKey[(e.plan as { key: string }).key] ??= []).push(e.counted)
+      // Gần như mọi mục hỏi đủ 3 câu của ngày (ít mục thì câu cuối có thể không đủ giãn cách 4 câu của R3)
+      const asked = Object.values(byKey).reduce((n, c) => n + c.length, 0)
+      expect(asked, `${due} mục`).toBeGreaterThanOrEqual(due * 3 - 2)
+      const gaps = Object.values(byKey).flatMap((c) => c.slice(1).map((x, i) => x - c[i]))
+      // Mọi khoảng cách ≥ 4 (R3); đủ mục thì phần lớn ≥ 8 (chỉ cuối bài mới nới)
+      for (const g of gaps) expect(g).toBeGreaterThanOrEqual(RULES_V9.spacing.minGap)
+      expect(gaps.filter((g) => g >= minGap).length / gaps.length).toBeGreaterThanOrEqual(0.8)
     }
   })
 

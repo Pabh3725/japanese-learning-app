@@ -618,8 +618,10 @@ export async function buildKanjiQuestionFor(
   supabase: Supabase,
   userId: string,
   target: { learnerKanjiId: string } | { cardId: string },
-  avoid: string | null,
+  avoid: string | readonly string[] | null,
 ): Promise<KanjiSessionQuestion | null> {
+  // Câu ngay trước (R11), và với câu luyện sau thẻ giới thiệu là các dạng đã luyện (V10)
+  const avoidSet = new Set(avoid === null ? [] : typeof avoid === 'string' ? [avoid] : avoid)
   const [allKanji, tierOf] = await Promise.all([readAllKanjiCached(supabase), readKanjiTier(supabase, userId)])
   const byId = new Map(allKanji.map((k) => [k.id, k]))
   const streakOf = (own: readonly { outcome: string }[]) => {
@@ -647,7 +649,7 @@ export async function buildKanjiQuestionFor(
     if (logsError) throw new Error(`Không đọc được kanji_logs: ${logsError.message}`)
     const last = logs?.[0]?.exercise_type ?? null
     let exercise = chooseCardExercise(card.card_type, last)
-    if (exercise === avoid) exercise = chooseCardExercise(card.card_type, avoid)
+    if (avoidSet.has(exercise)) exercise = chooseCardExercise(card.card_type, exercise)
     const kanji = byId.get(card.learner_kanji.kanji_id)!
     return {
       ...(await withVisual(supabase, buildKanjiQuestion(kanji, exercise, allKanji, null, Math.random, CARD_CHOICE_OPTIONS, [], tierOf), kanji.id)),
@@ -683,7 +685,7 @@ export async function buildKanjiQuestionFor(
   const counts = countsFrom(own)
   const hasSimilar = similar.length > 0
   let exercise = chooseLearningExercise(row.points, counts, word !== null, Math.random, hasSimilar)
-  for (let i = 0; i < 6 && exercise === avoid; i++) exercise = chooseLearningExercise(row.points, counts, word !== null, Math.random, hasSimilar)
+  for (let i = 0; i < 10 && avoidSet.has(exercise); i++) exercise = chooseLearningExercise(row.points, counts, word !== null, Math.random, hasSimilar)
   return {
     ...(await withVisual(supabase, buildKanjiQuestion(byId.get(row.kanji_id)!, exercise, allKanji, word, Math.random, undefined, similar, tierOf), row.kanji_id)),
     learnerKanjiId: row.id,

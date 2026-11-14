@@ -4,7 +4,7 @@ import 'server-only'
 import { randomUUID } from 'node:crypto'
 import { createClient } from '@/lib/supabase/server'
 import { revealOf, type KanjiReveal, type KanjiRow } from '@/lib/kanji/questions'
-import { buildPartsQuestion, buildSimilarQuestion, pickMatchItems, type KanjiPart, type KanjiVisualView, type PartsQuestion, type SimilarQuestion } from '@/lib/kanji/visual'
+import { buildPartsQuestion, buildSimilarQuestion, pickMatchItems, type KanjiPart, type KanjiVisualView, type PartInfo, type PartsQuestion, type SimilarQuestion } from '@/lib/kanji/visual'
 import type { MatchRoundData } from '@/lib/exercise/match-round'
 import { readAllPages } from '@/lib/dal/pages'
 
@@ -114,11 +114,20 @@ async function readAllPartsCached(supabase: Supabase): Promise<{ kanjiId: string
 
 /** Dạng C: ghép thành phần. null khi chữ không có đúng hai thành phần trái–phải hoặc trên–dưới. */
 export async function buildKanjiPartsFor(supabase: Supabase, kanjiId: string): Promise<PartsQuestion | null> {
-  const [allKanji, allParts] = await Promise.all([readAllKanjiCached(supabase), readAllPartsCached(supabase)])
+  const [allKanji, allParts, radicals, visuals] = await Promise.all([readAllKanjiCached(supabase), readAllPartsCached(supabase), readRadicals(supabase), readKanjiVisuals(supabase, [kanjiId])])
   const kanji = allKanji.find((k) => k.id === kanjiId)
   const own = allParts.find((p) => p.kanjiId === kanjiId)
   if (!kanji || !own) return null
-  return buildPartsQuestion({ character: kanji.character, hanViet: kanji.han_viet, meaning: kanji.meaning_vi, parts: own.parts }, allParts)
+  // V10: giải thích chỉ lấy từ dữ liệu đã duyệt — tên bộ thủ (bảng 214 bộ) và Hán Việt, nghĩa của chữ trong bảng Kanji
+  const radicalName = new Map([...radicals.values()].map((r) => [r.character, r.name]))
+  const kanjiByChar = new Map(allKanji.map((k) => [k.character, k]))
+  const info = (part: KanjiPart): PartInfo => {
+    const base = part.original ?? part.c
+    const k = kanjiByChar.get(part.c) ?? kanjiByChar.get(base)
+    return { radicalName: radicalName.get(base) ?? radicalName.get(part.c) ?? null, hanViet: k?.han_viet ?? null, meaning: k?.meaning_vi ?? null }
+  }
+  const radical = visuals.get(kanjiId)?.radical ?? null
+  return buildPartsQuestion({ character: kanji.character, hanViet: kanji.han_viet, meaning: kanji.meaning_vi, parts: own.parts }, allParts, info, Math.random, radical)
 }
 
 /** Dạng E: phân biệt chữ gần giống, chỉ với cặp đã duyệt. */

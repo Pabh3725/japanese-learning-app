@@ -117,9 +117,10 @@ export type StageQuestionItem = Extract<StageQuestion, { learnerVocabularyId: st
 
 /**
  * V9 bài Learn: dựng một câu Stage cho một từ ở một stage. null khi stage đã xong hoặc từ không còn.
- * `avoid`: dạng bài của câu ngay trước, tránh hai câu cùng dạng liền nhau (R11), không tránh được thì thôi.
+ * `avoid`: dạng bài cần tránh: câu ngay trước (R11), và với câu luyện sau thẻ giới thiệu là các dạng đã luyện (V10). Không tránh được thì thôi.
  */
-export async function buildStageQuestionFor(supabase: Supabase, userId: string, lvId: string, stage: ScoredStage, avoid: string | null): Promise<StageQuestionItem | null> {
+export async function buildStageQuestionFor(supabase: Supabase, userId: string, lvId: string, stage: ScoredStage, avoid: string | readonly string[] | null): Promise<StageQuestionItem | null> {
+  const avoidSet = new Set(avoid === null ? [] : typeof avoid === 'string' ? [avoid] : avoid)
   const [rowRes, logsRes, started, pools, kanjiTier] = await Promise.all([
     supabase
       .from('learner_vocabulary')
@@ -150,7 +151,7 @@ export async function buildStageQuestionFor(supabase: Supabase, userId: string, 
   const logs = logsRes.data ?? []
   const earned = deriveEarned(logs)
   let exercise = chooseStageExercise(row.vocabularies, stage, earned, schedule.stage_points)
-  for (let i = 0; i < 6 && exercise === avoid; i++) exercise = chooseStageExercise(row.vocabularies, stage, earned, schedule.stage_points)
+  for (let i = 0; i < 10 && avoidSet.has(exercise); i++) exercise = chooseStageExercise(row.vocabularies, stage, earned, schedule.stage_points)
   const word = stage === 2 || stage === 3 ? kanaView(row.vocabularies) : row.vocabularies
   const question = buildStageQuestion(word, exercise, { ...pools, learnedWordIds: started, kanjiTier }, undefined, { blind: stage === 3 || stage === 6 })
   const known = { currentStage: row.current_stage, kanjiIntroSeen: row.kanji_intro_seen_at !== null }

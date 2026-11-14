@@ -84,10 +84,10 @@ export default async function LearnPage() {
           <div>
             <p className="text-sm text-muted-foreground">Today</p>
             <h2 id="today-title" className="mt-1 text-3xl font-semibold tabular-nums">
-              {hasWork ? `${questions} ${questions === 1 ? 'question' : 'questions'}` : 'All caught up'}
+              {hasWork ? `${questions} practice ${questions === 1 ? 'question' : 'questions'}` : 'Done for today'}
             </h2>
             <p className="mt-2 text-sm text-subtle">
-              {fresh} new · {vocab.newToday} words, {wordKanji.waiting} Kanji words, {kanji.newToday} Kanji
+              {fresh} new left today · {vocab.newToday} words, {wordKanji.waiting} Kanji words, {kanji.newToday} Kanji
               {answeredToday > 0 && ` · ${answeredToday} answered today`}
             </p>
             {vocab.block && (
@@ -113,7 +113,7 @@ export default async function LearnPage() {
           title="Vocabulary"
           jp="語彙"
           tone="cyan"
-          line={`${vocab.questionsToday} due`}
+          line={`${vocab.questionsToday} practice`}
           detail={`${vocab.newToday} new words${vocab.currentLesson ? ` · Lesson ${vocab.currentLesson.lesson}: ${vocab.currentLesson.met}/${vocab.currentLesson.total}` : ''}`}
           progress={{ value: vocab.levels.reduce((s, l) => s + l.completed, 0), max: vocab.levels.reduce((s, l) => s + l.total, 0) }}
           progressLabel={`${vocab.inProgress} in progress`}
@@ -125,7 +125,7 @@ export default async function LearnPage() {
           title="Kanji words"
           jp="漢字語"
           tone="pink"
-          line={`${wordKanji.questionsToday} due`}
+          line={`${wordKanji.questionsToday} practice`}
           detail={`${wordKanji.waiting} ready · ${wordKanji.waitingForLevel} for the next level`}
           progress={{ value: wordKanji.completed, max: wordKanji.total }}
           progressLabel={`${wordKanji.inProgress} in progress`}
@@ -137,7 +137,7 @@ export default async function LearnPage() {
           title="Kanji"
           jp="漢字"
           tone="yellow"
-          line={`${kanji.questionsToday} due`}
+          line={`${kanji.questionsToday} practice`}
           detail={`${kanji.dueReview} cards · ${kanji.dueLearning} learning · ${kanji.newToday} new`}
           progress={{ value: kanji.longTerm, max: kanji.total }}
           progressLabel={`${kanji.learning} learning`}

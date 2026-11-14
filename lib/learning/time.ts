@@ -17,6 +17,11 @@ export function nextStudyDayStart(now: Date): Date {
   return new Date(Date.UTC(y, m - 1, d + 1) - OFFSET_MS)
 }
 
+/** Thời điểm 00:00 giờ VN của ngày học chứa `at`. */
+export function startOfStudyDay(at: Date): Date {
+  return new Date(nextStudyDayStart(at).getTime() - 86_400_000)
+}
+
 /** Ngày học cách `date` n ngày (n âm = về trước). Dùng cho quota mượn, "hôm qua"… */
 export function addStudyDays(date: StudyDate, n: number): StudyDate {
   const [y, m, d] = date.split('-').map(Number)

@@ -8,7 +8,7 @@ import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { randomUUID } from 'node:crypto'
-import { readStrokesByCharacter } from '@/lib/dal/kanji-content'
+import { loadPoolsCached } from '@/lib/dal/stage-session'
 import { buildReviewQuestion, chooseReviewExercise, gradeReviewAnswer, reviewExercises, type ReviewAnswerInput, type ReviewQuestionData } from '@/lib/exercise/review-questions'
 import { wordReveal, type StageWord, type WordReveal } from '@/lib/exercise/stage-questions'
 import { EXERCISES, RULES_V9 } from '@/lib/learning/rules'
@@ -26,7 +26,6 @@ import {
 import { readAllPages } from '@/lib/dal/pages'
 import { readKnownWordIds } from '@/lib/dal/known-words'
 
-const isKanjiChar = (c: string) => /[一-鿿㐀-䶿]/.test(c)
 
 const scheduler = createScheduler() // production: fuzz bật
 
@@ -327,22 +326,17 @@ export async function getReviewSession(area: ReviewArea = 'kana'): Promise<Revie
   if (logsError) throw new Error(`Không đọc được review_logs: ${logsError.message}`)
   const logs = { data: logRows }
 
-  // Câu viết rồi tự chấm: kèm nét viết của các chữ Kanji trong từ
   const chosen = cards.map((card) => {
     const last = logs.data?.find((l) => l.review_card_id === card.id)?.exercise_type ?? null
     return chooseReviewExercise(card.card_type, last)
   })
-  const writeChars = cards.flatMap((card, i) => (chosen[i] === 'kanji_write_self' ? [...card.learner_vocabulary.vocabularies.expression].filter(isKanjiChar) : []))
-  const strokesOf = await readStrokesByCharacter(supabase, writeChars)
+  // Câu chọn Kanji trong 6 cần kho đáp án nhiễu
+  const pools = chosen.includes('kanji_recognition_6') ? await loadPoolsCached(supabase) : undefined
 
   const questions = cards.map((card, i): ReviewQuestion => {
     const lv = card.learner_vocabulary
     const word = lv.vocabularies
-    const question = buildReviewQuestion(word, chosen[i])
-    if (question.kind === 'self') {
-      const strokes = [...word.expression].filter(isKanjiChar).flatMap((c) => (strokesOf.has(c) ? [{ character: c, strokes: strokesOf.get(c)! }] : []))
-      if (strokes.length > 0) question.strokes = strokes
-    }
+    const question = buildReviewQuestion(word, chosen[i], pools)
     return {
       ...question,
       reveal: wordReveal(word, { currentStage: lv.current_stage, kanjiIntroSeen: card.card_type === 'vocab.kanji' }),

@@ -12,20 +12,23 @@ import { SessionComplete } from '@/components/learning/session-complete'
 import { SessionHeader } from '@/components/learning/session-header'
 import type { AssemblyGrade } from '@/components/learning/steps/assembly-exercise'
 import { RecallExercise } from '@/components/learning/steps/recall-exercise'
-import { KanjiStrokes } from '@/components/kanji/kanji-strokes'
-import { SelfCheckExercise } from '@/components/learning/steps/self-check-exercise'
+import { ChoiceExercise } from '@/components/learning/steps/choice-exercise'
 import { KanjiReadExercise, type KanjiReadGrade } from '@/components/review/kanji-read-exercise'
 import type { ReviewQuestion } from '@/lib/dal/review'
+import { withRetry } from '@/lib/retry'
 import { speak } from '@/lib/speech'
 import type { RecallStep } from '@/lib/types'
 
 const SAVE_ERROR = "Couldn't check your answer. Check your connection and try again."
+const SAVE_WARNING = "Some answers couldn't be saved. Those cards will come up again."
 
 export function ReviewSession({ questions: initialQuestions, capReached, cardsLeft }: { questions: ReviewQuestion[]; capReached: boolean; cardsLeft: number }) {
   const [questions, setQuestions] = useState(initialQuestions)
   const router = useRouter()
   const [index, setIndex] = useState(0)
   const [results, setResults] = useState<boolean[]>([])
+  // Câu chọn hiện kết quả ngay và lưu ở nền: lưu lỗi thì báo, Card đó sẽ quay lại lần ôn sau
+  const [warning, setWarning] = useState<string | null>(null)
   const pending = 0
   const shownAt = useRef(0)
   // Lưu tuần tự để hai câu của cùng một từ không ghi đè nhau
@@ -57,7 +60,7 @@ export function ReviewSession({ questions: initialQuestions, capReached, cardsLe
       <div className="flex min-h-dvh flex-col">
         <SessionComplete
           title={pending > 0 ? 'Saving…' : 'Review done!'}
-          subtitle={`You reviewed ${results.length} ${results.length === 1 ? 'card' : 'cards'}. ${cardsLeft > 0 ? `${cardsLeft} more ${cardsLeft === 1 ? 'card is' : 'cards are'} waiting.` : 'No more cards for now.'}`}
+          subtitle={warning ?? `You reviewed ${results.length} ${results.length === 1 ? 'card' : 'cards'}. ${cardsLeft > 0 ? `${cardsLeft} more ${cardsLeft === 1 ? 'card is' : 'cards are'} waiting.` : 'No more cards for now.'}`}
           stats={[
             { label: 'Correct', value: String(correct), tone: 'text-success' },
             { label: 'Wrong', value: String(wrong), tone: 'text-error' },
@@ -121,17 +124,17 @@ export function ReviewSession({ questions: initialQuestions, capReached, cardsLe
     }
   }
 
-  const saveSelf = (current: Extract<ReviewQuestion, { kind: 'self' }>) => async (remembered: boolean): Promise<string | null> => {
-    try {
-      const res = await submit(current, { remembered })
-      if (res.status === 'graded' || res.status === 'not_active' || res.status === 'not_found') {
-        if (res.status === 'graded') setResults((list) => [...list, remembered])
-        return null
-      }
-      return SAVE_ERROR
-    } catch {
-      return SAVE_ERROR
-    }
+  /** V10: câu chọn Kanji trong 6. Mã câu giữ nguyên nên gửi lại không bị tính hai lần. */
+  const answerChoice = (current: Extract<ReviewQuestion, { kind: 'choice' }>) => (chosen: string) => {
+    speak(current.speak)
+    setResults((list) => [...list, chosen === current.answer])
+    const payload = { cardId: current.cardId, clientEventId: current.clientEventId, exercise: current.exercise, responseMs: responseMs(), answer: chosen }
+    saveQueue.current = saveQueue.current
+      .then(() => withRetry(() => submitReviewAnswerAction(payload), (res) => res.status === 'conflict'))
+      .then((res) => {
+        if (res.status !== 'graded' && res.status !== 'not_active' && res.status !== 'not_found') setWarning(SAVE_WARNING)
+      })
+      .catch(() => setWarning(SAVE_WARNING))
   }
 
   /** Bỏ mọi card còn lại của từ này. Card đang hiện cũng bị bỏ nên câu kế tiếp tự hiện ra. */
@@ -152,13 +155,8 @@ export function ReviewSession({ questions: initialQuestions, capReached, cardsLe
   } else if (q.kind === 'kanji_read') {
     body = <KanjiReadExercise key={q.clientEventId} stage={label} question={q.question} prompt={q.prompt} wrongNote={WRONG_ANSWER_NOTE} onGrade={gradeRead(q)} onComplete={next} />
   } else {
-    body = <SelfCheckExercise key={q.clientEventId} stage={label} question={q.question} prompt={q.prompt} answer={q.answer} reading={q.reading} after={q.strokes && (
-          <div className="mt-4 flex flex-wrap justify-center gap-4">
-            {q.strokes.map((k, i) => (
-              <KanjiStrokes key={`${k.character}-${i}`} strokes={k.strokes} size={110} label={`Stroke order of ${k.character}, ${k.strokes.length} strokes`} />
-            ))}
-          </div>
-        )} onResult={saveSelf(q)} onComplete={next} />
+    const step = { id: q.clientEventId, type: 'choice' as const, stage: label, question: q.question, prompt: q.prompt, options: q.options, answer: q.answer, optionKind: q.optionKind, explanation: '' }
+    body = <ChoiceExercise key={q.clientEventId} step={step} onAnswer={answerChoice(q)} instant wrongNote={WRONG_ANSWER_NOTE} reveal={q.reveal} onComplete={next} />
   }
 
   return (
@@ -166,6 +164,7 @@ export function ReviewSession({ questions: initialQuestions, capReached, cardsLe
       <SessionHeader backHref="/review" label="Daily Review" sublabel={`${index + 1} / ${questions.length}`} current={index} total={questions.length} />
       <KnownWordBar vocabularyId={q.vocabularyId} onKnown={removeWord} />
       <ArchiveCardBar kind="vocab" cardId={q.cardId} onArchived={removeCard} />
+      {warning && <p role="alert" className="mx-auto mt-3 w-full max-w-2xl px-4 text-sm text-error">{warning}</p>}
       {body}
     </div>
   )

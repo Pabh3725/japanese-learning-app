@@ -6,6 +6,20 @@
 >
 > Nhãn: **CONFIRMED** — chủ dự án đã chốt (ghi ngày hoặc nguồn). **PROPOSED** — người viết đề xuất, chờ duyệt. Mọi con số nằm trong config `RULES_V9` (§17).
 
+## 0. Thay đổi V10 — lịch trong ngày và luyện sau thẻ giới thiệu — CONFIRMED (chủ dự án duyệt 2026-11-14)
+
+Lý do: lịch Stage hẹn lại sau 1–10 phút nên số câu trên Home bị bù lại liên tục, và mỗi từ cũ chỉ được hỏi 1 lần mỗi bài nên bài chỉ dài bằng số từ đến hẹn (không bao giờ đủ 100 câu). Các mục dưới đây thay phần tương ứng trong tài liệu.
+
+1. **Lịch Stage theo ngày (R9, §11):** bỏ bước học tính bằng phút. Trả lời xong: đúng → 2 ngày, sai hoặc gợi ý → 1 ngày (tối đa 2 ngày như cũ).
+2. **Lặp trong ngày do AIS (R11, §14):** mỗi mục Stage đang học có tối đa `stagePerDay` = 3 câu tính điểm mỗi ngày (khớp trần +3 điểm/ngày của R3), tính qua mọi bài trong ngày. Mục đã trả lời hôm nay mà chưa đủ 3 câu vẫn là ứng viên của bài sau. Giữa hai câu của cùng mục trong một bài cách `oldRecallGap` = 8–12 câu tính điểm.
+3. **Mọi lịch tính bằng ngày làm tròn về 00:00 giờ VN** của ngày đến hạn: lịch Stage, Card (Review), Card Kanji. Khoảng dưới 1 ngày (Card trả lời Again quay lại trong buổi) giữ nguyên giờ. Mốc sang ngày giữ 00:00 giờ VN.
+4. **Số câu còn lại hôm nay** (Home, Learn) = tổng số câu còn được hỏi của các mục (mục 2), giới hạn bởi ngân sách ngày. Học tới đâu giảm tới đó, về 0 là xong ngày.
+5. **Bài nạp lại ứng viên** khi hết câu hợp lệ trước khi đủ số câu: đọc lại mục đến hẹn một lần rồi mới kết thúc.
+6. **Màn kết thúc bài** ghi lý do: đủ số câu, chạm ngân sách, hoặc hết câu cho hôm nay; kèm số câu đã làm / số câu của bài, số từ mới còn lại hôm nay.
+7. **Luyện sau thẻ giới thiệu (§14.2):** sau mỗi thẻ giới thiệu (từ mới, Kanji words, chữ Kanji) có `microAfterIntro` = 3 câu `MICRO_PRACTICE` liền nhau, mỗi câu một dạng khác; câu nào sai thì thêm 1 câu, tổng tối đa `microMax` = 4. Không điểm, không lịch, không tốn ngân sách, tính vào số câu của bài. Sau đó là 2 lần gọi lại tính điểm như cũ (4–6 câu, 8–12 câu).
+8. **Review Kanji words (R5, §7):** bỏ dạng "nhìn nghĩa → viết rồi tự chấm" (`kanji_write_self`); luân phiên "nhìn Kanji → gõ Kana và Hán Việt" và "nhìn nghĩa → chọn Kanji trong 6" (`kanji_recognition_6`).
+9. **Câu ghép thành phần (R12 dạng C):** ngay sau thẻ giới thiệu chữ Kanji mới (trước 3 câu luyện), không điểm, để hiểu cấu tạo chữ. Ghép 2–3 thành phần cấp trên cùng theo vị trí (trái/phải, trên/dưới, ngoài/trong); sau khi ghép hiện giải thích từng thành phần và bộ thủ, lấy từ dữ liệu đã duyệt (tên 214 bộ thủ, bảng Kanji: Hán Việt và nghĩa). Thành phần không có trong hai nguồn này chỉ hiện hình. Không có mẹo ghi nhớ.
+
 ## 1. Ánh xạ luật cũ sang mới
 
 | Luật | V8 / v2 | V9 |
@@ -125,7 +139,7 @@ Cooldown của AIS (R11) là chuyện **khi nào hỏi**; R3 là chuyện **có 
 | Vừa hoàn tất | Tạo Card | Dạng bài khi ôn |
 | --- | --- | --- |
 | Stage 3 | `vocab.kana` | Nghĩa → gõ Kana |
-| Stage 6 | `vocab.kanji` | Luân phiên: nhìn Kanji → gõ Kana và Hán Việt (sai một ô là sai câu); nhìn nghĩa → viết rồi tự chấm |
+| Stage 6 | `vocab.kanji` | Luân phiên: nhìn Kanji → gõ Kana và Hán Việt (sai một ô là sai câu); nhìn nghĩa → chọn Kanji trong 6 (V10, §0 mục 8; trước đây: viết rồi tự chấm) |
 | Giai đoạn Học Kanji riêng lẻ | `kanji.meaning` | Kanji → nghĩa (lật thẻ, tự chấm); nghĩa → chọn Kanji trong 6 |
 | Giai đoạn Học Kanji riêng lẻ | `kanji.hanviet` | Kanji → gõ Hán Việt; Hán Việt → chọn Kanji trong 6 |
 | (dấu sao) | `vocab.star_recall` | Giữ như v2 |
@@ -169,7 +183,7 @@ Cooldown của AIS (R11) là chuyện **khi nào hỏi**; R3 là chuyện **có 
 
 ### 9.3 Không đủ câu hợp lệ — PROPOSED
 
-Bài kết thúc sớm khi AIS không còn câu hợp lệ (§14.5). Màn kết thúc ghi "Đã hết câu cho hôm nay: 37/50" và lý do (đã hết câu đến hẹn, đã dùng hết từ mới, chạm ngân sách). Không tạo câu lặp để lấp đủ số.
+Bài kết thúc sớm khi AIS không còn câu hợp lệ, kể cả sau khi nạp lại ứng viên (§14.5). Màn kết thúc ghi "Đã hết câu cho hôm nay: 37/50" và lý do (đã hết câu đến hẹn, đã dùng hết từ mới, chạm ngân sách). Không tạo câu lặp để lấp đủ số. — CONFIRMED (V10, 2026-11-14)
 
 ### 9.4 Review tách riêng — CONFIRMED (2026-11-10, thay "Review chung" của yêu cầu V9)
 
@@ -194,6 +208,8 @@ Giữ nguyên V8: loại từ thì Card của từ `suspended`, giữ Stage và 
 
 Mỗi từ × Stage 2, 3, 5, 6 có một lịch `ts-fsrs`, tối đa 2 ngày, không Easy, bộ tính lịch tự chặn ở bước chuyển Learning → Review. Lịch tạo khi stage mở, dừng khi hoàn tất. — CONFIRMED (V8, đổi số stage)
 
+V10 (2026-11-14): không có bước học tính bằng phút (`learning_steps` rỗng); đúng → 2 ngày, sai/gợi ý → 1 ngày; hạn làm tròn về 00:00 giờ VN. Lặp trong ngày do AIS đảm nhận, tối đa 3 câu tính điểm mỗi mục mỗi ngày (§0). — CONFIRMED
+
 ## 12. R10 — Kanji riêng lẻ
 
 - Thứ tự chữ mới, cấp, thẻ "đã biết", quá tải: giữ §18.6. — CONFIRMED
@@ -211,18 +227,18 @@ Mỗi từ × Stage 2, 3, 5, 6 có một lịch `ts-fsrs`, tối đa 2 ngày, kh
 | --- | --- | --- | --- |
 | A | Kanji → nghĩa; nghĩa → chọn Kanji | `KANJI_PRACTICE` | Luôn có |
 | B | Kanji → chọn hoặc gõ Hán Việt | `KANJI_PRACTICE` | Luôn có |
-| C | Ghép thành phần theo vị trí (亻 + 木 → 休) | Hỗ trợ | Chỉ khi dữ liệu cấu tạo được duyệt |
+| C | Ghép thành phần theo vị trí (亻 + 木 → 休), có giải thích bộ thủ và từng thành phần | Hỗ trợ, ngay sau thẻ giới thiệu chữ mới (V10) | Chữ có 2–3 thành phần cấp trên cùng có vị trí trong KanjiVG |
 | E | Phân biệt chữ gần giống (日 / 目), có giải thích sau câu | `KANJI_PRACTICE` (`similar_kanji`): câu chính có điểm ở giai đoạn Học, bắt buộc đúng ít nhất 1 lần mới hoàn tất. Chữ đang ôn bằng Card: câu hỗ trợ không điểm khi trả lời sai — CONFIRMED (2026-11-15) | Cặp do script đề xuất (thành phần và số nét giống nhau, từ KanjiVG), lời giải thích soạn sẵn; chỉ cặp chủ dự án duyệt mới được hỏi — CONFIRMED (2026-11-10) |
 | F | Ghép cặp Kanji ↔ nghĩa hoặc Hán Việt | Bắt buộc, một vòng mỗi bài; ghép sai thì chữ đang học bị trừ 1 điểm (mỗi chữ một lần mỗi vòng) — CONFIRMED (2026-11-15) | Ít nhất 4 chữ đã gặp trong bài |
 | G | Xem hoạt hình thứ tự nét, tự viết ra giấy | Không phải câu hỏi: không chấm, không tính vào số câu | Có dữ liệu nét KanjiVG — CONFIRMED (2026-11-10) |
 
 - **Không** làm dạng D (điền thành phần còn thiếu). — CONFIRMED
 - **Câu hỗ trợ trong bài Learn (gói 7):** C và E của chữ đang ôn bằng Card. Tính vào số câu của bài; không điểm, không lịch, không ghi nhật ký, không tốn ngân sách `learn_cap`; chấm ngay ở trình duyệt. Tối đa 30% số câu của bài (ít nhất 2) — CONFIRMED (2026-11-14). Mỗi chữ mỗi dạng một lần trong bài.
-  - C: sau câu tính điểm đúng đầu tiên của chữ đang ở giai đoạn Học (với chữ mới là lần gọi lại đầu). Chỉ khi chữ có đúng hai thành phần trái–phải hoặc trên–dưới; mảnh nhiễu lấy từ thành phần của chữ khác cùng bố cục. — CONFIRMED (2026-11-15)
+  - C (V10, 2026-11-14): ngay sau thẻ giới thiệu chữ mới, trước 3 câu luyện. Chữ có 2–3 thành phần cấp trên cùng đều có vị trí (trái/phải, trên/dưới, ngoài/trong); mảnh nhiễu lấy từ thành phần của chữ khác. Sau khi ghép hiện giải thích: tên bộ thủ (bảng 214 bộ đã duyệt), Hán Việt và nghĩa của thành phần là chữ Kanji; thành phần khác chỉ hiện hình. Không tính vào trần 30% câu hỗ trợ. Thay cách cũ (sau câu tính điểm đúng đầu tiên, chỉ hai thành phần). — CONFIRMED
   - E (Card): khi trả lời sai câu Card của chữ. — CONFIRMED (2026-11-15)
 - **E có điểm (`similar_kanji`, gói 7):** chữ có cặp gần giống đã duyệt thì câu phân biệt nằm trong lịch Học: xuất hiện từ 3 điểm (cùng nhóm câu chọn chữ), và ở bước cuối được ưu tiên nếu chưa đúng lần nào. Điều kiện hoàn tất thêm: đúng `similar_kanji` ≥ 1. Điểm như câu Kanji khác (+1, sai −2), ghi `kanji_logs`, tốn ngân sách. Tối đa 3 chữ nhiễu, chỉ cặp đã duyệt; đọc cặp lỗi thì coi như không có. — CONFIRMED (2026-11-15)
 - **F bắt buộc (gói 7):** một vòng mỗi bài khi đã gặp ít nhất 4 chữ, hiện khi qua nửa bài hoặc ngay trước khi bài kết thúc; không nằm trong trần 30%. Tính 1 câu của bài, không tốn ngân sách. Ghép sai thì chữ đang ở giai đoạn Học bị trừ `matchRound.wrongPoints` (−1), không xuống dưới 0, không đổi lịch; ghi ở `kanji_match_penalties` (không phải `kanji_logs`, nên không đếm vào buổi Học hay giãn cách), chống gửi trùng. Migration `20261115000001`. — CONFIRMED (2026-11-15)
-- **Dạng G hiện ở:** thẻ giới thiệu chữ mới, thẻ học lại khi sai liên tiếp, trang chi tiết chữ, câu "viết rồi tự chấm" của Review (sau khi lật). Người dùng chọn giảm chuyển động thì hiện sẵn cả chữ. — CONFIRMED (2026-11-14)
+- **Dạng G hiện ở:** thẻ giới thiệu chữ mới, thẻ học lại khi sai liên tiếp, trang chi tiết chữ. (Câu "viết rồi tự chấm" của Review đã bỏ ở V10.) Người dùng chọn giảm chuyển động thì hiện sẵn cả chữ. — CONFIRMED (2026-11-14)
 - Ghi nguồn KanjiVG (CC BY-SA 3.0) ở trang chi tiết chữ.
 - Chấm Hán Việt khi gõ: bỏ khác biệt hoa/thường và khoảng trắng; dấu tiếng Việt phải đúng, nhưng chấp nhận cả hai kiểu đặt dấu (hoà/hòa). — PROPOSED
 - Không chấm nét viết: app không nhận dạng chữ viết tay, dạng G chỉ để xem. — CONFIRMED (2026-11-10)
@@ -241,11 +257,11 @@ AIS chỉ quyết định **thứ tự câu** trong bài Learn. Không thay lị
 
 ### 14.2 Luồng của một mục mới
 
-Giới thiệu → `MICRO_PRACTICE` ngay → xen 4–6 câu đếm gap → `STAGE_QUESTION` (gọi lại lần 1) → xen 8–12 câu → `STAGE_QUESTION` (gọi lại lần 2) → rời thang, theo lịch Stage.
+Giới thiệu → (chữ Kanji mới: câu ghép thành phần C) → 3 câu `MICRO_PRACTICE` liền nhau, mỗi câu một dạng, sai thì thêm 1 (tối đa 4) → xen 4–6 câu đếm gap → `STAGE_QUESTION` (gọi lại lần 1) → xen 8–12 câu → `STAGE_QUESTION` (gọi lại lần 2) → rời thang; còn câu trong ngày thì hỏi tiếp như mục đến hẹn (§0 mục 2). — V10, CONFIRMED 2026-11-14
 
 - **Sai** ở bất kỳ bước nào: hiện giải thích, xếp một `MICRO_PRACTICE` sau 2 câu, rồi quay lại bước gọi lại lần 1 (xen 4–6).
-- Một mục mới có tối đa 6 câu trong một bài (`maxPerItemPerLesson`), kể cả câu `MICRO_PRACTICE`.
-- Mục đến hẹn theo lịch (không mới) không đi thang; chỉ cần gap ≥ 4 để được xếp.
+- Một mục mới có tối đa 9 câu trong một bài (`maxPerItemPerLesson`), kể cả câu `MICRO_PRACTICE`.
+- Mục đến hẹn theo lịch (không mới) không đi thang; được hỏi tối đa 3 câu mỗi ngày (§0), hai câu trong cùng bài cách 8–12 câu.
 
 ### 14.3 Chọn câu tiếp theo
 
@@ -264,7 +280,8 @@ Giới thiệu → `MICRO_PRACTICE` ngay → xen 4–6 câu đếm gap → `STAG
 ### 14.5 Khi hết câu hợp lệ
 
 1. Nới luật "không trùng dạng liền nhau" trước.
-2. Vẫn không có câu thì kết thúc bài sớm (§9.3). Không xếp câu có gap < 4 chỉ để đủ số.
+2. Nạp lại ứng viên một lần (V10).
+3. Vẫn không có câu thì kết thúc bài sớm (§9.3). Không xếp câu có gap < 4 chỉ để đủ số.
 
 ### 14.6 Kiểm thử
 

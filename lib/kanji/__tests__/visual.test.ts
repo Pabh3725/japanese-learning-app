@@ -18,27 +18,49 @@ function seeded(seed: number) {
 const data = JSON.parse(readFileSync(join(process.cwd(), 'data', 'n5', 'kanji_visual.json'), 'utf8')) as { kanji: Record<string, { parts: KanjiPart[]; strokes: string[] }> }
 const all = Object.entries(data.kanji).map(([character, k]) => ({ character, parts: k.parts }))
 
-describe('Dạng C — ghép thành phần', () => {
-  it('休 = 亻 + 木 theo hàng ngang; ghép đúng thứ tự mới đúng', () => {
-    const q = buildPartsQuestion({ character: '休', hanViet: 'HƯU', meaning: 'nghỉ', parts: data.kanji['休'].parts }, all, seeded(1))!
-    expect(q.layout).toBe('row')
+const NO_INFO = () => ({ radicalName: null, hanViet: null, meaning: null })
+
+describe('Dạng C — ghép thành phần (V10: 2–3 phần theo vị trí, có giải thích)', () => {
+  it('休 = 亻 (trái) + 木 (phải); ghép đúng thứ tự mới đúng; giải thích lấy từ dữ liệu tra được', () => {
+    const info = (part: KanjiPart) =>
+      part.c === '亻' ? { radicalName: 'Bộ Nhân', hanViet: 'NHÂN', meaning: 'người' } : part.c === '木' ? { radicalName: 'Bộ Mộc', hanViet: 'MỘC', meaning: 'cây' } : NO_INFO()
+    const q = buildPartsQuestion({ character: '休', hanViet: 'HƯU', meaning: 'nghỉ', parts: data.kanji['休'].parts }, all, info, seeded(1))!
+    expect(q.slots).toEqual(['left', 'right'])
     expect(q.answer).toEqual(['亻', '木'])
     expect(q.pool).toEqual(expect.arrayContaining(['亻', '木']))
     expect(gradeParts(q, ['亻', '木'])).toBe(true)
     expect(gradeParts(q, ['木', '亻'])).toBe(false)
+    expect(q.explanation.split('\n')).toEqual(['休 = 亻 + 木', '亻 (left): NHÂN · người · Bộ Nhân, a form of 人', '木 (right): MỘC · cây · Bộ Mộc'])
   })
 
-  it('toàn bộ dữ liệu: câu dựng được thì đáp án nằm trong mảnh, không mảnh nhiễu nào trùng đáp án; chữ một khối thì không có câu', () => {
+  it('bao ngoài ghép trước phần bên trong; bố cục 3 phần theo thứ tự trái → trên → dưới', () => {
+    const outer = all.find((k) => k.parts.length === 2 && k.parts.some((p) => p.pos === 'tarec'))!
+    const q = buildPartsQuestion({ character: outer.character, hanViet: '', meaning: '', parts: outer.parts }, all, NO_INFO, seeded(2))!
+    expect(q.slots).toEqual(['outside', 'inside'])
+    const three = all.find((k) => k.parts.length === 3 && k.parts.map((p) => p.pos).join() === 'left,top,bottom')!
+    expect(buildPartsQuestion({ character: three.character, hanViet: '', meaning: '', parts: three.parts }, all, NO_INFO, seeded(3))!.slots).toEqual(['left', 'top', 'bottom'])
+  })
+
+  it('không bịa thông tin: thành phần không tra được chỉ hiện hình và vị trí', () => {
+    const q = buildPartsQuestion({ character: '休', hanViet: '', meaning: '', parts: data.kanji['休'].parts }, all, NO_INFO, seeded(1))!
+    expect(q.explanation.split('\n').slice(1)).toEqual(['亻 (left)', '木 (right)'])
+  })
+
+  it('toàn bộ dữ liệu: đáp án nằm trong mảnh, mảnh nhiễu không trùng đáp án; chữ một khối hoặc thiếu vị trí thì không có câu', () => {
     let built = 0
     for (const k of all) {
-      const q = buildPartsQuestion({ character: k.character, hanViet: '', meaning: '', parts: k.parts }, all, seeded(k.character.codePointAt(0)!))
+      const q = buildPartsQuestion({ character: k.character, hanViet: '', meaning: '', parts: k.parts }, all, NO_INFO, seeded(k.character.codePointAt(0)!))
       if (!q) continue
       built++
-      expect(new Set(q.pool).size, k.character).toBe(q.pool.length)
+      expect(q.slots.length, k.character).toBe(q.answer.length)
+      expect(q.answer.length).toBeGreaterThanOrEqual(2)
+      expect(q.answer.length).toBeLessThanOrEqual(3)
+      const distractors = q.pool.filter((c, i) => q.pool.indexOf(c) === i && !q.answer.includes(c))
+      expect(distractors.length).toBeGreaterThanOrEqual(2)
       for (const c of q.answer) expect(q.pool).toContain(c)
     }
-    expect(built).toBeGreaterThan(200)
-    expect(buildPartsQuestion({ character: '日', hanViet: '', meaning: '', parts: data.kanji['日'].parts }, all)).toBeNull()
+    expect(built).toBeGreaterThan(500)
+    expect(buildPartsQuestion({ character: '日', hanViet: '', meaning: '', parts: data.kanji['日'].parts }, all, NO_INFO)).toBeNull()
   })
 })
 

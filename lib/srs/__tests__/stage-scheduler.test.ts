@@ -1,4 +1,4 @@
-// SCH-01 — Lịch của Stage: tối đa 2 ngày, không có Easy. Số mong đợi từ chạy thật ts-fsrs, tắt fuzz.
+// SCH-01 — Lịch của Stage: tối đa 2 ngày, không có Easy, V10 không hẹn trong ngày. Số mong đợi từ chạy thật ts-fsrs, tắt fuzz.
 import { describe, expect, it } from 'vitest'
 import { newStageSchedule, reviewStageSchedule } from '../stage-scheduler'
 import type { Schedule } from '../scheduler'
@@ -39,26 +39,31 @@ describe('reviewStageSchedule', () => {
     for (const { scheduledDays } of simulate((i) => pattern[i % 4], 40)) expect(scheduledDays).toBeLessThanOrEqual(2)
   })
 
-  it('đúng mọi câu: câu thứ 5 ở ngày 6, thứ 8 ở ngày 12, thứ 10 ở ngày 16 (R9)', () => {
-    const seen = simulate(() => 'correct', 10)
-    expect(seen[4].day).toBe(6)
-    expect(seen[7].day).toBe(12)
-    expect(seen[9].day).toBe(16)
-  })
-
-  it('trả lời muộn đúng lúc chuyển sang Review: vẫn tối đa 2 ngày, hạn tính từ lúc trả lời', () => {
-    // ts-fsrs 6.0.0 trả về 7 ngày ở bước này nếu không có lớp chặn
+  it('V10: không hẹn trong ngày; đúng → 2 ngày, sai và gợi ý → 1 ngày', () => {
     const first = reviewStageSchedule(newStageSchedule(start), 'correct', start)
-    const nextDay = new Date(start.getTime() + 864e5)
-    const graduated = reviewStageSchedule(first, 'correct', nextDay)
-    expect(graduated.state).toBe(2)
-    expect(graduated.scheduledDays).toBe(2)
-    expect(graduated.due.getTime()).toBe(nextDay.getTime() + 2 * 864e5)
+    expect(first.scheduledDays).toBe(2)
+    expect(reviewStageSchedule(newStageSchedule(start), 'wrong', start).scheduledDays).toBe(1)
+    expect(reviewStageSchedule(newStageSchedule(start), 'hint', start).scheduledDays).toBe(1)
+    for (const { scheduledDays } of simulate((i) => (['correct', 'wrong', 'hint'] as Outcome[])[i % 3], 30)) expect(scheduledDays).toBeGreaterThanOrEqual(1)
   })
 
-  it('sai thì hỏi lại trong ngày', () => {
-    const after = reviewStageSchedule(reviewStageSchedule(newStageSchedule(start), 'correct', start), 'wrong', start)
-    expect(after.scheduledDays).toBe(0)
+  it('V10: hạn làm tròn về 00:00 giờ VN của ngày đến hạn', () => {
+    // 2026-11-01 20:13 giờ VN, đúng → 2 ngày → 00:00 giờ VN ngày 03/11 (17:00 UTC ngày 02/11)
+    const at = new Date('2026-11-01T13:13:00Z')
+    const next = reviewStageSchedule(newStageSchedule(at), 'correct', at)
+    expect(next.due.toISOString()).toBe('2026-11-02T17:00:00.000Z')
+    // Sai lúc 23:30 giờ VN → 00:00 giờ VN hôm sau
+    const late = new Date('2026-11-01T16:30:00Z')
+    expect(reviewStageSchedule(newStageSchedule(late), 'wrong', late).due.toISOString()).toBe('2026-11-01T17:00:00.000Z')
+  })
+
+  it('trả lời muộn sau nhiều ngày vẫn tối đa 2 ngày', () => {
+    const first = reviewStageSchedule(newStageSchedule(start), 'correct', start)
+    const late = new Date(start.getTime() + 9 * 864e5)
+    const next = reviewStageSchedule(first, 'correct', late)
+    expect(next.scheduledDays).toBe(2)
+    expect(next.due.getTime()).toBeLessThanOrEqual(late.getTime() + 2 * 864e5)
+    expect(next.due.getTime()).toBeGreaterThan(late.getTime())
   })
 })
 

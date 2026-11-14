@@ -9,6 +9,7 @@ import { readDailyLimits } from '@/lib/dal/daily-limits'
 import { studyDate } from '@/lib/learning/time'
 import { readAllPages } from '@/lib/dal/pages'
 import { readKnownWordIds } from '@/lib/dal/known-words'
+import { readStagePool } from '@/lib/dal/stage-pool'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 
@@ -141,7 +142,7 @@ export async function getWordKanjiOverview(): Promise<WordKanjiOverview> {
   const user = await requireUser()
   const supabase = await createClient()
   const now = new Date()
-  const [rows, excluded, levels, optins, settings, answered, totals, due] = await Promise.all([
+  const [rows, excluded, levels, optins, settings, answered, totals] = await Promise.all([
     readWords(supabase, user.id),
     readKnownWordIds(supabase, user.id),
     readSkillLevels(supabase, user.id),
@@ -152,26 +153,17 @@ export async function getWordKanjiOverview(): Promise<WordKanjiOverview> {
     readAllPages('vocabularies', (from, to) =>
       supabase.from('vocabularies').select('id, jlpt_level, is_kana_only, kanji_policy, kanji_target_level').eq('is_kana_only', false).order('id').range(from, to),
     ),
-    readAllPages('learner_stage_schedules', (from, to) =>
-      supabase
-        .from('learner_stage_schedules')
-        .select('learner_vocabulary!inner(vocabulary_id)')
-        .eq('user_id', user.id)
-        .in('stage_number', [5, 6])
-        .is('completed_at', null)
-        .lte('due_at', now.toISOString())
-        .order('id')
-        .range(from, to),
-    ),
   ])
   if (answered.error) throw new Error(`Không đọc được exercise_logs: ${answered.error.message}`)
+  // V10: số câu còn hỏi được hôm nay (mục đến hẹn và mục còn câu trong ngày)
+  const pool = await readStagePool(supabase, user.id, [5, 6], excluded, now)
 
   const active = rows.filter((row) => !excluded.has(row.vocabulary_id))
   // V9: ngân sách Learn chung với Từ vựng và câu Học Kanji
   const cap = settings.stageCap
   const answeredToday = answered.count ?? 0
   const room = Math.max(0, settings.stageCap - settings.answeredToday)
-  const dueCount = (due as unknown as { learner_vocabulary: { vocabulary_id: string } }[]).filter((r) => !excluded.has(r.learner_vocabulary.vocabulary_id)).length
+  const dueCount = pool.reduce((sum, item) => sum + item.left, 0)
   const level = levels.word_kanji
   const waitingRows = active.filter((row) => !opened(row) && doneStage3(row) && row.vocabularies.vocabulary_kanji.length > 0)
   const allowed = (row: WordRow) => kanjiAllowed(policyOf(row.vocabularies), level, optins.has(row.vocabulary_id))
