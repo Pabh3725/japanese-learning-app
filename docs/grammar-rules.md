@@ -31,7 +31,7 @@ Mẫu của bài n mở khi **cả hai** điều kiện đúng:
 1. Ít nhất **50% từ vựng của bài n đã xong Stage 3** (đã có Card Kana). Từ đã đánh dấu "đã biết" tính là xong; từ bị loại khỏi lộ trình không tính vào mẫu số. — PROPOSED (cách tính từ đã biết/loại)
 2. Ít nhất **50% mẫu của bài n−1 đã học xong** (xong giai đoạn Học, §6.4). Bài 1 không có điều kiện này.
 
-Trong bài đã mở, mẫu mới đến theo thứ tự trong bài. Mỗi ngày **1 mẫu mới** (Settings: 1–3). — CONFIRMED
+Trong bài đã mở, mẫu mới đến theo thứ tự trong bài. Mỗi ngày **1 mẫu mới** (Settings: 1–10; nới từ 1–3 ngày 2026-11-14). — CONFIRMED
 
 Trang Grammar hiện mỗi bài với trạng thái: chưa mở (kèm điều kiện còn thiếu, ví dụ "Cần thêm 4 từ xong Stage 3"), đang học, xong.
 
@@ -209,7 +209,7 @@ Kết quả: theo thời gian mọi dạng hợp lệ xuất hiện gần đều
 
 | Mục | Mặc định | Khoảng |
 | --- | --- | --- |
-| Mẫu ngữ pháp mới mỗi ngày | 1 | 1–3 |
+| Mẫu ngữ pháp mới mỗi ngày | 1 | 1–10 (2026-11-14) |
 | Mẫu ôn tối đa mỗi ngày | 20 | 5–50 |
 | Hiện furigana | Bật | Bật/Tắt |
 
@@ -219,7 +219,7 @@ Kết quả: theo thời gian mọi dạng hợp lệ xuất hiện gần đều
 export const GRAMMAR_V1 = {
   lessons: 50,
   unlock: { vocabStage3Share: 0.5, previousLessonDoneShare: 0.5 },
-  newPerDay: { default: 1, min: 1, max: 3 },
+  newPerDay: { default: 1, min: 1, max: 10 },
   learning: {
     completeAt: 40,
     questionsPerSitting: 8,

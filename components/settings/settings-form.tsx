@@ -2,6 +2,7 @@
 
 import { useId, useState, useTransition } from 'react'
 import { saveGrammarFuriganaAction, saveNewPerDayAction, saveStudyLimitAction } from '@/app/(main)/settings/actions'
+import { GRAMMAR_V1 } from '@/lib/grammar/rules'
 import { MAX_NEW_PER_DAY, MIN_NEW_PER_DAY, STUDY_LIMITS, type StudyLimitKey } from '@/lib/learning/new-words'
 import { cn } from '@/lib/utils'
 
@@ -59,24 +60,23 @@ function NumberBox({ id, labelledBy, min, max, field, className }: { id?: string
   )
 }
 
-function NewPerDaySetting({ initial }: { initial: number }) {
+/** Từ mới mỗi ngày: lưu riêng (có quota mượn ngày mai), nhưng hiện như một dòng trong nhóm Vocabulary. */
+function NewPerDayField({ initial }: { initial: number }) {
+  const id = useId()
   const field = useNumberField(initial, MIN_NEW_PER_DAY, MAX_NEW_PER_DAY, saveNewPerDayAction)
-
   return (
-    <section aria-labelledby="new-words-title" className="rounded-3xl border border-border bg-card p-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 id="new-words-title" className="font-semibold">New words per day</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Fewer words means fewer questions each day and more time to remember them.</p>
-        </div>
-        <NumberBox labelledBy="new-words-title" min={MIN_NEW_PER_DAY} max={MAX_NEW_PER_DAY} field={field} className="w-full shrink-0 sm:w-28" />
+    <div className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <label htmlFor={id} className="text-sm font-medium">New words per day</label>
+        <p className="text-sm text-muted-foreground">Fewer words means fewer questions each day and more time to remember them.</p>
+        {field.error && <p role="alert" className="mt-1 text-sm text-error">{field.error}</p>}
       </div>
-      {field.error && <p role="alert" className="mt-3 text-sm text-error">{field.error}</p>}
-    </section>
+      <NumberBox id={id} min={MIN_NEW_PER_DAY} max={MAX_NEW_PER_DAY} field={field} className="w-full sm:w-28" />
+    </div>
   )
 }
 
-function SettingSwitch({ label, description, defaultChecked, onSave }: { label: string; description: string; defaultChecked?: boolean; onSave?: (value: boolean) => Promise<unknown> }) {
+function SettingSwitch({ label, description, defaultChecked, onSave }: { label: string; description: string; defaultChecked?: boolean; onSave: (value: boolean) => Promise<unknown> }) {
   const [checked, setChecked] = useState(!!defaultChecked)
   const id = useId()
   return (
@@ -94,7 +94,7 @@ function SettingSwitch({ label, description, defaultChecked, onSave }: { label: 
         onClick={() => {
           const value = !checked
           setChecked(value)
-          void onSave?.(value)
+          void onSave(value)
         }}
         className={cn('relative h-7 w-12 shrink-0 rounded-full transition-colors duration-200', checked ? 'bg-primary' : 'bg-[#2e3440]')}
       >
@@ -110,12 +110,17 @@ function StudyLimitField({ limitKey, initial }: { limitKey: StudyLimitKey; initi
   const { label, hint, min, max } = STUDY_LIMITS[limitKey]
   const id = useId()
   const field = useNumberField(initial, min, max, (value) => saveStudyLimitAction(limitKey, value))
+  const value = Number(field.text)
+  // Mỗi mẫu mới học 5 buổi × 8 câu, nên sau tuần đầu mỗi ngày có khoảng 40 câu cho mỗi mẫu mới/ngày
+  const { questionsPerSitting, sittingGaps } = GRAMMAR_V1.learning
+  const grammarLoad = limitKey === 'grammar_new_per_day' && Number.isInteger(value) && value > 3 ? value * questionsPerSitting * (sittingGaps.length + 1) : null
 
   return (
     <div className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <label htmlFor={id} className="text-sm font-medium">{label}</label>
         <p className="text-sm text-muted-foreground">{hint}</p>
+        {grammarLoad !== null && <p className="mt-1 text-sm text-yellow">About {grammarLoad} grammar learning questions a day after the first week.</p>}
         {field.error && <p role="alert" className="mt-1 text-sm text-error">{field.error}</p>}
       </div>
       <NumberBox id={id} min={min} max={max} field={field} className="w-full sm:w-28" />
@@ -123,36 +128,31 @@ function StudyLimitField({ limitKey, initial }: { limitKey: StudyLimitKey; initi
   )
 }
 
+/** Các nhóm cài đặt theo khu học. Mỗi giới hạn thuộc đúng một nhóm. */
+const GROUPS: { id: string; title: string; description: string; keys: readonly StudyLimitKey[]; newWords?: boolean; furigana?: boolean }[] = [
+  { id: 'learn', title: 'Learn', description: 'Lessons mix Vocabulary, Kanji words and Kanji.', keys: ['lesson_size', 'learn_cap'] },
+  { id: 'vocab', title: 'Vocabulary', description: 'New words, and their cards in Review.', keys: ['review_cap', 'unlock_threshold'], newWords: true },
+  { id: 'word-kanji', title: 'Kanji words', description: 'Cards for words you have learned in Kanji.', keys: ['word_kanji_review_cap'] },
+  { id: 'kanji', title: 'Kanji', description: 'Single characters: learning, then long-term cards.', keys: ['kanji_new_per_day', 'kanji_cap', 'kanji_review_cap'] },
+  { id: 'grammar', title: 'Grammar', description: 'Patterns by Minna lesson.', keys: ['grammar_new_per_day', 'grammar_review_cap'], furigana: true },
+]
+
 export function SettingsForm({ newPerDay, limits, furigana = true }: { newPerDay: number; limits: Record<StudyLimitKey, number>; furigana?: boolean }) {
   return (
     <div className="flex max-w-2xl flex-col gap-6">
-      <NewPerDaySetting initial={newPerDay} />
-
-      <section aria-labelledby="limits-title" className="rounded-3xl border border-border bg-card px-6 pt-6 pb-2">
-        <h2 id="limits-title" className="font-semibold">Daily limits</h2>
-        <div className="divide-y divide-border">
-          {(Object.keys(STUDY_LIMITS) as StudyLimitKey[]).map((key) => (
-            <StudyLimitField key={key} limitKey={key} initial={limits[key]} />
-          ))}
-        </div>
-      </section>
-      <section aria-labelledby="study-title" className="rounded-3xl border border-border bg-card px-6 pt-6 pb-2">
-        <h2 id="study-title" className="font-semibold">Study</h2>
-        <div className="divide-y divide-border">
-          <SettingSwitch label="Furigana in Grammar" description="Show readings above Kanji in grammar sentences." defaultChecked={furigana} onSave={saveGrammarFuriganaAction} />
-          <SettingSwitch label="Show Sino-Vietnamese" description="Display Hán Việt readings on cards." defaultChecked />
-          <SettingSwitch label="Show romaji" description="Helpful while you're still learning Kana." />
-          <SettingSwitch label="Sound effects" description="Play sounds for correct and wrong answers." defaultChecked />
-        </div>
-      </section>
-
-      <section aria-labelledby="notify-title" className="rounded-3xl border border-border bg-card px-6 pt-6 pb-2">
-        <h2 id="notify-title" className="font-semibold">Reminders</h2>
-        <div className="divide-y divide-border">
-          <SettingSwitch label="Daily reminder" description="Get a nudge when reviews are due." defaultChecked />
-          <SettingSwitch label="Streak protection" description="Remind me before my streak ends." defaultChecked />
-        </div>
-      </section>
+      {GROUPS.map((group) => (
+        <section key={group.id} aria-labelledby={`${group.id}-title`} className="rounded-3xl border border-border bg-card px-6 pt-6 pb-2">
+          <h2 id={`${group.id}-title`} className="font-semibold">{group.title}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{group.description}</p>
+          <div className="divide-y divide-border">
+            {group.newWords && <NewPerDayField initial={newPerDay} />}
+            {group.keys.map((key) => (
+              <StudyLimitField key={key} limitKey={key} initial={limits[key]} />
+            ))}
+            {group.furigana && <SettingSwitch label="Furigana in Grammar" description="Show readings above Kanji in grammar sentences." defaultChecked={furigana} onSave={saveGrammarFuriganaAction} />}
+          </div>
+        </section>
+      ))}
     </div>
   )
 }
