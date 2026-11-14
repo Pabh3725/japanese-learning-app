@@ -22,8 +22,14 @@ import type { RecallStep } from '@/lib/types'
 const SAVE_ERROR = "Couldn't check your answer. Check your connection and try again."
 const SAVE_WARNING = "Some answers couldn't be saved. Those cards will come up again."
 
+/** V11: Card trả lời sai quay lại trong cùng lượt sau 3–5 câu, tối đa 3 lần mỗi Card (docs/learning-rules.md §0c). */
+const RETRY_GAP: readonly [number, number] = [3, 5]
+const MAX_RETRIES = 3
+
+type SessionQuestion = ReviewQuestion & { retry?: number }
+
 export function ReviewSession({ questions: initialQuestions, capReached, cardsLeft }: { questions: ReviewQuestion[]; capReached: boolean; cardsLeft: number }) {
-  const [questions, setQuestions] = useState(initialQuestions)
+  const [questions, setQuestions] = useState<SessionQuestion[]>(initialQuestions)
   const router = useRouter()
   const [index, setIndex] = useState(0)
   const [results, setResults] = useState<boolean[]>([])
@@ -76,6 +82,19 @@ export function ReviewSession({ questions: initialQuestions, capReached, cardsLe
 
   const q = questions[index]
   const next = () => setIndex((i) => i + 1)
+  // Lần đầu của mỗi Card mới tính vào kết quả lượt; câu hỏi lại chỉ để nhớ lại
+  const firstTry = (current: SessionQuestion) => (current.retry ?? 0) === 0
+  const record = (current: SessionQuestion, correct: boolean) => {
+    if (firstTry(current)) setResults((list) => [...list, correct])
+    if (correct || (current.retry ?? 0) >= MAX_RETRIES) return
+    // Hỏi lại cùng Card với mã câu mới: FSRS tính như một bước học lại
+    const again: SessionQuestion = { ...current, clientEventId: crypto.randomUUID(), retry: (current.retry ?? 0) + 1 }
+    const gap = RETRY_GAP[0] + Math.floor(Math.random() * (RETRY_GAP[1] - RETRY_GAP[0] + 1))
+    setQuestions((list) => {
+      const at = Math.min(list.length, index + 1 + gap)
+      return [...list.slice(0, at), again, ...list.slice(at)]
+    })
+  }
   const responseMs = () => Date.now() - shownAt.current
 
   /** Server chấm rồi mới tính lịch. Câu tự chấm dựa vào người học. */
@@ -91,7 +110,7 @@ export function ReviewSession({ questions: initialQuestions, capReached, cardsLe
       if (res.status === 'graded') {
         const correct = res.outcome !== 'wrong'
         speak(res.reading)
-        setResults((list) => [...list, correct])
+        record(current, correct)
         return { correct, answer: [res.answer], reveal: res.reveal }
       }
       // Card đã bị tạm dừng trên máy khác: câu này không còn hiệu lực
@@ -111,7 +130,7 @@ export function ReviewSession({ questions: initialQuestions, capReached, cardsLe
       if (res.status === 'graded') {
         const correct = res.outcome !== 'wrong'
         speak(res.reading)
-        setResults((list) => [...list, correct])
+        record(current, correct)
         return { correct, answer: res.answer, reveal: res.reveal }
       }
       if (res.status === 'not_active' || res.status === 'not_found') {
@@ -127,7 +146,7 @@ export function ReviewSession({ questions: initialQuestions, capReached, cardsLe
   /** V10: câu chọn Kanji trong 6. Mã câu giữ nguyên nên gửi lại không bị tính hai lần. */
   const answerChoice = (current: Extract<ReviewQuestion, { kind: 'choice' }>) => (chosen: string) => {
     speak(current.speak)
-    setResults((list) => [...list, chosen === current.answer])
+    record(current, chosen === current.answer)
     const payload = { cardId: current.cardId, clientEventId: current.clientEventId, exercise: current.exercise, responseMs: responseMs(), answer: chosen }
     saveQueue.current = saveQueue.current
       .then(() => withRetry(() => submitReviewAnswerAction(payload), (res) => res.status === 'conflict'))
@@ -161,7 +180,7 @@ export function ReviewSession({ questions: initialQuestions, capReached, cardsLe
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <SessionHeader backHref="/review" label="Daily Review" sublabel={`${index + 1} / ${questions.length}`} current={index} total={questions.length} />
+      <SessionHeader backHref="/review" label="Daily Review" sublabel={q.retry ? `Try again · ${index + 1} / ${questions.length}` : `${index + 1} / ${questions.length}`} current={index} total={questions.length} />
       <KnownWordBar vocabularyId={q.vocabularyId} onKnown={removeWord} />
       <ArchiveCardBar kind="vocab" cardId={q.cardId} onArchived={removeCard} />
       {warning && <p role="alert" className="mx-auto mt-3 w-full max-w-2xl px-4 text-sm text-error">{warning}</p>}

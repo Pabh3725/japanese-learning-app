@@ -74,13 +74,15 @@ export const RULES_V9 = {
     stagePerDay: 3,
     /** V10: khoảng cách giữa hai câu của cùng một mục cũ trong một bài. */
     oldRecallGap: [8, 12],
+    /** V11: độ chắc theo stability của lịch Stage — dưới weakBelow là yếu (3 câu/ngày, ưu tiên), từ strongFrom là chắc (1 câu). */
+    strength: { weakBelow: 2, strongFrom: 6 },
     maxPerItemPerLesson: 9,
     maxItemsInLadder: 2,
     introduceEvery: 5,
     minDueShare: 0.4,
     minGroupShare: 0.15,
     topK: 3,
-    priority: { ladderDue: 100, recheck: 150, perOverdueDay: 10, maxOverdue: 100, dueToday: 1, intro: 20, star: 5 },
+    priority: { ladderDue: 100, recheck: 150, perOverdueDay: 10, maxOverdue: 100, dueToday: 1, intro: 20, star: 5, weak: 15 },
     /** Câu học thêm của từ có sao: tối đa mỗi bài, và cách nhau ít nhất từng này câu tính điểm. */
     starPerLesson: 3,
     starEvery: 10,

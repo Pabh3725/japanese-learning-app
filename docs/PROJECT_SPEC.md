@@ -1490,6 +1490,8 @@ Chủ dự án chốt ngày 2026-11-10. Luật đầy đủ: `docs/learning-rule
 
 - **Library V10 (2026-11-14, CONFIRMED):** chi tiết `docs/learning-rules.md` §0b. Một mẫu thẻ cho từ vựng, Kanji, ngữ pháp ("N5 · U1", trạng thái Learning → Reviewing → Learned, ☆ và ✓ Already known); đánh dấu cả unit; hoàn tác "Mark as learned"; dấu sao cho Kanji (vòng học thêm và Card `kanji.star`). Migration `20261121000001`.
 
+- **Review và Learn V11 (2026-11-14, CONFIRMED):** chi tiết `docs/learning-rules.md` §0c. Thẻ sai quay lại trong cùng lượt Review; Progress đo tỷ lệ nhớ thật theo khu, so với mục tiêu 90%; Review xếp Card dễ quên nhất trước và tách Card cùng từ; Learn hỏi từ yếu 3 câu/ngày (ưu tiên), từ vừa 2, từ chắc 1.
+
 ---
 
 ## 20. Ngữ pháp và Thể động từ (2026-11-15) — CONFIRMED, chưa triển khai

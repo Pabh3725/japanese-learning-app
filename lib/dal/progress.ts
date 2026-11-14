@@ -5,6 +5,8 @@ import { requireUser } from '@/lib/dal/auth'
 import { addStudyDays, nextStudyDayStart, studyDate } from '@/lib/learning/time'
 import { currentStreak, lastSevenDays, weekdayLabel } from '@/lib/learning/streak'
 import type { StudyDate } from '@/lib/learning/types'
+import { readAllPages } from '@/lib/dal/pages'
+import { computeRetention, type RetentionEntry, type RetentionStats } from '@/lib/srs/retention'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 
@@ -64,10 +66,56 @@ async function addCountsByDay(supabase: Supabase, table: 'exercise_logs' | 'revi
   }
 }
 
+/**
+ * V11: lần ôn để tính tỷ lệ nhớ thật. Card Từ vựng / Từ vựng Kanji: review_logs có state_before = 2 (đang ở giai đoạn ôn).
+ * Card Kanji: kanji_logs của Card (kanji_logs không lưu trạng thái trước; lấy lần đầu mỗi ngày).
+ */
+async function readRetention(supabase: Supabase, userId: string, since: StudyDate): Promise<RetentionStats> {
+  const [cards, kanji] = await Promise.all([
+    readAllPages('review_logs', (from, to) =>
+      supabase
+        .from('review_logs')
+        .select('review_card_id, rating, study_date, reviewed_at, review_cards!inner(card_type)')
+        .eq('user_id', userId)
+        .eq('state_before', 2)
+        .gte('study_date', since)
+        .order('id')
+        .range(from, to),
+    ),
+    readAllPages('kanji_logs', (from, to) =>
+      supabase
+        .from('kanji_logs')
+        .select('learner_kanji_card_id, outcome, study_date, answered_at')
+        .eq('user_id', userId)
+        .not('learner_kanji_card_id', 'is', null)
+        .gte('study_date', since)
+        .order('id')
+        .range(from, to),
+    ),
+  ])
+  const entries: RetentionEntry[] = [
+    ...(cards as unknown as { review_card_id: string; rating: number; study_date: string; reviewed_at: string; review_cards: { card_type: string } }[]).map((r) => ({
+      area: r.review_cards.card_type === 'vocab.kanji' ? ('kanji_words' as const) : ('vocabulary' as const),
+      cardId: r.review_card_id,
+      date: r.study_date,
+      at: r.reviewed_at,
+      recalled: r.rating > 1,
+    })),
+    ...(kanji as unknown as { learner_kanji_card_id: string; outcome: string; study_date: string; answered_at: string }[]).map((r) => ({
+      area: 'kanji' as const,
+      cardId: r.learner_kanji_card_id,
+      date: r.study_date,
+      at: r.answered_at,
+      recalled: r.outcome !== 'wrong',
+    })),
+  ]
+  return computeRetention(entries)
+}
+
 export interface ProgressStats {
   streak: number
-  /** Tỷ lệ Card nhớ được trong 30 ngày, null khi chưa ôn lần nào. */
-  retention: number | null
+  /** V11: tỷ lệ nhớ thật trong 30 ngày (chỉ lần ôn đầu mỗi ngày của Card đang ở giai đoạn ôn), tách theo khu. */
+  retention: RetentionStats
   week: { date: StudyDate; label: string; answered: number }[]
 }
 
@@ -78,23 +126,16 @@ export async function getProgressStats(): Promise<ProgressStats> {
   const week = lastSevenDays(today)
   const counts = new Map<StudyDate, number>()
   const since = addStudyDays(today, -RETENTION_DAYS)
-  const reviewCount = () => supabase.from('review_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('study_date', since)
-
-  const [streak, total, forgot] = await Promise.all([
+  const [streak, retention] = await Promise.all([
     readStreak(supabase, user.id, today),
-    reviewCount(),
-    reviewCount().eq('rating', 1),
+    readRetention(supabase, user.id, since),
     addCountsByDay(supabase, 'exercise_logs', user.id, week[0], counts),
     addCountsByDay(supabase, 'review_logs', user.id, week[0], counts),
     addCountsByDay(supabase, 'kanji_logs', user.id, week[0], counts),
   ])
-  if (total.error) throw new Error(`Không đọc được review_logs: ${total.error.message}`)
-  if (forgot.error) throw new Error(`Không đọc được review_logs: ${forgot.error.message}`)
-
-  const reviewed = total.count ?? 0
   return {
     streak: streak.streak,
-    retention: reviewed > 0 ? (reviewed - (forgot.count ?? 0)) / reviewed : null,
+    retention,
     week: week.map((date) => ({ date, label: weekdayLabel(date), answered: counts.get(date) ?? 0 })),
   }
 }

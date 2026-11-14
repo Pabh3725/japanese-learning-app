@@ -34,6 +34,8 @@ export interface Candidate {
   overdueDays: number
   /** Số câu tính điểm tối đa của mục trong hôm nay. */
   left: number
+  /** V11: từ yếu (stability thấp của lịch Stage): được ưu tiên hơn trong nhóm. */
+  weak?: boolean
 }
 
 const isNew = (kind: CandidateKind) => kind === 'new_word' || kind === 'new_word_kanji' || kind === 'new_kanji'
@@ -209,7 +211,7 @@ function options(state: LessonState, idle = false, relaxed = false): Option[] {
     const waiting = state.counted < it.readyAt && !(relaxed && !it.ladder)
     if (waiting || !spaced(state, c.anchor) || it.left <= 0) continue
     const overdue = Math.min(p.maxOverdue, c.overdueDays * p.perOverdueDay)
-    const priority = it.ladder ? p.ladderDue : overdue + p.dueToday
+    const priority = it.ladder ? p.ladderDue : overdue + p.dueToday + (c.weak ? p.weak : 0)
     out.push({ plan: { type: 'question', key: c.key, micro: false }, group: c.group, priority })
   }
   return out

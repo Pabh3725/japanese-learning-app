@@ -24,6 +24,7 @@ import {
   type SubmitReviewStatus,
 } from '@/lib/srs/mappers'
 import { readAllPages } from '@/lib/dal/pages'
+import { orderReviewCards } from '@/lib/review/order'
 import { readKnownWordIds } from '@/lib/dal/known-words'
 
 
@@ -123,6 +124,8 @@ type DueCardRow = {
   id: string
   card_type: CardType
   due_at: string
+  stability: number
+  last_review_at: string | null
   learner_vocabulary: {
     vocabulary_id: string
     current_stage: number
@@ -297,7 +300,7 @@ export async function getReviewSession(area: ReviewArea = 'kana'): Promise<Revie
 
   const { data, error } = await supabase
     .from('review_cards')
-    .select(`id, card_type, due_at, learner_vocabulary!inner(vocabulary_id, current_stage, kanji_intro_seen_at, vocabularies!inner(${WORD_COLUMNS}))`)
+    .select(`id, card_type, due_at, stability, last_review_at, learner_vocabulary!inner(vocabulary_id, current_stage, kanji_intro_seen_at, vocabularies!inner(${WORD_COLUMNS}))`)
     .eq('user_id', user.id)
     .is('retired_at', null)
     .is('archived_at', null)
@@ -308,10 +311,13 @@ export async function getReviewSession(area: ReviewArea = 'kana'): Promise<Revie
   if (error) throw new Error(`Không đọc được review_cards: ${error.message}`)
 
   const starredSet = new Set(starredIds)
-  // Card riêng của từ có sao xếp sau Card thường, để không chiếm chỗ của lộ trình chính
-  const due = ((data ?? []) as unknown as DueCardRow[])
-    .filter((c) => isCardActive(c.card_type, c.learner_vocabulary.vocabulary_id, excludedIds, starredSet))
-    .sort((a, b) => Number(a.card_type === STAR_CARD) - Number(b.card_type === STAR_CARD))
+  // V11: Card dễ quên nhất trước, Card sao sau Card thường, hai Card cùng từ không đứng gần nhau (lib/review/order.ts)
+  const active = ((data ?? []) as unknown as DueCardRow[]).filter((c) => isCardActive(c.card_type, c.learner_vocabulary.vocabulary_id, excludedIds, starredSet))
+  const byId = new Map(active.map((c) => [c.id, c]))
+  const due = orderReviewCards(
+    active.map((c) => ({ id: c.id, vocabularyId: c.learner_vocabulary.vocabulary_id, isStar: c.card_type === STAR_CARD, stability: c.stability, lastReviewAt: c.last_review_at })),
+    new Date(),
+  ).map((o) => byId.get(o.id)!)
   const cards = due.slice(0, Math.min(CARDS_PER_ROUND, remaining))
   if (cards.length === 0) return { questions: [], capReached: false, cardsLeft: 0, starredIds }
   const cardsLeft = Math.min(due.length, remaining) - cards.length
