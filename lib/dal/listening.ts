@@ -35,6 +35,21 @@ import {
   type PublicListeningQuestion,
 } from '@/lib/listening/questions'
 import { addStudyDays, studyDate } from '@/lib/learning/time'
+import {
+  approvedConversations,
+  blankQuestionOf,
+  buildConversationSession,
+  conversationScript,
+  gradeConversation,
+  passageDictation,
+  passageLineOf,
+  publicLines,
+  type Conversation,
+  type ConvLine,
+  type PublicConvLine,
+  type StoredConversation,
+} from '@/lib/listening/conversations'
+import conversationsData from '@/data/listening/conversations.json'
 import n5Content from '@/data/jlpt/n5.json'
 import n4Content from '@/data/jlpt/n4.json'
 
@@ -43,6 +58,8 @@ type Kind = ListeningKind
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const JLPT_CONTENT: Record<JlptLevel, LevelContent> = { N5: n5Content as LevelContent, N4: n4Content as LevelContent }
+/** Đợt B: hội thoại soạn sẵn (scripts/listening-content → data/listening/conversations.json), chỉ dùng hội thoại đã duyệt. */
+const CONVERSATIONS: Conversation[] = approvedConversations(conversationsData as Conversation[])
 
 // ---------------------------------------------------------------------------
 // Dữ liệu theo bài (lưu tạm 10 phút)
@@ -114,6 +131,13 @@ export async function startLessonListening(input: unknown): Promise<StartResult>
   if (!Number.isInteger(lesson) || lesson < 1 || lesson > 50 || !isLessonMode(v.mode) || !LISTENING_V1.sessionSizes.includes(count as 10 | 20)) return { status: 'invalid' }
   const user = await requireUser()
   const supabase = await createClient()
+  // Chép chính tả theo đoạn: hội thoại ngắn / dài của bài, từng lượt theo thứ tự (không theo số câu)
+  if (v.mode === 'passage_short' || v.mode === 'passage_long') {
+    const kind = v.mode === 'passage_short' ? 'short' : 'long'
+    const c = CONVERSATIONS.find((x) => x.lesson === lesson && x.kind === kind)
+    if (!c) return { status: 'empty' }
+    return insertSession(supabase, user.id, { kind: 'lesson', lesson, mode: v.mode, questions: passageDictation(c) })
+  }
   const [sentences, recent] = await Promise.all([readLessonSentences(supabase), readLastUsed(supabase, user.id, 'lesson', { lesson })])
   // Nhiễu nghe câu → chọn nghĩa: câu của bài này và các bài trước
   const pool = [...sentences.entries()].filter(([l]) => l <= lesson).flatMap(([, list]) => list)
@@ -268,6 +292,8 @@ export async function startMistakesListening(input: unknown): Promise<StartResul
     if (questions.length >= count) break
     let q: ListeningQuestion | null = null
     if (m.type === 'numbers') q = numberQuestionOf(m.ref, rng)
+    else if (m.type === 'conversation_blank') q = blankQuestionOf(CONVERSATIONS, m.ref, rng)
+    else if (m.type === 'dictation' && m.ref.includes('@')) q = passageLineOf(CONVERSATIONS, m.ref)
     else {
       const found = byCode.get(m.ref)
       if (!found) continue
@@ -279,6 +305,192 @@ export async function startMistakesListening(input: unknown): Promise<StartResul
     if (q) questions.push(q)
   }
   return insertSession(supabase, user.id, { kind: 'mistakes', mode: 'mistakes', questions })
+}
+
+// ---------------------------------------------------------------------------
+// Practice · Conversation listening (§V2.4)
+// ---------------------------------------------------------------------------
+
+/** Bài có hội thoại đã duyệt (Dictation theo đoạn và Conversation listening dùng để bật / tắt). */
+export const conversationLessons = (): number[] => [...new Set(CONVERSATIONS.map((c) => c.lesson))].sort((a, b) => a - b)
+
+export interface ConversationOverview {
+  lessons: { lesson: number; items: { code: string; kind: 'short' | 'long'; title: string; situation: string; lines: number; blanks: number; best: { correct: number; total: number } | null }[] }[]
+}
+
+export async function getConversationOverview(): Promise<ConversationOverview> {
+  const user = await requireUser()
+  const supabase = await createClient()
+  const rows = await readAllPages('listening_sessions', (from, to) =>
+    supabase.from('listening_sessions').select('mode, correct, summary').eq('user_id', user.id).eq('kind', 'conversation').eq('status', 'finished').order('id').range(from, to),
+  )
+  const best = new Map<string, { correct: number; total: number }>()
+  for (const r of rows as { mode: string; correct: number; summary: { total?: number } | null }[]) {
+    const total = r.summary?.total ?? 1
+    const cur = best.get(r.mode)
+    if (!cur || r.correct / total > cur.correct / cur.total) best.set(r.mode, { correct: r.correct, total })
+  }
+  const lessons = new Map<number, ConversationOverview['lessons'][number]['items']>()
+  for (const c of CONVERSATIONS) {
+    lessons.set(c.lesson, [
+      ...(lessons.get(c.lesson) ?? []),
+      { code: c.code, kind: c.kind, title: c.title, situation: c.situation, lines: c.lines.length, blanks: c.blanks.length, best: best.get(c.code) ?? null },
+    ])
+  }
+  return { lessons: [...lessons.entries()].sort((a, b) => a[0] - b[0]).map(([lesson, items]) => ({ lesson, items: items.sort((a, b) => a.kind.localeCompare(b.kind) * -1) })) }
+}
+
+export async function startConversation(input: unknown): Promise<StartResult> {
+  const v = (input ?? {}) as { code?: unknown }
+  const c = CONVERSATIONS.find((x) => x.code === v.code)
+  if (!c) return { status: 'invalid' }
+  const user = await requireUser()
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('listening_sessions')
+    .insert({ user_id: user.id, kind: 'conversation', lesson: c.lesson, mode: c.code, questions: [buildConversationSession(c, Math.random)] })
+    .select('id')
+    .single()
+  if (error) throw new Error(`Không tạo được listening_sessions: ${error.message}`)
+  return { status: 'saved', id: data.id as string }
+}
+
+type VocabRow = { expression: string; reading: string; meaning: string; lesson: number }
+let vocabCache: { at: number; value: VocabRow[] } | null = null
+async function readVocab(supabase: Supabase): Promise<VocabRow[]> {
+  if (vocabCache && Date.now() - vocabCache.at < 10 * 60_000) return vocabCache.value
+  const rows = await readAllPages('vocabularies', (from, to) => supabase.from('vocabularies').select('expression, reading_kana, meaning_vi, lesson').order('sort_order').range(from, to))
+  const value = rows.filter((r) => r.lesson !== null).map((r) => ({ expression: r.expression as string, reading: r.reading_kana as string, meaning: r.meaning_vi as string, lesson: r.lesson as number }))
+  vocabCache = { at: Date.now(), value }
+  return value
+}
+
+/** Từ trong một lượt: mảnh trùng cách viết / cách đọc của từ đã học (động từ chia ます được đưa về thể ます). */
+function wordsOfLine(line: ConvLine, vocab: readonly VocabRow[], lesson: number): { t: string; r: string; meaning: string }[] {
+  const known = vocab.filter((w) => w.lesson <= lesson)
+  const out = new Map<string, { t: string; r: string; meaning: string }>()
+  for (const p of line.pieces) {
+    const base = p.t.replace(/(ませんでした|ました|ません|ましょう)$/, 'ます')
+    const w = known.find((x) => x.expression === p.t || x.expression === base) ?? known.find((x) => x.reading === p.t && x.reading.length > 1)
+    if (w && !out.has(w.expression)) out.set(w.expression, { t: w.expression, r: w.reading, meaning: w.meaning })
+  }
+  return [...out.values()]
+}
+
+export interface ConversationReview {
+  lines: (ConvLine & { words: { t: string; r: string; meaning: string }[] })[]
+  /** Mỗi ô: đáp án, lựa chọn của người học, đúng / sai. */
+  blanks: { line: number; piece: number; options: string[]; answer: number; given: number | null; correct: boolean }[]
+  patterns: { code: string; pattern: string; meaning: string }[]
+  correct: number
+  total: number
+}
+
+export interface ConversationView {
+  id: string
+  code: string
+  lesson: number
+  kind: 'short' | 'long'
+  title: string
+  situation: string
+  script: ConversationScriptLine[]
+  lines: PublicConvLine[]
+  /** Lựa chọn từng ô (đã xáo), chưa có đáp án. */
+  blanks: { line: number; options: string[] }[]
+  review: ConversationReview | null
+}
+type ConversationScriptLine = ReturnType<typeof conversationScript>[number]
+
+type ConvSessionRow = { id: string; lesson: number; mode: string; questions: StoredConversation[]; answers: Record<string, number>; status: 'active' | 'finished' }
+
+async function readConvSession(supabase: Supabase, userId: string, id: unknown): Promise<{ row: ConvSessionRow; c: Conversation } | null> {
+  if (typeof id !== 'string' || !UUID.test(id)) return null
+  const { data, error } = await supabase.from('listening_sessions').select('id, lesson, mode, questions, answers, status').eq('id', id).eq('user_id', userId).eq('kind', 'conversation').maybeSingle()
+  if (error) throw new Error(`Không đọc được listening_sessions: ${error.message}`)
+  const row = data as ConvSessionRow | null
+  // Hội thoại có thể đã bị tắt duyệt sau khi tạo phiên: đọc cả bản chưa duyệt để xem lại
+  const c = row ? (conversationsData as Conversation[]).find((x) => x.code === row.mode) : undefined
+  return row && c ? { row, c } : null
+}
+
+async function reviewOf(supabase: Supabase, c: Conversation, stored: StoredConversation, given: readonly (number | null)[]): Promise<ConversationReview> {
+  const [vocab, content] = await Promise.all([readVocab(supabase), readContent(supabase)])
+  const results = gradeConversation(stored, given)
+  return {
+    lines: c.lines.map((l) => ({ ...l, words: wordsOfLine(l, vocab, c.lesson) })),
+    blanks: c.blanks.map((b, i) => ({ line: b.line, piece: b.piece, options: stored.blanks[i].options, answer: stored.blanks[i].answer, given: given[i] ?? null, correct: results[i] })),
+    patterns: c.patterns.flatMap((code) => {
+      const p = content.find((x) => x.code === code)
+      return p ? [{ code, pattern: p.pattern, meaning: p.meaning }] : []
+    }),
+    correct: results.filter(Boolean).length,
+    total: results.length,
+  }
+}
+
+export async function getConversationSession(id: unknown): Promise<ConversationView | null> {
+  const user = await requireUser()
+  const supabase = await createClient()
+  const found = await readConvSession(supabase, user.id, id)
+  if (!found) return null
+  const { row, c } = found
+  const stored = row.questions[0]
+  const given = stored.blanks.map((_, i) => row.answers[String(i)] ?? null)
+  return {
+    id: row.id,
+    code: c.code,
+    lesson: c.lesson,
+    kind: c.kind,
+    title: c.title,
+    situation: c.situation,
+    script: conversationScript(c),
+    lines: publicLines(c),
+    blanks: c.blanks.map((b, i) => ({ line: b.line, options: stored.blanks[i].options })),
+    review: row.status === 'finished' ? await reviewOf(supabase, c, stored, given) : null,
+  }
+}
+
+/** Nộp cả hội thoại: chấm từng ô, ghi nhật ký từng ô (để vào danh sách câu nghe sai), chốt phiên. */
+export async function submitConversation(input: unknown): Promise<({ status: 'graded' } & ConversationReview) | { status: 'invalid' | 'not_found' }> {
+  const v = (input ?? {}) as { id?: unknown; answers?: unknown; withAudio?: unknown }
+  const user = await requireUser()
+  const supabase = await createClient()
+  const found = await readConvSession(supabase, user.id, v.id)
+  if (!found) return { status: 'not_found' }
+  const { row, c } = found
+  const stored = row.questions[0]
+  if (row.status === 'finished') {
+    const given = stored.blanks.map((_, i) => row.answers[String(i)] ?? null)
+    return { status: 'graded', ...(await reviewOf(supabase, c, stored, given)) }
+  }
+  if (!Array.isArray(v.answers) || v.answers.length !== stored.blanks.length) return { status: 'invalid' }
+  const given = v.answers.map((a, i) => (Number.isInteger(a) && a >= 0 && a < stored.blanks[i].options.length ? (a as number) : null))
+  const results = gradeConversation(stored, given)
+  const correct = results.filter(Boolean).length
+  const answers = Object.fromEntries(given.flatMap((g, i) => (g === null ? [] : [[String(i), g]])))
+  const { error } = await supabase
+    .from('listening_sessions')
+    .update({ answers, status: 'finished', correct, summary: { total: results.length }, finished_at: new Date().toISOString() })
+    .eq('id', row.id)
+    .eq('user_id', user.id)
+  if (error) throw new Error(`Không lưu được listening_sessions: ${error.message}`)
+  const today = studyDate(new Date())
+  const { error: logError } = await supabase.from('listening_logs').insert(
+    results.map((ok, i) => ({
+      user_id: user.id,
+      session_id: row.id,
+      question_index: i,
+      kind: 'conversation',
+      lesson: c.lesson,
+      type: 'conversation_blank',
+      ref: `${c.code}#${i}`,
+      correct: ok,
+      with_audio: v.withAudio !== false,
+      study_date: today,
+    })),
+  )
+  if (logError && logError.code !== '23505') throw new Error(`Không ghi được listening_logs: ${logError.message}`)
+  return { status: 'graded', ...(await reviewOf(supabase, c, stored, given)) }
 }
 
 // ---------------------------------------------------------------------------

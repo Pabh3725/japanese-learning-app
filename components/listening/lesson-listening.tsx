@@ -20,6 +20,8 @@ export interface ModeOption {
   description: string
   /** Chưa có (vd. dictation theo đoạn, đợt B). */
   soon?: boolean
+  /** Cần hội thoại đã duyệt của bài (chép chính tả theo đoạn). */
+  needsConversation?: boolean
 }
 
 export function Tabs<T extends string>({ value, options, onChange, label }: { value: T; options: readonly T[]; onChange: (v: T) => void; label: string }) {
@@ -54,7 +56,7 @@ export function CountSelect({ value, options, onChange }: { value: number; optio
   )
 }
 
-export function LessonListening({ overview, modes }: { overview: ListeningOverview; modes: readonly ModeOption[] }) {
+export function LessonListening({ overview, modes, conversationLessons = [] }: { overview: ListeningOverview; modes: readonly ModeOption[]; conversationLessons?: readonly number[] }) {
   const router = useRouter()
   const [busy, start] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -115,7 +117,7 @@ export function LessonListening({ overview, modes }: { overview: ListeningOvervi
               <li key={m.id + m.name}>
                 <button
                   type="button"
-                  disabled={busy || m.soon}
+                  disabled={busy || m.soon || (m.needsConversation && !conversationLessons.includes(lesson))}
                   onClick={() => run(m.id)}
                   className="flex w-full items-center gap-3 rounded-2xl border border-border px-4 py-3 text-left transition-colors hover:border-primary/60 hover:bg-primary/5 disabled:opacity-50 disabled:hover:border-border disabled:hover:bg-transparent"
                 >
@@ -123,7 +125,7 @@ export function LessonListening({ overview, modes }: { overview: ListeningOvervi
                   <span className="min-w-0">
                     <span className="block text-sm font-medium">
                       {m.name}
-                      {m.soon ? <span className="ml-2 text-xs font-normal text-muted-foreground">Coming soon</span> : m.id !== 'mix' && pct(overview.byType[m.id as LessonType]) && <span className="ml-2 text-xs font-normal text-muted-foreground">{pct(overview.byType[m.id as LessonType])}</span>}
+                      {m.soon || (m.needsConversation && !conversationLessons.includes(lesson)) ? <span className="ml-2 text-xs font-normal text-muted-foreground">Coming soon</span> : m.id !== 'mix' && pct(overview.byType[m.id as LessonType]) && <span className="ml-2 text-xs font-normal text-muted-foreground">{pct(overview.byType[m.id as LessonType])}</span>}
                     </span>
                     <span className="block text-xs text-muted-foreground">{m.description}</span>
                   </span>

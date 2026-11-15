@@ -36,22 +36,27 @@ export const LESSON_TYPES = ['heard_sentence', 'sentence_meaning', 'reply', 'dic
 export type LessonType = (typeof LESSON_TYPES)[number]
 /** Dạng nghe theo câu của Grammar (Mix gồm các dạng này). */
 export const GRAMMAR_LISTENING_TYPES = ['heard_sentence', 'sentence_meaning', 'reply'] as const satisfies readonly LessonType[]
-export type LessonMode = 'mix' | LessonType
-export const isLessonMode = (v: unknown): v is LessonMode => v === 'mix' || LESSON_TYPES.includes(v as LessonType)
+/** Chép chính tả theo đoạn (hội thoại ngắn / dài của bài, đợt B). */
+export const PASSAGE_MODES = ['passage_short', 'passage_long'] as const
+export type PassageMode = (typeof PASSAGE_MODES)[number]
+export type LessonMode = 'mix' | LessonType | PassageMode
+export const isLessonMode = (v: unknown): v is LessonMode => v === 'mix' || LESSON_TYPES.includes(v as LessonType) || PASSAGE_MODES.includes(v as PassageMode)
 export type MockType = 'listening_task' | 'verbal_expressions' | 'quick_response'
 /** Kiểu phiên (listening_sessions.kind). */
-export type ListeningKind = 'lesson' | 'point' | 'jlpt_mock' | 'numbers' | 'mistakes'
+export type ListeningKind = 'lesson' | 'point' | 'jlpt_mock' | 'numbers' | 'mistakes' | 'conversation'
 
 export type ScriptLine = { sp: 'M' | 'F' | 'N'; text: string }
 
 export interface ListeningQuestion {
-  type: LessonType | MockType | 'numbers'
+  type: LessonType | MockType | 'numbers' | 'conversation_blank'
   /** Thi thử: 問題 1–4. */
   section?: 1 | 2 | 3 | 4
   ref: string
   instruction: string
   /** Lời máy đọc (kana), theo thứ tự. */
   script: ScriptLine[]
+  /** Chép chính tả theo đoạn: lời từ đầu đoạn tới trước câu này (nút "nghe từ đầu"). */
+  before?: ScriptLine[]
   /** 課題理解・ポイント理解: câu hỏi in ra. */
   stem?: StemPiece[] | null
   /** 発話表現: tình huống. */

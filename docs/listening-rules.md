@@ -57,6 +57,12 @@
 - Nội dung chủ dự án duyệt trước khi bật (cờ `approved`). **Làm bài 1–25 trước** (50 hội thoại, khoảng 350 ô), duyệt, rồi bài 26–50.
 - Dictation theo đoạn (V2.3) dùng chung các hội thoại này.
 
+### V2.4b Đợt B — trạng thái (2026-11-16)
+
+- **Nội dung bài 1–25 — chủ dự án đã duyệt toàn bộ (2026-11-16):** 50 hội thoại (25 ngắn, 25 dài), 448 lượt nói, 339 ô trống — `docs/listening-review-b.md`. Soạn bằng `scripts/listening-content/` (`ldsl.py`, `conv_*.py`, `show.py`), gộp vào `data/listening/conversations.json`; app chỉ dùng hội thoại có `approved: true` (bật: `write(..., approved=True)` trong `conv_*.py`, chạy lại, `python3 ldsl.py`).
+- **Code đã có:** Practice · Conversation listening (`/practice/conversations`, phiên `/listening/conversation/[id]`, kiểu phiên `conversation`, migration `20261127000001`); Dictation theo đoạn (chế độ *Short / Long conversation*, mỗi lượt một câu gõ, lượt > 24 chữ tách theo 。, lượt có chữ số / chữ Latin bỏ qua, nút "From the start"). Ô sai vào danh sách câu nghe sai (dựng lại thành câu nghe lẻ: nghe lượt đó, chọn từ).
+- **Phân tích câu** sau khi nộp: furigana, nghĩa, từ trong câu (tra theo từ vựng tới bài đó; động từ chia ます đưa về thể ます), các mẫu ngữ pháp của hội thoại (bấm mở Grammar), nghe lại từng lượt, ô đúng / sai và lựa chọn của người học.
+
 ## V2.5 Practice · Numbers listening
 
 - Dữ liệu Counters (số, giờ phút, ngày tháng, thứ, giá tiền 円, số người / cái…). Chọn nhóm (mặc định: tất cả) và 10 / 20 câu.

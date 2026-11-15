@@ -1,7 +1,7 @@
 'use client'
 
 // Luyện nghe (docs/listening-rules.md): phiên theo bài (chấm từng câu) và thi thử phần nghe JLPT (phát một lần, chấm khi nộp).
-import { useEffect, useEffectEvent, useRef, useState, useSyncExternalStore, useTransition } from 'react'
+import { useEffect, useEffectEvent, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Gauge, Volume2, VolumeX } from 'lucide-react'
 import { answerListeningAction, finishListeningAction, retryWrongListeningAction } from '@/app/listening/actions'
@@ -13,13 +13,14 @@ import type { ListeningResult, ListeningSessionView, ListeningSummary } from '@/
 import { convertAtCaret } from '@/lib/exercise/answer-normalize'
 import type { StemPiece } from '@/lib/jlpt/questions'
 import { dictationDiff, LISTENING_V1, MOCK_SECTIONS, type PublicListeningQuestion } from '@/lib/listening/questions'
+import { useRate } from '@/components/listening/use-rate'
 import { hasJapaneseVoice, speakScript } from '@/lib/speech'
 import { cn } from '@/lib/utils'
 
 const SAVE_ERROR = "Couldn't save your answer. Check your connection and try again."
-const RATE_KEY = 'listening-rate'
 const TYPE_NAME: Record<string, string> = {
   heard_sentence: 'Which sentence did you hear?',
+  conversation_blank: 'Conversation listening',
   numbers: 'Numbers listening',
   sentence_meaning: 'Sentence → meaning',
   reply: 'Question → reply',
@@ -58,36 +59,6 @@ function Transcript({ result }: { result: ListeningResult }) {
       <p lang="ja" className="mt-1 whitespace-pre-line text-sm text-subtle">{result.explanation}</p>
     </div>
   )
-}
-
-// Tốc độ đọc nhớ trên thiết bị; trình duyệt chặn localStorage thì nhớ trong phiên
-const rateListeners = new Set<() => void>()
-let memoryRate: number = LISTENING_V1.rate.normal
-function readRate(): number {
-  try {
-    const saved = localStorage.getItem(RATE_KEY)
-    if (saved !== null) return Number(saved) === LISTENING_V1.rate.slow ? LISTENING_V1.rate.slow : LISTENING_V1.rate.normal
-  } catch {}
-  return memoryRate
-}
-
-function useRate(): [number, (r: number) => void] {
-  const rate = useSyncExternalStore(
-    (cb) => {
-      rateListeners.add(cb)
-      return () => rateListeners.delete(cb)
-    },
-    readRate,
-    () => LISTENING_V1.rate.normal,
-  )
-  const set = (r: number) => {
-    memoryRate = r
-    try {
-      localStorage.setItem(RATE_KEY, String(r))
-    } catch {}
-    rateListeners.forEach((l) => l())
-  }
-  return [rate, set]
 }
 
 /** Nút nghe. Thi thử: chỉ phát một lần (bấm lại được khi lần tự phát không chạy hết, vd. trình duyệt chặn tự phát). */
@@ -148,7 +119,7 @@ export function ListeningPlayer({ session }: { session: ListeningSessionView }) 
           ? { label: 'Listening mistakes', href: '/practice/listening-mistakes', back: 'Back to Practice' }
           : session.kind === 'point'
             ? { label: `${session.point?.pattern ?? 'Grammar'} · Stage ${session.mode.replace(/\D/g, '')}`, href: '/grammar/listening', back: 'Back to Grammar listening' }
-          : session.mode === 'dictation'
+          : session.mode === 'dictation' || session.mode.startsWith('passage')
             ? { label: `Dictation · Lesson ${session.lesson}`, href: '/practice/dictation', back: 'Back to Dictation' }
             : { label: `Listening · Lesson ${session.lesson}`, href: '/grammar/listening', back: 'Back to Grammar listening' }
 
@@ -307,6 +278,16 @@ export function ListeningPlayer({ session }: { session: ListeningSessionView }) 
         ) : (
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Audio key={index} q={q} rate={mock ? LISTENING_V1.rate.normal : rate} once={mock} register={(fn) => (playRef.current = fn)} />
+            {q.before && q.before.length > 0 && (
+              <button
+                type="button"
+                onClick={() => speakScript([...q.before!, ...q.script], undefined, rate)}
+                className="flex h-10 items-center gap-1.5 rounded-full border border-border px-3 text-sm text-subtle hover:border-primary/60"
+              >
+                <Volume2 className="size-4" aria-hidden="true" />
+                From the start
+              </button>
+            )}
             {!mock && (
               <button
                 type="button"
