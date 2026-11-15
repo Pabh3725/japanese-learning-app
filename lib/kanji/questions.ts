@@ -102,13 +102,14 @@ function readingsOf(kanji: KanjiRow): string[] {
   return [...kanji.onyomi, ...kanji.kunyomi].map(showReading)
 }
 
-export function revealOf(kanji: KanjiRow): KanjiReveal {
+/** `withReadings`: hiện âm On/Kun. Thẻ học chỉ hiện khi đã học một Từ Kanji có chữ này (chủ dự án chốt 2026-11-15). */
+export function revealOf(kanji: KanjiRow, withReadings = true): KanjiReveal {
   return {
     character: kanji.character,
     hanViet: kanji.han_viet,
     meaning: kanji.meaning_vi,
-    onyomi: kanji.onyomi.map(showReading),
-    kunyomi: kanji.kunyomi.map(showReading),
+    onyomi: withReadings ? kanji.onyomi.map(showReading) : [],
+    kunyomi: withReadings ? kanji.kunyomi.map(showReading) : [],
   }
 }
 

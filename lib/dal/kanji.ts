@@ -328,6 +328,13 @@ async function readExamples(supabase: Supabase, userId: string, kanjiIds: readon
       .map((w) => ({ expression: w.expression, reading: w.reading_kana, meaning: w.meaning_vi }))
 }
 
+/** Âm On/Kun của chữ chỉ hiện trên thẻ học khi đã xem thẻ Kanji của một từ có chữ này (chủ dự án chốt 2026-11-15). */
+async function readingsUnlocked(supabase: Supabase, userId: string, kanjiId: string): Promise<boolean> {
+  const { links, met } = await readLinkedWords(supabase, userId, [kanjiId])
+  const seen = new Set(met.filter((r) => r.kanji_intro_seen_at !== null).map((r) => r.vocabulary_id))
+  return links.some((r) => r.kanji_id === kanjiId && seen.has(r.vocabularies.id))
+}
+
 /** Từ dùng cho câu word_meaning: đã gặp và đã xem Kanji của từ đó, có đủ nghĩa khác làm đáp án nhiễu. */
 async function readWordOptions(supabase: Supabase, userId: string, kanjiIds: readonly string[]): Promise<Map<string, KanjiWordOption>> {
   const { links, met } = await readLinkedWords(supabase, userId, kanjiIds)
@@ -469,7 +476,7 @@ async function submitCardAnswer(supabase: Supabase, userId: string, req: KanjiAn
   if (rpcError) throw new Error(`submit_kanji_card_answer lỗi: ${rpcError.message}`)
   const status = (saved as { status: string }).status
   if (status === 'conflict' || status === 'not_found' || status === 'not_active') return { status }
-  return { status: 'graded', outcome, answer, reveal: revealOf(kanji), completed: false }
+  return { status: 'graded', outcome, answer, reveal: revealOf(kanji, await readingsUnlocked(supabase, userId, kanji.id)), completed: false }
 }
 
 /** Server chấm rồi mới tính điểm và lịch. */
@@ -487,7 +494,7 @@ export async function submitKanjiAnswer(input: unknown): Promise<SubmitKanjiResp
   const { outcome, answer } = gradeKanjiAnswer(row.kanji, req.exercise, req.answer, await readWordMeaning(supabase, row.kanji_id, req.wordId))
   const now = new Date()
   const today = studyDate(now)
-  const reveal = revealOf(row.kanji)
+  const reveal = revealOf(row.kanji, await readingsUnlocked(supabase, user.id, row.kanji_id))
 
   let schedule: Schedule
   let phase: 'learning' | 'review' = row.phase
@@ -579,7 +586,7 @@ export async function checkKanjiAnswer(input: unknown): Promise<SubmitKanjiRespo
   const row = await readAnswerContext(supabase, user.id, req.learnerKanjiId)
   if (!row) return { status: 'not_found' }
   const { outcome, answer } = gradeKanjiAnswer(row.kanji, req.exercise, req.answer, await readWordMeaning(supabase, row.kanji_id, req.wordId))
-  return { status: 'graded', outcome, answer, reveal: revealOf(row.kanji), completed: false }
+  return { status: 'graded', outcome, answer, reveal: revealOf(row.kanji, await readingsUnlocked(supabase, user.id, row.kanji_id)), completed: false }
 }
 
 // ---------------------------------------------------------------------------
@@ -629,8 +636,8 @@ export async function readKanjiCandidates(supabase: Supabase, userId: string): P
 export async function buildKanjiIntro(supabase: Supabase, userId: string, kanjiId: string): Promise<KanjiIntroItem | null> {
   const kanji = (await readAllKanjiCached(supabase)).find((k) => k.id === kanjiId)
   if (!kanji) return null
-  const [examplesOf, visuals] = await Promise.all([readExamples(supabase, userId, [kanjiId]), readKanjiVisuals(supabase, [kanjiId])])
-  return { ...revealOf(kanji), visual: visuals.get(kanjiId), kanjiId, examples: examplesOf(kanjiId) }
+  const [examplesOf, visuals, withReadings] = await Promise.all([readExamples(supabase, userId, [kanjiId]), readKanjiVisuals(supabase, [kanjiId]), readingsUnlocked(supabase, userId, kanjiId)])
+  return { ...revealOf(kanji, withReadings), visual: visuals.get(kanjiId), kanjiId, examples: examplesOf(kanjiId) }
 }
 
 /** Một câu Kanji: câu giai đoạn Học của chữ, hoặc câu ôn một Card. null khi chữ hoặc Card không còn cần hỏi. */

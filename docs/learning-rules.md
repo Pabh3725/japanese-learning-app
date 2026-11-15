@@ -242,7 +242,8 @@ V10 (2026-11-14): không có bước học tính bằng phút (`learning_steps` 
 - Cấp N5/N4… của chữ lấy theo danh sách JLPT của Jonathan Waller (tanos.co.uk) sau khi xác minh điều kiện sử dụng, thay cấp JLPT cũ trước 2010 của KANJIDIC2. Đây là danh sách bên thứ ba, không phải danh sách chính thức. Đổi cấp sẽ đổi thứ tự học (`study_order`). — CONFIRMED (2026-11-10)
 - **Giai đoạn Học:** 12 câu trong 4 buổi (ngày 1, 2, 3, 5), mỗi buổi 3 câu, đúng +1 (tối đa +3/ngày), gợi ý 0, sai −2, không dưới 0. — CONFIRMED (giữ)
 - **Hoàn tất Học:** 12 điểm; mỗi hướng (Kanji → nghĩa, nghĩa → Kanji, Kanji → Hán Việt, Hán Việt → Kanji) đúng ít nhất 2 lần, trong đó gõ Hán Việt ít nhất 1 lần; 3 câu gần nhất đúng. — Bỏ On/Kun bắt buộc: CONFIRMED (2026-11-10); số lần mỗi hướng: PROPOSED
-- Câu On/Kun vẫn có thể xuất hiện, tính điểm nhưng không thuộc điều kiện hoàn tất. — CONFIRMED (2026-11-10)
+- ~~Câu On/Kun vẫn có thể xuất hiện, tính điểm nhưng không thuộc điều kiện hoàn tất. — CONFIRMED (2026-11-10)~~ Thay bởi dòng dưới.
+- **Không hỏi âm On/Kun** khi Học chữ (bỏ câu chọn âm và gõ âm). Thẻ chữ (giới thiệu, đáp án, học lại khi sai) chỉ hiện On/Kun khi người học đã xem thẻ Kanji của ít nhất một từ có chữ này; trước đó cách đọc chỉ học qua Từ Kanji. Trang tra cứu `/library/kanji/[char]` vẫn hiện đủ. — CONFIRMED (chủ dự án chốt 2026-11-15)
 - Hoàn tất Học thì tạo `kanji.meaning` và `kanji.hanviet`, chép trạng thái lịch hiện tại sang cả hai; hai Card ôn ngay trong khu Kanji, thay lịch ôn dài hạn duy nhất của v2. — CONFIRMED (2026-11-10: ôn trong khu Kanji); cách chép lịch: PROPOSED
 - Khi Stage 4–6 giải thích cách đọc của từ, chỉ hiện ánh xạ On/Kun từng chữ khi dữ liệu có sẵn ánh xạ đó (ví dụ từ JMdict furigana). Không tự suy cách đọc của từ từ âm từng chữ. — CONFIRMED (yêu cầu V9)
 

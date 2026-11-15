@@ -43,7 +43,8 @@ const DAY_MS = 86_400_000
 const REQUIRED_PER_FACET = 2
 
 const count = (counts: KanjiCounts, code: KanjiExercise) => counts[code] ?? 0
-// V9: bốn hướng bắt buộc. On/Kun vẫn có thể được hỏi nhưng không thuộc điều kiện hoàn tất.
+// V9: bốn hướng bắt buộc. Không hỏi âm On/Kun (chủ dự án bỏ 2026-11-15): cách đọc học qua Từ Kanji.
+// kanji_reading, reading_typing giữ trong KANJI_EXERCISES để đọc dữ liệu cũ.
 const meaningDone = (c: KanjiCounts) => count(c, 'kanji_to_meaning') + count(c, 'word_meaning')
 const toKanjiFromMeaningDone = (c: KanjiCounts) => count(c, 'pick_kanji')
 const hanVietDone = (c: KanjiCounts) => count(c, 'kanji_to_hanviet') + count(c, 'hanviet_typing')
@@ -64,7 +65,7 @@ function leastDone(list: readonly KanjiExercise[], counts: KanjiCounts, rng: Rng
 export function chooseLearningExercise(points: number, counts: KanjiCounts, hasWord: boolean, rng: Rng = Math.random, hasSimilar = false): KanjiExercise {
   const { middleFrom, recallFrom } = RULES_V9.kanji
   if (points < middleFrom) return leastDone(['kanji_to_meaning', 'kanji_to_hanviet'], counts, rng)
-  if (points < recallFrom) return leastDone(['pick_kanji', 'hanviet_to_kanji', 'kanji_reading', ...(hasSimilar ? (['similar_kanji'] as const) : [])], counts, rng)
+  if (points < recallFrom) return leastDone(['pick_kanji', 'hanviet_to_kanji', ...(hasSimilar ? (['similar_kanji'] as const) : [])], counts, rng)
 
   const needs: KanjiExercise[] = []
   if (hasSimilar && similarDone(counts) < 1) needs.push('similar_kanji')
@@ -73,7 +74,7 @@ export function chooseLearningExercise(points: number, counts: KanjiCounts, hasW
   if (toKanjiFromHanVietDone(counts) < REQUIRED_PER_FACET) needs.push('hanviet_to_kanji')
   if (meaningDone(counts) < REQUIRED_PER_FACET) needs.push(hasWord ? 'word_meaning' : 'kanji_to_meaning')
   if (needs.length > 0) return leastDone(needs, counts, rng)
-  return leastDone(['hanviet_typing', hasWord ? 'word_meaning' : 'kanji_to_meaning', 'pick_kanji', 'hanviet_to_kanji', 'reading_typing'], counts, rng)
+  return leastDone(['hanviet_typing', hasWord ? 'word_meaning' : 'kanji_to_meaning', 'pick_kanji', 'hanviet_to_kanji'], counts, rng)
 }
 
 /** Các câu của một buổi, tính như thể trả lời đúng để dạng bài tăng dần trong buổi. */
