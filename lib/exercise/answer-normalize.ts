@@ -76,3 +76,13 @@ export function normalizeHanViet(value: string): string {
 export function isHanVietAnswerCorrect(typed: string, hanViet: string): boolean {
   return typed.trim().length > 0 && normalizeHanViet(typed) === normalizeHanViet(hanViet)
 }
+
+/**
+ * Chuẩn hoá chữ gõ (Thể động từ, Ngữ pháp): romaji → hiragana, katakana → hiragana, bỏ khoảng trắng và dấu câu.
+ * Ô gõ để nguyên chữ n ở cuối (chưa biết là ん hay な…), nên phải đổi nốt khi chấm: たべませn → たべません.
+ */
+export function normalizeTyped(text: string): string {
+  // Kiểu Hepburn viết っち là "tch" (shutchou); wanakana chỉ hiểu "cch"
+  // ぢ/じ, づ/ず gõ romaji giống nhau (ji, zu) nên coi là một
+  return toHiragana(text.replace(/[\s　。、]/g, '').replace(/tch/gi, 'cch'), { passRomaji: false }).replace(/ぢ/g, 'じ').replace(/づ/g, 'ず')
+}

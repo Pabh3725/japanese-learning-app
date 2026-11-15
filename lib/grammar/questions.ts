@@ -1,4 +1,5 @@
 // Grammar — dựng câu hỏi từ câu gốc và chấm (§5). Pure, tất định theo seed: server dựng lại đúng câu để chấm.
+import { normalizeTyped } from '../exercise/answer-normalize'
 import { canReorder, isPunctuation, sentenceText, type GrammarExercise, type GrammarPiece, type GrammarSentenceData, type GrammarSlot } from './types'
 
 type Rng = () => number
@@ -276,7 +277,6 @@ export function buildQuestion(s: SentenceRow, exercise: GrammarExercise, pool: r
   }
 }
 
-const normalize = (text: string) => text.replace(/[\s　。、]/g, '')
 
 /**
  * Chấm theo câu gốc, không theo dữ liệu trình duyệt gửi lên.
@@ -317,7 +317,7 @@ export function gradeQuestion(s: SentenceRow, q: GrammarQuestion, answer: string
       const blank = q.sentence!.blank!
       const piece = s.pieces[blank]
       const slot = (s.slots ?? []).find((x) => x.piece === blank)
-      const ok = typeof answer === 'string' && [piece.t, piece.r, ...(slot?.accepted ?? [])].filter(Boolean).map((x) => normalize(x!)).includes(normalize(answer))
+      const ok = typeof answer === 'string' && [piece.t, piece.r, ...(slot?.accepted ?? [])].filter(Boolean).map((x) => normalizeTyped(x!)).includes(normalizeTyped(answer))
       return { correct: ok, expected: piece.t }
     }
     case 'reply_choice':
