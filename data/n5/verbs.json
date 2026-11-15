@@ -14,13 +14,13 @@
   },
   {
    "code": "n5-0136",
-   "expression": "おきます",
+   "expression": "起きます",
    "reading": "おきます",
-   "meaning": "thức dậy",
+   "meaning": "thức dậy; xảy ra",
    "lesson": 4,
    "level": 5,
    "kind": "v1",
-   "dict": "おきる",
+   "dict": "起きる",
    "dictReading": "おきる"
   },
   {
@@ -5192,17 +5192,6 @@
    "kind": "v5",
    "dict": "滑る",
    "dictReading": "すべる"
-  },
-  {
-   "code": "n4-0759",
-   "expression": "起きます",
-   "reading": "おきます",
-   "meaning": "xảy ra",
-   "lesson": 44,
-   "level": 4,
-   "kind": "v1",
-   "dict": "起きる",
-   "dictReading": "おきる"
   },
   {
    "code": "n4-0760",

@@ -137,7 +137,7 @@ n5-0132,ください,KANA_ONLY,,high,Từ không có Kanji,data,false
 n5-0133,新大阪,KANJI_CORE,5,medium,Không có trong JMdict (thường là cụm câu): học dạng Kanji ở N5,chủ dự án chọn cho cụm câu,false
 n5-0134,イタリア,KANA_ONLY,,high,Từ không có Kanji,data,false
 n5-0135,スイス,KANA_ONLY,,high,Từ không có Kanji,data,false
-n5-0136,おきます,KANA_ONLY,,high,Từ không có Kanji,data,false
+n5-0136,起きます,KANJI_DEFERRED,4,high,"Có chữ 起 cấp N4, học dạng Kanji ở N4",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
 n5-0137,寝ます,KANJI_DEFERRED,3,high,"Có chữ 寝 cấp N3, học dạng Kanji ở N3",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
 n5-0138,働きます,KANJI_DEFERRED,3,high,"Có chữ 働 cấp N3, học dạng Kanji ở N3",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
 n5-0139,休みます,KANJI_CORE,5,high,Mọi chữ thuộc N5 hoặc dễ hơn,JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
@@ -1739,7 +1739,6 @@ n4-0755,笑います,KANJI_DEFERRED,3,high,"Có chữ 笑 cấp N3, học dạng
 n4-0756,乾きます,KANJI_DEFERRED,2,high,"Có chữ 乾 cấp N2, học dạng Kanji ở N2",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
 n4-0757,ぬれます,KANA_ONLY,,high,Từ không có Kanji,data,false
 n4-0758,滑ります,KANJI_DEFERRED,1,high,"Có chữ 滑 cấp N1, học dạng Kanji ở N1",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
-n4-0759,起きます,KANJI_CORE,4,high,Mọi chữ thuộc N4 hoặc dễ hơn,JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
 n4-0760,調節します,KANJI_DEFERRED,1,high,"Có chữ 節 cấp N1, học dạng Kanji ở N1",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
 n4-0761,丁寧,KANJI_DEFERRED,1,high,"Có chữ 丁寧 cấp N1, học dạng Kanji ở N1",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
 n4-0762,細かい,KANJI_DEFERRED,2,high,"Có chữ 細 cấp N2, học dạng Kanji ở N2",JMdict + cấp Kanji (N5 của file gốc + danh sách Waller),false
