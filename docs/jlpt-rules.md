@@ -30,7 +30,7 @@
 
 Dạng đợt 2 bật khi có nội dung đã duyệt (§3b); chưa có thì hiện "Coming soon".
 
-## 3. Dựng câu (đợt 1) — PROPOSED, đã đối chiếu định dạng với jlpt.jp (bảng dạng bài N5/N4 và Official Practice Workbook Vol.2, 2018) ngày 2026-11-14
+## 3. Dựng câu (đợt 1) — CONFIRMED, đã đối chiếu định dạng với jlpt.jp (bảng dạng bài N5/N4 và Official Practice Workbook Vol.2, 2018) ngày 2026-11-14; chủ dự án duyệt mẫu câu (`docs/jlpt-review.md`) ngày 2026-11-15
 
 - **4 lựa chọn** đánh số 1–4 như đề thật (即時応答: 3 lựa chọn). Không có hai lựa chọn trùng nhau; đúng một đáp án đúng.
 - **漢字読み:** từ có Kanji của cấp. Ngữ cảnh là một câu ngữ pháp chứa đúng từ đó (mảnh trùng cách viết), không có thì hiện từ đứng riêng. Như đề thật, trộn hai kiểu nhiễu: 1–2 cách đọc của **từ cùng bài, cùng loại từ** (danh từ / động từ ます / tính từ い, độ dài gần bằng; như 4 từ thời tiết), và cách đọc bị đổi một chỗ: trường âm (こう ↔ こ), âm đục / bán đục, âm ngắt (っ), âm ghép (ょ ↔ よ); chỉ đổi trong phần đọc của chữ Hán, không đổi kana đi kèm. Nhiễu không trùng cách đọc của chính từ đó.

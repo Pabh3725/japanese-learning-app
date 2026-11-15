@@ -1,6 +1,6 @@
-# JLPT đợt 1 — mẫu câu 漢字読み và 表記 (chờ duyệt)
+# JLPT đợt 1 — mẫu câu 漢字読み và 表記 (đã duyệt 2026-11-15)
 
-> Sinh bằng `pnpm exec tsx scripts/jlpt/samples.ts`, dùng đúng hàm dựng câu của app. Mỗi cấp 30 câu mỗi dạng, chọn ngẫu nhiên (seed cố định). Đáp án đúng in **đậm**. Duyệt chất lượng đáp án nhiễu: nhiễu phải sai chắc chắn và trông hợp lý.
+> Sinh bằng `pnpm exec tsx scripts/jlpt/samples.ts`, dùng đúng hàm dựng câu của app. Mỗi cấp 30 câu mỗi dạng, chọn ngẫu nhiên (seed cố định). Đáp án đúng in **đậm**. Tiêu chí nhiễu: sai chắc chắn và trông hợp lý. Chủ dự án đã duyệt chất lượng nhiễu ngày 2026-11-15.
 
 ## N5 · 漢字読み
 
