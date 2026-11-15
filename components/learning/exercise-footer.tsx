@@ -64,7 +64,8 @@ export function ContinueFooter({
 /** Khi trả lời sai: hiện đủ thông tin của từ để đọc lại, kèm nút loa và phím P. */
 function WordRevealCard({ reveal }: { reveal: WordReveal }) {
   const rows = [
-    reveal.expression ? { label: 'Reading', value: reveal.kana, japanese: true } : null,
+    // Chữ Kanji chưa mở âm On/Kun (chưa học Từ Kanji có chữ đó) thì không có cách đọc
+    reveal.expression && reveal.kana ? { label: 'Reading', value: reveal.kana, japanese: true } : null,
     reveal.romaji ? { label: 'Romaji', value: reveal.romaji, japanese: false } : null,
     reveal.hanViet ? { label: 'Sino-Vietnamese', value: reveal.hanViet, japanese: false } : null,
     { label: 'Meaning', value: reveal.meaning, japanese: false },
@@ -74,8 +75,12 @@ function WordRevealCard({ reveal }: { reveal: WordReveal }) {
     <div className="mt-2 rounded-2xl border border-border bg-background/50 p-3">
       <div className="flex items-center gap-3">
         <p lang="ja" className="font-jp text-2xl font-medium text-foreground">{reveal.expression ?? reveal.kana}</p>
-        <SpeakerButton kana={reveal.kana} />
-        <span className="hidden text-xs text-muted-foreground md:inline">Press P to listen</span>
+        {reveal.kana && (
+          <>
+            <SpeakerButton kana={reveal.kana} />
+            <span className="hidden text-xs text-muted-foreground md:inline">Press P to listen</span>
+          </>
+        )}
       </div>
       <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
         {rows.map((row) => (

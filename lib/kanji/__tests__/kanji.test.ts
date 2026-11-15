@@ -61,11 +61,19 @@ describe('12 điểm trong 4 buổi', () => {
     expect(state.points).toBe(12)
   })
 
-  it('đi từ dễ tới khó: buổi 1 chọn nghĩa và Hán Việt, buổi 2 chọn chữ (hoặc âm), buổi 3 có gõ Hán Việt', () => {
+  it('đi từ dễ tới khó: buổi 1 chọn nghĩa và Hán Việt, buổi 2 chọn chữ, buổi 3 có gõ Hán Việt', () => {
     const { asked } = runLearning()
     expect(asked.slice(0, 3).every((e) => e === 'kanji_to_meaning' || e === 'kanji_to_hanviet')).toBe(true)
-    expect(asked.slice(3, 6).every((e) => e === 'pick_kanji' || e === 'hanviet_to_kanji' || e === 'kanji_reading')).toBe(true)
+    expect(asked.slice(3, 6).every((e) => e === 'pick_kanji' || e === 'hanviet_to_kanji')).toBe(true)
     expect(asked.slice(6, 9)).toContain('hanviet_typing')
+  })
+
+  it('không hỏi âm On/Kun (chủ dự án bỏ 2026-11-15), kể cả khi trả lời sai và có cặp gần giống', () => {
+    for (const [wrongAt, hasWord, hasSimilar] of [[-1, false, false], [4, true, false], [7, false, true], [10, true, true]] as const) {
+      const { asked } = runLearning(wrongAt, hasWord, hasSimilar)
+      expect(asked).not.toContain('kanji_reading')
+      expect(asked).not.toContain('reading_typing')
+    }
   })
 
   it('V9 đủ 4 hướng: chữ→nghĩa, nghĩa→chữ, chữ→Hán Việt, Hán Việt→chữ mỗi hướng ≥ 2, gõ Hán Việt ≥ 1; On/Kun không bắt buộc', () => {
