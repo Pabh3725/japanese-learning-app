@@ -1,7 +1,7 @@
 'use server'
 
 // Luyện nghe: Server Function mỏng, mọi logic ở lib/dal/listening.ts.
-import { answerListening, finishListening, retryWrongListening, startLessonListening, startMockListening } from '@/lib/dal/listening'
+import { answerListening, finishListening, retryWrongListening, startLessonListening, startMistakesListening, startMockListening, startNumbersListening } from '@/lib/dal/listening'
 
 export async function startLessonListeningAction(input: unknown) {
   return startLessonListening(input)
@@ -21,4 +21,12 @@ export async function finishListeningAction(id: unknown) {
 
 export async function retryWrongListeningAction(id: unknown) {
   return retryWrongListening(id)
+}
+
+export async function startNumbersListeningAction(input: unknown) {
+  return startNumbersListening(input)
+}
+
+export async function startMistakesListeningAction(input: unknown) {
+  return startMistakesListening(input)
 }

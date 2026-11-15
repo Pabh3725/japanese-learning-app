@@ -8,6 +8,7 @@ import n5 from '../../../data/jlpt/n5.json'
 import type { GrammarLessonFile } from '../../grammar/types'
 import { LESSONS_OF, type JlptLevel } from '../../jlpt/catalog'
 import { approvedItems, type LevelContent, type ListeningItem, type VerbalItem } from '../../jlpt/content'
+import { buildNumbersSession, editDistance, NUMBER_GROUPS, numberQuestionOf } from '../numbers'
 import {
   buildLessonSession,
   buildMock,
@@ -15,6 +16,7 @@ import {
   gradeListening,
   LESSON_TYPES,
   LISTENING_V1,
+  openMistakes,
   publicListeningQuestion,
   scoreMock,
   sentenceSimilarity,
@@ -53,6 +55,11 @@ function check(q: ListeningQuestion) {
     expect(gradeListening(q, (q.answer + 1) % q.options.length)).toEqual({ correct: false })
   } else {
     expect(q.options).toEqual([])
+    if (q.input === 'digits') {
+      expect(gradeListening(q, q.answer), q.ref).toEqual({ correct: true })
+      expect(gradeListening(q, `${q.answer}1`), q.ref).toEqual({ correct: false })
+      return
+    }
     // Gõ đúng kana, hoặc romaji của đáp án (không dấu câu), là đúng; chép đúng thì không tô chữ nào.
     // Kana nhỏ ghép của từ ngoại lai (ティ, フェ…) wanakana đổi ra romaji khác cách người học gõ, nên chỉ thử bằng kana.
     expect(gradeListening(q, q.answer), q.ref).toEqual({ correct: true })
@@ -60,7 +67,7 @@ function check(q: ListeningQuestion) {
       const romaji = toRomaji(q.answer.replace(/[。、？！?!「」\s]/g, ''))
       expect(gradeListening(q, romaji), `${q.ref} gõ ${romaji}`).toEqual({ correct: true })
     }
-    expect(dictationDiff(q.answer, q.answer, q.input).every((c) => c.ok)).toBe(true)
+    expect(dictationDiff(q.answer, q.answer, q.input === 'katakana' ? 'katakana' : 'hiragana').every((c) => c.ok)).toBe(true)
   }
 }
 
@@ -81,10 +88,28 @@ describe('Theo bài', () => {
     }
   })
 
-  it('Mix 10 câu: 4 nghe câu, 3 hỏi–đáp, 3 chép chính tả', () => {
+  it('Grammar · Mix 10 câu: 4 chọn câu đã nghe, 3 nghe câu → nghĩa, 3 hỏi–đáp; không có chép chính tả', () => {
     const qs = session(5, 'mix', 10, 1)
     const n = (t: string) => qs.filter((q) => q.type === t).length
-    expect([n('sentence_meaning'), n('reply'), n('dictation')]).toEqual([4, 3, 3])
+    expect([n('heard_sentence'), n('sentence_meaning'), n('reply'), n('dictation')]).toEqual([4, 3, 3, 0])
+  })
+
+  it('chọn câu đã nghe: 4 câu chỉ khác nhau một chỗ, đáp án là câu được đọc', () => {
+    for (let lesson = 1; lesson <= 50; lesson++) {
+      for (const q of session(lesson, 'heard_sentence', 10, lesson)) {
+        const right = q.options[q.answer as number]
+        expect(right, q.ref).toBe(q.transcript[0].pieces.map((p) => p.t).join(''))
+        for (const o of q.options) {
+          if (o === right) continue
+          // Cùng phần đầu và phần cuối, chỉ khác ở giữa (một chỗ hỏi; thể dài như 高くなかった / 高いじゃありませんでした)
+          let head = 0
+          while (head < o.length && o[head] === right[head]) head++
+          let tail = 0
+          while (tail < o.length - head && tail < right.length - head && o[o.length - 1 - tail] === right[right.length - 1 - tail]) tail++
+          expect(o.length - head - tail, `${q.ref}: ${right} / ${o}`).toBeLessThanOrEqual(14)
+        }
+      }
+    }
   })
 
   it('nghe câu → chọn nghĩa: câu trong giới hạn độ dài của bài; nhiễu là nghĩa của câu na ná (không cùng nghĩa)', () => {
@@ -147,4 +172,58 @@ describe('Thi thử phần nghe JLPT', () => {
       expect(repeated).toBe(0)
     })
   }
+})
+
+describe('Numbers listening (§V2.5)', () => {
+  it('chọn: đáp án là cách viết được đọc, nhiễu nghe na ná (khoảng cách chỉnh sửa nhỏ), mọi nhóm', () => {
+    for (const group of NUMBER_GROUPS) {
+      const qs = buildNumbersSession([group], 'choose', 20, seeded(group.length))
+      expect(qs.length, group).toBe(20)
+      expect(new Set(qs.map((q) => q.ref)).size).toBe(20)
+      for (const q of qs) {
+        check(q)
+        expect(q.options[q.answer as number]).toBe(q.transcript[0].pieces[0].t)
+      }
+    }
+  })
+
+  it('gõ số: đáp án là chữ số của cách viết; không hỏi giờ rưỡi (半)', () => {
+    const qs = buildNumbersSession(NUMBER_GROUPS, 'type', 20, seeded(4))
+    expect(qs.length).toBe(20)
+    for (const q of qs) {
+      check(q)
+      expect(q.input).toBe('digits')
+      expect(q.transcript[0].pieces[0].t.includes('半')).toBe(false)
+    }
+    // 14:30 gõ 1430; dấu phẩy, số toàn góc vẫn đúng
+    const price = numberQuestionOf('yen:3000', seeded(1))!
+    expect(price.options[price.answer as number]).toBe('3,000円')
+    expect(editDistance('よじ', 'しちじ')).toBe(2)
+  })
+
+  it('dựng lại từ mã (danh sách câu nghe sai)', () => {
+    expect(numberQuestionOf('num:1430', seeded(1))?.script[0].text).toBe('せんよんひゃくさんじゅう')
+    expect(numberQuestionOf('day:4日', seeded(1))?.script[0].text).toBe('よっか')
+    expect(numberQuestionOf('khong-co:1', seeded(1))).toBeNull()
+  })
+})
+
+describe('Danh sách câu nghe sai (§V2.6)', () => {
+  const log = (ref: string, correct: boolean, at: number) => ({ type: 'reply', ref, correct, at })
+  it('sai thì vào danh sách; đúng 2 lần liên tiếp thì ra; sai lại thì vào lại; cũ nhất trước', () => {
+    const open = openMistakes([
+      log('a', false, 1),
+      log('b', true, 2),
+      log('c', false, 3),
+      log('a', true, 4),
+      log('c', true, 5),
+      log('c', true, 6),
+      log('d', false, 7),
+      log('d', true, 8),
+      log('d', false, 9),
+    ])
+    expect(open.map((m) => m.ref)).toEqual(['a', 'd'])
+    // d sai lúc 7, mới đúng 1 lần thì lại sai: vẫn trong danh sách từ lúc 7
+    expect(open[1].since).toBe(7)
+  })
 })

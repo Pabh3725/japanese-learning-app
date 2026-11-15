@@ -1,4 +1,5 @@
-// LISTENING_V1 (docs/listening-rules.md): dựng câu luyện nghe theo bài và đề thi thử phần nghe JLPT. Pure.
+// LISTENING_V2 (docs/listening-rules.md): dựng câu luyện nghe theo câu (Grammar), chép chính tả, đề thi thử phần nghe JLPT,
+// và danh sách câu nghe sai. Pure. Nghe số / giờ / ngày / giá: ./numbers.ts.
 import { toKatakana } from 'wanakana'
 import { isKanaAnswerCorrect, kanaComparisonForm } from '../exercise/answer-normalize'
 import type { GrammarPiece } from '../grammar/types'
@@ -11,8 +12,10 @@ type Rng = () => number
 
 export const LISTENING_V1 = {
   sessionSizes: [10, 20] as const,
-  /** Mix 10 câu: 4 nghe câu, 3 hỏi–đáp, 3 chép chính tả (20 câu: gấp đôi). */
-  mixPer10: { sentence_meaning: 4, reply: 3, dictation: 3 },
+  /** Grammar · Mix 10 câu: 4 chọn câu đã nghe, 3 nghe câu → nghĩa, 3 hỏi–đáp (20 câu: gấp đôi). Chép chính tả là chế độ riêng (Practice). */
+  mixPer10: { heard_sentence: 4, sentence_meaning: 3, reply: 3, dictation: 0 },
+  /** Danh sách câu nghe sai: ra khỏi danh sách khi đúng liên tiếp chừng này lần. */
+  mistakeClearStreak: 2,
   /** Độ dài câu nghe → chọn nghĩa (số chữ, không tính dấu câu) theo bài. */
   sentenceMaxChars: (lesson: number) => (lesson <= 10 ? 12 : lesson <= 25 ? 20 : Number.POSITIVE_INFINITY),
   /** Chép chính tả: chỉ câu (chủ dự án chốt 2026-11-15); độ dài tối đa (số chữ, không tính dấu câu) theo bài. */
@@ -29,16 +32,20 @@ export const LISTENING_V1 = {
   statsDays: 30,
 } as const
 
-export const LESSON_TYPES = ['sentence_meaning', 'reply', 'dictation'] as const
+export const LESSON_TYPES = ['heard_sentence', 'sentence_meaning', 'reply', 'dictation'] as const
 export type LessonType = (typeof LESSON_TYPES)[number]
+/** Dạng nghe theo câu của Grammar (Mix gồm các dạng này). */
+export const GRAMMAR_LISTENING_TYPES = ['heard_sentence', 'sentence_meaning', 'reply'] as const satisfies readonly LessonType[]
 export type LessonMode = 'mix' | LessonType
 export const isLessonMode = (v: unknown): v is LessonMode => v === 'mix' || LESSON_TYPES.includes(v as LessonType)
 export type MockType = 'listening_task' | 'verbal_expressions' | 'quick_response'
+/** Kiểu phiên (listening_sessions.kind). */
+export type ListeningKind = 'lesson' | 'jlpt_mock' | 'numbers' | 'mistakes'
 
 export type ScriptLine = { sp: 'M' | 'F' | 'N'; text: string }
 
 export interface ListeningQuestion {
-  type: LessonType | MockType
+  type: LessonType | MockType | 'numbers'
   /** Thi thử: 問題 1–4. */
   section?: 1 | 2 | 3 | 4
   ref: string
@@ -53,8 +60,8 @@ export interface ListeningQuestion {
   options: string[]
   /** Lựa chọn chỉ được đọc, không in (như đề thật): hiện 1, 2, 3 tới khi trả lời. */
   hideOptions?: boolean
-  /** Chép chính tả: ô gõ đổi romaji sang bảng chữ này. */
-  input?: 'hiragana' | 'katakana'
+  /** Câu gõ: ô gõ đổi romaji sang bảng chữ này, hoặc chỉ nhận chữ số. */
+  input?: 'hiragana' | 'katakana' | 'digits'
   // --- Chỉ ở server tới khi trả lời ---
   answer: number | string
   explanation: string
@@ -65,13 +72,13 @@ export interface ListeningQuestion {
 export type PublicListeningQuestion = Omit<ListeningQuestion, 'answer' | 'explanation' | 'transcript'>
 export const publicListeningQuestion = ({ answer: _a, explanation: _e, transcript: _t, ...rest }: ListeningQuestion): PublicListeningQuestion => rest
 
-const PUNCT = /[\s　。、？！?!「」『』・…〜～]/g
-const textOf = (pieces: readonly GrammarPiece[]) => pieces.map((p) => p.t).join('')
+export const PUNCT = /[\s　。、？！?!「」『』・…〜～]/g
+export const textOf = (pieces: readonly GrammarPiece[]) => pieces.map((p) => p.t).join('')
 const kanaOf = (pieces: readonly GrammarPiece[]) => pieces.map((p) => p.r ?? p.t).join('')
 const charCount = (pieces: readonly GrammarPiece[]) => textOf(pieces).replace(PUNCT, '').length
-const toStem = (pieces: readonly GrammarPiece[]): StemPiece[] => pieces.map((p) => (p.r ? { t: p.t, r: p.r } : { t: p.t }))
+export const toStem = (pieces: readonly GrammarPiece[]): StemPiece[] => pieces.map((p) => (p.r ? { t: p.t, r: p.r } : { t: p.t }))
 
-function withAnswer<T>(answer: T, distractors: readonly T[], rng: Rng): { options: T[]; answer: number } {
+export function withAnswer<T>(answer: T, distractors: readonly T[], rng: Rng): { options: T[]; answer: number } {
   const options = shuffle([answer, ...distractors], rng)
   return { options, answer: options.indexOf(answer) }
 }
@@ -140,6 +147,29 @@ export function buildSentenceMeaning(s: LessonSentence, pool: readonly LessonSen
   }
 }
 
+/**
+ * Nghe → chọn câu đã nghe (V2): 4 câu chỉ khác một chỗ — câu đúng và 3 câu thay một chỗ hỏi (trợ từ / từ / thể)
+ * bằng nhiễu soạn sẵn của chỗ đó (京都へ行きます / 京都で行きます / 京都へ行きました …). Không đủ 3 câu khác thì bỏ.
+ */
+export function buildHeardSentence(s: LessonSentence, rng: Rng): ListeningQuestion | null {
+  const correct = textOf(s.pieces)
+  for (const slot of shuffle(s.slots ?? [], rng)) {
+    const accepted = new Set([s.pieces[slot.piece].t, ...(slot.accepted ?? [])])
+    const variants = [...new Set(slot.distractors.filter((d) => !accepted.has(d)).map((d) => textOf(s.pieces.map((p, i) => (i === slot.piece ? { t: d } : p)))))].filter((v) => v !== correct)
+    if (variants.length < 3) continue
+    return {
+      type: 'heard_sentence',
+      ref: s.code,
+      instruction: 'Which sentence did you hear?',
+      script: [{ sp: 'N', text: kanaOf(s.pieces) }],
+      ...withAnswer(correct, shuffle(variants, rng).slice(0, 3), rng),
+      explanation: `${correct} — ${s.meaning}\n${s.pattern}: ${s.patternMeaning}`,
+      transcript: [{ sp: 'N', pieces: toStem(s.pieces) }],
+    }
+  }
+  return null
+}
+
 /** Dạng B: nghe câu hỏi → chọn câu đáp (3 lựa chọn, như 即時応答). */
 export function buildReply(s: LessonSentence, rng: Rng): ListeningQuestion | null {
   const q = buildQuickResponse(s, rng)
@@ -176,10 +206,10 @@ export function buildSentenceDictation(s: LessonSentence): ListeningQuestion {
 
 /** Số câu từng dạng của một phiên. */
 export function planLesson(mode: LessonMode, count: number): Record<LessonType, number> {
-  if (mode !== 'mix') return { sentence_meaning: 0, reply: 0, dictation: 0, [mode]: count }
+  if (mode !== 'mix') return { heard_sentence: 0, sentence_meaning: 0, reply: 0, dictation: 0, [mode]: count }
   const k = count / 10
   const { mixPer10 } = LISTENING_V1
-  return { sentence_meaning: mixPer10.sentence_meaning * k, reply: mixPer10.reply * k, dictation: mixPer10.dictation * k }
+  return { heard_sentence: mixPer10.heard_sentence * k, sentence_meaning: mixPer10.sentence_meaning * k, reply: mixPer10.reply * k, dictation: mixPer10.dictation * k }
 }
 
 /** Câu chép được: chỉ kana khi đọc (không số, không chữ Latin), để chữ gõ khớp lời máy đọc. */
@@ -206,6 +236,7 @@ export function buildLessonSession(
   const dictableList = sentences.filter(dictable)
   const sources: Record<LessonType, { items: LessonSentence[]; build: (s: LessonSentence) => ListeningQuestion | null }> = {
     sentence_meaning: { items: fresh(sentences.filter((s) => charCount(s.pieces) <= maxChars)), build: (s) => buildSentenceMeaning(s, pool, rng) },
+    heard_sentence: { items: fresh(sentences.filter((s) => charCount(s.pieces) <= maxChars && (s.slots ?? []).length > 0)), build: (s) => buildHeardSentence(s, rng) },
     reply: { items: fresh(sentences.filter((s) => s.prompt)), build: (s) => buildReply(s, rng) },
     // Câu ngắn trong giới hạn của bài; thiếu thì lấy thêm câu ngắn nhất
     dictation: {
@@ -224,9 +255,9 @@ export function buildLessonSession(
   }
   const plan = planLesson(mode, count)
   const taken = Object.fromEntries(LESSON_TYPES.map((t) => [t, take(t, plan[t])])) as Record<LessonType, ListeningQuestion[]>
-  // Mix: bù chỗ thiếu bằng dạng khác còn câu
+  // Mix: bù chỗ thiếu bằng dạng nghe theo câu khác còn câu
   let missing = count - LESSON_TYPES.reduce((n, t) => n + taken[t].length, 0)
-  for (const t of LESSON_TYPES) {
+  for (const t of GRAMMAR_LISTENING_TYPES) {
     if (mode !== 'mix' || missing <= 0) break
     const extra = take(t, missing)
     taken[t].push(...extra)
@@ -250,7 +281,41 @@ export function gradeListening(q: ListeningQuestion, answer: unknown): { correct
     return { correct: answer === q.answer }
   }
   if (typeof answer !== 'string' || answer.length > 200) return null
+  if (q.input === 'digits') return { correct: digitsOf(answer).length > 0 && digitsOf(answer) === digitsOf(q.answer) }
   return { correct: isKanaAnswerCorrect(plainKana(answer), plainKana(q.answer)) }
+}
+
+/** Chữ số trong chuỗi (đổi số toàn góc): 14:30 → 1430, 3,000円 → 3000. */
+export const digitsOf = (text: string) => text.replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0)).replace(/[^0-9]/g, '')
+
+// ---------------------------------------------------------------------------
+// Danh sách câu nghe sai (V2.6)
+// ---------------------------------------------------------------------------
+
+export interface ListeningLogRow {
+  type: string
+  ref: string
+  correct: boolean
+  at: number
+}
+
+/**
+ * Câu đang nằm trong danh sách nghe sai: đã sai, và từ lần sai gần nhất chưa đúng liên tiếp đủ `mistakeClearStreak` lần.
+ * Trả về khoá `type|ref`, câu sai lâu nhất trước.
+ */
+export function openMistakes(logs: readonly ListeningLogRow[]): { type: string; ref: string; since: number }[] {
+  const state = new Map<string, { type: string; ref: string; since: number; streak: number; open: boolean }>()
+  for (const l of [...logs].sort((a, b) => a.at - b.at)) {
+    const key = `${l.type}|${l.ref}`
+    const cur = state.get(key) ?? { type: l.type, ref: l.ref, since: l.at, streak: 0, open: false }
+    if (!l.correct) {
+      if (!cur.open) cur.since = l.at
+      cur.open = true
+      cur.streak = 0
+    } else if (cur.open && ++cur.streak >= LISTENING_V1.mistakeClearStreak) cur.open = false
+    state.set(key, cur)
+  }
+  return [...state.values()].filter((s) => s.open).sort((a, b) => a.since - b.since).map(({ type, ref, since }) => ({ type, ref, since }))
 }
 
 /**

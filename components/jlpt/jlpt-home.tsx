@@ -8,12 +8,14 @@ import { startJlptSessionAction } from '@/app/jlpt/actions'
 import { actionButton } from '@/components/action-button'
 import { JLPT_AREAS, JLPT_LEVELS, JLPT_TYPES, SESSION_SIZES, type JlptArea, type JlptLevel, type JlptType } from '@/lib/jlpt/catalog'
 import type { JlptStats } from '@/lib/dal/jlpt'
+import type { MockHistoryItem } from '@/lib/dal/listening'
+import { MockListeningCard } from '@/components/listening/mock-card'
 import { cn } from '@/lib/utils'
 
 const EMPTY_ERROR = 'Not enough material for this choice yet. Try "Whole level", or learn more first.'
 const SAVE_ERROR = "Couldn't start. Check your connection and try again."
 
-export function JlptHome({ stats, ready: readyByLevel, initialLevel }: { stats: JlptStats; ready: Record<JlptLevel, JlptType[]>; initialLevel: JlptLevel }) {
+export function JlptHome({ stats, mocks = [], ready: readyByLevel, initialLevel }: { stats: JlptStats; mocks?: readonly MockHistoryItem[]; ready: Record<JlptLevel, JlptType[]>; initialLevel: JlptLevel }) {
   const router = useRouter()
   const [level, setLevel] = useState<JlptLevel>(initialLevel)
   const [scope, setScope] = useState<'all' | 'learned'>('all')
@@ -110,6 +112,7 @@ export function JlptHome({ stats, ready: readyByLevel, initialLevel }: { stats: 
                 </button>
               )}
             </div>
+            {area.id === 'listening' && <MockListeningCard level={level} history={mocks} />}
             <ul className="mt-2 divide-y divide-border">
               {types.map((t) => (
                 <li key={t.id} className={cn('flex items-center gap-3 py-3', !isReady(t.id) && 'opacity-60')}>

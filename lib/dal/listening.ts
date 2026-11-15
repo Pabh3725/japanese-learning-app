@@ -1,4 +1,4 @@
-// LISTENING_V1 — Data Access Layer (docs/listening-rules.md). Server-only.
+// LISTENING_V2 — Data Access Layer (docs/listening-rules.md). Server-only.
 // Dựng câu ở server, lưu cả phiên (đáp án không gửi trước cho trình duyệt), chấm ở server.
 // Không đổi điểm, lịch hay FSRS nào; mỗi câu ghi listening_logs.
 import 'server-only'
@@ -10,17 +10,25 @@ import { readKnownWordIds } from '@/lib/dal/known-words'
 import { isJlptLevel, LESSONS_OF, type JlptLevel } from '@/lib/jlpt/catalog'
 import { approvedItems, type LevelContent, type ListeningItem, type VerbalItem } from '@/lib/jlpt/content'
 import { shuffle } from '@/lib/jlpt/reading'
+import { buildNumbersSession, isNumberGroup, isNumbersMode, numberQuestionOf } from '@/lib/listening/numbers'
 import {
+  buildHeardSentence,
   buildLessonSession,
   buildMock,
+  buildReply,
+  buildSentenceDictation,
+  buildSentenceMeaning,
+  GRAMMAR_LISTENING_TYPES,
   gradeListening,
   isLessonMode,
   LISTENING_V1,
+  openMistakes,
   publicListeningQuestion,
   scoreMock,
   type LessonMode,
   type LessonSentence,
   type LessonType,
+  type ListeningKind,
   type ListeningQuestion,
   type MockSectionScore,
   type PublicListeningQuestion,
@@ -30,7 +38,7 @@ import n5Content from '@/data/jlpt/n5.json'
 import n4Content from '@/data/jlpt/n4.json'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
-type Kind = 'lesson' | 'jlpt_mock'
+type Kind = ListeningKind
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const JLPT_CONTENT: Record<JlptLevel, LevelContent> = { N5: n5Content as LevelContent, N4: n4Content as LevelContent }
@@ -83,7 +91,7 @@ async function readLastUsed(supabase: Supabase, userId: string, kind: Kind, filt
 
 type StartResult = { status: 'saved'; id: string } | { status: 'invalid' | 'empty' }
 
-async function insertSession(supabase: Supabase, userId: string, row: { kind: Kind; lesson?: number; level?: JlptLevel; mode: string; questions: ListeningQuestion[] }): Promise<StartResult> {
+async function insertSession(supabase: Supabase, userId: string, row: { kind: Kind; lesson?: number | null; level?: JlptLevel; mode: string; questions: ListeningQuestion[] }): Promise<StartResult> {
   if (row.questions.length === 0) return { status: 'empty' }
   const { data, error } = await supabase
     .from('listening_sessions')
@@ -126,6 +134,61 @@ export async function startMockListening(input: unknown): Promise<StartResult> {
     Math.random,
   )
   return insertSession(supabase, user.id, { kind: 'jlpt_mock', level, mode: 'mock', questions })
+}
+
+/** Practice · Numbers listening (§V2.5). */
+export async function startNumbersListening(input: unknown): Promise<StartResult> {
+  const v = (input ?? {}) as { groups?: unknown; mode?: unknown; count?: unknown }
+  const groups = Array.isArray(v.groups) ? [...new Set(v.groups.filter(isNumberGroup))] : []
+  const count = Number(v.count)
+  if (groups.length === 0 || !isNumbersMode(v.mode) || !LISTENING_V1.sessionSizes.includes(count as 10 | 20)) return { status: 'invalid' }
+  const user = await requireUser()
+  const supabase = await createClient()
+  return insertSession(supabase, user.id, { kind: 'numbers', mode: v.mode, questions: buildNumbersSession(groups, v.mode, count, Math.random) })
+}
+
+/** Nhật ký nghe (trừ thi thử) để tính danh sách câu nghe sai. */
+async function readMistakeLogs(supabase: Supabase, userId: string) {
+  const rows = await readAllPages('listening_logs', (from, to) =>
+    supabase.from('listening_logs').select('type, ref, correct, answered_at').eq('user_id', userId).neq('kind', 'jlpt_mock').order('id').range(from, to),
+  )
+  return openMistakes((rows as { type: string; ref: string; correct: boolean; answered_at: string }[]).map((r) => ({ type: r.type, ref: r.ref, correct: r.correct, at: Date.parse(r.answered_at) })))
+}
+
+export async function getMistakeCount(): Promise<number> {
+  const user = await requireUser()
+  const supabase = await createClient()
+  return (await readMistakeLogs(supabase, user.id)).length
+}
+
+/** Practice · Listening mistakes (§V2.6): câu nghe sai lâu nhất trước, dựng lại với nhiễu mới. */
+export async function startMistakesListening(input: unknown): Promise<StartResult> {
+  const v = (input ?? {}) as { count?: unknown }
+  const count = Number(v.count)
+  if (!LISTENING_V1.sessionSizes.includes(count as 10 | 20)) return { status: 'invalid' }
+  const user = await requireUser()
+  const supabase = await createClient()
+  const [open, sentences] = await Promise.all([readMistakeLogs(supabase, user.id), readLessonSentences(supabase)])
+  const byCode = new Map<string, { s: LessonSentence; lesson: number }>()
+  for (const [lesson, list] of sentences) for (const s of list) byCode.set(s.code, { s, lesson })
+  const poolOf = (lesson: number) => [...sentences.entries()].filter(([l]) => l <= lesson).flatMap(([, list]) => list)
+  const rng = Math.random
+  const questions: ListeningQuestion[] = []
+  for (const m of open) {
+    if (questions.length >= count) break
+    let q: ListeningQuestion | null = null
+    if (m.type === 'numbers') q = numberQuestionOf(m.ref, rng)
+    else {
+      const found = byCode.get(m.ref)
+      if (!found) continue
+      if (m.type === 'heard_sentence') q = buildHeardSentence(found.s, rng)
+      else if (m.type === 'sentence_meaning') q = buildSentenceMeaning(found.s, poolOf(found.lesson), rng)
+      else if (m.type === 'reply') q = buildReply(found.s, rng)
+      else if (m.type === 'dictation') q = buildSentenceDictation(found.s)
+    }
+    if (q) questions.push(q)
+  }
+  return insertSession(supabase, user.id, { kind: 'mistakes', mode: 'mistakes', questions })
 }
 
 // ---------------------------------------------------------------------------
@@ -288,19 +351,19 @@ export async function finishListening(id: unknown): Promise<ListeningSummary | {
   }
 }
 
-/** Theo bài: phiên mới chỉ gồm câu sai (hoặc bỏ qua), xáo lại lựa chọn. */
+/** Phiên mới chỉ gồm câu sai (hoặc bỏ qua) của phiên trước, xáo lại lựa chọn. Không dùng cho thi thử. */
 export async function retryWrongListening(id: unknown): Promise<StartResult | { status: 'not_found' }> {
   const user = await requireUser()
   const supabase = await createClient()
   const s = await readSession(supabase, user.id, id)
-  if (!s || s.kind !== 'lesson') return { status: 'not_found' }
+  if (!s || s.kind === 'jlpt_mock') return { status: 'not_found' }
   const wrong = s.questions.filter((q, i) => gradeListening(q, s.answers[String(i)])?.correct !== true)
   const questions = wrong.map((q) => {
     if (typeof q.answer !== 'number') return q
     const options = shuffle(q.options, Math.random)
     return { ...q, options, answer: options.indexOf(q.options[q.answer]) }
   })
-  return insertSession(supabase, user.id, { kind: 'lesson', lesson: s.lesson!, mode: s.mode, questions: shuffle(questions, Math.random) })
+  return insertSession(supabase, user.id, { kind: s.kind, lesson: s.lesson, mode: s.mode, questions: shuffle(questions, Math.random) })
 }
 
 // ---------------------------------------------------------------------------
@@ -309,26 +372,34 @@ export async function retryWrongListening(id: unknown): Promise<StartResult | { 
 
 export interface ListeningOverview {
   lessons: { lesson: number; learned: boolean; total: number; correct: number }[]
-  mocks: { id: string; level: JlptLevel; date: string; correct: number; total: number; sections: MockSectionScore[] }[]
   byType: Partial<Record<LessonType, { total: number; correct: number }>>
 }
 
-export async function getListeningOverview(): Promise<ListeningOverview> {
+export interface MockHistoryItem {
+  id: string
+  level: JlptLevel
+  date: string
+  correct: number
+  total: number
+  sections: MockSectionScore[]
+}
+
+/** Lưới bài của một phần nghe: Grammar (3 dạng nghe theo câu) hoặc Dictation. Tỷ lệ đúng 30 ngày theo bài. */
+export async function getListeningOverview(part: 'grammar' | 'dictation'): Promise<ListeningOverview> {
   const user = await requireUser()
   const supabase = await createClient()
   const since = addStudyDays(studyDate(new Date()), -LISTENING_V1.statsDays)
-  const [logs, mocks, words, content, met, known, opened] = await Promise.all([
+  const types: readonly LessonType[] = part === 'grammar' ? GRAMMAR_LISTENING_TYPES : ['dictation']
+  const [logs, words, content, met, known, opened] = await Promise.all([
     readAllPages('listening_logs', (from, to) =>
-      supabase.from('listening_logs').select('lesson, type, correct').eq('user_id', user.id).eq('kind', 'lesson').eq('with_audio', true).gte('study_date', since).order('id').range(from, to),
+      supabase.from('listening_logs').select('lesson, type, correct').eq('user_id', user.id).eq('kind', 'lesson').eq('with_audio', true).in('type', [...types]).gte('study_date', since).order('id').range(from, to),
     ),
-    supabase.from('listening_sessions').select('id, level, finished_at, correct, summary').eq('user_id', user.id).eq('kind', 'jlpt_mock').eq('status', 'finished').order('finished_at', { ascending: false }).limit(10),
     readLessonWords(supabase),
     readContent(supabase),
     readAllPages('learner_vocabulary', (from, to) => supabase.from('learner_vocabulary').select('vocabulary_id').eq('user_id', user.id).order('id').range(from, to)),
     readKnownWordIds(supabase, user.id),
     readAllPages('learner_grammar', (from, to) => supabase.from('learner_grammar').select('point_id').eq('user_id', user.id).order('id').range(from, to)),
   ])
-  if (mocks.error) throw new Error(`Không đọc được listening_sessions: ${mocks.error.message}`)
 
   // Bài đã học: có từ đã gặp / đã biết, hoặc mẫu ngữ pháp đã mở
   const learnedWords = new Set([...met.map((r) => r.vocabulary_id as string), ...known])
@@ -342,23 +413,38 @@ export async function getListeningOverview(): Promise<ListeningOverview> {
     l.total++
     if (r.correct) l.correct++
     byLesson.set(r.lesson, l)
-    const t = byType[r.type] ?? { total: 0, correct: 0 }
-    t.total++
-    if (r.correct) t.correct++
-    byType[r.type] = t
+    const tt = byType[r.type] ?? { total: 0, correct: 0 }
+    tt.total++
+    if (r.correct) tt.correct++
+    byType[r.type] = tt
   }
   return {
     lessons: Array.from({ length: 50 }, (_, i) => i + 1).map((lesson) => ({ lesson, learned: learned.has(lesson), ...(byLesson.get(lesson) ?? { total: 0, correct: 0 }) })),
-    mocks: ((mocks.data ?? []) as { id: string; level: JlptLevel; finished_at: string; correct: number; summary: MockSectionScore[] | null }[]).map((m) => ({
-      id: m.id,
-      level: m.level,
-      date: m.finished_at,
-      correct: m.correct,
-      total: (m.summary ?? []).reduce((n, s) => n + s.total, 0),
-      sections: m.summary ?? [],
-    })),
     byType,
   }
+}
+
+/** Tab JLPT · 5 đề thi thử phần nghe gần nhất mỗi cấp. */
+export async function getMockHistory(): Promise<MockHistoryItem[]> {
+  const user = await requireUser()
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('listening_sessions')
+    .select('id, level, finished_at, correct, summary')
+    .eq('user_id', user.id)
+    .eq('kind', 'jlpt_mock')
+    .eq('status', 'finished')
+    .order('finished_at', { ascending: false })
+    .limit(10)
+  if (error) throw new Error(`Không đọc được listening_sessions: ${error.message}`)
+  return ((data ?? []) as { id: string; level: JlptLevel; finished_at: string; correct: number; summary: MockSectionScore[] | null }[]).map((m) => ({
+    id: m.id,
+    level: m.level,
+    date: m.finished_at,
+    correct: m.correct,
+    total: (m.summary ?? []).reduce((n, s) => n + s.total, 0),
+    sections: m.summary ?? [],
+  }))
 }
 
 export type { LessonMode }

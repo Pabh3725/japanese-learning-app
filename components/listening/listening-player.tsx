@@ -1,7 +1,7 @@
 'use client'
 
 // Luyện nghe (docs/listening-rules.md): phiên theo bài (chấm từng câu) và thi thử phần nghe JLPT (phát một lần, chấm khi nộp).
-import { useEffect, useRef, useState, useSyncExternalStore, useTransition } from 'react'
+import { useEffect, useEffectEvent, useRef, useState, useSyncExternalStore, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Gauge, Volume2, VolumeX } from 'lucide-react'
 import { answerListeningAction, finishListeningAction, retryWrongListeningAction } from '@/app/listening/actions'
@@ -19,6 +19,8 @@ import { cn } from '@/lib/utils'
 const SAVE_ERROR = "Couldn't save your answer. Check your connection and try again."
 const RATE_KEY = 'listening-rate'
 const TYPE_NAME: Record<string, string> = {
+  heard_sentence: 'Which sentence did you hear?',
+  numbers: 'Numbers listening',
   sentence_meaning: 'Sentence → meaning',
   reply: 'Question → reply',
   dictation: 'Dictation',
@@ -89,14 +91,13 @@ function useRate(): [number, (r: number) => void] {
 }
 
 /** Nút nghe. Thi thử: chỉ phát một lần (bấm lại được khi lần tự phát không chạy hết, vd. trình duyệt chặn tự phát). */
-function Audio({ q, rate, once, onPlayed }: { q: PublicListeningQuestion; rate: number; once: boolean; onPlayed: () => void }) {
+function Audio({ q, rate, once, register }: { q: PublicListeningQuestion; rate: number; once: boolean; register: (play: (() => void) | null) => void }) {
   const [done, setDone] = useState(false)
   const play = () =>
     speakScript(
       q.script,
       () => {
         setDone(true)
-        onPlayed()
       },
       rate,
     )
@@ -108,6 +109,8 @@ function Audio({ q, rate, once, onPlayed }: { q: PublicListeningQuestion; rate: 
     // eslint-disable-next-line react-hooks/exhaustive-deps -- chỉ tự phát một lần khi câu hiện ra
   }, [])
   const locked = once && done
+  // Phím Space gọi lại hàm này (thi thử: khoá sau khi đã phát xong một lần)
+  useEffect(() => register(locked ? null : play))
   return (
     <button type="button" disabled={locked} onClick={play} className={cn(actionButton({ size: 'lg', variant: 'secondary' }), 'self-center')}>
       <Volume2 aria-hidden="true" />
@@ -133,7 +136,19 @@ export function ListeningPlayer({ session }: { session: ListeningSessionView }) 
   const [busy, start] = useTransition()
   const [, setTick] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
+  const playRef = useRef<(() => void) | null>(null)
   const done = index >= total
+  // Nhãn và trang quay về theo kiểu phiên (§V2.1)
+  const where =
+    session.kind === 'jlpt_mock'
+      ? { label: `Mock listening · ${session.level}`, href: `/jlpt?level=${session.level}`, back: 'Back to JLPT' }
+      : session.kind === 'numbers'
+        ? { label: 'Numbers listening', href: '/practice/numbers', back: 'Back to Practice' }
+        : session.kind === 'mistakes'
+          ? { label: 'Listening mistakes', href: '/practice/listening-mistakes', back: 'Back to Practice' }
+          : session.mode === 'dictation'
+            ? { label: `Dictation · Lesson ${session.lesson}`, href: '/practice/dictation', back: 'Back to Dictation' }
+            : { label: `Listening · Lesson ${session.lesson}`, href: '/grammar/listening', back: 'Back to Grammar listening' }
 
   useEffect(() => {
     hasJapaneseVoice().then(setVoice)
@@ -158,46 +173,7 @@ export function ListeningPlayer({ session }: { session: ListeningSessionView }) 
       .catch(() => setError(SAVE_ERROR))
   }, [done, summary, session.id, session.finished, mock, router])
 
-  if (done && mock) {
-    if (!session.finished) return <p className="m-auto p-10 text-sm text-muted-foreground">{error ?? 'Scoring…'}</p>
-    return <MockReview session={session} />
-  }
-
-  if (done) {
-    if (!summary) return <p className="m-auto p-10 text-sm text-muted-foreground">{error ?? 'Saving…'}</p>
-    const percent = summary.total > 0 ? Math.round((summary.correct / summary.total) * 100) : 0
-    return (
-      <div className="flex min-h-dvh flex-col">
-        <SessionComplete
-          title="Listening done!"
-          subtitle={`Lesson ${session.lesson} · ${summary.correct} of ${summary.total} correct (${percent}%).`}
-          stats={summary.byType.map((t) => ({ label: TYPE_NAME[t.type] ?? t.type, value: `${t.correct}/${t.total}`, tone: t.correct === t.total ? 'text-success' : 'text-cyan' }))}
-          primary={{ href: '/listening', label: 'Back to Listening' }}
-          secondary={{ href: '/', label: 'Back to Home' }}
-        >
-          {summary.wrong > 0 && (
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() =>
-                start(async () => {
-                  const res = await retryWrongListeningAction(session.id)
-                  if (res.status === 'saved' && 'id' in res) router.push(`/listening/session/${res.id}`)
-                })
-              }
-              className={cn(actionButton({ size: 'lg', variant: 'secondary' }), 'w-full')}
-            >
-              Practice {summary.wrong} wrong {summary.wrong === 1 ? 'answer' : 'answers'}
-            </button>
-          )}
-        </SessionComplete>
-      </div>
-    )
-  }
-
-  const q = session.questions[index]
-  const result = answered[index]
-  const typing = q.options.length === 0
+  const result = done ? undefined : answered[index]
   const noVoice = voice === false
   const next = () => {
     setIndex((i) => i + 1)
@@ -221,6 +197,73 @@ export function ListeningPlayer({ session }: { session: ListeningSessionView }) 
     })
   }
 
+  // Phím tắt (§V2.7): Space nghe lại, 1–4 chọn, Enter kiểm tra / tiếp, S đổi tốc độ. Đang gõ trong ô nhập thì để ô nhập xử lý.
+  const onKey = useEffectEvent((e: KeyboardEvent) => {
+    if (done || e.metaKey || e.ctrlKey || e.altKey) return
+    const target = e.target as HTMLElement | null
+    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) return
+    const cur = session.questions[index]
+    if (e.key === ' ') {
+      if (target instanceof HTMLButtonElement) return
+      e.preventDefault()
+      playRef.current?.()
+    } else if (/^[1-4]$/.test(e.key) && cur.options.length > 0 && !result) {
+      const i = Number(e.key) - 1
+      if (i < cur.options.length) {
+        if (mock) setChoice(i)
+        else submit(i)
+      }
+    } else if (e.key === 'Enter') {
+      if (target instanceof HTMLButtonElement || target instanceof HTMLAnchorElement) return
+      if (result) next()
+      else if (mock && choice !== null) submit(choice)
+    } else if (e.key.toLowerCase() === 's' && !mock) setRate(rate === LISTENING_V1.rate.slow ? LISTENING_V1.rate.normal : LISTENING_V1.rate.slow)
+  })
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => onKey(e)
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
+
+  if (done && mock) {
+    if (!session.finished) return <p className="m-auto p-10 text-sm text-muted-foreground">{error ?? 'Scoring…'}</p>
+    return <MockReview session={session} />
+  }
+
+  if (done) {
+    if (!summary) return <p className="m-auto p-10 text-sm text-muted-foreground">{error ?? 'Saving…'}</p>
+    const percent = summary.total > 0 ? Math.round((summary.correct / summary.total) * 100) : 0
+    return (
+      <div className="flex min-h-dvh flex-col">
+        <SessionComplete
+          title="Listening done!"
+          subtitle={`${where.label} · ${summary.correct} of ${summary.total} correct (${percent}%).`}
+          stats={summary.byType.map((t) => ({ label: TYPE_NAME[t.type] ?? t.type, value: `${t.correct}/${t.total}`, tone: t.correct === t.total ? 'text-success' : 'text-cyan' }))}
+          primary={{ href: where.href, label: where.back }}
+          secondary={{ href: '/', label: 'Back to Home' }}
+        >
+          {summary.wrong > 0 && (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() =>
+                start(async () => {
+                  const res = await retryWrongListeningAction(session.id)
+                  if (res.status === 'saved' && 'id' in res) router.push(`/listening/session/${res.id}`)
+                })
+              }
+              className={cn(actionButton({ size: 'lg', variant: 'secondary' }), 'w-full')}
+            >
+              Practice {summary.wrong} wrong {summary.wrong === 1 ? 'answer' : 'answers'}
+            </button>
+          )}
+        </SessionComplete>
+      </div>
+    )
+  }
+
+  const q = session.questions[index]
+  const typing = q.options.length === 0
   const stateOf = (i: number): AnswerState => {
     if (!result) return mock && choice === i ? 'selected' : 'idle'
     if (i === result.answer) return 'correct'
@@ -234,8 +277,8 @@ export function ListeningPlayer({ session }: { session: ListeningSessionView }) 
   return (
     <div className="flex min-h-dvh flex-col">
       <SessionHeader
-        backHref="/listening"
-        label={mock ? `Mock listening · ${session.level}` : `Listening · Lesson ${session.lesson}`}
+        backHref={where.href}
+        label={where.label}
         sublabel={mock ? `${index + 1} / ${total} · ${elapsed} / ${LISTENING_V1.mock[session.level!].minutes} min` : `${index + 1} / ${total}`}
         current={index}
         total={total}
@@ -261,7 +304,7 @@ export function ListeningPlayer({ session }: { session: ListeningSessionView }) 
           </div>
         ) : (
           <div className="flex flex-wrap items-center justify-center gap-3">
-            <Audio key={index} q={q} rate={mock ? LISTENING_V1.rate.normal : rate} once={mock} onPlayed={() => {}} />
+            <Audio key={index} q={q} rate={mock ? LISTENING_V1.rate.normal : rate} once={mock} register={(fn) => (playRef.current = fn)} />
             {!mock && (
               <button
                 type="button"
@@ -297,12 +340,14 @@ export function ListeningPlayer({ session }: { session: ListeningSessionView }) 
               lang="ja"
               value={typed}
               disabled={!!result || busy}
+              inputMode={q.input === 'digits' ? 'numeric' : undefined}
               onChange={(e) => {
+                if (q.input === 'digits') return setTyped(e.target.value)
                 const r = convertAtCaret(e.target.value, e.target.selectionStart ?? e.target.value.length, q.input ?? 'hiragana')
                 setTyped(r.value)
                 requestAnimationFrame(() => inputRef.current?.setSelectionRange(r.caret, r.caret))
               }}
-              placeholder="Type in romaji"
+              placeholder={q.input === 'digits' ? 'Type digits' : 'Type in romaji'}
               aria-label="Your answer"
               autoComplete="off"
               autoCapitalize="off"
@@ -327,7 +372,7 @@ export function ListeningPlayer({ session }: { session: ListeningSessionView }) 
                 disabled={!!result || busy}
                 onSelect={() => (mock ? setChoice(i) : submit(i))}
               >
-                {(q.type === 'reply' || q.type === 'listening_task' || (q.hideOptions && (result || shownText))) && (
+                {(q.type === 'reply' || q.type === 'heard_sentence' || q.type === 'listening_task' || (q.hideOptions && (result || shownText))) && (
                   <span lang="ja" className="font-jp text-lg leading-relaxed">{result ? result.options[i] : q.options[i]}</span>
                 )}
               </AnswerOption>
@@ -346,9 +391,9 @@ export function ListeningPlayer({ session }: { session: ListeningSessionView }) 
         {result && (
           <div className={cn('rounded-2xl border p-4', result.correct ? 'border-success/40 bg-success/5' : 'border-error/40 bg-error/5')}>
             <p className={cn('font-semibold', result.correct ? 'text-success' : 'text-error')}>{result.correct ? 'Correct' : 'Not quite'}</p>
-            {typing && typeof result.answer === 'string' && (
+            {typing && q.input !== 'digits' && typeof result.answer === 'string' && (
               <p lang="ja" className="mt-1 font-jp text-xl tracking-wide">
-                {dictationDiff(String(result.given), result.answer, q.input).map((c, i) => (
+                {dictationDiff(String(result.given), result.answer, q.input === 'katakana' ? 'katakana' : 'hiragana').map((c, i) => (
                   <span key={i} className={c.ok ? 'text-foreground' : 'text-error underline decoration-2 underline-offset-4'}>{c.ch}</span>
                 ))}
               </p>
@@ -373,7 +418,7 @@ function MockReview({ session }: { session: ListeningSessionView }) {
   const good = percent >= LISTENING_V1.goodPercent
   return (
     <div className="flex min-h-dvh flex-col">
-      <SessionHeader backHref="/listening" label={`Mock listening · ${level}`} sublabel="Results" current={rows.length} total={rows.length} />
+      <SessionHeader backHref={`/jlpt?level=${level}`} label={`Mock listening · ${level}`} sublabel="Results" current={rows.length} total={rows.length} />
       <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-5 px-4 py-6">
         <section className="rounded-3xl border border-border bg-card p-6 text-center">
           <p className="text-sm text-muted-foreground">Your score</p>
@@ -424,8 +469,8 @@ function MockReview({ session }: { session: ListeningSessionView }) {
             </li>
           ))}
         </ol>
-        <a href="/listening" className={cn(actionButton({ size: 'lg' }), 'w-full')}>
-          Back to Listening
+        <a href={`/jlpt?level=${level}`} className={cn(actionButton({ size: 'lg' }), 'w-full')}>
+          Back to JLPT
         </a>
       </main>
     </div>
