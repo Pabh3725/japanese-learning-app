@@ -137,7 +137,7 @@ n5-0132,135,ください,ください,cho tôi [~],kudasai,,true,5,,3
 n5-0133,136,新大阪,しんおおさか,tên một nhà ga ở Osaka,shin'oosaka,TÂN ĐẠI BẢN,false,5,,3
 n5-0134,137,イタリア,イタリア,Ý,itaria,,true,5,🇮🇹,3
 n5-0135,138,スイス,スイス,Thụy Sĩ,suisu,,true,5,🇨🇭,3
-n5-0136,139,おきます,おきます,thức dậy,okimasu,,true,5,,4
+n5-0136,139,起きます,おきます,thức dậy; xảy ra,okimasu,KHỞI,false,5,,4
 n5-0137,140,寝ます,ねます,ngủ,nemasu,TẨM,false,5,,4
 n5-0138,141,働きます,はたらきます,làm việc,hatarakimasu,ĐỘNG,false,5,,4
 n5-0139,142,休みます,やすみます,nghỉ ngơi,yasumimasu,HƯU,false,5,,4
@@ -1739,7 +1739,6 @@ n4-0755,1737,笑います,わらいます,cười,waraimasu,TIẾU,false,4,,44
 n4-0756,1738,乾きます,かわきます,khô,kawakimasu,CÀN,false,4,,44
 n4-0757,1739,ぬれます,ぬれます,ướt,nuremasu,,true,4,,44
 n4-0758,1740,滑ります,すべります,trượt chân,suberimasu,HOẠT,false,4,,44
-n4-0759,1741,起きます,おきます,xảy ra,okimasu,KHỞI,false,4,,44
 n4-0760,1742,調節します,ちょうせつします,điều chỉnh,chousetsushimasu,ĐIỆU TIẾT,false,4,,44
 n4-0761,1743,丁寧,ていねい,lịch sự; cẩn thận,teinei,ĐINH NINH,false,4,,44
 n4-0762,1744,細かい,こまかい,nhỏ,komakai,TẾ,false,4,,44

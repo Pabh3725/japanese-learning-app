@@ -2,7 +2,7 @@
 
 Sinh bởi `pnpm verbs:build`. Nhóm động từ theo từ loại của JMdict (EDRDG, CC BY-SA 4.0). Chỉ cần xem các mục dưới đây; sửa bằng `scripts/verbs/manual.json` rồi chạy lại.
 
-Tổng: 511 từ (v5: 173, v1: 109, suru: 84, v5-iku: 4, kuru: 4, adj-i: 85, adj-na: 43, adj-ii: 8, v5-aru: 1).
+Tổng: 510 từ (v5: 173, v1: 108, suru: 84, v5-iku: 4, kuru: 4, adj-i: 85, adj-na: 43, adj-ii: 8, v5-aru: 1).
 
 ## Động từ nhóm II trông như nhóm I (đuôi -iru/-eru nhưng chia như nhóm I hoặc ngược lại) (8)
 
