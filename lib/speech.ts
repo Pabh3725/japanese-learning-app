@@ -40,7 +40,7 @@ export function speak(kana: string): void {
  * JLPT 聴解: đọc lần lượt nhiều câu, mỗi người nói một giọng. Thiết bị thường chỉ có một giọng Nhật nên phân biệt
  * nam / nữ bằng cao độ; có nhiều giọng thì nam và nữ dùng hai giọng khác nhau. Gọi lại thì đọc lại từ đầu.
  */
-export function speakScript(lines: readonly { sp: 'M' | 'F' | 'N'; text: string }[], onDone?: () => void): void {
+export function speakScript(lines: readonly { sp: 'M' | 'F' | 'N'; text: string }[], onDone?: () => void, rate = 0.9): void {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
   const voices = window.speechSynthesis.getVoices().filter((v) => v.lang.toLowerCase().startsWith('ja'))
   if (voices.length === 0) return
@@ -53,7 +53,7 @@ export function speakScript(lines: readonly { sp: 'M' | 'F' | 'N'; text: string 
     u.voice = voiceOf[line.sp]
     u.lang = u.voice.lang
     u.pitch = pitchOf[line.sp]
-    u.rate = 0.9
+    u.rate = rate
     if (i === lines.length - 1 && onDone) u.onend = onDone
     synth.speak(u)
   })
