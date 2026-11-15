@@ -2,10 +2,19 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { toRomaji } from 'wanakana'
+import { convertAtCaret } from '../../exercise/answer-normalize'
 import { availableExercises, chooseExercise, chooseQuestion, levelsFor, type ExerciseHistory } from '../pick'
 import { acceptableOrders, buildQuestion, chunksOf, gradeQuestion, publicQuestion, seededRng, type SentenceRow } from '../questions'
 import { applyLearningAnswer, canComplete, GRAMMAR_V1, lessonUnlock, nextSittingAt, reviewRating, tierOf, type LearningLog } from '../rules'
 import { exercisesFor, GRAMMAR_EXERCISES, isPunctuation, sentenceText, type GrammarLessonFile } from '../types'
+
+/** Gõ từng chữ như trong ô nhập của câu gõ thể. */
+function typeRomaji(romaji: string): string {
+  let value = ''
+  for (const ch of romaji) value = convertAtCaret(value + ch, value.length + 1, 'hiragana').value
+  return value
+}
 
 const dir = join(process.cwd(), 'data', 'grammar')
 const points = readdirSync(dir)
@@ -50,6 +59,8 @@ describe('Mọi câu, mọi dạng: đáp án đúng chấm đúng, đáp án sa
               const blank = s.pieces[q.sentence!.blank!]
               expect(gradeQuestion(s, q, blank.t).correct, where).toBe(true)
               if (blank.r) expect(gradeQuestion(s, q, blank.r).correct, where).toBe(true)
+              // Gõ romaji qua ô nhập (đổi từng chữ, để nguyên n cuối): たべませn vẫn đúng
+              if (q.exercise === 'form_typing' && blank.r) expect(gradeQuestion(s, q, typeRomaji(toRomaji(blank.r))).correct, `${where} gõ ${toRomaji(blank.r)}`).toBe(true)
               const slot = s.slots!.find((x) => x.piece === q.sentence!.blank)!
               for (const d of slot.distractors) expect(gradeQuestion(s, q, d).correct, where).toBe(false)
             }

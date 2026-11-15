@@ -1,7 +1,9 @@
 // Thể động từ (Grammar G5): dựng câu luyện chia và chấm. Pure, tất định theo seed (server dựng lại để chấm).
-import { toHiragana } from 'wanakana'
+import { normalizeTyped } from '../exercise/answer-normalize'
 import { acceptedOf, conjugate, distractorsOf, formInfo, type VerbFormId } from './conjugate'
 import { isVerb, type VerbWord } from './types'
+
+export { normalizeTyped }
 
 export const VERB_EXERCISES = ['type', 'choose', 'recognize', 'reverse'] as const
 export type VerbExercise = (typeof VERB_EXERCISES)[number]
@@ -94,12 +96,6 @@ export function buildVerbQuestion(w: VerbWord, form: VerbFormId, exercise: VerbE
   }
 }
 
-/** Chuẩn hoá chữ gõ: romaji → hiragana, katakana → hiragana, bỏ khoảng trắng và dấu câu. */
-export function normalizeTyped(text: string): string {
-  // Kiểu Hepburn viết っち là "tch" (shutchou); wanakana chỉ hiểu "cch"
-  // ぢ/じ, づ/ず gõ romaji giống nhau (ji, zu) nên coi là một
-  return toHiragana(text.replace(/[\s　。、]/g, '').replace(/tch/gi, 'cch'), { passRomaji: false }).replace(/ぢ/g, 'じ').replace(/づ/g, 'ず')
-}
 
 export interface VerbGrade {
   correct: boolean
