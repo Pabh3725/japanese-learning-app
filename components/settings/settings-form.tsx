@@ -1,7 +1,7 @@
 'use client'
 
 import { useId, useState, useTransition } from 'react'
-import { saveGrammarFuriganaAction, saveNewPerDayAction, saveStudyLimitAction } from '@/app/(main)/settings/actions'
+import { saveGrammarFuriganaAction, saveNewPerDayAction, saveReviewAllAtOnceAction, saveStudyLimitAction } from '@/app/(main)/settings/actions'
 import { GRAMMAR_V1 } from '@/lib/grammar/rules'
 import { MAX_NEW_PER_DAY, MIN_NEW_PER_DAY, STUDY_LIMITS, type StudyLimitKey } from '@/lib/learning/new-words'
 import { cn } from '@/lib/utils'
@@ -129,15 +129,15 @@ function StudyLimitField({ limitKey, initial }: { limitKey: StudyLimitKey; initi
 }
 
 /** Các nhóm cài đặt theo khu học. Mỗi giới hạn thuộc đúng một nhóm. */
-const GROUPS: { id: string; title: string; description: string; keys: readonly StudyLimitKey[]; newWords?: boolean; furigana?: boolean }[] = [
+const GROUPS: { id: string; title: string; description: string; keys: readonly StudyLimitKey[]; newWords?: boolean; furigana?: boolean; reviewSession?: boolean }[] = [
   { id: 'learn', title: 'Learn', description: 'Lessons mix Vocabulary, Kanji words and Kanji.', keys: ['lesson_size', 'learn_cap'] },
-  { id: 'vocab', title: 'Vocabulary', description: 'New words, and their cards in Review.', keys: ['review_cap', 'unlock_threshold'], newWords: true },
+  { id: 'vocab', title: 'Vocabulary', description: 'New words, and their cards in Review.', keys: ['review_cap', 'unlock_threshold', 'review_session_size'], newWords: true, reviewSession: true },
   { id: 'word-kanji', title: 'Kanji words', description: 'Cards for words you have learned in Kanji.', keys: ['word_kanji_review_cap'] },
   { id: 'kanji', title: 'Kanji', description: 'Single characters: learning, then long-term cards.', keys: ['kanji_new_per_day', 'kanji_cap', 'kanji_review_cap'] },
   { id: 'grammar', title: 'Grammar', description: 'Patterns by Minna lesson.', keys: ['grammar_new_per_day', 'grammar_review_cap'], furigana: true },
 ]
 
-export function SettingsForm({ newPerDay, limits, furigana = true }: { newPerDay: number; limits: Record<StudyLimitKey, number>; furigana?: boolean }) {
+export function SettingsForm({ newPerDay, limits, furigana = true, reviewAllAtOnce = false }: { newPerDay: number; limits: Record<StudyLimitKey, number>; furigana?: boolean; reviewAllAtOnce?: boolean }) {
   return (
     <div className="flex max-w-2xl flex-col gap-6">
       {GROUPS.map((group) => (
@@ -149,6 +149,9 @@ export function SettingsForm({ newPerDay, limits, furigana = true }: { newPerDay
             {group.keys.map((key) => (
               <StudyLimitField key={key} limitKey={key} initial={limits[key]} />
             ))}
+            {group.reviewSession && (
+              <SettingSwitch label="Review all due cards at once" description="One Review session takes every card due, up to the daily limit. Cards per review session is then ignored." defaultChecked={reviewAllAtOnce} onSave={saveReviewAllAtOnceAction} />
+            )}
             {group.furigana && <SettingSwitch label="Furigana in Grammar" description="Show readings above Kanji in grammar sentences." defaultChecked={furigana} onSave={saveGrammarFuriganaAction} />}
           </div>
         </section>

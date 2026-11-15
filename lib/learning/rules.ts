@@ -87,7 +87,7 @@ export const RULES_V9 = {
     starPerLesson: 3,
     starEvery: 10,
   },
-  defaults: { newPerDay: 5, learnCap: 200, lessonSize: 50, reviewCap: 120, unlockThreshold: 80, kanjiNewPerDay: 10, kanjiCap: 100, wordKanjiReviewCap: 60, kanjiReviewCap: 60 },
+  defaults: { newPerDay: 5, learnCap: 200, lessonSize: 50, reviewCap: 120, reviewSessionSize: 20, unlockThreshold: 80, kanjiNewPerDay: 10, kanjiCap: 100, wordKanjiReviewCap: 60, kanjiReviewCap: 60 },
   borrow: { maxDaysAhead: 1 },
 } as const
 
