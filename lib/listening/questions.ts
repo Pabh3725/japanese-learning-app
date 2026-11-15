@@ -40,7 +40,7 @@ export type LessonMode = 'mix' | LessonType
 export const isLessonMode = (v: unknown): v is LessonMode => v === 'mix' || LESSON_TYPES.includes(v as LessonType)
 export type MockType = 'listening_task' | 'verbal_expressions' | 'quick_response'
 /** Kiểu phiên (listening_sessions.kind). */
-export type ListeningKind = 'lesson' | 'jlpt_mock' | 'numbers' | 'mistakes'
+export type ListeningKind = 'lesson' | 'point' | 'jlpt_mock' | 'numbers' | 'mistakes'
 
 export type ScriptLine = { sp: 'M' | 'F' | 'N'; text: string }
 
@@ -75,7 +75,7 @@ export const publicListeningQuestion = ({ answer: _a, explanation: _e, transcrip
 export const PUNCT = /[\s　。、？！?!「」『』・…〜～]/g
 export const textOf = (pieces: readonly GrammarPiece[]) => pieces.map((p) => p.t).join('')
 const kanaOf = (pieces: readonly GrammarPiece[]) => pieces.map((p) => p.r ?? p.t).join('')
-const charCount = (pieces: readonly GrammarPiece[]) => textOf(pieces).replace(PUNCT, '').length
+export const charCount = (pieces: readonly GrammarPiece[]) => textOf(pieces).replace(PUNCT, '').length
 export const toStem = (pieces: readonly GrammarPiece[]): StemPiece[] => pieces.map((p) => (p.r ? { t: p.t, r: p.r } : { t: p.t }))
 
 export function withAnswer<T>(answer: T, distractors: readonly T[], rng: Rng): { options: T[]; answer: number } {
@@ -89,6 +89,10 @@ export function withAnswer<T>(answer: T, distractors: readonly T[], rng: Rng): {
 
 export interface LessonSentence extends JlptGrammarSentence {
   pointCode: string
+  /** Độ khó 1–3 của câu ngữ pháp. */
+  level?: number
+  /** Mẫu khác dùng trong câu (câu kết hợp mẫu đã học). */
+  uses?: string[]
 }
 
 const wordsCache = new WeakMap<LessonSentence, { vi: Set<string>; ja: Set<string> }>()
@@ -213,7 +217,7 @@ export function planLesson(mode: LessonMode, count: number): Record<LessonType, 
 }
 
 /** Câu chép được: chỉ kana khi đọc (không số, không chữ Latin), để chữ gõ khớp lời máy đọc. */
-const dictable = (s: LessonSentence) => /^[ぁ-ゖァ-ヺー]+$/.test(kanaOf(s.pieces).replace(PUNCT, ''))
+export const dictable = (s: LessonSentence) => /^[ぁ-ゖァ-ヺー]+$/.test(kanaOf(s.pieces).replace(PUNCT, ''))
 
 /**
  * Dựng phiên theo bài. Mix: dạng thiếu câu thì dạng khác bù cho đủ. Câu được xen kẽ các dạng.

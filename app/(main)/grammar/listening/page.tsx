@@ -1,24 +1,17 @@
 import type { Metadata } from 'next'
 import { PageHeader } from '@/components/page-header'
-import { LessonListening, type ModeOption } from '@/components/listening/lesson-listening'
-import { getListeningOverview } from '@/lib/dal/listening'
+import { PointListening } from '@/components/listening/point-listening'
+import { getPointListeningOverview } from '@/lib/dal/listening'
 
 export const metadata: Metadata = { title: 'Grammar listening · Nihongo' }
 
-/** Grammar · nghe theo câu của từng bài (docs/listening-rules.md §V2.2). */
-const MODES: ModeOption[] = [
-  { id: 'mix', name: 'Mix', description: 'All three kinds together.' },
-  { id: 'heard_sentence', name: 'Which sentence did you hear?', description: 'Four sentences that differ in one spot.' },
-  { id: 'sentence_meaning', name: 'Sentence → meaning', description: 'Hear a sentence, choose what it means.' },
-  { id: 'reply', name: 'Question → reply', description: 'Hear a question, choose the best reply.' },
-]
-
+/** Grammar · nghe theo từng mẫu: 30 câu, 3 chặng (docs/listening-rules.md §V2.2b). */
 export default async function GrammarListeningPage() {
-  const overview = await getListeningOverview('grammar')
+  const overview = await getPointListeningOverview()
   return (
     <>
-      <PageHeader eyebrow="文法 · 聴解" title="Listening" description="Listen to the sentences of each Minna lesson." />
-      <LessonListening overview={overview} modes={MODES} />
+      <PageHeader eyebrow="文法 · 聴解" title="Listening" description="Listen to sentences of each grammar pattern, from basic to harder ones that mix patterns you know." />
+      <PointListening overview={overview} />
     </>
   )
 }

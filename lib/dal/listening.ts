@@ -11,6 +11,7 @@ import { isJlptLevel, LESSONS_OF, type JlptLevel } from '@/lib/jlpt/catalog'
 import { approvedItems, type LevelContent, type ListeningItem, type VerbalItem } from '@/lib/jlpt/content'
 import { shuffle } from '@/lib/jlpt/reading'
 import { buildNumbersSession, isNumberGroup, isNumbersMode, numberQuestionOf } from '@/lib/listening/numbers'
+import { buildPointStage, isStage, pointStages, POINT_LISTENING, stagePassed, type Stage } from '@/lib/listening/points'
 import {
   buildHeardSentence,
   buildLessonSession,
@@ -91,11 +92,15 @@ async function readLastUsed(supabase: Supabase, userId: string, kind: Kind, filt
 
 type StartResult = { status: 'saved'; id: string } | { status: 'invalid' | 'empty' }
 
-async function insertSession(supabase: Supabase, userId: string, row: { kind: Kind; lesson?: number | null; level?: JlptLevel; mode: string; questions: ListeningQuestion[] }): Promise<StartResult> {
+async function insertSession(
+  supabase: Supabase,
+  userId: string,
+  row: { kind: Kind; lesson?: number | null; level?: JlptLevel; pointCode?: string | null; mode: string; questions: ListeningQuestion[] },
+): Promise<StartResult> {
   if (row.questions.length === 0) return { status: 'empty' }
   const { data, error } = await supabase
     .from('listening_sessions')
-    .insert({ user_id: userId, kind: row.kind, lesson: row.lesson ?? null, level: row.level ?? null, mode: row.mode, questions: row.questions })
+    .insert({ user_id: userId, kind: row.kind, lesson: row.lesson ?? null, level: row.level ?? null, point_code: row.pointCode ?? null, mode: row.mode, questions: row.questions })
     .select('id')
     .single()
   if (error) throw new Error(`Không tạo được listening_sessions: ${error.message}`)
@@ -134,6 +139,91 @@ export async function startMockListening(input: unknown): Promise<StartResult> {
     Math.random,
   )
   return insertSession(supabase, user.id, { kind: 'jlpt_mock', level, mode: 'mock', questions })
+}
+
+// ---------------------------------------------------------------------------
+// Grammar · Listening theo từng mẫu (§V2.2b)
+// ---------------------------------------------------------------------------
+
+interface PointInfo {
+  code: string
+  lesson: number
+  pattern: string
+  meaning: string
+  sentences: LessonSentence[]
+}
+
+async function readPoints(supabase: Supabase): Promise<PointInfo[]> {
+  const content = await readContent(supabase)
+  return content.map((p) => ({
+    code: p.code,
+    lesson: p.lesson,
+    pattern: p.pattern,
+    meaning: p.meaning,
+    sentences: p.sentences.map((s) => ({ ...s, pattern: p.pattern, patternMeaning: p.meaning, pointCode: p.code })),
+  }))
+}
+
+export interface StageProgress {
+  stage: Stage
+  /** Lần nộp tốt nhất (số câu đúng / số câu), null khi chưa làm. */
+  best: { correct: number; total: number } | null
+  passed: boolean
+  unlocked: boolean
+}
+
+/** Tiến độ chặng theo mã mẫu: lần nộp tốt nhất mỗi chặng (không tính phiên luyện lại câu sai). */
+async function readPointProgress(supabase: Supabase, userId: string): Promise<(code: string) => StageProgress[]> {
+  const rows = await readAllPages('listening_sessions', (from, to) =>
+    supabase.from('listening_sessions').select('point_code, mode, correct, summary').eq('user_id', userId).eq('kind', 'point').eq('status', 'finished').order('id').range(from, to),
+  )
+  const best = new Map<string, { correct: number; total: number }>()
+  for (const r of rows as { point_code: string; mode: string; correct: number; summary: { total?: number } | null }[]) {
+    const total = r.summary?.total ?? POINT_LISTENING.perStage
+    if (!/^stage[123]$/.test(r.mode)) continue
+    const key = `${r.point_code}|${r.mode}`
+    const cur = best.get(key)
+    if (!cur || r.correct / total > cur.correct / cur.total) best.set(key, { correct: r.correct, total })
+  }
+  return (code) => stagesOf(code, best)
+}
+
+function stagesOf(code: string, best: Map<string, { correct: number; total: number }>): StageProgress[] {
+  const out: StageProgress[] = []
+  for (const stage of [1, 2, 3] as const) {
+    const b = best.get(`${code}|stage${stage}`) ?? null
+    out.push({ stage, best: b, passed: b !== null && stagePassed(b.correct, b.total), unlocked: stage === 1 || out[stage - 2].passed })
+  }
+  return out
+}
+
+export interface PointListeningOverview {
+  lessons: { lesson: number; points: { code: string; pattern: string; meaning: string; stages: StageProgress[] }[] }[]
+}
+
+export async function getPointListeningOverview(): Promise<PointListeningOverview> {
+  const user = await requireUser()
+  const supabase = await createClient()
+  const [points, of] = await Promise.all([readPoints(supabase), readPointProgress(supabase, user.id)])
+  const lessons = new Map<number, PointListeningOverview['lessons'][number]['points']>()
+  for (const p of points) lessons.set(p.lesson, [...(lessons.get(p.lesson) ?? []), { code: p.code, pattern: p.pattern, meaning: p.meaning, stages: of(p.code) }])
+  return { lessons: [...lessons.entries()].sort((a, b) => a[0] - b[0]).map(([lesson, list]) => ({ lesson, points: list })) }
+}
+
+/** Một chặng 10 câu của một mẫu. Chặng 2, 3 chỉ mở khi chặng trước đạt (≥ 8/10). */
+export async function startPointListening(input: unknown): Promise<StartResult | { status: 'locked' }> {
+  const v = (input ?? {}) as { point?: unknown; stage?: unknown }
+  const stage = Number(v.stage)
+  if (typeof v.point !== 'string' || !isStage(stage)) return { status: 'invalid' }
+  const user = await requireUser()
+  const supabase = await createClient()
+  const [points, of] = await Promise.all([readPoints(supabase), readPointProgress(supabase, user.id)])
+  const point = points.find((p) => p.code === v.point)
+  if (!point) return { status: 'invalid' }
+  if (!of(point.code)[stage - 1].unlocked) return { status: 'locked' }
+  const pool = points.filter((p) => p.lesson <= point.lesson).flatMap((p) => p.sentences)
+  const questions = buildPointStage(stage, pointStages(point.sentences)[stage - 1], pool, Math.random)
+  return insertSession(supabase, user.id, { kind: 'point', lesson: point.lesson, pointCode: point.code, mode: `stage${stage}`, questions })
 }
 
 /** Practice · Numbers listening (§V2.5). */
@@ -199,6 +289,7 @@ type SessionRow = {
   id: string
   kind: Kind
   lesson: number | null
+  point_code: string | null
   level: JlptLevel | null
   mode: string
   questions: ListeningQuestion[]
@@ -211,7 +302,7 @@ async function readSession(supabase: Supabase, userId: string, id: unknown): Pro
   if (typeof id !== 'string' || !UUID.test(id)) return null
   const { data, error } = await supabase
     .from('listening_sessions')
-    .select('id, kind, lesson, level, mode, questions, answers, status, started_at')
+    .select('id, kind, lesson, level, point_code, mode, questions, answers, status, started_at')
     .eq('id', id)
     .eq('user_id', userId)
     .maybeSingle()
@@ -245,6 +336,8 @@ export interface ListeningSessionView {
   lesson: number | null
   level: JlptLevel | null
   mode: string
+  /** Theo mẫu: mẫu ngữ pháp của phiên. */
+  point: { code: string; pattern: string } | null
   finished: boolean
   startedAt: string
   questions: PublicListeningQuestion[]
@@ -259,7 +352,8 @@ export async function getListeningSession(id: unknown): Promise<ListeningSession
   const supabase = await createClient()
   const s = await readSession(supabase, user.id, id)
   if (!s) return null
-  const reveal = s.kind === 'lesson' || s.status === 'finished'
+  const reveal = s.kind !== 'jlpt_mock' || s.status === 'finished'
+  const point = s.point_code ? ((await readPoints(supabase)).find((p) => p.code === s.point_code) ?? null) : null
   const answered: Record<number, ListeningResult> = {}
   if (reveal) for (const [k, given] of Object.entries(s.answers)) answered[Number(k)] = resultOf(s.questions[Number(k)], given)
   return {
@@ -268,6 +362,7 @@ export async function getListeningSession(id: unknown): Promise<ListeningSession
     lesson: s.lesson,
     level: s.level,
     mode: s.mode,
+    point: point ? { code: point.code, pattern: point.pattern } : null,
     finished: s.status === 'finished',
     startedAt: s.started_at,
     questions: s.questions.map(publicListeningQuestion),
@@ -295,7 +390,7 @@ export async function answerListening(input: unknown): Promise<AnswerListeningRe
   const graded = gradeListening(q, v.answer)
   if (!graded) return { status: 'invalid' }
   const prev = s.answers[String(index)]
-  if (prev !== undefined) return s.kind === 'lesson' ? { status: 'graded', ...resultOf(q, prev) } : { status: 'saved' }
+  if (prev !== undefined) return s.kind !== 'jlpt_mock' ? { status: 'graded', ...resultOf(q, prev) } : { status: 'saved' }
   const given = v.answer as number | string
   const { error } = await supabase.from('listening_sessions').update({ answers: { ...s.answers, [index]: given } }).eq('id', s.id).eq('user_id', user.id)
   if (error) throw new Error(`Không lưu được listening_sessions: ${error.message}`)
@@ -313,7 +408,7 @@ export async function answerListening(input: unknown): Promise<AnswerListeningRe
     study_date: studyDate(new Date()),
   })
   if (logError && logError.code !== '23505') throw new Error(`Không ghi được listening_logs: ${logError.message}`)
-  return s.kind === 'lesson' ? { status: 'graded', ...resultOf(q, given) } : { status: 'saved' }
+  return s.kind !== 'jlpt_mock' ? { status: 'graded', ...resultOf(q, given) } : { status: 'saved' }
 }
 
 export interface ListeningSummary {
@@ -336,7 +431,7 @@ export async function finishListening(id: unknown): Promise<ListeningSummary | {
   if (s.status === 'active') {
     const { error } = await supabase
       .from('listening_sessions')
-      .update({ status: 'finished', correct, summary: sections ?? null, finished_at: new Date().toISOString() })
+      .update({ status: 'finished', correct, summary: sections ?? (s.kind === 'point' ? { total: results.length } : null), finished_at: new Date().toISOString() })
       .eq('id', s.id)
       .eq('user_id', user.id)
     if (error) throw new Error(`Không lưu được listening_sessions: ${error.message}`)
@@ -363,7 +458,9 @@ export async function retryWrongListening(id: unknown): Promise<StartResult | { 
     const options = shuffle(q.options, Math.random)
     return { ...q, options, answer: options.indexOf(q.options[q.answer]) }
   })
-  return insertSession(supabase, user.id, { kind: s.kind, lesson: s.lesson, mode: s.mode, questions: shuffle(questions, Math.random) })
+  // Luyện lại câu sai của một chặng: mode riêng, không tính vào tiến độ chặng
+  const mode = s.kind === 'point' && !s.mode.endsWith('-retry') ? `${s.mode}-retry` : s.mode
+  return insertSession(supabase, user.id, { kind: s.kind, lesson: s.lesson, pointCode: s.point_code, mode, questions: shuffle(questions, Math.random) })
 }
 
 // ---------------------------------------------------------------------------
