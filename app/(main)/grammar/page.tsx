@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { BookOpenCheck, ChevronRight, Dumbbell, Languages, Lock, RotateCcw, Sparkles } from 'lucide-react'
+import { BookOpenCheck, ChevronRight, Dumbbell, Headphones, Languages, Lock, RotateCcw, Sparkles } from 'lucide-react'
 import { actionButton } from '@/components/action-button'
 import { PageHeader } from '@/components/page-header'
 import { getGrammarOverview, type GrammarLessonSummary, type PointStatus } from '@/lib/dal/grammar'
@@ -84,7 +84,7 @@ export default async function GrammarPage() {
         </div>
       </div>
 
-      <div className="mb-8 grid gap-3 sm:grid-cols-3">
+      <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Link href="/grammar/practice" className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 hover:border-[#3b4250]">
           <Dumbbell className="size-5 text-yellow" aria-hidden="true" />
           <span><span className="block font-medium">Practice</span><span className="block text-xs text-muted-foreground">Choose patterns and exercise types</span></span>
@@ -96,6 +96,10 @@ export default async function GrammarPage() {
         <Link href="/grammar/verbs" className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 hover:border-[#3b4250]">
           <Languages className="size-5 text-cyan" aria-hidden="true" />
           <span><span className="block font-medium">Verb forms</span><span className="block text-xs text-muted-foreground">Conjugation practice</span></span>
+        </Link>
+        <Link href="/grammar/listening" className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 hover:border-[#3b4250]">
+          <Headphones className="size-5 text-pink" aria-hidden="true" />
+          <span><span className="block font-medium">Listening</span><span className="block text-xs text-muted-foreground">Sentences of each lesson</span></span>
         </Link>
       </div>
 

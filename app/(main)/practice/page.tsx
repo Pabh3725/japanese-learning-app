@@ -1,6 +1,7 @@
-import { Blocks, Keyboard, Shuffle, Timer } from 'lucide-react'
+import { Blocks, Calculator, Ear, Keyboard, MessagesSquare, PenLine, Shuffle, Timer } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
 import { GameCard } from '@/components/practice/game-card'
+import { getMistakeCount } from '@/lib/dal/listening'
 
 const games = [
   {
@@ -42,10 +43,59 @@ const games = [
   },
 ]
 
-export default function PracticePage() {
+export default async function PracticePage() {
+  const mistakes = await getMistakeCount()
+  // Luyện nghe (docs/listening-rules.md §V2.1): nghe theo đoạn, chép chính tả, nghe số, câu nghe sai
+  const listening = [
+    {
+      href: '/practice/dictation',
+      title: 'Dictation',
+      jp: '書き取り',
+      description: 'Hear a sentence of a Minna lesson and type it.',
+      icon: PenLine,
+      tone: 'cyan' as const,
+      meta: 'Lessons 1–50',
+      badge: 'New',
+    },
+    {
+      href: '/practice/numbers',
+      title: 'Numbers listening',
+      jp: '数字',
+      description: 'Numbers, prices, times and dates that sound alike.',
+      icon: Calculator,
+      tone: 'yellow' as const,
+      meta: 'Choose or type',
+      badge: 'New',
+    },
+    {
+      href: '/practice/listening-mistakes',
+      title: 'Listening mistakes',
+      jp: '聞き直し',
+      description: 'Listen again to the questions you got wrong.',
+      icon: Ear,
+      tone: 'pink' as const,
+      meta: mistakes === 1 ? '1 question' : `${mistakes} questions`,
+    },
+    {
+      href: null,
+      title: 'Conversation listening',
+      jp: '会話の聞き取り',
+      description: 'A long conversation with blanks: pick the word you hear.',
+      icon: MessagesSquare,
+      tone: 'primary' as const,
+      meta: '2 conversations per lesson',
+    },
+  ]
   return (
     <>
       <PageHeader eyebrow="練習" title="Practice Arena" description="Short, playful games to sharpen what you've learned." />
+      <h2 className="mb-3 text-sm font-semibold tracking-wider text-muted-foreground uppercase">Listening</h2>
+      <div className="mb-8 grid gap-4 sm:grid-cols-2">
+        {listening.map((g) => (
+          <GameCard key={g.title} {...g} />
+        ))}
+      </div>
+      <h2 className="mb-3 text-sm font-semibold tracking-wider text-muted-foreground uppercase">Games</h2>
       <div className="grid gap-4 sm:grid-cols-2">
         {games.map((g) => (
           <GameCard key={g.title} {...g} />

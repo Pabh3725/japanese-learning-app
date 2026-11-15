@@ -1,6 +1,91 @@
-# LIS-01 — Luyện nghe `LISTENING_V1`
+# LIS-01 — Luyện nghe `LISTENING_V1` → `LISTENING_V2`
 
-> Trạng thái: **CONFIRMED** (chủ dự án duyệt 2026-11-15). Đợt 1 đã có trong code: `lib/listening/questions.ts`, `lib/dal/listening.ts`, trang `/listening`, migration `20261124000001_listening.sql`. Chủ dự án đã chốt: tab riêng trên thanh điều hướng; theo bài chọn tự do bài 1–50; dạng bài gồm hội thoại điền chỗ trống + phân tích câu, nghe câu → chọn nghĩa, nghe hỏi → chọn đáp, chép chính tả; JLPT có cả luyện từng dạng và thi thử phần nghe.
+> **V2 — CONFIRMED (chủ dự án duyệt 2026-11-15). Đợt A đã có trong code** (migration `20261125000001_listening_v2.sql`, `lib/listening/numbers.ts`, trang `/grammar/listening`, `/practice/dictation`, `/practice/numbers`, `/practice/listening-mistakes`, thẻ thi thử ở tab JLPT). Đợt B, C chưa làm. Chủ dự án chốt: bỏ tab Listening; luyện nghe theo câu nằm trong Grammar (từng bài); nghe theo đoạn (hội thoại điền chỗ trống) và Dictation nằm trong Practice; thi thử phần nghe chuyển về tab JLPT; thêm nghe số/giờ/ngày/giá, danh sách câu nghe sai, phím tắt. §V2 dưới đây thay các mục V1 tương ứng; phần V1 giữ để tra (§1–§6).
+
+## V2.1 Vị trí
+
+| Phần | Ở đâu | Ghi chú |
+|---|---|---|
+| Nghe theo câu (từng bài) | **Grammar** · trang bài → mục **Listening** (nút "Listening practice", 10 / 20 câu) | Không đổi lịch học Grammar |
+| Nghe theo đoạn | **Practice** · thẻ **Conversation listening** → chọn bài → chọn hội thoại | Cần soạn hội thoại (V2.4) |
+| Dictation | **Practice** · thẻ **Dictation** → chọn bài → *Từng câu* hoặc *Theo đoạn* | |
+| Nghe số, giờ, ngày, giá | **Practice** · thẻ **Numbers listening** | Dữ liệu Counters |
+| Câu nghe sai | **Practice** · thẻ **Listening mistakes** (hiện số câu) | Từ mọi phần nghe ở trên |
+| Thi thử phần nghe JLPT | **Tab JLPT** · mảng 聴解 → thẻ **Mock listening test** + lịch sử 5 đề | Giữ nguyên luật §4.2 |
+| Tab Listening | **Bỏ** khỏi thanh điều hướng; `/listening` chuyển về `/practice` | Trang phiên `/listening/session/[id]` giữ (dùng chung) |
+
+## V2.2 Grammar · nghe theo câu (mỗi bài)
+
+- **Mix 10 câu** (lựa chọn 10 / 20): 4 *nghe → chọn câu đã nghe*, 3 *nghe câu → chọn nghĩa*, 3 *nghe hỏi → chọn câu đáp*. Hoặc chọn một dạng riêng. Mix thiếu dạng nào thì dạng khác bù.
+- **Nghe → chọn câu đã nghe (mới):** 4 câu tiếng Nhật **chỉ khác một chỗ**: câu đúng + 3 câu thay một chỗ hỏi của câu (trợ từ / từ / thể) bằng nhiễu soạn sẵn của chỗ đó — vd. 京都**へ**行きます / 京都**で**行きます / 京都へ**行きました** / 京都へ**行きません**. Lựa chọn hiện chữ (không furigana: nhiễu là chữ soạn sẵn, không có cách đọc riêng). Câu không có chỗ hỏi đủ 3 nhiễu thì không dùng; độ dài câu như §3.2.
+- **Nghe câu → chọn nghĩa:** giữ như V1 (§3.2, nhiễu na ná).
+- **Nghe hỏi → chọn câu đáp:** giữ như V1 (§3.3).
+- Âm thanh, tốc độ, ẩn chữ: như V1 §2. Kết quả, luyện lại câu sai: như V1 §3.1.
+
+## V2.3 Practice · Dictation
+
+- Chọn bài (1–50, lưới như Grammar) rồi chọn chế độ:
+  - **Từng câu riêng:** 10 / 20 câu ngắn của bài, như V1 §3.4 (chỉ câu, ≤ 10 / 14 / 18 chữ theo bài, chỉ câu đọc ra toàn kana).
+  - **Theo đoạn:** chọn một hội thoại của bài (V2.4); chép **lần lượt từng lượt nói theo thứ tự** (mỗi lượt 1 câu gõ), được nghe lại lượt đó và nghe lại cả đoạn tới lượt đang chép. Chấm từng lượt; cuối phiên xem lại cả đoạn có furigana, nghĩa, chỗ gõ sai. Lượt dài hơn 24 chữ được tách theo câu (。).
+- Chấm như V1 §3.4.
+
+## V2.4 Practice · Conversation listening (nghe theo đoạn)
+
+- **2 hội thoại mỗi bài**, soạn mới (không dùng hội thoại / audio sách Minna — bản quyền 3A Corporation), chỉ dùng từ và mẫu từ bài 1 tới bài đó (công cụ kiểm tra như JLPT đợt 2), 2 giọng nam / nữ:
+
+| | Hội thoại 1 (ngắn) | Hội thoại 2 (dài) |
+|---|---|---|
+| Số lượt nói | 6–8 | 10–14 |
+| Ô trống | 4–6 | 8–10 |
+
+- **Ô trống** là điểm nghe của bài: từ mới, trợ từ, thể, **số / giờ / ngày / giá**. Mỗi ô 1 từ hoặc cụm ≤ 6 kana.
+- **Trả lời:** mỗi ô **chọn trong 4** từ **nghe na ná** (soạn tay: じゅうじ / じゅうよじ / しちじ / じゅうしちじ; きました / きませんでした …). Không gõ (gõ đã có ở Dictation).
+- **Luồng:** nghe cả đoạn 1 lần (ẩn chữ) → hiện lời có ô trống → điền, nghe lại cả đoạn hoặc từng lượt (Normal / Slow) → nộp → chấm từng ô.
+- **Phân tích câu** sau khi nộp: mỗi lượt có furigana, nghĩa, từ (bấm mở Library), mẫu ngữ pháp (bấm mở Grammar), nghe lại; ô trống hiện đáp án và lựa chọn của người học.
+- Nội dung chủ dự án duyệt trước khi bật (cờ `approved`). **Làm bài 1–25 trước** (50 hội thoại, khoảng 350 ô), duyệt, rồi bài 26–50.
+- Dictation theo đoạn (V2.3) dùng chung các hội thoại này.
+
+## V2.5 Practice · Numbers listening
+
+- Dữ liệu Counters (số, giờ phút, ngày tháng, thứ, giá tiền 円, số người / cái…). Chọn nhóm (mặc định: tất cả) và 10 / 20 câu.
+- **Nghe → chọn** (mặc định): máy đọc một số / giờ / ngày / giá, chọn trong 4 cách viết **nghe na ná**: 4時 / 7時 / 14時 / 40分; 4日 / 8日 / 14日 / 20日; 300円 / 3000円 / 330円 / 13000円. Nhiễu theo quy tắc dễ nhầm khi nghe (よじ/しちじ, よっか/ようか/はつか, ひゃく/びゃく/ぴゃく, số gần nhau, thêm/bớt một chữ số).
+- **Nghe → gõ số**: gõ chữ số (vd. 1430 cho じゅうよじさんじゅっぷん → 14:30; 3000 cho さんぜんえん). Chấm theo giá trị.
+- Không ghi lịch học; ghi nhật ký nghe (để vào danh sách câu nghe sai).
+
+## V2.6 Danh sách câu nghe sai
+
+- Mọi câu nghe (V2.2, V2.3, V2.5) trả lời sai được vào danh sách; **ra khỏi danh sách khi trả lời đúng 2 lần liên tiếp** ở lần ôn sau. Hội thoại (V2.4): ô sai vào danh sách dạng "nghe lại lượt nói đó, chọn lại".
+- Practice · **Listening mistakes**: hiện số câu; phiên 10 / 20 câu sai cũ nhất trước.
+- Thi thử JLPT không đưa vào danh sách (đã có phần xem lại).
+
+## V2.7 Phím tắt (mọi phần nghe)
+
+| Phím | Việc |
+|---|---|
+| Space | Nghe lại (thi thử: chỉ khi chưa phát xong lần đầu) |
+| 1–4 | Chọn lựa chọn |
+| Enter | Kiểm tra / Tiếp |
+| S | Đổi tốc độ Normal / Slow (không có ở thi thử) |
+
+Khi đang gõ trong ô nhập, chỉ Enter hoạt động.
+
+## V2.8 Kỹ thuật
+
+- Migration `20261125000001`: `kind` của phiên và nhật ký thêm `numbers`, `mistakes` (đợt B thêm kiểu hội thoại khi cần). Danh sách câu nghe sai **tính từ `listening_logs`** (không thêm bảng): mỗi câu theo `type|ref`, dựng lại câu với nhiễu mới. Không đổi FSRS / lịch.
+- Hội thoại: `data/listening/*.json` soạn bằng script (như `scripts/jlpt-content`), nhập ở server.
+- Bỏ khỏi thanh điều hướng mục Listening; điện thoại trở lại 6 mục.
+
+## V2.9 Đợt triển khai
+
+| Đợt | Nội dung |
+|---|---|
+| A | Bỏ tab, thi thử về tab JLPT; Grammar · nghe theo câu (3 dạng, có dạng mới); Practice · Dictation từng câu; Numbers listening; danh sách câu nghe sai; phím tắt; migration |
+| B | Soạn 50 hội thoại bài 1–25 → chủ dự án duyệt → Conversation listening + Dictation theo đoạn |
+| C | 50 hội thoại bài 26–50 |
+
+---
+
+> V1 — trạng thái: **CONFIRMED** (chủ dự án duyệt 2026-11-15). Đợt 1 đã có trong code: `lib/listening/questions.ts`, `lib/dal/listening.ts`, trang `/listening`, migration `20261124000001_listening.sql`. Chủ dự án đã chốt: tab riêng trên thanh điều hướng; theo bài chọn tự do bài 1–50; dạng bài gồm hội thoại điền chỗ trống + phân tích câu, nghe câu → chọn nghĩa, nghe hỏi → chọn đáp, chép chính tả; JLPT có cả luyện từng dạng và thi thử phần nghe.
 > Không đổi FSRS, điểm Stage hay lịch học (chỉ Official Review cập nhật FSRS). Luyện nghe chỉ ghi nhật ký riêng.
 
 ## 1. Vị trí
