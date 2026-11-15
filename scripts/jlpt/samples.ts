@@ -62,9 +62,9 @@ const siblingsOf = (w: JlptWord, lesson: number) => (byLesson.get(lesson) ?? [])
 const swaps = (c: string) => [...new Set([...(simOf.get(c) ?? []), ...(onOf.get(c) ?? []).flatMap((on) => byOn.get(on) ?? [])])].filter((x) => x !== c)
 
 const lines: string[] = [
-  '# JLPT đợt 1 — mẫu câu 漢字読み và 表記 (chờ duyệt)',
+  '# JLPT đợt 1 — mẫu câu 漢字読み và 表記 (đã duyệt 2026-11-15)',
   '',
-  '> Sinh bằng `pnpm exec tsx scripts/jlpt/samples.ts`, dùng đúng hàm dựng câu của app. Mỗi cấp 30 câu mỗi dạng, chọn ngẫu nhiên (seed cố định). Đáp án đúng in **đậm**. Duyệt chất lượng đáp án nhiễu: nhiễu phải sai chắc chắn và trông hợp lý.',
+  '> Sinh bằng `pnpm exec tsx scripts/jlpt/samples.ts`, dùng đúng hàm dựng câu của app. Mỗi cấp 30 câu mỗi dạng, chọn ngẫu nhiên (seed cố định). Đáp án đúng in **đậm**. Tiêu chí nhiễu: sai chắc chắn và trông hợp lý. Chủ dự án đã duyệt chất lượng nhiễu ngày 2026-11-15.',
   '',
 ]
 const stemText = (q: JlptQuestion) => (q.stem ?? []).map((p) => (p.mark === 'underline' ? `__${p.t}__` : p.t)).join('')
