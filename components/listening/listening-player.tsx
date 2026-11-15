@@ -146,6 +146,8 @@ export function ListeningPlayer({ session }: { session: ListeningSessionView }) 
         ? { label: 'Numbers listening', href: '/practice/numbers', back: 'Back to Practice' }
         : session.kind === 'mistakes'
           ? { label: 'Listening mistakes', href: '/practice/listening-mistakes', back: 'Back to Practice' }
+          : session.kind === 'point'
+            ? { label: `${session.point?.pattern ?? 'Grammar'} · Stage ${session.mode.replace(/\D/g, '')}`, href: '/grammar/listening', back: 'Back to Grammar listening' }
           : session.mode === 'dictation'
             ? { label: `Dictation · Lesson ${session.lesson}`, href: '/practice/dictation', back: 'Back to Dictation' }
             : { label: `Listening · Lesson ${session.lesson}`, href: '/grammar/listening', back: 'Back to Grammar listening' }

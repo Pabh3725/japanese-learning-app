@@ -22,6 +22,18 @@
 - **Nghe hỏi → chọn câu đáp:** giữ như V1 (§3.3).
 - Âm thanh, tốc độ, ẩn chữ: như V1 §2. Kết quả, luyện lại câu sai: như V1 §3.1.
 
+## V2.2b Grammar · Listening theo từng mẫu — CONFIRMED (chủ dự án chốt 2026-11-16), thay cách chọn theo bài ở V2.2
+
+- Trang `/grammar/listening`: danh sách mẫu theo bài (N5 / N4), mỗi mẫu **30 câu nghe, 3 chặng × 10 câu**: chặng 1 cơ bản, chặng 2–3 khó dần.
+- **Câu lấy từ câu ngữ pháp đã soạn và đã duyệt** của mẫu đó (đã kiểm tra chỉ dùng từ vựng tới bài đó; câu độ khó 2–3 kết hợp mẫu đã học). Không soạn câu mới.
+  - Chặng 1: 10 câu độ khó 1, ưu tiên câu chỉ có mẫu này.
+  - Chặng 2: 10 câu độ khó 2; chặng 3: 10 câu độ khó 3; cả hai ưu tiên câu kết hợp mẫu đã học.
+  - Bài 21–50 có 40 câu / mẫu: chọn 30 theo thứ tự trên (ổn định giữa các lần học). Độ khó nào thiếu thì lấy từ độ khó gần nhất.
+- **Dạng hỏi theo chặng:** chặng 1 chọn câu đã nghe; chặng 2 xen kẽ chọn câu đã nghe / nghe câu → chọn nghĩa; chặng 3 hỏi–đáp nếu câu có câu hỏi, còn lại xen kẽ chọn nghĩa / chép chính tả (câu ≤ 20 chữ, toàn kana khi đọc). Câu không dựng được dạng đó thì dùng dạng khác.
+- **Mở chặng:** chặng 1 luôn mở; chặng sau mở khi lần nộp tốt nhất của chặng trước đúng ≥ 8/10. Phiên "luyện lại câu sai" không tính vào tiến độ chặng.
+- Mỗi chặng hiện lần nộp tốt nhất (vd. 9/10). Không đổi lịch học Grammar.
+- Migration `20261126000001`: kiểu phiên `point`, cột `point_code`.
+
 ## V2.3 Practice · Dictation
 
 - Chọn bài (1–50, lưới như Grammar) rồi chọn chế độ:
