@@ -5,7 +5,6 @@ import { toRomaji } from 'wanakana'
 import { describe, expect, it } from 'vitest'
 import n4 from '../../../data/jlpt/n4.json'
 import n5 from '../../../data/jlpt/n5.json'
-import { parseCsv } from '../../../scripts/seed/csv'
 import type { GrammarLessonFile } from '../../grammar/types'
 import { LESSONS_OF, type JlptLevel } from '../../jlpt/catalog'
 import { approvedItems, type LevelContent, type ListeningItem, type VerbalItem } from '../../jlpt/content'
@@ -18,13 +17,12 @@ import {
   LISTENING_V1,
   publicListeningQuestion,
   scoreMock,
+  sentenceSimilarity,
   type LessonSentence,
-  type LessonWord,
   type ListeningQuestion,
 } from '../questions'
 
 const seeded = (seed: number) => () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296)
-const NOT_DICTABLE = /[～〜（）()…]/
 
 const dir = join(process.cwd(), 'data', 'grammar')
 const sentencesByLesson = new Map<number, LessonSentence[]>()
@@ -36,12 +34,11 @@ for (const f of readdirSync(dir).filter((x) => x.endsWith('.json'))) {
     sentencesByLesson.set(file.lesson, list)
   }
 }
-const [head, ...body] = parseCsv(readFileSync(join(process.cwd(), 'data', 'n5', 'vocabularies.csv'), 'utf8')).records.map((r) => r.cells)
-const vocab = body.map((cells) => Object.fromEntries(head.map((h, i) => [h, cells[i] ?? ''])))
-const wordsOf = (lesson: number): LessonWord[] =>
-  vocab
-    .filter((r) => Number(r.lesson) === lesson && !NOT_DICTABLE.test(r.expression))
-    .map((r) => ({ id: r.code, code: r.code, expression: r.expression, reading: r.reading_kana, meaning: r.meaning_vi }))
+/** Câu của bài này và các bài trước (nguồn nhiễu nghe câu → chọn nghĩa), như DAL. */
+const poolOf = (lesson: number) => [...sentencesByLesson.entries()].filter(([l]) => l <= lesson).flatMap(([, list]) => list)
+const session = (lesson: number, mode: Parameters<typeof buildLessonSession>[1], count: number, seed: number) =>
+  buildLessonSession(lesson, mode, count, sentencesByLesson.get(lesson) ?? [], poolOf(lesson), seeded(seed))
+const charsOf = (q: ListeningQuestion) => q.transcript[0].pieces.map((p) => p.t).join('').replace(/[\s　。、？！?!「」『』・…〜～]/g, '').length
 
 function check(q: ListeningQuestion) {
   expect(q.script.length, q.ref).toBeGreaterThan(0)
@@ -70,10 +67,8 @@ function check(q: ListeningQuestion) {
 describe('Theo bài', () => {
   it('mọi bài 1–50: Mix đủ 10 câu (dạng thiếu thì dạng khác bù); dạng riêng chỉ có dạng đó, tối đa 10; câu hợp lệ', () => {
     for (let lesson = 1; lesson <= 50; lesson++) {
-      const sentences = sentencesByLesson.get(lesson) ?? []
-      const words = wordsOf(lesson)
       for (const mode of ['mix', ...LESSON_TYPES] as const) {
-        const qs = buildLessonSession(lesson, mode, 10, sentences, words, seeded(lesson))
+        const qs = session(lesson, mode, 10, lesson)
         if (mode === 'mix') expect(qs.length, `bài ${lesson} mix`).toBe(10)
         else {
           expect(qs.length, `bài ${lesson} ${mode}`).toBeGreaterThanOrEqual(4)
@@ -87,29 +82,42 @@ describe('Theo bài', () => {
   })
 
   it('Mix 10 câu: 4 nghe câu, 3 hỏi–đáp, 3 chép chính tả', () => {
-    const qs = buildLessonSession(5, 'mix', 10, sentencesByLesson.get(5)!, wordsOf(5), seeded(1))
+    const qs = session(5, 'mix', 10, 1)
     const n = (t: string) => qs.filter((q) => q.type === t).length
     expect([n('sentence_meaning'), n('reply'), n('dictation')]).toEqual([4, 3, 3])
   })
 
-  it('độ dài câu và chép chính tả theo bài', () => {
-    const chars = (q: ListeningQuestion) => q.transcript[0].pieces.map((p) => p.t).join('').replace(/[\s　。、？！?!「」『』・…〜～]/g, '').length
-    for (const lesson of [3, 8, 15, 22]) {
-      const qs = buildLessonSession(lesson, 'sentence_meaning', 20, sentencesByLesson.get(lesson)!, wordsOf(lesson), seeded(lesson))
-      for (const q of qs) expect(chars(q), `bài ${lesson} ${q.ref}`).toBeLessThanOrEqual(LISTENING_V1.sentenceMaxChars(lesson))
+  it('nghe câu → chọn nghĩa: câu trong giới hạn độ dài của bài; nhiễu là nghĩa của câu na ná (không cùng nghĩa)', () => {
+    let total = 0
+    let scoreSum = 0
+    for (let lesson = 1; lesson <= 50; lesson++) {
+      const bySentence = new Map(poolOf(lesson).map((s) => [s.meaning, s]))
+      for (const q of session(lesson, 'sentence_meaning', 10, lesson)) {
+        expect(charsOf(q), `bài ${lesson} ${q.ref}`).toBeLessThanOrEqual(LISTENING_V1.sentenceMaxChars(lesson))
+        const right = bySentence.get(q.options[q.answer as number])!
+        for (const [i, o] of q.options.entries()) {
+          if (i === q.answer) continue
+          const wrong = bySentence.get(o)!
+          expect(wrong, `${q.ref}: nhiễu lấy từ bài ≤ ${lesson}`).toBeDefined()
+          scoreSum += sentenceSimilarity(right, wrong)
+          total++
+        }
+      }
     }
-    // Bài 1–12 chỉ chép từ; từ bài 13 có cả câu ngắn
-    const early = buildLessonSession(10, 'dictation', 20, sentencesByLesson.get(10)!, wordsOf(10), seeded(2))
-    expect(early.every((q) => q.ref.startsWith('n'))).toBe(true)
-    const later = buildLessonSession(20, 'dictation', 20, sentencesByLesson.get(20)!, wordsOf(20), seeded(2))
-    expect(later.some((q) => q.ref.startsWith('g'))).toBe(true)
-    expect(later.some((q) => q.ref.startsWith('n'))).toBe(true)
+    // Nhiễu giống đáp án đáng kể (trung bình): chung nhiều chữ tiếng Việt và mảnh tiếng Nhật
+    expect(scoreSum / total).toBeGreaterThan(0.3)
   })
 
-  it('từ Katakana: ô gõ Katakana; gõ Hiragana vẫn đúng', () => {
-    const q = buildLessonSession(1, 'dictation', 20, [], wordsOf(1), seeded(3)).find((x) => x.input === 'katakana')!
-    expect(q).toBeDefined()
-    expect(gradeListening(q, String(q.answer).replace(/[ァ-ヶ]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60)))).toEqual({ correct: true })
+  it('chép chính tả: chỉ câu (không từ), câu chỉ có kana khi đọc, ngắn theo bài', () => {
+    for (let lesson = 1; lesson <= 50; lesson++) {
+      const qs = session(lesson, 'dictation', 10, lesson)
+      expect(qs.length, `bài ${lesson}`).toBe(10)
+      expect(qs.every((q) => q.ref.startsWith('g')), `bài ${lesson}: chỉ câu`).toBe(true)
+      expect(qs.every((q) => /^[ぁ-ゖァ-ヺー。、？！?!「」\s　]+$/.test(String(q.answer))), `bài ${lesson}: chỉ kana`).toBe(true)
+      // Phần lớn câu trong giới hạn; bài ít câu ngắn thì lấy câu ngắn nhất
+      const within = qs.filter((q) => charsOf(q) <= LISTENING_V1.dictationMaxChars(lesson)).length
+      expect(within, `bài ${lesson}`).toBeGreaterThanOrEqual(lesson <= 2 ? 3 : 7)
+    }
   })
 })
 
