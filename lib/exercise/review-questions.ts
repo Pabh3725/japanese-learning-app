@@ -2,11 +2,12 @@
 import type { CardType, ExerciseCode, Outcome } from '../learning/types'
 import type { Rng } from './questions'
 import { plainHanViet } from '../kanji/questions'
-import { buildStageQuestion, type PromptData, type QuestionPools, type StageWord, type WordKnowledge } from './stage-questions'
+import { isKanaAnswerCorrect } from './answer-normalize'
+import { buildStageQuestion, isKatakanaWord, type PromptData, type QuestionPools, type StageWord, type WordKnowledge } from './stage-questions'
 
 export type ReviewQuestionData =
   /** Nghĩa → gõ Kana. */
-  | { kind: 'typing'; exercise: 'kana_free_recall'; question: string; prompt: { display: string; kind: 'meaning'; hint?: string }; placeholder: string; input: 'hiragana' }
+  | { kind: 'typing'; exercise: 'kana_free_recall'; question: string; prompt: { display: string; kind: 'meaning'; hint?: string }; placeholder: string; input: 'hiragana' | 'katakana' }
   /** Nhìn Kanji → gõ Kana và Hán Việt trong cùng một câu. Sai một ô là sai cả câu. */
   | { kind: 'kanji_read'; exercise: 'kanji_read_typing'; question: string; prompt: { display: string; kind: 'vocab' } }
   /** V10: nhìn nghĩa → chọn cách viết Kanji trong 6. Câu chọn nên đáp án có sẵn ở trình duyệt, server vẫn chấm lại. */
@@ -58,7 +59,7 @@ export function buildReviewQuestion(word: StageWord, exercise: ExerciseCode, poo
       return { kind: 'choice', exercise, question: q.question, prompt: q.prompt, options: q.options, answer: q.answer, optionKind: q.optionKind, speak: q.speak }
     }
     default:
-      return { kind: 'typing', exercise: 'kana_free_recall', question: 'Type this word in Kana', prompt: meaningPrompt(word), placeholder: 'Type in romaji', input: 'hiragana' }
+      return { kind: 'typing', exercise: 'kana_free_recall', question: 'Type this word in Kana', prompt: meaningPrompt(word), placeholder: 'Type in romaji', input: isKatakanaWord(word) ? 'katakana' : 'hiragana' }
   }
 }
 
@@ -77,10 +78,11 @@ export function gradeReviewAnswer(word: StageWord, exercise: ExerciseCode, input
   const reading = word.reading_kana
   if (exercise === 'kanji_recognition_6') return { outcome: (input.answer ?? '') === word.expression ? 'correct' : 'wrong', answer: word.expression }
   if (exercise === 'kanji_read_typing') {
-    const ok = (input.reading ?? '').trim() === reading && plainHanViet(input.hanViet ?? '') === plainHanViet(word.han_viet ?? '')
+    const ok = isKanaAnswerCorrect(input.reading ?? '', reading) && plainHanViet(input.hanViet ?? '') === plainHanViet(word.han_viet ?? '')
     return { outcome: ok ? 'correct' : 'wrong', answer: `${reading} · ${word.han_viet ?? ''}` }
   }
-  return { outcome: (input.answer ?? '').trim() === reading ? 'correct' : 'wrong', answer: reading }
+  // Như câu gõ Kana ở Learn: không phân biệt Hiragana / Katakana, ー, を (エンジニア gõ ra えんじにあ vẫn đúng)
+  return { outcome: isKanaAnswerCorrect(input.answer ?? '', reading) ? 'correct' : 'wrong', answer: reading }
 }
 
 export type { WordKnowledge }

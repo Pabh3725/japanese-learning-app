@@ -291,7 +291,7 @@ function kanjiCharMeaning(word: StageWord, pools: QuestionPools, rng: Rng): Choi
   }
 }
 
-function isKatakanaWord(word: StageWord): boolean {
+export function isKatakanaWord(word: StageWord): boolean {
   return /^[ァ-ヺー]+$/.test(word.reading_kana)
 }
 
