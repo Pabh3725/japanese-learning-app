@@ -128,34 +128,44 @@ function StudyLimitField({ limitKey, initial }: { limitKey: StudyLimitKey; initi
   )
 }
 
-/** Các nhóm cài đặt theo khu học. Mỗi giới hạn thuộc đúng một nhóm. */
-const GROUPS: { id: string; title: string; description: string; keys: readonly StudyLimitKey[]; newWords?: boolean; furigana?: boolean; reviewSession?: boolean }[] = [
-  { id: 'learn', title: 'Learn', description: 'Lessons mix Vocabulary, Kanji words and Kanji.', keys: ['lesson_size', 'learn_cap'] },
-  { id: 'vocab', title: 'Vocabulary', description: 'New words, and their cards in Review.', keys: ['review_cap', 'unlock_threshold', 'review_session_size'], newWords: true, reviewSession: true },
-  { id: 'word-kanji', title: 'Kanji words', description: 'Cards for words you have learned in Kanji.', keys: ['word_kanji_review_cap'] },
-  { id: 'kanji', title: 'Kanji', description: 'Single characters: learning, then long-term cards.', keys: ['kanji_new_per_day', 'kanji_cap', 'kanji_review_cap'] },
-  { id: 'grammar', title: 'Grammar', description: 'Patterns by Minna lesson.', keys: ['grammar_new_per_day', 'grammar_review_cap'], furigana: true },
-]
+/** Mục hay chỉnh hiện sẵn; trần mỗi ngày nằm trong Advanced, đóng sẵn (chủ dự án chốt 2026-11-15). */
+const ADVANCED: readonly StudyLimitKey[] = ['learn_cap', 'review_cap', 'word_kanji_review_cap', 'unlock_threshold', 'kanji_cap', 'kanji_review_cap', 'grammar_review_cap']
+
+function Group({ id, title, description, children }: { id: string; title: string; description: string; children: React.ReactNode }) {
+  return (
+    <section aria-labelledby={`${id}-title`} className="rounded-3xl border border-border bg-card px-6 pt-6 pb-2">
+      <h2 id={`${id}-title`} className="font-semibold">{title}</h2>
+      <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+      <div className="divide-y divide-border">{children}</div>
+    </section>
+  )
+}
 
 export function SettingsForm({ newPerDay, limits, furigana = true, reviewAllAtOnce = false }: { newPerDay: number; limits: Record<StudyLimitKey, number>; furigana?: boolean; reviewAllAtOnce?: boolean }) {
+  const field = (key: StudyLimitKey) => <StudyLimitField key={key} limitKey={key} initial={limits[key]} />
   return (
     <div className="flex max-w-2xl flex-col gap-6">
-      {GROUPS.map((group) => (
-        <section key={group.id} aria-labelledby={`${group.id}-title`} className="rounded-3xl border border-border bg-card px-6 pt-6 pb-2">
-          <h2 id={`${group.id}-title`} className="font-semibold">{group.title}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{group.description}</p>
-          <div className="divide-y divide-border">
-            {group.newWords && <NewPerDayField initial={newPerDay} />}
-            {group.keys.map((key) => (
-              <StudyLimitField key={key} limitKey={key} initial={limits[key]} />
-            ))}
-            {group.reviewSession && (
-              <SettingSwitch label="Review all due cards at once" description="One Review session takes every card due, up to the daily limit. Cards per review session is then ignored." defaultChecked={reviewAllAtOnce} onSave={saveReviewAllAtOnceAction} />
-            )}
-            {group.furigana && <SettingSwitch label="Furigana in Grammar" description="Show readings above Kanji in grammar sentences." defaultChecked={furigana} onSave={saveGrammarFuriganaAction} />}
-          </div>
-        </section>
-      ))}
+      <Group id="pace" title="Daily pace" description="How much new material opens each day.">
+        <NewPerDayField initial={newPerDay} />
+        {field('kanji_new_per_day')}
+        {field('grammar_new_per_day')}
+      </Group>
+      <Group id="sessions" title="Sessions" description="How long each Learn lesson and Review session is.">
+        {field('lesson_size')}
+        {field('review_session_size')}
+        <SettingSwitch label="Review all due cards at once" description="One Review session takes every card due, up to the daily limit. Cards per review session is then ignored." defaultChecked={reviewAllAtOnce} onSave={saveReviewAllAtOnceAction} />
+      </Group>
+      <Group id="display" title="Display" description="How sentences are shown.">
+        <SettingSwitch label="Furigana in Grammar" description="Show readings above Kanji in grammar sentences." defaultChecked={furigana} onSave={saveGrammarFuriganaAction} />
+      </Group>
+      <details className="group rounded-3xl border border-border bg-card px-6 py-5">
+        <summary className="cursor-pointer list-none font-semibold marker:hidden [&::-webkit-details-marker]:hidden">
+          <span className="mr-2 inline-block text-muted-foreground transition-transform group-open:rotate-90" aria-hidden="true">▸</span>
+          Advanced
+          <span className="mt-1 block text-sm font-normal text-muted-foreground">Daily limits. The defaults suit most learners; extra items move to the next day.</span>
+        </summary>
+        <div className="mt-2 divide-y divide-border">{ADVANCED.map(field)}</div>
+      </details>
     </div>
   )
 }
