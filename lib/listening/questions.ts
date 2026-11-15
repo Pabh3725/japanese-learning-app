@@ -15,9 +15,10 @@ export const LISTENING_V1 = {
   mixPer10: { sentence_meaning: 4, reply: 3, dictation: 3 },
   /** Độ dài câu nghe → chọn nghĩa (số chữ, không tính dấu câu) theo bài. */
   sentenceMaxChars: (lesson: number) => (lesson <= 10 ? 12 : lesson <= 25 ? 20 : Number.POSITIVE_INFINITY),
-  /** Chép chính tả: tới bài này chỉ từ vựng; sau đó nửa từ, nửa câu ngắn. */
-  dictationWordsOnlyUntil: 12,
-  dictationSentenceMaxChars: 12,
+  /** Chép chính tả: chỉ câu (chủ dự án chốt 2026-11-15); độ dài tối đa (số chữ, không tính dấu câu) theo bài. */
+  dictationMaxChars: (lesson: number) => (lesson <= 10 ? 10 : lesson <= 25 ? 14 : 18),
+  /** Nghe câu → chọn nghĩa: độ giống = phần chữ tiếng Việt chung của nghĩa và phần mảnh tiếng Nhật chung. */
+  similarity: { meaning: 0.6, japanese: 0.4 },
   rate: { normal: 0.9, slow: 0.7 },
   /** Thi thử: số câu mỗi 問題 và thời gian tham khảo (phút). */
   mock: {
@@ -69,7 +70,6 @@ const textOf = (pieces: readonly GrammarPiece[]) => pieces.map((p) => p.t).join(
 const kanaOf = (pieces: readonly GrammarPiece[]) => pieces.map((p) => p.r ?? p.t).join('')
 const charCount = (pieces: readonly GrammarPiece[]) => textOf(pieces).replace(PUNCT, '').length
 const toStem = (pieces: readonly GrammarPiece[]): StemPiece[] => pieces.map((p) => (p.r ? { t: p.t, r: p.r } : { t: p.t }))
-const isKatakana = (s: string) => /^[ァ-ヺー]+$/.test(s)
 
 function withAnswer<T>(answer: T, distractors: readonly T[], rng: Rng): { options: T[]; answer: number } {
   const options = shuffle([answer, ...distractors], rng)
@@ -84,21 +84,51 @@ export interface LessonSentence extends JlptGrammarSentence {
   pointCode: string
 }
 
-export interface LessonWord {
-  id: string
-  code: string
-  expression: string
-  reading: string
-  meaning: string
+const wordsCache = new WeakMap<LessonSentence, { vi: Set<string>; ja: Set<string> }>()
+function wordsOf(s: LessonSentence) {
+  let w = wordsCache.get(s)
+  if (!w) {
+    w = {
+      vi: new Set(s.meaning.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, ' ').split(/\s+/).filter(Boolean)),
+      ja: new Set(s.pieces.map((p) => p.t).filter((t) => !PUNCT_ONLY.test(t))),
+    }
+    wordsCache.set(s, w)
+  }
+  return w
+}
+const PUNCT_ONLY = /^[\s　。、？！?!「」『』・…〜～]+$/
+const jaccard = (a: ReadonlySet<string>, b: ReadonlySet<string>) => {
+  let common = 0
+  for (const x of a) if (b.has(x)) common++
+  const union = a.size + b.size - common
+  return union === 0 ? 0 : common / union
 }
 
-/** Dạng A: nghe câu → chọn nghĩa. Nhiễu: nghĩa câu cùng mẫu trước, rồi câu khác cùng bài. */
-export function buildSentenceMeaning(s: LessonSentence, lessonSentences: readonly LessonSentence[], rng: Rng): ListeningQuestion | null {
-  const others = (list: readonly LessonSentence[]) => shuffle(list.filter((x) => x.code !== s.code).map((x) => x.meaning), rng)
-  const samePoint = others(lessonSentences.filter((x) => x.pointCode === s.pointCode))
-  const rest = others(lessonSentences.filter((x) => x.pointCode !== s.pointCode))
-  const distractors = [...new Set([...samePoint, ...rest])].filter((m) => m !== s.meaning).slice(0, 3)
-  if (distractors.length < 3) return null
+/** Độ giống của hai câu (0–1): chữ tiếng Việt chung của nghĩa và mảnh tiếng Nhật chung. */
+export function sentenceSimilarity(a: LessonSentence, b: LessonSentence): number {
+  const wa = wordsOf(a)
+  const wb = wordsOf(b)
+  return LISTENING_V1.similarity.meaning * jaccard(wa.vi, wb.vi) + LISTENING_V1.similarity.japanese * jaccard(wa.ja, wb.ja)
+}
+
+/**
+ * Dạng A: nghe câu → chọn nghĩa. Nhiễu là nghĩa của 3 câu **giống nhất** (từ bài này và các bài trước), để phải nghe
+ * đúng chi tiết (thứ sáu / thứ bảy, sách / giấy…). Bỏ câu cùng nghĩa (cùng tập chữ) và nhiễu trùng nhau.
+ */
+export function buildSentenceMeaning(s: LessonSentence, pool: readonly LessonSentence[], rng: Rng): ListeningQuestion | null {
+  const own = wordsOf(s).vi
+  const ranked = shuffle(pool, rng)
+    .filter((x) => x.code !== s.code && x.meaning !== s.meaning && jaccard(wordsOf(x).vi, own) < 1)
+    .map((x) => ({ x, score: sentenceSimilarity(s, x) }))
+    .sort((a, b) => b.score - a.score)
+  const picked: LessonSentence[] = []
+  for (const { x } of ranked) {
+    if (picked.length === 3) break
+    if (picked.some((p) => p.meaning === x.meaning || jaccard(wordsOf(p).vi, wordsOf(x).vi) === 1)) continue
+    picked.push(x)
+  }
+  if (picked.length < 3) return null
+  const distractors = picked.map((x) => x.meaning)
   return {
     type: 'sentence_meaning',
     ref: s.code,
@@ -129,22 +159,7 @@ export function buildReply(s: LessonSentence, rng: Rng): ListeningQuestion | nul
   }
 }
 
-/** Dạng C: chép chính tả một từ của bài. */
-export function buildWordDictation(w: LessonWord): ListeningQuestion {
-  return {
-    type: 'dictation',
-    ref: w.code,
-    instruction: 'Listen and type what you hear.',
-    script: [{ sp: 'N', text: w.reading }],
-    options: [],
-    input: isKatakana(w.reading) ? 'katakana' : 'hiragana',
-    answer: w.reading,
-    explanation: `${w.expression}${w.expression !== w.reading ? `（${w.reading}）` : ''}: ${w.meaning}`,
-    transcript: [{ sp: 'N', pieces: [w.expression !== w.reading ? { t: w.expression, r: w.reading } : { t: w.expression }] }],
-  }
-}
-
-/** Dạng C: chép chính tả một câu ngắn của bài. */
+/** Dạng C: chép chính tả một câu ngắn của bài (chỉ câu, chủ dự án chốt 2026-11-15). */
 export function buildSentenceDictation(s: LessonSentence): ListeningQuestion {
   return {
     type: 'dictation',
@@ -167,43 +182,53 @@ export function planLesson(mode: LessonMode, count: number): Record<LessonType, 
   return { sentence_meaning: mixPer10.sentence_meaning * k, reply: mixPer10.reply * k, dictation: mixPer10.dictation * k }
 }
 
+/** Câu chép được: chỉ kana khi đọc (không số, không chữ Latin), để chữ gõ khớp lời máy đọc. */
+const dictable = (s: LessonSentence) => /^[ぁ-ゖァ-ヺー]+$/.test(kanaOf(s.pieces).replace(PUNCT, ''))
+
 /**
- * Dựng phiên theo bài. Dạng thiếu câu thì dạng khác bù cho đủ. Câu được xen kẽ các dạng.
- * `recent`: mã câu đã làm gần đây (ưu tiên câu chưa gặp, rồi câu cũ nhất).
+ * Dựng phiên theo bài. Mix: dạng thiếu câu thì dạng khác bù cho đủ. Câu được xen kẽ các dạng.
+ * `pool`: câu của bài này và các bài trước (nhiễu nghe câu → chọn nghĩa). `recent`: mã câu đã làm gần đây
+ * (ưu tiên câu chưa gặp, rồi câu cũ nhất).
  */
 export function buildLessonSession(
   lesson: number,
   mode: LessonMode,
   count: number,
   sentences: readonly LessonSentence[],
-  words: readonly LessonWord[],
+  pool: readonly LessonSentence[],
   rng: Rng,
   recent: ReadonlyMap<string, number> = new Map(),
 ): ListeningQuestion[] {
   const fresh = <T extends { code: string }>(list: readonly T[]) => shuffle(list, rng).sort((a, b) => (recent.get(a.code) ?? 0) - (recent.get(b.code) ?? 0))
   const maxChars = LISTENING_V1.sentenceMaxChars(lesson)
-  const sources: Record<LessonType, () => ListeningQuestion[]> = {
-    sentence_meaning: () => fresh(sentences.filter((s) => charCount(s.pieces) <= maxChars)).flatMap((s) => buildSentenceMeaning(s, sentences, rng) ?? []),
-    reply: () => fresh(sentences.filter((s) => s.prompt)).flatMap((s) => buildReply(s, rng) ?? []),
-    dictation: () => {
-      const wordQs = fresh(words).map(buildWordDictation)
-      if (lesson <= LISTENING_V1.dictationWordsOnlyUntil) return wordQs
-      const sentenceQs = fresh(sentences.filter((s) => charCount(s.pieces) <= LISTENING_V1.dictationSentenceMaxChars)).map(buildSentenceDictation)
-      // Nửa từ, nửa câu: xen kẽ hai nguồn
-      const out: ListeningQuestion[] = []
-      for (let i = 0; i < Math.max(wordQs.length, sentenceQs.length); i++) out.push(...[sentenceQs[i], wordQs[i]].filter((q): q is ListeningQuestion => q !== undefined))
-      return out
+  // Nguồn của từng dạng: danh sách câu (rẻ) và cách dựng câu hỏi (có thể tốn: so độ giống với cả kho). Chỉ dựng khi cần.
+  const limit = LISTENING_V1.dictationMaxChars(lesson)
+  const dictableList = sentences.filter(dictable)
+  const sources: Record<LessonType, { items: LessonSentence[]; build: (s: LessonSentence) => ListeningQuestion | null }> = {
+    sentence_meaning: { items: fresh(sentences.filter((s) => charCount(s.pieces) <= maxChars)), build: (s) => buildSentenceMeaning(s, pool, rng) },
+    reply: { items: fresh(sentences.filter((s) => s.prompt)), build: (s) => buildReply(s, rng) },
+    // Câu ngắn trong giới hạn của bài; thiếu thì lấy thêm câu ngắn nhất
+    dictation: {
+      items: [...fresh(dictableList.filter((s) => charCount(s.pieces) <= limit)), ...dictableList.filter((s) => charCount(s.pieces) > limit).sort((a, b) => charCount(a.pieces) - charCount(b.pieces))],
+      build: buildSentenceDictation,
     },
   }
+  const take = (type: LessonType, n: number): ListeningQuestion[] => {
+    const out: ListeningQuestion[] = []
+    const src = sources[type]
+    while (out.length < n && src.items.length > 0) {
+      const q = src.build(src.items.shift()!)
+      if (q) out.push(q)
+    }
+    return out
+  }
   const plan = planLesson(mode, count)
-  const pools = Object.fromEntries(LESSON_TYPES.map((t) => [t, plan[t] > 0 || mode === 'mix' ? sources[t]() : []])) as Record<LessonType, ListeningQuestion[]>
-  const taken: Record<LessonType, ListeningQuestion[]> = { sentence_meaning: [], reply: [], dictation: [] }
-  for (const t of LESSON_TYPES) taken[t] = pools[t].splice(0, plan[t])
-  // Bù chỗ thiếu bằng dạng khác còn câu
+  const taken = Object.fromEntries(LESSON_TYPES.map((t) => [t, take(t, plan[t])])) as Record<LessonType, ListeningQuestion[]>
+  // Mix: bù chỗ thiếu bằng dạng khác còn câu
   let missing = count - LESSON_TYPES.reduce((n, t) => n + taken[t].length, 0)
   for (const t of LESSON_TYPES) {
-    if (missing <= 0) break
-    const extra = pools[t].splice(0, missing)
+    if (mode !== 'mix' || missing <= 0) break
+    const extra = take(t, missing)
     taken[t].push(...extra)
     missing -= extra.length
   }

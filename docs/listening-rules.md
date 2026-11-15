@@ -32,7 +32,7 @@
 ### 3.2 Dạng A — Nghe câu → chọn nghĩa
 
 - Nguồn: câu ngữ pháp của bài (trung bình 144 câu/bài).
-- 4 lựa chọn tiếng Việt: nghĩa đúng + 3 nghĩa của câu khác **cùng bài, ưu tiên cùng mẫu** (khác nhau ở chi tiết nghe được: từ, trợ từ, thể), không trùng nghĩa.
+- 4 lựa chọn tiếng Việt: nghĩa đúng + nghĩa của **3 câu na ná nhất** trong bài này và các bài trước (chủ dự án chốt 2026-11-15), để phải nghe đúng chi tiết. Độ giống = 60% chữ tiếng Việt chung của nghĩa + 40% mảnh tiếng Nhật chung. Bỏ câu cùng nghĩa (cùng tập chữ) và nhiễu trùng nhau.
 - Độ dài câu theo bài: bài 1–10 câu ≤ 12 chữ; 11–25 ≤ 20 chữ; 26–50 không giới hạn.
 - Sau khi trả lời: hiện câu có furigana, nghĩa, nút nghe lại.
 
@@ -44,9 +44,9 @@
 
 ### 3.4 Dạng C — Chép chính tả
 
-- Nghe rồi gõ romaji → kana. Chấm như ô gõ Learn: không phân biệt Hiragana / Katakana, ー, khoảng trắng, dấu câu.
-- **Nội dung theo bài:** bài 1–12: chỉ từ vựng của bài; bài 13–50: 50% từ vựng, 50% câu ngắn ≤ 12 chữ của bài.
-- Từ Katakana: ô gõ đổi sang Katakana.
+- **Chỉ chép câu** (không chép từ; chủ dự án chốt 2026-11-15). Nghe rồi gõ romaji → kana. Chấm như ô gõ Learn: không phân biệt Hiragana / Katakana, ー, khoảng trắng, dấu câu.
+- **Độ dài theo bài** (số chữ, không tính dấu câu): bài 1–10 ≤ 10; 11–25 ≤ 14; 26–50 ≤ 18. Bài không đủ câu trong giới hạn thì lấy thêm câu ngắn nhất.
+- Chỉ dùng câu đọc ra toàn kana (không số, không chữ Latin), để chữ gõ khớp lời máy đọc.
 - Sau khi chấm: hiện đáp án có furigana và nghĩa, tô chỗ gõ sai (so từng chữ kana).
 
 ### 3.5 Dạng D — Hội thoại điền chỗ trống + phân tích câu (cần soạn nội dung, đợt 2–3)

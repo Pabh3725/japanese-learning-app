@@ -21,7 +21,6 @@ import {
   type LessonMode,
   type LessonSentence,
   type LessonType,
-  type LessonWord,
   type ListeningQuestion,
   type MockSectionScore,
   type PublicListeningQuestion,
@@ -35,22 +34,21 @@ type Kind = 'lesson' | 'jlpt_mock'
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const JLPT_CONTENT: Record<JlptLevel, LevelContent> = { N5: n5Content as LevelContent, N4: n4Content as LevelContent }
-/** Từ không đọc thành tiếng được trọn vẹn (mẫu có ～, chú thích trong ngoặc) thì không chép chính tả. */
-const NOT_DICTABLE = /[～〜（）()…]/
 
 // ---------------------------------------------------------------------------
 // Dữ liệu theo bài (lưu tạm 10 phút)
 // ---------------------------------------------------------------------------
 
-type WordRow = LessonWord & { lesson: number }
+/** Từ vựng theo bài: chỉ để biết bài nào đã học. */
+type WordRow = { id: string; lesson: number }
 let wordsCache: { at: number; value: WordRow[] } | null = null
 
 async function readLessonWords(supabase: Supabase): Promise<WordRow[]> {
   if (wordsCache && Date.now() - wordsCache.at < 10 * 60_000) return wordsCache.value
-  const rows = await readAllPages('vocabularies', (from, to) => supabase.from('vocabularies').select('id, code, expression, reading_kana, meaning_vi, lesson').order('sort_order').range(from, to))
+  const rows = await readAllPages('vocabularies', (from, to) => supabase.from('vocabularies').select('id, lesson').order('sort_order').range(from, to))
   const value = rows
     .filter((r) => r.lesson !== null)
-    .map((r) => ({ id: r.id as string, code: r.code as string, expression: r.expression as string, reading: r.reading_kana as string, meaning: r.meaning_vi as string, lesson: r.lesson as number }))
+    .map((r) => ({ id: r.id as string, lesson: r.lesson as number }))
   wordsCache = { at: Date.now(), value }
   return value
 }
@@ -103,16 +101,10 @@ export async function startLessonListening(input: unknown): Promise<StartResult>
   if (!Number.isInteger(lesson) || lesson < 1 || lesson > 50 || !isLessonMode(v.mode) || !LISTENING_V1.sessionSizes.includes(count as 10 | 20)) return { status: 'invalid' }
   const user = await requireUser()
   const supabase = await createClient()
-  const [words, sentences, recent] = await Promise.all([readLessonWords(supabase), readLessonSentences(supabase), readLastUsed(supabase, user.id, 'lesson', { lesson })])
-  const questions = buildLessonSession(
-    lesson,
-    v.mode,
-    count,
-    sentences.get(lesson) ?? [],
-    words.filter((w) => w.lesson === lesson && !NOT_DICTABLE.test(w.expression)),
-    Math.random,
-    recent,
-  )
+  const [sentences, recent] = await Promise.all([readLessonSentences(supabase), readLastUsed(supabase, user.id, 'lesson', { lesson })])
+  // Nhiễu nghe câu → chọn nghĩa: câu của bài này và các bài trước
+  const pool = [...sentences.entries()].filter(([l]) => l <= lesson).flatMap(([, list]) => list)
+  const questions = buildLessonSession(lesson, v.mode, count, sentences.get(lesson) ?? [], pool, Math.random, recent)
   return insertSession(supabase, user.id, { kind: 'lesson', lesson, mode: v.mode, questions })
 }
 
