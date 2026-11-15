@@ -4,6 +4,8 @@ import { buildReviewQuestion, chooseReviewExercise, gradeReviewAnswer, reviewExe
 import type { QuestionPools, StageWord } from '../stage-questions'
 
 const GAKKOU: StageWord = { id: 'w', expression: '学校', reading_kana: 'がっこう', meaning_vi: 'trường học', han_viet: 'HỌC HIỆU', is_kana_only: false, emoji: null, romaji: 'gakkou' }
+const ENGINEER: StageWord = { id: 'e', expression: 'エンジニア', reading_kana: 'エンジニア', meaning_vi: 'kỹ sư', han_viet: null, is_kana_only: true, emoji: null, romaji: 'enjinia' }
+const NOTE: StageWord = { id: 'n', expression: 'ノート', reading_kana: 'ノート', meaning_vi: 'vở', han_viet: null, is_kana_only: true, emoji: null, romaji: 'nooto' }
 const WORDS: StageWord[] = [
   GAKKOU,
   { id: 'w2', expression: '先生', reading_kana: 'せんせい', meaning_vi: 'giáo viên', han_viet: 'TIÊN SINH', is_kana_only: false, emoji: null, romaji: 'sensei' },
@@ -57,6 +59,20 @@ describe('Chấm', () => {
   it('gõ Kana', () => {
     expect(gradeReviewAnswer(GAKKOU, 'kana_free_recall', { answer: 'がっこう' }).outcome).toBe('correct')
     expect(gradeReviewAnswer(GAKKOU, 'kana_free_recall', { answer: 'がこう' }).outcome).toBe('wrong')
+  })
+
+  it('gõ Kana: từ Katakana nhận cả Hiragana, ー và romaji chưa đổi (như Learn)', () => {
+    expect(gradeReviewAnswer(ENGINEER, 'kana_free_recall', { answer: 'エンジニア' }).outcome).toBe('correct')
+    expect(gradeReviewAnswer(ENGINEER, 'kana_free_recall', { answer: 'えんじにあ' }).outcome).toBe('correct')
+    expect(gradeReviewAnswer(ENGINEER, 'kana_free_recall', { answer: 'enjinia' }).outcome).toBe('correct')
+    expect(gradeReviewAnswer(ENGINEER, 'kana_free_recall', { answer: 'エンジン' }).outcome).toBe('wrong')
+    expect(gradeReviewAnswer(NOTE, 'kana_free_recall', { answer: 'のおと' }).outcome).toBe('correct')
+    expect(gradeReviewAnswer(NOTE, 'kana_free_recall', { answer: 'ノート' }).outcome).toBe('correct')
+  })
+
+  it('ô gõ đổi romaji sang Katakana cho từ Katakana', () => {
+    expect(buildReviewQuestion(ENGINEER, 'kana_free_recall')).toMatchObject({ kind: 'typing', input: 'katakana' })
+    expect(buildReviewQuestion(GAKKOU, 'kana_free_recall')).toMatchObject({ kind: 'typing', input: 'hiragana' })
   })
 
   it('nhìn Kanji: sai một ô là sai cả câu; Hán Việt không cần dấu', () => {
