@@ -1,7 +1,7 @@
 import { Blocks, Calculator, Ear, Keyboard, MessagesSquare, PenLine, Shuffle, Timer } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
 import { GameCard } from '@/components/practice/game-card'
-import { getMistakeCount } from '@/lib/dal/listening'
+import { conversationLessons, getMistakeCount } from '@/lib/dal/listening'
 
 const games = [
   {
@@ -77,13 +77,13 @@ export default async function PracticePage() {
       meta: mistakes === 1 ? '1 question' : `${mistakes} questions`,
     },
     {
-      href: null,
+      href: conversationLessons().length > 0 ? '/practice/conversations' : null,
       title: 'Conversation listening',
       jp: '会話の聞き取り',
       description: 'A long conversation with blanks: pick the word you hear.',
       icon: MessagesSquare,
       tone: 'primary' as const,
-      meta: '2 conversations per lesson',
+      meta: conversationLessons().length > 0 ? `Lessons ${conversationLessons()[0]}–${conversationLessons().at(-1)}` : 'Coming soon',
     },
   ]
   return (
