@@ -115,8 +115,6 @@ function isCardActive(type: CardType, vocabularyId: string, excludedIds: Readonl
 }
 
 const PAGE = 1000
-/** Số card mỗi phiên, khoảng 5 phút. Làm xong có thể ôn tiếp nếu còn card. */
-const CARDS_PER_ROUND = 20
 const DAY_MS = 86_400_000
 const WORD_COLUMNS = 'id, expression, reading_kana, meaning_vi, han_viet, is_kana_only, emoji, romaji'
 
@@ -154,6 +152,14 @@ async function readReviewCaps(supabase: Awaited<ReturnType<typeof createClient>>
     kana: data?.review_cap ?? RULES_V9.defaults.reviewCap,
     kanji: data?.word_kanji_review_cap ?? RULES_V9.defaults.wordKanjiReviewCap,
   }
+}
+
+/** Số Card mỗi phiên (Settings). Ôn hết trong một lần: không giới hạn, chỉ còn trần trong ngày. */
+async function readSessionSize(supabase: Awaited<ReturnType<typeof createClient>>, userId: string): Promise<number> {
+  const { data, error } = await supabase.from('learner_settings').select('review_session_size, review_all_at_once').eq('user_id', userId).maybeSingle()
+  if (error) throw new Error(`Không đọc được learner_settings: ${error.message}`)
+  if (data?.review_all_at_once) return Number.POSITIVE_INFINITY
+  return data?.review_session_size ?? RULES_V9.defaults.reviewSessionSize
 }
 
 /** Số Card khác nhau đã ôn hôm nay của từng mục. Card Again quay lại trong ngày không tính thêm (R7). */
@@ -289,8 +295,9 @@ export interface ReviewSessionData {
 export async function getReviewSession(area: ReviewArea = 'kana'): Promise<ReviewSessionData> {
   const user = await requireUser()
   const supabase = await createClient()
-  const [caps, reviewedToday, excludedIds, starredIds] = await Promise.all([
+  const [caps, sessionSize, reviewedToday, excludedIds, starredIds] = await Promise.all([
     readReviewCaps(supabase, user.id),
+    readSessionSize(supabase, user.id),
     countReviewedToday(supabase, user.id),
     readExcludedIds(supabase, user.id),
     readStarredIds(supabase, user.id),
@@ -318,7 +325,7 @@ export async function getReviewSession(area: ReviewArea = 'kana'): Promise<Revie
     active.map((c) => ({ id: c.id, vocabularyId: c.learner_vocabulary.vocabulary_id, isStar: c.card_type === STAR_CARD, stability: c.stability, lastReviewAt: c.last_review_at })),
     new Date(),
   ).map((o) => byId.get(o.id)!)
-  const cards = due.slice(0, Math.min(CARDS_PER_ROUND, remaining))
+  const cards = due.slice(0, Math.min(sessionSize, remaining))
   if (cards.length === 0) return { questions: [], capReached: false, cardsLeft: 0, starredIds }
   const cardsLeft = Math.min(due.length, remaining) - cards.length
 

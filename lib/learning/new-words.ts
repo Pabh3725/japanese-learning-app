@@ -36,6 +36,7 @@ export const STUDY_LIMITS = {
   learn_cap: { label: 'Learn questions per day', hint: 'Shared by Vocabulary, Kanji words and Kanji learning. Quick checks and Kanji cards do not count.', min: 20, max: 1000 },
   review_cap: { label: 'Vocabulary cards per day', hint: 'Review · Vocabulary. Extra cards move to the next day.', min: 10, max: 500 },
   word_kanji_review_cap: { label: 'Kanji word cards per day', hint: 'Review · Kanji words. Extra cards move to the next day.', min: 10, max: 500 },
+  review_session_size: { label: 'Cards per review session', hint: 'Review · Vocabulary and Kanji words. After a session you can start the next one.', min: 10, max: 100 },
   unlock_threshold: { label: 'Cards before pausing new words', hint: 'New words pause when this many cards are due.', min: 0, max: 500 },
   kanji_new_per_day: { label: 'New Kanji per day', hint: 'Counts Kanji already opened today. New ones pause when questions need the room.', min: 0, max: 50 },
   kanji_cap: { label: 'Kanji learning questions per day', hint: 'Questions for Kanji still in the Learning stage (4 sittings). Counts toward Learn questions per day. New Kanji pause when they need the room.', min: 10, max: 500 },

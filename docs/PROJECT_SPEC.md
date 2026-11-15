@@ -1423,6 +1423,7 @@ Thay các câu chọn 1/6 vì ở giai đoạn này người học đã nhớ m�
 | Từ mới/ngày | 5 (V4, 2026-11-06) | 1–50, nhập số trong Settings | Learn |
 | Câu Stage tối đa/ngày | 200 | 20–1000 | Learn |
 | Card ôn tối đa/ngày | 120 | 10–500 | Review |
+| Card mỗi phiên Review *(2026-11-15)* | 20 | 10–100; hoặc bật "ôn hết trong một lần" (một phiên lấy hết Card đến hạn, tới trần trong ngày) | Review · Từ vựng, Từ Kanji |
 | Ngưỡng Card để mở từ mới | 80 | 0–500 | Learn |
 | Chữ Kanji mới/ngày | 5 | 0–50 | Kanji |
 | Câu Kanji tối đa/ngày | 50 | 10–500 | Kanji |

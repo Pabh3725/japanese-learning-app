@@ -6,7 +6,7 @@ import { getGrammarOverview } from '@/lib/dal/grammar'
 import { getKanjiOverview } from '@/lib/dal/kanji'
 import { getLearnOverview } from '@/lib/dal/learn-overview'
 import { getReviewOverview } from '@/lib/dal/review'
-import { getGrammarFurigana, getNewPerDay, getStudyLimits } from '@/lib/dal/settings'
+import { getGrammarFurigana, getNewPerDay, getReviewAllAtOnce, getStudyLimits } from '@/lib/dal/settings'
 import { GRAMMAR_V1 } from '@/lib/grammar/rules'
 import { RULES_V9 } from '@/lib/learning/rules'
 
@@ -14,7 +14,7 @@ import { RULES_V9 } from '@/lib/learning/rules'
 const SECONDS_PER_ITEM = 15
 
 export default async function SettingsPage() {
-  const [user, newPerDay, limits, learn, review, kanji, furigana, grammar] = await Promise.all([
+  const [user, newPerDay, limits, learn, review, kanji, furigana, grammar, reviewAllAtOnce] = await Promise.all([
     requireUser(),
     getNewPerDay(),
     getStudyLimits(),
@@ -23,6 +23,7 @@ export default async function SettingsPage() {
     getKanjiOverview(),
     getGrammarFurigana(),
     getGrammarOverview(),
+    getReviewAllAtOnce(),
   ])
   const kanjiQuestions = kanji.questionsToday + kanji.newToday * RULES_V9.kanji.questionsPerSitting
   // Ngữ pháp: mẫu mới và mẫu đang học mỗi buổi 8 câu, mẫu ôn 2–3 câu
@@ -47,7 +48,7 @@ export default async function SettingsPage() {
           {daysToFinish !== null && <li>{learn.wordsLeft} words left on your path: about {daysToFinish} more days at this pace.</li>}
         </ul>
       </section>
-      <SettingsForm newPerDay={newPerDay} limits={limits} furigana={furigana} />
+      <SettingsForm newPerDay={newPerDay} limits={limits} furigana={furigana} reviewAllAtOnce={reviewAllAtOnce} />
 
       <section aria-labelledby="account-title" className="mt-6 max-w-2xl rounded-3xl border border-border bg-card p-6">
         <h2 id="account-title" className="font-semibold">Account</h2>
