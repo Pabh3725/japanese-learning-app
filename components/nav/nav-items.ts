@@ -1,4 +1,4 @@
-import { BarChart3, BookOpen, ClipboardCheck, Gamepad2, GraduationCap, Hash, Home, Library, RotateCcw, ScrollText, Settings } from 'lucide-react'
+import { BarChart3, BookOpen, ClipboardCheck, Gamepad2, GraduationCap, Hash, Headphones, Home, Library, RotateCcw, ScrollText, Settings } from 'lucide-react'
 
 export const primaryNav = [
   { href: '/', label: 'Home', icon: Home },
@@ -8,6 +8,8 @@ export const primaryNav = [
   { href: '/review', label: 'Review', icon: RotateCcw },
   // JLPT: ôn thi theo dạng bài (docs/jlpt-rules.md)
   { href: '/jlpt', label: 'JLPT', icon: ClipboardCheck },
+  // Luyện nghe theo bài và phần nghe JLPT (docs/listening-rules.md)
+  { href: '/listening', label: 'Listening', icon: Headphones },
   { href: '/practice', label: 'Practice', icon: Gamepad2 },
 ]
 
