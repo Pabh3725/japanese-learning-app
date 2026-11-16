@@ -1,5 +1,6 @@
 // Kỹ năng Từ vựng Kanji (Stage 4–6): tự nhớ mặt chữ của từ. V9: mở khi từ đã xong Stage 3 và chính sách Kanji của từ cho phép (§6a). Server-only.
 import 'server-only'
+import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { readSkillLevels } from '@/lib/dal/skill-levels'
@@ -68,12 +69,15 @@ async function readWords(supabase: Supabase, userId: string): Promise<WordRow[]>
 }
 
 /** Từ KANJI_OPTIONAL người học đã bấm "Học dạng Kanji". */
-export async function readKanjiOptins(supabase: Supabase, userId: string): Promise<Set<string>> {
+async function readKanjiOptinsUncached(supabase: Supabase, userId: string): Promise<Set<string>> {
   const rows = await readAllPages('learner_word_kanji_optins', (from, to) =>
     supabase.from('learner_word_kanji_optins').select('vocabulary_id').eq('user_id', userId).order('vocabulary_id').range(from, to),
   )
   return new Set(rows.map((r) => r.vocabulary_id))
 }
+
+// Khử trùng trong một render pass (React cache, khóa theo client + userId); kết quả dùng chung nên caller không được sửa nó.
+export const readKanjiOptins = cache(readKanjiOptinsUncached)
 
 const policyOf = (v: { kanji_policy: KanjiPolicy | null; kanji_target_level: number | null; jlpt_level: number; is_kana_only: boolean }): WordPolicy => ({
   policy: v.kanji_policy,

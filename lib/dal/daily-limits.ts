@@ -1,5 +1,6 @@
 // SES-01 — Số liệu trong ngày của Learn: chụp D, S lần đầu trong ngày học, giới hạn, số từ mượn. Server-only.
 import 'server-only'
+import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { RULES_V9 } from '@/lib/learning/rules'
 import { addStudyDays, studyDate } from '@/lib/learning/time'
@@ -94,7 +95,7 @@ async function todayPlan(supabase: Supabase, userId: string, today: string) {
   return { due_snapshot: dueSnapshot, stage_snapshot: stageSnapshot, borrowed_for_next: 0 }
 }
 
-export async function readDailyLimits(supabase: Supabase, userId: string): Promise<DailyLimits> {
+async function readDailyLimitsUncached(supabase: Supabase, userId: string): Promise<DailyLimits> {
   const today = studyDate(new Date())
   const [settings, plan, yesterday, answered, kanjiAnswered] = await Promise.all([
     supabase.from('learner_settings').select('daily_new_limit, learn_cap, review_cap, unlock_threshold').eq('user_id', userId).maybeSingle(),
@@ -121,6 +122,9 @@ export async function readDailyLimits(supabase: Supabase, userId: string): Promi
     borrowedForNext: plan.borrowed_for_next,
   }
 }
+
+// Khử trùng trong một render pass (React cache, khóa theo client + userId); kết quả dùng chung nên caller không được sửa nó.
+export const readDailyLimits = cache(readDailyLimitsUncached)
 
 export async function saveBorrowed(supabase: Supabase, userId: string, borrowedForNext: number): Promise<void> {
   const { error } = await supabase

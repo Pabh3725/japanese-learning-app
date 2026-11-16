@@ -1,5 +1,6 @@
 // KJ-02, V9 gói 4a — Khu Kanji: giai đoạn Học theo lịch và quota; ôn dài hạn bằng 2 Card có trần riêng. Không đụng tiến độ từ vựng. Server-only.
 import 'server-only'
+import { cache } from 'react'
 import { randomUUID } from 'node:crypto'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
@@ -105,17 +106,20 @@ function scheduleOf(row: LearnerRow | CardRow): Schedule {
   }
 }
 
-export async function readKnownKanjiIds(supabase: Supabase, userId: string): Promise<Set<string>> {
+async function readKnownKanjiIdsUncached(supabase: Supabase, userId: string): Promise<Set<string>> {
   const { data, error } = await supabase.from('learner_kanji_exclusions').select('kanji_id').eq('user_id', userId).range(0, PAGE - 1)
   if (error) throw new Error(`Không đọc được learner_kanji_exclusions: ${error.message}`)
   return new Set(data?.map((r) => r.kanji_id))
 }
 
+// Khử trùng trong một render pass (React cache, khóa theo client + userId); kết quả dùng chung nên caller không được sửa nó.
+export const readKnownKanjiIds = cache(readKnownKanjiIdsUncached)
+
 /**
  * Bậc ưu tiên làm đáp án nhiễu cho người học này: chữ đã học (đã xem thẻ giới thiệu hoặc đã đánh dấu đã biết) trước,
  * rồi chữ sắp học cùng cấp. Dùng cho câu Kanji và câu từ vựng có Kanji (Stage 4–6).
  */
-export async function readKanjiTier(supabase: Supabase, userId: string): Promise<KanjiTier> {
+async function readKanjiTierUncached(supabase: Supabase, userId: string): Promise<KanjiTier> {
   const opened: string[] = []
   const [known, levels, allKanji] = await Promise.all([readKnownKanjiIds(supabase, userId), readSkillLevels(supabase, userId), readAllKanjiCached(supabase)])
   for (let from = 0; ; from += PAGE) {
@@ -126,6 +130,9 @@ export async function readKanjiTier(supabase: Supabase, userId: string): Promise
   }
   return kanjiTier(allKanji, new Set([...known, ...opened]), levels.kanji)
 }
+
+// Khử trùng trong một render pass (React cache, khóa theo client + userId); kết quả dùng chung nên caller không được sửa nó.
+export const readKanjiTier = cache(readKanjiTierUncached)
 
 /** Như readKanjiTier nhưng tra theo chữ (kho đáp án nhiễu của câu từ vựng không có id chữ). Chữ không có trong bảng xếp cuối. */
 export async function readKanjiCharTier(supabase: Supabase, userId: string): Promise<(character: string) => number> {

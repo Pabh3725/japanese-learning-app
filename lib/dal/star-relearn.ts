@@ -1,5 +1,6 @@
 // Dấu sao và học lại, thay cho danh sách từ yếu. Server-only.
 import 'server-only'
+import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { starRoundExercises, type StarRoundItem } from '@/lib/learn/star-round'
@@ -16,11 +17,14 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 const isUuid = (value: unknown): value is string => typeof value === 'string' && UUID.test(value)
 
-export async function readStarredIds(supabase: Supabase, userId: string): Promise<string[]> {
+async function readStarredIdsUncached(supabase: Supabase, userId: string): Promise<string[]> {
   const { data, error } = await supabase.from('learner_vocabulary_stars').select('vocabulary_id').eq('user_id', userId).range(0, PAGE - 1)
   if (error) throw new Error(`Không đọc được learner_vocabulary_stars: ${error.message}`)
   return (data ?? []).map((r) => r.vocabulary_id)
 }
+
+// Khử trùng trong một render pass (React cache, khóa theo client + userId); kết quả dùng chung nên caller không được sửa nó.
+export const readStarredIds = cache(readStarredIdsUncached)
 
 export async function isWordStarred(supabase: Supabase, userId: string, vocabularyId: string): Promise<boolean> {
   const { data, error } = await supabase.from('learner_vocabulary_stars').select('vocabulary_id').eq('user_id', userId).eq('vocabulary_id', vocabularyId).maybeSingle()

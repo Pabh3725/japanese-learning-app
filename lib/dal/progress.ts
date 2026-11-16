@@ -1,5 +1,6 @@
 // UI-01, FUN-01 — Số liệu thật cho Progress, thanh bên và khối tổng kết hôm nay ở màn kết thúc phiên, đọc từ nhật ký. Server-only.
 import 'server-only'
+import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { addStudyDays, nextStudyDayStart, studyDate } from '@/lib/learning/time'
@@ -13,7 +14,7 @@ type Supabase = Awaited<ReturnType<typeof createClient>>
 const PAGE = 1000
 const RETENTION_DAYS = 30
 
-async function readStreak(supabase: Supabase, userId: string, today: StudyDate) {
+async function readStreakUncached(supabase: Supabase, userId: string, today: StudyDate) {
   // Mỗi ngày có đúng một câu học day_seq = 1, nên chỉ đọc một dòng cho mỗi ngày
   const { data, error } = await supabase
     .from('exercise_logs')
@@ -44,6 +45,9 @@ async function readStreak(supabase: Supabase, userId: string, today: StudyDate) 
   }
   return { streak: currentStreak(days, today), studiedToday: days.has(today) }
 }
+
+// Khử trùng trong một render pass (React cache, khóa theo client + userId); kết quả dùng chung nên caller không được sửa nó.
+const readStreak = cache(readStreakUncached)
 
 export async function getStudyStreak(): Promise<{ streak: number; studiedToday: boolean }> {
   const user = await requireUser()
