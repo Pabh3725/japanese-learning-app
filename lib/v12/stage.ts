@@ -75,6 +75,8 @@ export function plannedShows(item: ItemState, type: CardType, date: StudyDate): 
 
 export interface AnswerResult {
   item: ItemState
+  /** Trạng thái của loại thẻ vừa trả lời (của Stage vừa hỏi, kể cả khi đã chuyển sang Stage sau). */
+  typeState: TypeState
   /** Điểm thay đổi (sau sàn 0). */
   delta: number
   typeDone: boolean
@@ -108,7 +110,7 @@ export function applyAnswer(item: ItemState, type: CardType, correct: boolean, d
       next = { ...next, stage: s, stageFrom: from, types: startTypes(item.area, s, item.hasSimilar === true) }
     }
   }
-  return { item: next, delta: points - before.points, typeDone, stageDone, cardsCreated, retry: !correct && !stageDone && canShow(next, type, date) }
+  return { item: next, typeState: t, delta: points - before.points, typeDone, stageDone, cardsCreated, retry: !correct && !stageDone && canShow(next, type, date) }
 }
 
 /** Loại thẻ còn thiếu điểm của Stage hiện tại (để hiện tiến độ). */

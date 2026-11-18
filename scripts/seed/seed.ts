@@ -71,6 +71,22 @@ async function main() {
     if (db) await seedVisual(db, data, dryRun, (s) => console.log(s))
   }
 
+  // V12 gói 2: nghĩa bộ thủ và hạng tần suất Kanji (tuỳ chọn), sau phần Kanji trực quan vì cần bảng radicals
+  const v12Files = { radicalMeanings: optional('radical_meanings.csv'), kanjiFrequency: optional('kanji_frequency.csv') }
+  if (v12Files.radicalMeanings || v12Files.kanjiFrequency) {
+    const { validateV12, seedV12 } = await import('./v12')
+    const chars = new Set(files.kanji.text.split('\n').slice(1).map((line) => line.slice(0, line.indexOf(','))).filter(Boolean))
+    const data = validateV12(v12Files, chars)
+    if (data.errors.length > 0) {
+      console.log(`\nLỖI dữ liệu V12: ${data.errors.length}. Không ghi phần này.`)
+      for (const e of data.errors.slice(0, 20)) console.log(`  ✗ ${e}`)
+      process.exitCode = 1
+      return
+    }
+    console.log(`\nDữ liệu V12: ${data.radicals.length} nghĩa bộ thủ, ${data.frequency.size} hạng tần suất. Validate: OK`)
+    if (db) await seedV12(db, data, dryRun, (s) => console.log(s))
+  }
+
   // Grammar G2: nội dung ngữ pháp (tuỳ chọn), mỗi bài một file data/grammar/lesson-NN.json
   const grammarFiles = existsSync(GRAMMAR_DIR)
     ? readdirSync(GRAMMAR_DIR).filter((f) => /^lesson-\d{2}\.json$/.test(f)).sort().map((f) => ({ name: f, text: readFileSync(join(GRAMMAR_DIR, f), 'utf8') }))
