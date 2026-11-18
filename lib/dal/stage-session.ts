@@ -12,11 +12,9 @@ import { buildMatchRound, parseMatchPenalties, type MatchRoundData } from '@/lib
 import { deriveEarned } from '@/lib/exercise/mappers'
 import { newWordsBlockedBy, QUESTIONS_PER_SESSION } from '@/lib/learn/session'
 import { readDailyLimits, saveBorrowed } from '@/lib/dal/daily-limits'
-import { readSpeedModes } from '@/lib/dal/speed-matching'
 import { EXERCISES } from '@/lib/learning/rules'
 import { readStarRound, readStarredIds, type StarRoundWord } from '@/lib/dal/star-relearn'
 import { planStarQuestions, practiceSkillCode } from '@/lib/learn/star-round'
-import { MIN_SPEED_WORDS, type SpeedWord } from '@/lib/speed-matching'
 import { allowedBorrow } from '@/lib/learning/daily-plan'
 import { kanjiPieces } from '@/lib/exercise/word-parts'
 import {
@@ -63,7 +61,8 @@ export type StageQuestion =
 export interface BossRoundData {
   kind: 'boss'
   clientEventId: string
-  words: SpeedWord[]
+  /** Ghép 2 cột: Kana ↔ nghĩa của các từ vừa học. */
+  round: MatchRoundData
 }
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
@@ -213,12 +212,30 @@ function buildStarQuestions(plan: ReturnType<typeof planStarQuestions<StarRoundW
   })
 }
 
-/** Vòng boss: Speed Matching 30 giây với các từ đã gặp. Chỉ ôn vui, không tính vào giãn cách. */
+/**
+ * Vòng boss: ghép 2 cột Kana ↔ nghĩa của 5 từ vừa học (chủ dự án chốt 2026-11-18). Ưu tiên từ đang ở Stage 1–2,
+ * rồi từ mới gặp gần nhất. Ghép đủ là xong, không tính giờ. Chỉ ôn vui: không đổi điểm, lịch, không tính giãn cách.
+ */
 export async function buildBossRound(supabase: Supabase, userId: string): Promise<BossRoundData | null> {
-  const modes = await readSpeedModes(supabase, userId)
-  const mixed = modes.find((m) => m.mode === 'mixed')
-  if (!mixed || mixed.total < MIN_SPEED_WORDS) return null
-  return { kind: 'boss', clientEventId: randomUUID(), words: mixed.words }
+  const [excludedIds, rows] = await Promise.all([
+    readKnownWordIds(supabase, userId),
+    readAllPages('learner_vocabulary', (from, to) =>
+      supabase.from('learner_vocabulary').select(`id, vocabulary_id, current_stage, created_at, kanji_intro_seen_at, vocabularies!inner(${WORD_COLUMNS})`).eq('user_id', userId).order('id').range(from, to),
+    ),
+  ])
+  const list = rows as unknown as { id: string; vocabulary_id: string; current_stage: number; created_at: string; kanji_intro_seen_at: string | null; vocabularies: StageWord }[]
+  const early = new Map(list.map((r) => [r.id, r.current_stage <= 2]))
+  const seenAt = new Map(list.map((r) => [r.id, Date.parse(r.created_at)]))
+  const candidates = list
+    .filter((r) => !excludedIds.has(r.vocabulary_id))
+    .map((r) => ({ ...r.vocabularies, learnerVocabularyId: r.id, kanjiIntroSeen: r.kanji_intro_seen_at !== null, stage3Active: false }))
+  const round = buildMatchRound(candidates, randomUUID, Math.random, {
+    count: RULES_V9.bossRound.pairs,
+    pairTypes: ['kana_meaning'],
+    // Stage 1–2 trước, trong cùng nhóm thì từ gặp gần nhất trước
+    priority: (c) => (early.get(c.learnerVocabularyId) ? 1e15 : 0) + (seenAt.get(c.learnerVocabularyId) ?? 0),
+  })
+  return round ? { kind: 'boss', clientEventId: randomUUID(), round } : null
 }
 
 /** Vòng ghép ô dùng các từ đã học, ưu tiên từ đang ở Stage 3. */

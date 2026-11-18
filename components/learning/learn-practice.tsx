@@ -16,13 +16,11 @@ import { MatchRoundExercise } from '@/components/learning/steps/match-round-exer
 import { RecallExercise } from '@/components/learning/steps/recall-exercise'
 import { LevelUpCard } from '@/components/learning/steps/level-up-card'
 import { RelearnExercise } from '@/components/learning/steps/relearn-exercise'
-import { SpeedMatchingGame } from '@/components/practice/speed-matching-game'
 import type { SubmitExerciseResponse } from '@/lib/dal/exercise'
 import type { MatchPenalty } from '@/lib/exercise/match-round'
 import type { AssemblyQuestionData, ChoiceQuestionData, TypingQuestionData, WordReveal } from '@/lib/exercise/stage-questions'
 import type { CheckStageAnswerResponse, StageQuestion } from '@/lib/dal/stage-session'
 import { levelUpOf, type LevelUp } from '@/lib/learn/level-up'
-import { RULES_V9 } from '@/lib/learning/rules'
 import { shouldRelearn } from '@/lib/learning/stage'
 import type { ScoredStage } from '@/lib/learning/types'
 import { withRetry } from '@/lib/retry'
@@ -364,7 +362,8 @@ export function LearnPractice({ questions: initialQuestions, sessionNumber, sess
   const bodyKey = `${q.clientEventId}${isRetry ? '-retry' : ''}`
   let body: React.ReactNode
   if (q.kind === 'boss') {
-    body = <SpeedMatchingGame key={q.clientEventId} words={q.words} mode="mixed" seconds={RULES_V9.bossRound.seconds} onBossDone={next} />
+    // Ôn vui: ghép sai không trừ điểm
+    body = <MatchRoundExercise key={q.clientEventId} round={q.round} stage="Boss round" title="Match the words you just learned" onDone={() => next()} />
   } else if (q.kind === 'match') {
     body = <MatchRoundExercise key={q.clientEventId} round={q} onDone={finishMatch} />
   } else if (q.kind === 'choice') {

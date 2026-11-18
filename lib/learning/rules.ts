@@ -42,7 +42,8 @@ export const RULES_V9 = {
   spacing: { minGap: 4 },
   /** Lịch FSRS của Card và phần ôn Kanji: đúng liên tục cũng không cách quá 90 ngày. */
   reviewSchedule: { maximumIntervalDays: 90 },
-  bossRound: { seconds: 30 },
+  /** Vòng boss: ghép 2 cột 5 từ vừa học (ưu tiên Stage 1–2), ghép đủ là xong, không tính giờ (chủ dự án chốt 2026-11-18). */
+  bossRound: { pairs: 5 },
   /** Khu Kanji, giai đoạn Học: 12 câu trong 4 buổi. */
   kanji: {
     completeAt: 12,
