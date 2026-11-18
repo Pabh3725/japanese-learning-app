@@ -69,7 +69,7 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 
 ### 5.1 Bộ thủ (học trước chữ)
 
-- **Phạm vi:** các bộ có trong **từ 2 chữ N5–N4 trở lên** (100 bộ). *(PROPOSED; đã được duyệt là "khoảng 80–100")*
+- **Phạm vi:** các bộ có trong **từ 2 chữ N5–N4 trở lên** (100 bộ).
 - **Thứ tự:** bộ có mặt trong nhiều chữ hơn thì học trước (cột `n5n4_kanji`).
 - **Thẻ giới thiệu:** hình bộ, tên Hán Việt (ví dụ 氵 "Thủy"), nghĩa, vài chữ ví dụ.
 
