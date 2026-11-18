@@ -1,6 +1,6 @@
 # LR-12 — Luật học V12: ba khu Kana / Kanji / Từ vựng Kanji `RULES_V12`
 
-> Trạng thái: **PROPOSED**, chờ chủ dự án duyệt. Chủ dự án chốt các ý qua hai vòng hỏi đáp ngày 2026-11-18; tài liệu này viết lại thành luật đầy đủ.
+> Trạng thái: **CONFIRMED** (chủ dự án duyệt toàn bộ 2026-11-18, gồm các con số ước tính ở §8). Các ý chủ dự án chốt qua hai vòng hỏi đáp cùng ngày. Kế hoạch triển khai: `docs/v12-implementation-plan.md`.
 > Thay cho phần Từ vựng và Kanji của V9–V11 (`docs/learning-rules.md` §12, các mục Stage, AIS, vòng boss). **Không đổi:** Grammar, Thể động từ, Luyện nghe, JLPT, Practice, Library.
 > Lịch Review giữ **FSRS**.
 
@@ -47,7 +47,7 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
   - các loại còn lại, mỗi loại cách nhau **10 thẻ**.
 - Mỗi loại thẻ chỉ cần **đúng 1 lần**. Sai thì hỏi lại sau 5 thẻ, cho tới khi đúng trong ngày.
 - Đúng hết các loại → Stage 2 bắt đầu từ **ngày học kế tiếp**. Hôm sau không học thì chờ tới ngày học kế tiếp, không bị phạt.
-- Nếu hết ngày mà chưa đúng hết: ngày học sau tiếp tục Stage 1 với các loại còn thiếu, không hiện lại thẻ giới thiệu *(PROPOSED)*.
+- Nếu hết ngày mà chưa đúng hết: ngày học sau tiếp tục Stage 1 với các loại còn thiếu, không hiện lại thẻ giới thiệu .
 
 ### 3.3 Review (FSRS, giữ như hiện nay)
 
@@ -69,7 +69,7 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 
 ### 5.1 Bộ thủ (học trước chữ)
 
-- **Phạm vi:** các bộ có trong **từ 2 chữ N5–N4 trở lên** (100 bộ). *(PROPOSED; đã được duyệt là "khoảng 80–100")*
+- **Phạm vi:** các bộ có trong **từ 2 chữ N5–N4 trở lên** (100 bộ).
 - **Thứ tự:** bộ có mặt trong nhiều chữ hơn thì học trước (cột `n5n4_kanji`).
 - **Thẻ giới thiệu:** hình bộ, tên Hán Việt (ví dụ 氵 "Thủy"), nghĩa, vài chữ ví dụ.
 
@@ -122,34 +122,58 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 
 | Hiện tại | Sang V12 |
 |---|---|
-| Từ đã có Card Kana | Xem như xong Stage 3 Kana. Giữ lịch FSRS cho Card ①; Card ② mới đến hạn ngày mai *(PROPOSED)* |
+| Từ đã có Card Kana | Xem như xong Stage 3 Kana. Giữ lịch FSRS cho Card ①; Card ② mới đến hạn ngày mai  |
 | Từ đang ở Stage 2 cũ | Stage 2 Kana, 0 điểm |
 | Từ đang ở Stage 3 cũ | Stage 3 Kana, 0 điểm |
 | Từ ở Stage 5 / 6 cũ | Stage 2 / 3 của Từ vựng Kanji, 0 điểm |
 | Từ đã có Card Kanji | Card Từ vựng Kanji, giữ lịch FSRS |
 | Chữ đang Học (12 điểm cũ) | Stage 2 Kanji, 0 điểm |
 | Chữ đã có 2 Card | Gộp thành 1 Card, lấy lịch của Card đến hạn sớm hơn |
-| Bộ thủ | Bắt đầu từ đầu. Người học cũ có thể đánh dấu "đã biết" cả nhóm *(PROPOSED)* |
+| Bộ thủ | Bắt đầu từ đầu. Người học cũ có thể đánh dấu "đã biết" cả nhóm  |
 
 **Bỏ:** cấu trúc 6 Stage, bộ xếp thứ tự AIS, câu kiểm tra nhanh, vòng ghép ô Stage 3, vòng boss ghép 5 từ, luật ưu tiên Kanji theo từ sắp học.
 **Giữ:** từ có sao (học thêm), nút "đã biết", Practice (Speed Matching), trang tra cứu Library.
 
-## 8. Tự cân bằng số mục mới mỗi ngày (chức năng mới, chờ chốt)
+## 8. Tự cân bằng số mục mới mỗi ngày
 
-**Mục tiêu:** học xong Từ vựng Kana, Kanji (gồm bộ thủ) và Từ vựng Kanji **cùng một lúc**.
+**Đã chốt (chủ dự án, 2026-11-18):**
+- Cân bằng theo **thời gian học**: ba khu Từ vựng Kana, Kanji (gồm bộ thủ) và Từ vựng Kanji **học xong cùng một ngày**.
+- Cân bằng **theo từng cấp**: xong N5 cả ba khu rồi mới sang N4.
+- **Bộ thủ tính vào khu Kanji.** Trong khu Kanji, bộ thủ vẫn học trước chữ (§5.1).
 
-**Cách tính đề xuất:**
-- Người học chọn **tổng số mục mới mỗi ngày** T, *hoặc* **ngày muốn học xong** D.
-- Gọi số mục còn lại của từng khu là `Rk`, `Rj`, `Rv`, tổng là `R = Rk + Rj + Rv`.
-- Số ngày còn lại `N = ⌈R / T⌉`, hoặc `N` = số ngày tới D.
-- Mỗi khu mở `R_khu / N` mục mỗi ngày. Phần lẻ được cộng dồn qua các ngày để tổng số mục đúng.
-- App **tính lại mỗi ngày** theo số còn lại.
+### 8.1 Thời gian của một mục
 
-**Hạn chế:** Từ vựng Kanji phụ thuộc hai khu kia, nên những ngày đầu thường mở được ít hơn chỉ tiêu. Phần thiếu dồn sang các ngày sau, và hàng chờ ở §6 bù vào cuối lộ trình.
+Mỗi mục được quy ra **thời gian học** theo số câu tối thiểu của các Stage và số lần ôn Card trong 60 ngày đầu, nhân với thời gian ước tính của mỗi loại câu.
 
-**Hiển thị:** công tắc "Balance new items" trong Settings. Khi bật, app hiện số mục mới mỗi ngày của từng khu và ngày dự kiến xong. Khi tắt, người học tự chỉnh từng khu.
+| Thời gian mỗi loại câu | Giây |
+|---|---|
+| Thẻ giới thiệu | 15 |
+| Trắc nghiệm / ghép | 6 |
+| Gõ | 12 |
+| Card Review (gom chung) | 15 |
 
-**Câu hỏi cần chốt:**
-1. Cân bằng theo **số mục** (đơn giản) hay theo **khối lượng thẻ**? Một chữ Kanji tốn nhiều câu hơn một từ Kana; nếu chia theo số mục thì có hôm số thẻ của khu Kanji vọt lên.
-2. Phạm vi: **từng cấp** (xong N5 cả ba khu rồi mới sang N4) hay **cả lộ trình N5 + N4** một lần?
-3. Bộ thủ tính chung vào khu Kanji hay học dồn trước (ví dụ khoảng 2 tuần đầu), sau đó mới bắt đầu cân bằng?
+| Mục | Câu học (tối thiểu) | Card Review | Thời gian ước tính |
+|---|---|---|---|
+| Từ vựng Kana | thẻ giới thiệu + Stage 1: 2 trắc nghiệm + Stage 2: 12 trắc nghiệm/ghép + Stage 3: 6 gõ, 3 trắc nghiệm | 2 Card × 4 lần | 15 + 102 + 72 + 120 ≈ **5,2 phút** |
+| Bộ thủ | thẻ giới thiệu + Stage 1: 2 + Stage 2: 12 trắc nghiệm | 1 Card × 4 lần | 15 + 84 + 60 ≈ **2,7 phút** |
+| Chữ Kanji | thẻ giới thiệu + Stage 1: 4 + Stage 2: 12 trắc nghiệm + Stage 3: 3 gõ, 9–12 trắc nghiệm | 1 Card × 4 lần | 15 + 150 + 36 + 60 ≈ **4,4 phút** |
+| Từ vựng Kanji | thẻ giới thiệu + Stage 1: 4 + Stage 2: 12 trắc nghiệm + Stage 3: 3 gõ, 3 trắc nghiệm | 1 Card × 4 lần | 15 + 114 + 36 + 60 ≈ **3,8 phút** |
+
+- Sai thì có thêm câu hỏi lại, nên thời gian thật dài hơn. App ghi thời gian trả lời thật và **sau 14 ngày** thay các con số ước tính bằng trung bình thật của người học .
+
+### 8.2 Cách chia
+
+- **Khối lượng còn lại** của một khu = số mục chưa mở của cấp hiện tại × thời gian của một mục. Khu Kanji gồm bộ thủ và chữ, mỗi loại tính theo thời gian riêng.
+- Người học chọn **một** trong hai mục tiêu trong Settings:
+  - **ngày muốn học xong cấp** D;
+  - hoặc **số phút học mục mới mỗi ngày** P (mặc định 20 phút).
+- **Số ngày còn lại:** `N` = số ngày tới D, hoặc `⌈tổng khối lượng còn lại / P⌉`.
+- **Mỗi khu mở `số mục còn lại / N` mục mỗi ngày.** Ba khu cùng hết vào ngày thứ N. Mỗi khu chiếm một phần thời gian mỗi ngày đúng bằng tỷ lệ khối lượng còn lại của nó. Phần lẻ được cộng dồn qua các ngày.
+- App **tính lại mỗi ngày** theo số còn lại thật. Khu nào chậm (ví dụ Từ vựng Kanji chưa đủ điều kiện mở) thì các ngày sau tự tăng chỉ tiêu cho khu đó.
+- **Ràng buộc của Từ vựng Kanji:** chỉ mở được khi đủ điều kiện ở §6. Ngày nào không đạt chỉ tiêu thì phần thiếu không chuyển sang khu khác (để ba khu vẫn kết thúc cùng lúc), mà dồn sang các ngày sau. Hàng chờ ở §6 bù vào cuối cấp.
+- **Trần mỗi khu** (§2) vẫn được áp dụng. Nếu chỉ tiêu làm một ngày trong 7 ngày tới vượt trần thì hiện cảnh báo như §2, kèm gợi ý lùi ngày D hoặc giảm số phút P.
+
+**Hiển thị:**
+- Settings có công tắc **"Balance new items"**, bật sẵn.
+- Khi bật, app hiện số mục mới mỗi ngày của từng khu, số phút ước tính mỗi ngày và ngày dự kiến xong cấp.
+- Khi tắt, người học tự chỉnh số mục mới của từng khu như cũ.
