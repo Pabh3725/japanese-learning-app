@@ -104,7 +104,7 @@ Từ vựng Kanji vẫn mở theo thứ tự bài như cũ; luật "không cần
 | `STAGE_QUESTION` | Có | Có | Có | Có, theo R3 | Lịch Stage của chính mục đó |
 | `KANJI_PRACTICE` (câu giai đoạn Học Kanji, dạng A, B, E) | Có | Có, và tính vào trần phụ Kanji | Có | Điểm Học Kanji (R10) | Lịch Học của chữ |
 | Bài Kanji hỗ trợ (dạng C, F, G) | Có | Có, và tính vào trần phụ Kanji | Không | Không | Không |
-| Vòng boss Speed Matching | Không | Không | Không | Không | Không |
+| Vòng boss (ghép 2 cột 5 từ vừa học) | Không | Không | Không | Không | Không |
 | Câu Review | — | Không (tính vào trần Review) | Không | Không | Lịch Card của chính Card đó |
 
 - Mỗi lần trả lời đổi **nhiều nhất một** lịch nhớ. Server từ chối nếu một câu được gắn với hai lịch. — CONFIRMED (yêu cầu V9)
@@ -378,7 +378,8 @@ export const RULES_V9 = {
     // Trần ôn riêng từng loại (số mặc định PROPOSED)
     reviewCaps: { vocabKana: 120, vocabKanji: 60, kanji: 60 },
   },
-  bossRound: { everyQuestions: 25, minWordsToday: 6, seconds: 30 },
+  // 2026-11-18: thay Speed Matching 30 giây bằng ghép 2 cột Kana ↔ nghĩa 5 từ vừa học (ưu tiên Stage 1–2, rồi từ gặp gần nhất); ghép đủ là xong, không tính giờ, ghép sai không trừ điểm
+  bossRound: { everyQuestions: 25, minWordsToday: 6, pairs: 5 },
   borrow: { maxDaysAhead: 1 },
 } as const
 ```

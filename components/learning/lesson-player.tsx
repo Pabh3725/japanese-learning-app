@@ -23,12 +23,10 @@ import { KanaIntroExercise } from '@/components/learning/steps/kana-intro-exerci
 import { MatchRoundExercise } from '@/components/learning/steps/match-round-exercise'
 import { WordKanjiIntroExercise } from '@/components/learning/steps/word-kanji-intro-exercise'
 import { TodaySummary } from '@/components/learning/today-summary'
-import { SpeedMatchingGame } from '@/components/practice/speed-matching-game'
 import type { AdvanceResponse, LessonView } from '@/lib/dal/lesson'
 import type { CheckStageAnswerResponse } from '@/lib/dal/stage-session'
 import type { SubmitKanjiResponse } from '@/lib/dal/kanji'
 import type { MatchPenalty } from '@/lib/exercise/match-round'
-import { RULES_V9 } from '@/lib/learning/rules'
 import { withRetry } from '@/lib/retry'
 
 const SAVE_ERROR = "Couldn't save. Check your connection and try again."
@@ -180,7 +178,8 @@ export function LessonPlayer({ initial, groupsQuery }: { initial: LessonView; gr
       />
     )
   } else if (step.kind === 'boss') {
-    body = <SpeedMatchingGame key={key} words={step.round.words} mode="mixed" seconds={RULES_V9.bossRound.seconds} onBossDone={() => advance()} />
+    // Ôn vui: ghép sai không trừ điểm
+    body = <MatchRoundExercise key={key} round={step.round.round} stage="Boss round" title="Match the words you just learned" onDone={() => advance()} />
   } else if (step.kind === 'kanji_parts') {
     const q = step.question
     body = (

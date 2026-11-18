@@ -69,9 +69,19 @@ export function buildMatchRound(
   candidates: readonly MatchCandidate[],
   newId: () => string,
   rng: Rng = Math.random,
+  options: {
+    /** Số cặp (mặc định 6). */
+    count?: number
+    /** Kiểu cặp được dùng (mặc định mọi kiểu, chọn ngẫu nhiên). */
+    pairTypes?: readonly MatchPairType[]
+    /** Điểm ưu tiên: lớn hơn lấy trước (mặc định từ đang chạy Stage 3). */
+    priority?: (c: MatchCandidate) => number
+  } = {},
 ): MatchRoundData | null {
-  const ordered = shuffle(candidates, rng).sort((a, b) => Number(b.stage3Active) - Number(a.stage3Active))
-  for (const pairType of shuffle(PAIR_TYPES, rng)) {
+  const count = options.count ?? MATCH_PAIR_COUNT
+  const priority = options.priority ?? ((c: MatchCandidate) => Number(c.stage3Active))
+  const ordered = shuffle(candidates, rng).sort((a, b) => priority(b) - priority(a))
+  for (const pairType of shuffle(options.pairTypes ?? PAIR_TYPES, rng)) {
     const lefts = new Set<string>()
     const rights = new Set<string>()
     const pairs: MatchPair[] = []
@@ -83,9 +93,9 @@ export function buildMatchRound(
       lefts.add(left)
       rights.add(right)
       pairs.push({ learnerVocabularyId: word.learnerVocabularyId, clientEventId: newId(), left, right, reading: word.reading_kana })
-      if (pairs.length === MATCH_PAIR_COUNT) break
+      if (pairs.length === count) break
     }
-    if (pairs.length === MATCH_PAIR_COUNT) {
+    if (pairs.length === count) {
       const shuffled = shuffle(pairs, rng)
       return {
         kind: 'match',

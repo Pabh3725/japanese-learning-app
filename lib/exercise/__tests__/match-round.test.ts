@@ -82,3 +82,26 @@ describe('parseMatchPenalties', () => {
     expect(parseMatchPenalties(Array(7).fill(a))).toBeNull()
   })
 })
+
+describe('Vòng boss: 5 cặp Kana ↔ nghĩa, ưu tiên từ vừa học', () => {
+  // lv0–lv3: Stage 1–2; lv4–lv9: Stage 3+ (ưu tiên giống buildBossRound: Stage 1–2 trước, rồi từ gặp gần nhất)
+  const early = new Set(['lv0', 'lv1', 'lv2', 'lv3'])
+  const seen = (c: MatchCandidate) => Number(c.learnerVocabularyId.slice(2))
+  const priority = (c: MatchCandidate) => (early.has(c.learnerVocabularyId) ? 1e15 : 0) + seen(c)
+
+  it('đúng 5 cặp Kana ↔ nghĩa; có đủ 4 từ Stage 1–2 và từ Stage 3+ gặp gần nhất (lv9)', () => {
+    for (let s = 1; s <= 20; s++) {
+      const round = buildMatchRound(ten, newId, seededRng(s), { count: 5, pairTypes: ['kana_meaning'], priority })!
+      expect(round.pairs).toHaveLength(5)
+      expect(round.pairType).toBe('kana_meaning')
+      expect([...round.rightOrder].sort()).toEqual([0, 1, 2, 3, 4])
+      const ids = round.pairs.map((p) => p.learnerVocabularyId).sort()
+      expect(ids).toEqual(['lv0', 'lv1', 'lv2', 'lv3', 'lv9'])
+      for (const p of round.pairs) expect(p.left.startsWith('かな')).toBe(true)
+    }
+  })
+
+  it('không đủ 5 từ thì không có vòng', () => {
+    expect(buildMatchRound(ten.slice(0, 4), newId, seededRng(1), { count: 5, pairTypes: ['kana_meaning'], priority })).toBeNull()
+  })
+})
