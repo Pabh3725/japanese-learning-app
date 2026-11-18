@@ -1,0 +1,215 @@
+number,character,variants,meaning_vi,n5n4_kanji,examples,approved
+1,一,,số một; nét ngang,30,三上下,true
+2,丨,,nét sổ thẳng,13,中不本,true
+3,丶,,"điểm, chấm",11,主半犬,true
+4,丿,,nét phẩy,35,年九午,true
+5,乙,乚,can Ất; hình móc,4,九七地,true
+6,亅,,nét móc,3,事町野,true
+7,二,,số hai,10,五元半,true
+8,亠,,"mái, nắp đậy",16,方立高,true
+9,人,亻,người,31,会今何,true
+10,儿,,"chân người, người đi",11,見四先,true
+11,入,,vào,1,,true
+12,八,ハ,số tám; chia ra,26,六先元,true
+13,冂,,"khung, vùng biên",8,内円同,true
+14,冖,,"mái che, trùm lên",15,写学夢,true
+15,冫,,"băng, nước đá",3,冬楽終,true
+16,几,,"cái ghế, bàn nhỏ",1,風,true
+17,凵,,"hố, vật há miệng",2,出画,true
+18,刀,刂,con dao,5,分前別,true
+19,力,,sức lực,4,動勉男,true
+20,勹,,bao bọc,7,別魚急,true
+21,匕,,cái thìa,3,北死花,true
+22,匚,,cái hộp vuông,0,,true
+23,匸,,che giấu,1,医,true
+24,十,,số mười,18,午千半,true
+25,卜,,bói toán,8,上外下,true
+26,卩,㔾,đốt tre; con dấu,1,服,true
+27,厂,,"sườn núi, vách đá",3,店度広,true
+28,厶,,riêng tư,11,去私強,true
+29,又,,cái tay; lại nữa,3,友度服,true
+30,口,,miệng,42,同員名,true
+31,囗,,vây quanh,4,国四回,true
+32,土,,đất,21,地場売,true
+33,士,,"kẻ sĩ, học trò",4,仕売読,true
+34,夂,,đến sau,4,夏後冬,true
+35,夊,,đi chậm,0,,true
+36,夕,,buổi tối,7,外多夢,true
+37,大,,to lớn,11,天犬映,true
+38,女,,phụ nữ,6,好妹始,true
+39,子,,"con, đứa trẻ",5,学字好,true
+40,宀,,mái nhà,8,家安室,true
+41,寸,,tấc (đơn vị đo); khuỷu tay,5,寺時持,true
+42,小,⺌,nhỏ,5,少県歩,true
+43,尢,,"yếu, què",0,,true
+44,尸,,thây người,4,屋駅君,true
+45,屮,,mầm cây,0,,true
+46,山,,núi,2,出,true
+47,巛,川,dòng sông,1,川,true
+48,工,,"người thợ, công việc",4,左空試,true
+49,己,,bản thân,2,起色,true
+50,巾,,cái khăn,2,帰姉,true
+51,干,,khô; cái khiên,5,年午南,true
+52,幺,,nhỏ bé,1,後,true
+53,广,,mái nhà dựa vách,3,店度広,true
+54,廴,,bước dài,1,建,true
+55,廾,,chắp tay,1,借,true
+56,弋,,bắn; cái cọc,3,代試貸,true
+57,弓,,cái cung,2,強弟,true
+58,彐,⺕,đầu con nhím,6,事急書,true
+59,彡,,"lông, vằn",0,,true
+60,彳,,bước chân trái,4,後彼待,true
+61,心,忄⺗,"tim, tấm lòng",5,意思急,true
+62,戈,,"cây giáo, mác",0,,true
+63,戶,戸,cửa một cánh,0,,true
+64,手,扌,tay,2,持,true
+65,支,,cành nhánh; chống đỡ,0,,true
+66,攴,攵,đánh nhẹ,1,教,true
+67,文,,"văn, chữ viết",1,,true
+68,斗,,cái đấu (để đong),1,料,true
+69,斤,,cái rìu; cân,3,新近質,true
+70,方,,phương hướng; vuông,3,族旅,true
+71,无,旡,không,0,,true
+72,日,,"mặt trời, ngày",28,時明暗,true
+73,曰,,nói,1,書,true
+74,月,,"mặt trăng, tháng",7,前明朝,true
+75,木,,"cây, gỗ",19,本東来,true
+76,欠,,thiếu; ngáp,2,歌飲,true
+77,止,,dừng lại,3,正歩,true
+78,歹,,"xấu, chết",1,死,true
+79,殳,,binh khí; đánh,0,,true
+80,毋,母,"chớ, đừng",3,毎母海,true
+81,比,,so sánh,0,,true
+82,毛,,lông,0,,true
+83,氏,,"họ, dòng họ",1,紙,true
+84,气,,"hơi, khí",1,気,true
+85,水,氵氺,nước,5,海注洋,true
+86,火,灬,lửa,8,秋馬鳥,true
+87,爪,爫,móng vuốt,0,,true
+88,父,,cha,2,校,true
+89,爻,,hào (quẻ bói),0,,true
+90,爿,,tấm gỗ,0,,true
+91,片,,"mảnh, tấm",0,,true
+92,牙,,răng nanh,0,,true
+93,牛,牜,"con trâu, bò",3,物特,true
+94,犬,犭,con chó,1,,true
+95,玄,,màu đen huyền; sâu xa,0,,true
+96,玉,王,ngọc,5,理国主,true
+97,瓜,,quả dưa,0,,true
+98,瓦,,ngói,0,,true
+99,甘,,ngọt,0,,true
+100,生,,"sống, sinh ra",1,,true
+101,用,,dùng,2,通,true
+102,田,,ruộng,7,男町界,true
+103,疋,⺪,chân; đơn vị đo vải,1,題,true
+104,疒,,bệnh tật,1,病,true
+105,癶,,dáng đi; gạt ra,1,発,true
+106,白,,màu trắng,4,百楽習,true
+107,皮,,da,1,彼,true
+108,皿,,"bát, đĩa",0,,true
+109,目,,mắt,15,県真着,true
+110,矛,,cây giáo,0,,true
+111,矢,,mũi tên,3,知族医,true
+112,石,,đá,2,研,true
+113,示,礻,thần đất; bày ra,1,社,true
+114,禸,,vết chân thú,0,,true
+115,禾,,cây lúa,2,私秋,true
+116,穴,,"hang, lỗ",2,空究,true
+117,立,,đứng,6,新親音,true
+118,竹,⺮,cây tre,2,答,true
+119,米,,gạo,3,来料,true
+120,糸,糹,sợi tơ,2,終紙,true
+121,缶,,"đồ sành, cái vò",0,,true
+122,网,罒⺳,cái lưới,2,買夢,true
+123,羊,⺶,"con dê, cừu",3,業着洋,true
+124,羽,,"lông vũ, cánh",2,習曜,true
+125,老,耂,già,4,者考教,true
+126,而,,"mà, và",0,,true
+127,耒,,cái cày,0,,true
+128,耳,,tai,2,聞,true
+129,聿,,cây bút,2,書建,true
+130,肉,月,thịt,4,朝有服,true
+131,臣,,bề tôi,0,,true
+132,自,,tự mình,3,夏道,true
+133,至,,đến,2,室屋,true
+134,臼,,cái cối,0,,true
+135,舌,,cái lưỡi,1,話,true
+136,舛,,trái ngược,0,,true
+137,舟,,thuyền,0,,true
+138,艮,,bền cứng; dừng lại,1,銀,true
+139,色,,màu sắc,1,,true
+140,艸,艹,cỏ,5,花茶英,true
+141,虍,,vằn con hổ,0,,true
+142,虫,,sâu bọ,2,強風,true
+143,血,,máu,0,,true
+144,行,,đi; làm,1,,true
+145,衣,衤,áo,0,,true
+146,襾,覀西,che đậy,1,西,true
+147,見,,nhìn thấy,2,親,true
+148,角,,sừng; góc,0,,true
+149,言,訁,lời nói,6,話語読,true
+150,谷,,thung lũng,0,,true
+151,豆,,hạt đậu,1,頭,true
+152,豕,,con lợn,1,家,true
+153,豸,,loài thú bò sát đất,0,,true
+154,貝,,vỏ sò; tiền,6,買質貸,true
+155,赤,,màu đỏ,1,,true
+156,走,,chạy,2,起,true
+157,足,⻊,chân,1,,true
+158,身,,thân thể,0,,true
+159,車,,xe,3,転運,true
+160,辛,,cay; vất vả,0,,true
+161,辰,,thìn; thời gian,0,,true
+162,辵,辶,bước đi,6,道週通,true
+163,邑,阝,"vùng đất, thành ấp",0,,true
+164,酉,,vò rượu,0,,true
+165,釆,,phân biệt,0,,true
+166,里,,làng; dặm,5,野重理,true
+167,金,釒,"kim loại, vàng",2,銀,true
+168,長,镸,dài,1,,true
+169,門,,"cổng, cửa hai cánh",5,間開聞,true
+170,阜,阝,gò đất,1,院,true
+171,隶,,bắt kịp,0,,true
+172,隹,,chim đuôi ngắn,2,集曜,true
+173,雨,,mưa,2,電,true
+174,靑,青,màu xanh,1,青,true
+175,非,,"không phải, sai",0,,true
+176,面,,mặt,0,,true
+177,革,,da thuộc,0,,true
+178,韋,,da đã thuộc mềm,0,,true
+179,韭,,rau hẹ,0,,true
+180,音,,âm thanh,3,暗意,true
+181,頁,,cái đầu; trang,2,頭題,true
+182,風,,gió,1,,true
+183,飛,,bay,0,,true
+184,食,飠,ăn,3,飲館,true
+185,首,,cái đầu,1,道,true
+186,香,,hương thơm,0,,true
+187,馬,,con ngựa,3,駅験,true
+188,骨,,xương,0,,true
+189,高,,cao,1,,true
+190,髟,,tóc dài,0,,true
+191,鬥,,đánh nhau,0,,true
+192,鬯,,rượu nếp thơm,0,,true
+193,鬲,,cái nồi,0,,true
+194,鬼,,ma quỷ,0,,true
+195,魚,,con cá,1,,true
+196,鳥,,con chim,1,,true
+197,鹵,,"đất mặn, muối",0,,true
+198,鹿,,con hươu,0,,true
+199,麥,麦,lúa mạch,0,,true
+200,麻,,cây gai,0,,true
+201,黃,黄,màu vàng,0,,true
+202,黍,,lúa nếp,0,,true
+203,黑,黒,màu đen,1,黒,true
+204,黹,,may vá,0,,true
+205,黽,,con ếch,0,,true
+206,鼎,,cái vạc ba chân,0,,true
+207,鼓,,cái trống,0,,true
+208,鼠,,con chuột,0,,true
+209,鼻,,cái mũi,0,,true
+210,齊,斉,"ngang bằng, đều",0,,true
+211,齒,歯,răng,0,,true
+212,龍,竜,con rồng,0,,true
+213,龜,亀,con rùa,0,,true
+214,龠,,ống sáo,0,,true
