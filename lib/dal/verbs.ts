@@ -3,6 +3,7 @@
 //   buildVerbSession: dựng phiên (ưu tiên từ đã xong Stage 2, từ hay sai, lâu chưa luyện)
 //   submitVerbAnswer: chấm lại ở server và ghi verb_practice_logs
 import 'server-only'
+import { readKanaStages } from '@/lib/dal/v12/state'
 import { randomUUID } from 'node:crypto'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
@@ -12,7 +13,6 @@ import { conjugate, VERB_FORMS, type VerbFormId } from '@/lib/verbs/conjugate'
 import { buildVerbQuestion, gradeVerbQuestion, VERB_EXERCISES, type VerbExercise, type VerbQuestion } from '@/lib/verbs/questions'
 import { isVerb, type VerbWord } from '@/lib/verbs/types'
 import { studyDate } from '@/lib/learning/time'
-import { readAllPages } from '@/lib/dal/pages'
 import { readKnownWordIds } from '@/lib/dal/known-words'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
@@ -50,9 +50,7 @@ async function context(supabase: Supabase, userId: string): Promise<Ctx> {
   const codes = WORDS.map((w) => w.code)
   const [open, stage2, known, ids] = await Promise.all([
     readLessonOpen(supabase, userId, Array.from({ length: 50 }, (_, i) => i + 1)),
-    readAllPages('learner_stage_schedules', (from, to) =>
-      supabase.from('learner_stage_schedules').select('learner_vocabulary!inner(vocabulary_id)').eq('user_id', userId).eq('stage_number', 2).not('completed_at', 'is', null).order('id').range(from, to),
-    ),
+    readKanaStages(supabase, userId),
     readKnownWordIds(supabase, userId),
     supabase.from('vocabularies').select('id, code').in('code', codes),
   ])
@@ -60,7 +58,8 @@ async function context(supabase: Supabase, userId: string): Promise<Ctx> {
   const vocabId = new Map((ids.data ?? []).map((r) => [r.code as string, r.id as string]))
   const codeOf = new Map([...vocabId].map(([c, id]) => [id, c]))
   const learned = new Set(
-    [...(stage2 as unknown as { learner_vocabulary: { vocabulary_id: string } }[]).map((r) => r.learner_vocabulary.vocabulary_id), ...known]
+    // V12: mục Kana đã qua Stage 2 (đang Stage 3 hoặc đã có Card)
+    [...[...stage2].filter(([, st]) => st === '3' || st === 'review').map(([id]) => id), ...known]
       .map((id) => codeOf.get(id))
       .filter((c): c is string => !!c),
   )

@@ -1,11 +1,9 @@
-// LIB-01 — Chi tiết một từ trong Library: thành phần Kanji, stage, Card và điểm của người học. Server-only.
+// LIB-01 — Chi tiết một từ trong Library: thành phần Kanji, Stage, điểm và Card V12 của người học. Server-only.
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
-import { readSkillLevels } from '@/lib/dal/skill-levels'
 import { isWordStarred } from '@/lib/dal/star-relearn'
-import { kanjiTargetLevel, kanjiWait, type KanjiPolicy, type KanjiWait } from '@/lib/learn/word-kanji-policy'
-import type { CardType, ScoredStage } from '@/lib/learning/types'
+import type { CardType, ReviewCardType, Stage } from '@/lib/v12/card-types'
 
 export interface WordDetail {
   id: string
@@ -20,23 +18,19 @@ export interface WordDetail {
   known: boolean
   starred: boolean
   kanji: { character: string; hanViet: string; meaning: string }[]
-  /** V9 §6a: chính sách Kanji của từ và lý do chưa mở Stage 4. */
-  kanjiPolicy: {
-    policy: KanjiPolicy | null
-    /** Cấp phải học dạng Kanji, null với từ chỉ Kana hoặc thường viết Kana. */
-    targetLevel: number | null
-    optedIn: boolean
-    /** Lý do chưa mở theo cấp Từ vựng Kanji hiện tại (chưa xét Stage 3). */
-    wait: KanjiWait
-  }
-  /** Chưa gặp từ này thì không có. */
-  progress: {
-    currentStage: number
-    completed: boolean
-    stages: { id: string; stage: ScoredStage; points: number; dueAt: string; completed: boolean }[]
-    /** archived: người học đã bấm "Đã học xong" cho Card này (R13). */
-    cards: { id: string; type: CardType; dueAt: string; archived: boolean }[]
-  } | null
+  /** V12: từ có dạng Kanji học được (khu Từ vựng Kanji). */
+  hasKanjiForm: boolean
+  /** V12 (gói 4): mục Kana và mục Từ vựng Kanji của từ. Chưa mở thì rỗng. */
+  items: { area: 'kana' | 'word_kanji'; stage: Stage | 'review'; types: { type: CardType; points: number }[] }[]
+  /** Card của hai mục. archived: người học đã bấm "Đã học xong" cho Card này (R13). */
+  cards: { id: string; type: ReviewCardType; dueAt: string; archived: boolean }[]
+}
+
+type RawItem = {
+  area: 'kana' | 'word_kanji'
+  stage: string
+  learner_item_types: { stage: number; card_type: CardType; points: number }[]
+  item_cards: { id: string; card_type: ReviewCardType; due_at: string; archived_at: string | null }[]
 }
 
 export async function getWordDetail(code: string): Promise<WordDetail | null> {
@@ -45,7 +39,7 @@ export async function getWordDetail(code: string): Promise<WordDetail | null> {
 
   const { data, error } = await supabase
     .from('vocabularies')
-    .select('id, code, expression, reading_kana, meaning_vi, han_viet, romaji, lesson, is_kana_only, jlpt_level, kanji_policy, kanji_target_level, vocabulary_kanji(position, kanji(character, han_viet, meaning_vi))')
+    .select('id, code, expression, reading_kana, meaning_vi, han_viet, romaji, lesson, is_kana_only, vocabulary_kanji(position, kanji(character, han_viet, meaning_vi))')
     .eq('code', code)
     .maybeSingle()
   if (error) throw new Error(`Không đọc được vocabularies: ${error.message}`)
@@ -60,42 +54,27 @@ export async function getWordDetail(code: string): Promise<WordDetail | null> {
     romaji: string | null
     lesson: number | null
     is_kana_only: boolean
-    jlpt_level: number
-    kanji_policy: KanjiPolicy | null
-    kanji_target_level: number | null
     vocabulary_kanji: { position: number; kanji: { character: string; han_viet: string; meaning_vi: string } }[]
   }
 
-  const [learner, known, starred, levels, optin] = await Promise.all([
+  const [items, known, starred] = await Promise.all([
     supabase
-      .from('learner_vocabulary')
-      .select('current_stage, learning_status, learner_stage_schedules(id, stage_number, stage_points, due_at, completed_at), review_cards(id, card_type, due_at, archived_at)')
+      .from('learner_items')
+      .select('area, stage, learner_item_types(stage, card_type, points), item_cards(id, card_type, due_at, archived_at)')
       .eq('user_id', user.id)
-      .eq('vocabulary_id', word.id)
-      .maybeSingle(),
+      .eq('vocabulary_id', word.id),
     supabase.from('learner_vocabulary_exclusions').select('excluded_at').eq('user_id', user.id).eq('vocabulary_id', word.id).maybeSingle(),
     isWordStarred(supabase, user.id, word.id),
-    readSkillLevels(supabase, user.id),
-    supabase.from('learner_word_kanji_optins').select('vocabulary_id').eq('user_id', user.id).eq('vocabulary_id', word.id).maybeSingle(),
   ])
-  if (optin.error) throw new Error(`Không đọc được learner_word_kanji_optins: ${optin.error.message}`)
-  const policy = { policy: word.kanji_policy, targetLevel: word.kanji_target_level, wordLevel: word.jlpt_level, isKanaOnly: word.is_kana_only }
-  const optedIn = optin.data !== null
-  if (learner.error) throw new Error(`Không đọc được learner_vocabulary: ${learner.error.message}`)
+  if (items.error) throw new Error(`Không đọc được learner_items: ${items.error.message}`)
   if (known.error) throw new Error(`Không đọc được learner_vocabulary_exclusions: ${known.error.message}`)
-
-  const lv = learner.data as unknown as {
-    current_stage: number
-    learning_status: string
-    learner_stage_schedules: { id: string; stage_number: ScoredStage; stage_points: number; due_at: string; completed_at: string | null }[]
-    review_cards: { id: string; card_type: CardType; due_at: string; archived_at: string | null }[]
-  } | null
 
   const seen = new Set<string>()
   const kanji = [...word.vocabulary_kanji]
     .sort((a, b) => a.position - b.position)
     .filter(({ kanji: k }) => !seen.has(k.character) && Boolean(seen.add(k.character)))
     .map(({ kanji: k }) => ({ character: k.character, hanViet: k.han_viet, meaning: k.meaning_vi }))
+  const rows = ((items.data ?? []) as unknown as RawItem[]).sort((a, b) => (a.area === 'kana' ? -1 : 1) - (b.area === 'kana' ? -1 : 1))
 
   return {
     id: word.id,
@@ -110,14 +89,12 @@ export async function getWordDetail(code: string): Promise<WordDetail | null> {
     known: known.data?.excluded_at != null,
     starred,
     kanji,
-    kanjiPolicy: { policy: word.kanji_policy, targetLevel: kanjiTargetLevel(policy), optedIn, wait: kanjiWait(policy, levels.word_kanji, optedIn) },
-    progress: lv && {
-      currentStage: lv.current_stage,
-      completed: lv.learning_status === 'initial_complete',
-      stages: lv.learner_stage_schedules
-        .map((s) => ({ id: s.id, stage: s.stage_number, points: s.stage_points, dueAt: s.due_at, completed: s.completed_at !== null }))
-        .sort((a, b) => a.stage - b.stage),
-      cards: lv.review_cards.map((c) => ({ id: c.id, type: c.card_type, dueAt: c.due_at, archived: c.archived_at !== null })),
-    },
+    // Khớp khu Từ vựng Kanji của V12 (lib/dal/v12/content.ts)
+    hasKanjiForm: !word.is_kana_only && !!word.han_viet && kanji.length > 0 && word.expression !== word.reading_kana,
+    items: rows.map((r) => {
+      const stage = r.stage === 'review' ? 'review' : (Number(r.stage) as Stage)
+      return { area: r.area, stage, types: r.learner_item_types.filter((t) => t.stage === stage).map((t) => ({ type: t.card_type, points: t.points })) }
+    }),
+    cards: rows.flatMap((r) => r.item_cards.map((c) => ({ id: c.id, type: c.card_type, dueAt: c.due_at, archived: c.archived_at !== null }))),
   }
 }

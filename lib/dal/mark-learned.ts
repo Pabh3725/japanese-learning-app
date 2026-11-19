@@ -1,16 +1,13 @@
 // Đánh dấu "đã học" (chủ dự án yêu cầu 2026-11-12). Server-only.
-//   Từ vựng: xong Stage 1–3 + Card Kana; thêm Stage 4–6 + Card Kanji khi chính sách Kanji cho phép ở cấp hiện tại.
+//   Từ vựng (V12): mục Kana sang Card; thêm mục Từ vựng Kanji khi từ có dạng Kanji học được.
 //   Ngữ pháp: mẫu tính là học xong; có ôn (Card FSRS, lần đầu từ ngày mai) hoặc không ôn (lưu trữ, khôi phục được).
 // Lần ôn đầu rải từ ngày mai để Review không dồn một ngày.
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
-import { readSkillLevels } from '@/lib/dal/skill-levels'
-import { readKanjiOptins } from '@/lib/dal/word-kanji'
-import { readInChunks } from '@/lib/dal/pages'
+import { readV12Content } from '@/lib/dal/v12/content'
 import { newReviewSchedule } from '@/lib/grammar/rules'
 import { nextStudyDayStart } from '@/lib/learning/time'
-import { kanjiAllowed, type KanjiPolicy } from '@/lib/learn/word-kanji-policy'
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const DAY_MS = 86_400_000
@@ -22,44 +19,42 @@ export function spreadDue(i: number, now: Date, perDay = NEW_CARDS_PER_DAY): Dat
   return new Date(nextStudyDayStart(now).getTime() + Math.floor(i / perDay) * DAY_MS)
 }
 
+/**
+ * V12 (gói 4): mục Kana của từ sang Card (2 Card Kana), và mục Từ vựng Kanji (1 Card) khi từ có dạng Kanji học được.
+ * Card đã có giữ nguyên lịch; lần ôn đầu của Card mới rải từ ngày mai.
+ */
 export async function markWordsLearned(input: unknown): Promise<{ status: 'saved' | 'invalid'; marked?: number }> {
   if (!Array.isArray(input) || input.length === 0 || input.length > 1000 || !input.every((x) => typeof x === 'string' && UUID.test(x))) return { status: 'invalid' }
-  const ids = [...new Set(input as string[])]
-  const user = await requireUser()
+  const ids = new Set(input as string[])
+  await requireUser()
   const supabase = await createClient()
-  const [words, optins, levels] = await Promise.all([
-    // Tới 1000 từ một lần: chia nhóm để URL truy vấn không quá dài
-    readInChunks('vocabularies', ids, (chunk) => supabase.from('vocabularies').select('id, sort_order, jlpt_level, is_kana_only, kanji_policy, kanji_target_level').in('id', chunk)),
-    readKanjiOptins(supabase, user.id),
-    readSkillLevels(supabase, user.id),
-  ])
-  const opted = optins
+  const content = await readV12Content(supabase)
+  const withKanji = new Set(content.wordKanji.map((w) => w.id))
   const now = new Date()
   let card = 0
-  const items = words
-    .sort((a, b) => a.sort_order - b.sort_order)
+  const items = content.words
+    .filter((w) => ids.has(w.id))
+    .sort((a, b) => a.sortOrder - b.sortOrder)
     .map((w) => {
-      const kanji = kanjiAllowed(
-        { policy: w.kanji_policy as KanjiPolicy | null, targetLevel: w.kanji_target_level, wordLevel: w.jlpt_level, isKanaOnly: w.is_kana_only },
-        levels.word_kanji,
-        opted.has(w.id),
-      )
-      const kanaDue = spreadDue(card++, now)
+      const kanji = withKanji.has(w.id)
+      // Hai Card Kana cùng ngày; Card Từ vựng Kanji tính riêng
+      const kanaDue = spreadDue(card, now)
+      card += 2
       const kanjiDue = kanji ? spreadDue(card++, now) : null
-      return { vocabulary_id: w.id, kanji, kana_due: kanaDue.toISOString(), kanji_due: kanjiDue?.toISOString() ?? null }
+      return { vocabulary_id: w.id, word_kanji: kanji, kana_due: kanaDue.toISOString(), kanji_due: kanjiDue?.toISOString() ?? null }
     })
-  const { data, error } = await supabase.rpc('mark_words_learned', { p_items: items, p_at: now.toISOString() })
-  if (error) throw new Error(`mark_words_learned lỗi: ${error.message}`)
+  const { data, error } = await supabase.rpc('v12_mark_words_learned', { p_items: items, p_at: now.toISOString() })
+  if (error) throw new Error(`v12_mark_words_learned lỗi: ${error.message}`)
   return { status: 'saved', marked: (data as { marked: number }).marked }
 }
 
-/** V10: hoàn tác "Mark as learned" của các từ (lần đánh dấu gần nhất của mỗi từ). */
+/** V12: hoàn tác "Mark as learned" của các từ (lần đánh dấu V12 gần nhất của mỗi từ). */
 export async function undoWordsLearned(input: unknown): Promise<{ status: 'saved' | 'invalid'; undone?: number }> {
   if (!Array.isArray(input) || input.length === 0 || input.length > 1000 || !input.every((x) => typeof x === 'string' && UUID.test(x))) return { status: 'invalid' }
   await requireUser()
   const supabase = await createClient()
-  const { data, error } = await supabase.rpc('undo_mark_words_learned', { p_vocabulary_ids: [...new Set(input as string[])] })
-  if (error) throw new Error(`undo_mark_words_learned lỗi: ${error.message}`)
+  const { data, error } = await supabase.rpc('v12_undo_mark_words_learned', { p_vocabulary_ids: [...new Set(input as string[])] })
+  if (error) throw new Error(`v12_undo_mark_words_learned lỗi: ${error.message}`)
   return { status: 'saved', undone: (data as { undone: number }).undone }
 }
 

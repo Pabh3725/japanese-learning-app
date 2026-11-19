@@ -1,15 +1,13 @@
 import { BookText, Layers, Languages } from 'lucide-react'
 import { DashboardStatCard } from '@/components/dashboard/dashboard-stat-card'
 import { PageHeader } from '@/components/page-header'
-import { getLearnOverview } from '@/lib/dal/learn-overview'
-import { getProgressStats } from '@/lib/dal/progress'
-import { getReviewOverview } from '@/lib/dal/review'
+import { getLevelProgress, getProgressStats } from '@/lib/dal/progress'
 import { TARGET_RETENTION } from '@/lib/srs/retention'
 import { cn } from '@/lib/utils'
 
 export default async function ProgressPage() {
-  const [progress, learn, review] = await Promise.all([getProgressStats(), getLearnOverview(), getReviewOverview()])
-  const cards = Object.values(review.byType).reduce((sum, n) => sum + n, 0)
+  const [progress, learn] = await Promise.all([getProgressStats(), getLevelProgress()])
+  const cards = learn.cards
   const pct = (rate: number | null) => (rate === null ? '—' : `${Math.round(rate * 100)}%`)
   const { retention } = progress
   // V11: tỷ lệ nhớ thật theo từng khu, so với mục tiêu của FSRS
@@ -49,7 +47,7 @@ export default async function ProgressPage() {
         {learn.levels.map((level) => (
           <DashboardStatCard key={level.level} label={`${level.level} completed`} value={level.completed} total={level.total} icon={BookText} tone={level.level === 'N5' ? 'cyan' : 'primary'} jp={level.level === 'N5' ? '語' : '話'} />
         ))}
-        <DashboardStatCard label="Words in progress" value={learn.inProgress} icon={Languages} tone="yellow" jp="習" />
+        <DashboardStatCard label="Items in progress" value={learn.inProgress} icon={Languages} tone="yellow" jp="習" />
         <DashboardStatCard label="Cards created" value={cards} icon={Layers} tone="pink" jp="札" />
       </div>
 

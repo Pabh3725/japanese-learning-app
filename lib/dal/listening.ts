@@ -2,6 +2,7 @@
 // Dựng câu ở server, lưu cả phiên (đáp án không gửi trước cho trình duyệt), chấm ở server.
 // Không đổi điểm, lịch hay FSRS nào; mỗi câu ghi listening_logs.
 import 'server-only'
+import { readKanaStages } from '@/lib/dal/v12/state'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { readAllPages } from '@/lib/dal/pages'
@@ -705,13 +706,13 @@ export async function getListeningOverview(part: 'grammar' | 'dictation'): Promi
     ),
     readLessonWords(supabase),
     readContent(supabase),
-    readAllPages('learner_vocabulary', (from, to) => supabase.from('learner_vocabulary').select('vocabulary_id').eq('user_id', user.id).order('id').range(from, to)),
+    readKanaStages(supabase, user.id),
     readKnownWordIds(supabase, user.id),
     readAllPages('learner_grammar', (from, to) => supabase.from('learner_grammar').select('point_id').eq('user_id', user.id).order('id').range(from, to)),
   ])
 
   // Bài đã học: có từ đã gặp / đã biết, hoặc mẫu ngữ pháp đã mở
-  const learnedWords = new Set([...met.map((r) => r.vocabulary_id as string), ...known])
+  const learnedWords = new Set([...met.keys(), ...known])
   const openedPoints = new Set(opened.map((r) => r.point_id as string))
   const learned = new Set<number>([...words.filter((w) => learnedWords.has(w.id)).map((w) => w.lesson), ...content.filter((p) => openedPoints.has(p.id)).map((p) => p.lesson)])
 

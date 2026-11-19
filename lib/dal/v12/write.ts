@@ -81,6 +81,28 @@ export async function saveStageAnswer(
   return status === 'saved' ? { status, result } : { status }
 }
 
+/** Câu học thêm của từ / chữ có sao: chỉ ghi log (stage 'star'), không tính điểm, không đổi lịch. Gửi trùng thì bỏ qua. */
+export async function saveStarAnswer(
+  supabase: Supabase,
+  userId: string,
+  input: { itemId: string; area: Area; type: CardType; correct: boolean; elapsedMs: number; clientEventId: string },
+  now: Date,
+): Promise<void> {
+  const { error } = await supabase.from('item_logs').insert({
+    user_id: userId,
+    learner_item_id: input.itemId,
+    client_event_id: input.clientEventId,
+    area: input.area,
+    stage: 'star',
+    card_type: input.type,
+    correct: input.correct,
+    elapsed_ms: Math.max(0, Math.min(3_600_000, Math.round(input.elapsedMs))),
+    study_date: studyDate(now),
+    answered_at: now.toISOString(),
+  })
+  if (error && error.code !== '23505') throw new Error(`Không lưu được item_logs: ${error.message}`)
+}
+
 /** Lưu một lần ôn Card (§3.3): đúng là Good, sai là Again; lịch FSRS như hiện nay (tối đa 90 ngày, 00:00 giờ VN). */
 export async function saveCardReview(
   supabase: Supabase,
@@ -122,4 +144,36 @@ export async function saveCardReview(
   })
   if (error) throw new Error(`v12_save_card lỗi: ${error.message}`)
   return { status: statusOf(data), due: s.due, card: card.type }
+}
+
+/**
+ * Nút "đã biết cả nhóm" của bộ thủ (chủ dự án chốt 2026-11-19): known = true thì mọi bộ trong phạm vi coi như đã biết
+ * (bộ chưa mở được tạo ở Stage 1 kèm known_at để bỏ đánh dấu thì học lại từ đầu); known = false thì bỏ đánh dấu cả nhóm.
+ */
+export async function setRadicalsKnown(supabase: Supabase, userId: string, numbers: readonly number[], known: boolean, now: Date): Promise<number> {
+  if (!known) {
+    const { data, error } = await supabase.from('learner_items').update({ known_at: null }).eq('user_id', userId).eq('area', 'radical').not('known_at', 'is', null).select('id')
+    if (error) throw new Error(`Không lưu được learner_items: ${error.message}`)
+    return data?.length ?? 0
+  }
+  const { data: rows, error: readError } = await supabase.from('learner_items').select('radical_number').eq('user_id', userId).eq('area', 'radical')
+  if (readError) throw new Error(`Không đọc được learner_items: ${readError.message}`)
+  const opened = new Set((rows ?? []).map((r) => r.radical_number as number))
+  const at = now.toISOString()
+  const { error: updateError } = await supabase.from('learner_items').update({ known_at: at }).eq('user_id', userId).eq('area', 'radical').is('known_at', null)
+  if (updateError) throw new Error(`Không lưu được learner_items: ${updateError.message}`)
+  const missing = numbers.filter((n) => !opened.has(n))
+  if (missing.length > 0) {
+    const { data: created, error } = await supabase
+      .from('learner_items')
+      .insert(missing.map((n) => ({ user_id: userId, area: 'radical', radical_number: n, stage: '1', stage_from: studyDate(now), known_at: at })))
+      .select('id')
+    if (error) throw new Error(`Không tạo được learner_items: ${error.message}`)
+    const types = typesFor('radical', 1, { hasSimilar: false })
+    const { error: typesError } = await supabase
+      .from('learner_item_types')
+      .insert((created ?? []).flatMap((r) => types.map((t) => ({ learner_item_id: r.id, user_id: userId, stage: 1, card_type: t }))))
+    if (typesError) throw new Error(`Không tạo được learner_item_types: ${typesError.message}`)
+  }
+  return numbers.length
 }

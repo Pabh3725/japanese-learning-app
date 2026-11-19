@@ -2,6 +2,10 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { readAllPages } from '@/lib/dal/pages'
+import { readKnownKanjiIds } from '@/lib/dal/kanji'
+import { readKnownWordIds } from '@/lib/dal/known-words'
+import { readStarredKanjiIds } from '@/lib/dal/kanji-stars'
+import { readStarredIds } from '@/lib/dal/star-relearn'
 import type { Area, CardType, ReviewCardType, Stage } from '@/lib/v12/card-types'
 import type { ItemState, TypeState } from '@/lib/v12/stage'
 import type { Schedule, ScheduleState } from '@/lib/srs/scheduler'
@@ -62,9 +66,19 @@ function toItem(r: RawItem, types: readonly RawType[]): ItemRow {
   }
 }
 
-/** Mọi mục và Card của người học (chia trang vì có thể hơn 1000 dòng). */
-export async function readV12State(supabase: Supabase, userId: string): Promise<{ items: ItemRow[]; cards: CardRow[] }> {
-  const [items, types, cards] = await Promise.all([
+export interface V12State {
+  items: ItemRow[]
+  cards: CardRow[]
+  /** "Đã biết" của từ vựng và chữ Kanji (bảng exclusions — nguồn chung với Library). Bộ thủ dùng known_at của mục. */
+  knownWords: Set<string>
+  knownKanji: Set<string>
+  /** Từ / chữ có sao: thêm câu học thêm vào bộ thẻ (không tính điểm). */
+  starred: Set<string>
+}
+
+/** Mọi mục và Card của người học (chia trang vì có thể hơn 1000 dòng). Mục có từ / chữ "đã biết" coi như known. */
+export async function readV12State(supabase: Supabase, userId: string): Promise<V12State> {
+  const [items, types, cards, knownWords, knownKanji, starredWords, starredKanji] = await Promise.all([
     readAllPages('learner_items', (from, to) => supabase.from('learner_items').select(ITEM_COLUMNS).eq('user_id', userId).order('id').range(from, to)),
     readAllPages('learner_item_types', (from, to) =>
       supabase.from('learner_item_types').select('learner_item_id, stage, card_type, points, seen_date, seen_today, wrong_today').eq('user_id', userId).order('learner_item_id').order('stage').order('card_type').range(from, to),
@@ -77,11 +91,14 @@ export async function readV12State(supabase: Supabase, userId: string): Promise<
         .order('id')
         .range(from, to),
     ),
+    readKnownWordIds(supabase, userId),
+    readKnownKanjiIds(supabase, userId),
+    readStarredIds(supabase, userId),
+    readStarredKanjiIds(supabase, userId),
   ])
-  return {
-    items: (items as RawItem[]).map((r) => toItem(r, types as RawType[])),
-    cards: (cards as Record<string, unknown>[]).map((c) => toCard(c)),
-  }
+  const rows = (items as RawItem[]).map((r) => toItem(r, types as RawType[]))
+  for (const i of rows) if ((i.area === 'kana' || i.area === 'word_kanji') ? knownWords.has(i.ref) : i.area === 'kanji' && knownKanji.has(i.ref)) i.known = true
+  return { items: rows, cards: (cards as Record<string, unknown>[]).map((c) => toCard(c)), knownWords, knownKanji, starred: new Set([...starredWords, ...starredKanji]) }
 }
 
 /** Một mục (để ghi câu trả lời). */
@@ -114,4 +131,15 @@ export function toCard(c: Record<string, unknown>): CardRow {
       lastReviewAt: c.last_review_at ? new Date(c.last_review_at as string) : null,
     },
   }
+}
+
+/**
+ * Stage của mục Kana của từng từ (vocabulary_id → '1' | '2' | '3' | 'review'). Dùng cho bộ lọc "đã học" ở JLPT, Luyện nghe,
+ * Thể động từ (gói 4). Từ chưa mở thì không có.
+ */
+export async function readKanaStages(supabase: Supabase, userId: string): Promise<Map<string, string>> {
+  const rows = await readAllPages('learner_items', (from, to) =>
+    supabase.from('learner_items').select('vocabulary_id, stage').eq('user_id', userId).eq('area', 'kana').order('id').range(from, to),
+  )
+  return new Map(rows.map((r) => [r.vocabulary_id as string, r.stage as string]))
 }

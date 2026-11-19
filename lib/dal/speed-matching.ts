@@ -17,35 +17,47 @@ async function readExcluded(supabase: Supabase, userId: string): Promise<Set<str
 
 /** Mọi chế độ chơi với số từ của từng chế độ. Từ đã đánh dấu là đã biết không vào game. */
 export async function readSpeedModes(supabase: Supabase, userId: string): Promise<SpeedModeData[]> {
+  // V12 (gói 4): từ đã mở ở khu Kana; dạng Kanji đã gặp khi mục Từ vựng Kanji đã qua thẻ giới thiệu
   const [excludedIds, rows] = await Promise.all([
     readExcluded(supabase, userId),
-    readAllPages('learner_vocabulary', (from, to) =>
+    readAllPages('learner_items', (from, to) =>
       supabase
-        .from('learner_vocabulary')
-        .select('vocabulary_id, kanji_intro_seen_at, vocabularies!inner(expression, reading_kana, meaning_vi, han_viet, is_kana_only), review_cards(last_review_at)')
+        .from('learner_items')
+        .select('area, vocabulary_id, intro_seen_at, vocabularies!inner(expression, reading_kana, meaning_vi, han_viet, is_kana_only), item_cards(last_review_at)')
         .eq('user_id', userId)
+        .in('area', ['kana', 'word_kanji'])
         .order('id')
         .range(from, to),
     ),
   ])
   const list = rows as unknown as {
+    area: 'kana' | 'word_kanji'
     vocabulary_id: string
-    kanji_intro_seen_at: string | null
+    intro_seen_at: string | null
     vocabularies: { expression: string; reading_kana: string; meaning_vi: string; han_viet: string | null; is_kana_only: boolean }
-    review_cards: { last_review_at: string | null }[]
+    item_cards: { last_review_at: string | null }[]
   }[]
-  const sources: SpeedWordSource[] = list
-    .filter((r) => !excludedIds.has(r.vocabulary_id))
-    .map((r) => ({
+  const byWord = new Map<string, SpeedWordSource>()
+  for (const r of list) {
+    if (excludedIds.has(r.vocabulary_id)) continue
+    const w = byWord.get(r.vocabulary_id) ?? {
       id: r.vocabulary_id,
       expression: r.vocabularies.expression,
       kana: r.vocabularies.reading_kana,
       meaning: r.vocabularies.meaning_vi,
       hanViet: r.vocabularies.han_viet,
       isKanaOnly: r.vocabularies.is_kana_only,
-      kanjiSeen: r.kanji_intro_seen_at !== null,
-      lastReviewAt: r.review_cards.map((c) => c.last_review_at).filter((at): at is string => at !== null).sort().at(-1) ?? null,
-    }))
+      kanjiSeen: false,
+      lastReviewAt: null,
+    }
+    if (r.area === 'word_kanji' && r.intro_seen_at !== null) w.kanjiSeen = true
+    const last = r.item_cards.map((c) => c.last_review_at).filter((at): at is string => at !== null).sort().at(-1) ?? null
+    if (last && (!w.lastReviewAt || last > w.lastReviewAt)) w.lastReviewAt = last
+    byWord.set(r.vocabulary_id, w)
+  }
+  // Chỉ từ đã mở ở khu Kana (mục Từ vựng Kanji luôn đi sau mục Kana)
+  const kanaOpened = new Set(list.filter((r) => r.area === 'kana').map((r) => r.vocabulary_id))
+  const sources = [...byWord.values()].filter((w) => kanaOpened.has(w.id))
   return SPEED_MODES.map((mode) => wordsForMode(sources, mode))
 }
 

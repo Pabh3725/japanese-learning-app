@@ -43,7 +43,7 @@ function ArchivedRow({ card }: { card: ArchivedCard }) {
       <div className="min-w-0">
         <p className="flex flex-wrap items-baseline gap-x-2">
           <span lang="ja" className="font-jp text-xl">{card.title}</span>
-          <span lang={card.kind === 'vocab' ? 'ja' : undefined} className={cn('text-sm', card.kind === 'vocab' ? 'font-jp text-cyan' : 'font-semibold text-yellow')}>{card.subtitle}</span>
+          <span lang={readingSubtitle(card) ? 'ja' : undefined} className={cn('text-sm', readingSubtitle(card) ? 'font-jp text-cyan' : 'font-semibold text-yellow')}>{card.subtitle}</span>
           <span className="text-sm text-subtle">{card.meaning}</span>
         </p>
         <p className="mt-1 text-xs text-muted-foreground tabular-nums">
@@ -68,6 +68,9 @@ function ArchivedRow({ card }: { card: ArchivedCard }) {
 }
 
 /** Kho lưu trữ (R13): tìm theo từ, cách đọc, nghĩa, Hán Việt; lọc theo loại Card. */
+/** Dòng phụ là cách đọc Kana (từ vựng) hay Hán Việt (chữ, bộ thủ). */
+const readingSubtitle = (card: ArchivedCard) => card.kind === 'vocab' || card.type === 'kana_type' || card.type === 'kana_choose' || card.type === 'word_kanji'
+
 export function ArchiveList({ cards }: { cards: ArchivedCard[] }) {
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<'all' | ArchiveCardType>('all')

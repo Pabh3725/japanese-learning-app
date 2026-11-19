@@ -8,6 +8,8 @@ import { currentStreak, lastSevenDays, weekdayLabel } from '@/lib/learning/strea
 import type { StudyDate } from '@/lib/learning/types'
 import { readAllPages } from '@/lib/dal/pages'
 import { computeRetention, type RetentionEntry, type RetentionStats } from '@/lib/srs/retention'
+import { readV12Content } from '@/lib/dal/v12/content'
+import { readV12State } from '@/lib/dal/v12/state'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 
@@ -26,8 +28,8 @@ async function readStreakUncached(supabase: Supabase, userId: string, today: Stu
   if (error) throw new Error(`Không đọc được exercise_logs: ${error.message}`)
   const days = new Set<StudyDate>(data?.map((r) => r.study_date))
 
-  // Review và Kanji không ghi day_seq: đọc từ mới về cũ, dừng khi đã qua chỗ chuỗi đứt
-  for (const table of ['review_logs', 'kanji_logs'] as const) {
+  // Review, Kanji và V12 không ghi day_seq: đọc từ mới về cũ, dừng khi đã qua chỗ chuỗi đứt
+  for (const table of ['review_logs', 'kanji_logs', 'item_logs'] as const) {
     for (let from = 0; ; from += PAGE) {
       const { data: rows, error: logError } = await supabase
         .from(table)
@@ -55,8 +57,8 @@ export async function getStudyStreak(): Promise<{ streak: number; studiedToday: 
   return readStreak(supabase, user.id, studyDate(new Date()))
 }
 
-/** Đếm số câu theo ngày: câu học, câu ôn và câu Kanji. */
-async function addCountsByDay(supabase: Supabase, table: 'exercise_logs' | 'review_logs' | 'kanji_logs', userId: string, since: StudyDate, counts: Map<StudyDate, number>) {
+/** Đếm số câu theo ngày: câu học, câu ôn, câu Kanji (V11) và câu của bộ thẻ V12. */
+async function addCountsByDay(supabase: Supabase, table: 'exercise_logs' | 'review_logs' | 'kanji_logs' | 'item_logs', userId: string, since: StudyDate, counts: Map<StudyDate, number>) {
   for (let from = 0; ; from += PAGE) {
     let query = supabase.from(table).select('study_date').eq('user_id', userId).gte('study_date', since).order('id').range(from, from + PAGE - 1)
     if (table === 'exercise_logs') query = query.eq('source', 'lesson')
@@ -75,7 +77,7 @@ async function addCountsByDay(supabase: Supabase, table: 'exercise_logs' | 'revi
  * Card Kanji: kanji_logs của Card (kanji_logs không lưu trạng thái trước; lấy lần đầu mỗi ngày).
  */
 async function readRetention(supabase: Supabase, userId: string, since: StudyDate): Promise<RetentionStats> {
-  const [cards, kanji] = await Promise.all([
+  const [cards, kanji, items] = await Promise.all([
     readAllPages('review_logs', (from, to) =>
       supabase
         .from('review_logs')
@@ -96,6 +98,19 @@ async function readRetention(supabase: Supabase, userId: string, since: StudyDat
         .order('id')
         .range(from, to),
     ),
+    // V12: lần ôn Card đang ở giai đoạn ôn (state_before = 2)
+    readAllPages('item_logs', (from, to) =>
+      supabase
+        .from('item_logs')
+        .select('item_card_id, area, correct, study_date, answered_at')
+        .eq('user_id', userId)
+        .eq('stage', 'review')
+        .eq('state_before', 2)
+        .not('item_card_id', 'is', null)
+        .gte('study_date', since)
+        .order('id')
+        .range(from, to),
+    ),
   ])
   const entries: RetentionEntry[] = [
     ...(cards as unknown as { review_card_id: string; rating: number; study_date: string; reviewed_at: string; review_cards: { card_type: string } }[]).map((r) => ({
@@ -111,6 +126,13 @@ async function readRetention(supabase: Supabase, userId: string, since: StudyDat
       date: r.study_date,
       at: r.answered_at,
       recalled: r.outcome !== 'wrong',
+    })),
+    ...(items as unknown as { item_card_id: string; area: string; correct: boolean; study_date: string; answered_at: string }[]).map((r) => ({
+      area: r.area === 'kana' ? ('vocabulary' as const) : r.area === 'word_kanji' ? ('kanji_words' as const) : ('kanji' as const),
+      cardId: r.item_card_id,
+      date: r.study_date,
+      at: r.answered_at,
+      recalled: r.correct,
     })),
   ]
   return computeRetention(entries)
@@ -136,12 +158,35 @@ export async function getProgressStats(): Promise<ProgressStats> {
     addCountsByDay(supabase, 'exercise_logs', user.id, week[0], counts),
     addCountsByDay(supabase, 'review_logs', user.id, week[0], counts),
     addCountsByDay(supabase, 'kanji_logs', user.id, week[0], counts),
+    addCountsByDay(supabase, 'item_logs', user.id, week[0], counts),
   ])
   return {
     streak: streak.streak,
     retention,
     week: week.map((date) => ({ date, label: weekdayLabel(date), answered: counts.get(date) ?? 0 })),
   }
+}
+
+export interface LevelProgress {
+  /** Từ vựng Kana theo cấp: đã có Card hoặc đã biết / tổng số từ của cấp. */
+  levels: { level: 'N5' | 'N4'; completed: number; total: number }[]
+  /** Mục đang học Stage ở cả ba khu. */
+  inProgress: number
+  /** Card V12 (kể cả đã lưu trữ). */
+  cards: number
+}
+
+/** V12 (gói 4): tiến độ theo cấp cho trang Progress, đọc từ bảng mới. */
+export async function getLevelProgress(): Promise<LevelProgress> {
+  const user = await requireUser()
+  const supabase = await createClient()
+  const [content, state] = await Promise.all([readV12Content(supabase), readV12State(supabase, user.id)])
+  const done = new Set([...state.knownWords, ...state.items.filter((i) => i.area === 'kana' && i.stage === 'review').map((i) => i.ref)])
+  const levels = ([5, 4] as const).map((n) => {
+    const words = content.words.filter((w) => w.level === n)
+    return { level: `N${n}` as 'N5' | 'N4', completed: words.filter((w) => done.has(w.id)).length, total: words.length }
+  })
+  return { levels, inProgress: state.items.filter((i) => !i.known && i.stage !== 'review').length, cards: state.cards.length }
 }
 
 export interface SkillSummary {

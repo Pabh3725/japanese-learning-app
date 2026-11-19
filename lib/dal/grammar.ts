@@ -5,6 +5,7 @@
 //   openGrammarPoint / submitGrammarAnswer: lưu đã xem thẻ, chấm và lưu một câu
 //   Bài kiểm tra: lib/dal/grammar-test.ts
 import 'server-only'
+import { readKanaStages } from '@/lib/dal/v12/state'
 import { randomUUID } from 'node:crypto'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
@@ -29,7 +30,6 @@ import { GRAMMAR_EXERCISES, type GrammarExercise, type GrammarPiece, type Gramma
 import { studyDate } from '@/lib/learning/time'
 import type { Outcome } from '@/lib/learning/types'
 import type { Schedule } from '@/lib/srs/scheduler'
-import { readAllPages } from '@/lib/dal/pages'
 import { readKnownWordIds } from '@/lib/dal/known-words'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
@@ -201,12 +201,11 @@ async function readVocabProgress(supabase: Supabase, userId: string, lessons: re
     if ((data?.length ?? 0) < PAGE) break
   }
   const [stage3, known] = await Promise.all([
-    readAllPages('learner_stage_schedules', (from, to) =>
-      supabase.from('learner_stage_schedules').select('learner_vocabulary!inner(vocabulary_id)').eq('user_id', userId).eq('stage_number', 3).not('completed_at', 'is', null).order('id').range(from, to),
-    ),
+    readKanaStages(supabase, userId),
     readKnownWordIds(supabase, userId),
   ])
-  const done = new Set([...(stage3 as unknown as { learner_vocabulary: { vocabulary_id: string } }[]).map((r) => r.learner_vocabulary.vocabulary_id), ...known])
+  // V12: từ xong khu Kana (đã có Card) hoặc đã biết
+  const done = new Set([...[...stage3].filter(([, st]) => st === 'review').map(([id]) => id), ...known])
   const out = new Map<number, { total: number; done: number }>()
   for (const w of words) {
     const cur = out.get(w.lesson) ?? { total: 0, done: 0 }

@@ -2,33 +2,18 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
-import { relearnCardAction, relearnStageAction, setKanjiOptinAction } from '@/app/learn/actions'
+import { restoreCardAction } from '@/app/review/actions'
 import { StarButton, StarNote, StarredWordsProvider } from '@/components/learning/star-button'
 import { KnownToggle } from '@/components/library/known-toggle'
 import { RelearnButton } from '@/components/library/relearn-button'
 import { SpeakerButton } from '@/components/learning/speaker-button'
-import { getWordDetail, type WordDetail } from '@/lib/dal/word-detail'
-import { CARD_LABELS } from '@/lib/learning/card-labels'
-import { relearnStagePoints } from '@/lib/learning/stage'
+import { getWordDetail } from '@/lib/dal/word-detail'
 import { formatVnDateTime } from '@/lib/learning/time'
+import { CARD_TYPES, REVIEW_CARDS } from '@/lib/v12/card-types'
 
 export const metadata: Metadata = { title: 'Word · Nihongo' }
 
-type KanjiPolicyInfo = WordDetail['kanjiPolicy']
-
-/** Chính sách Kanji của từ (V9 §6a). */
-function policyNote(p: KanjiPolicyInfo): string {
-  if (p.policy === 'KANJI_OPTIONAL') return p.optedIn ? 'Usually written in kana. You chose to learn its Kanji too.' : 'Usually written in kana, so learning its Kanji is optional.'
-  if (p.targetLevel !== null) return `You learn this word in Kanji at N${p.targetLevel}.`
-  return ''
-}
-
-/** Vì sao Stage 4 của từ chưa mở. */
-function kanjiOpensNote(p: KanjiPolicyInfo, stage3Done: boolean): string {
-  if (p.wait === 'optional') return 'Its Kanji stages are optional. Choose “Learn its Kanji” above to add them.'
-  if (p.wait === 'next_level') return `Its Kanji stages open when you move Kanji words up to N${p.targetLevel}.`
-  return stage3Done ? 'Its Kanji stages are ready in Learn.' : 'Its Kanji stages open after Stage 3.'
-}
+const AREA_LABEL = { kana: 'Kana vocabulary', word_kanji: 'Kanji word' } as const
 
 export default async function WordDetailPage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params
@@ -66,15 +51,7 @@ export default async function WordDetailPage({ params }: { params: Promise<{ cod
       {word.kanji.length > 0 && (
         <section aria-labelledby="kanji-title" className="rounded-3xl border border-border bg-card p-6">
           <h2 id="kanji-title" className="font-semibold">Kanji in this word</h2>
-          <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-            <p className="text-sm text-subtle">{policyNote(word.kanjiPolicy)}</p>
-            {word.kanjiPolicy.policy === 'KANJI_OPTIONAL' && !word.progress?.stages.some((s) => s.stage === 5) && (
-              <RelearnButton
-                label={word.kanjiPolicy.optedIn ? 'Skip its Kanji' : 'Learn its Kanji'}
-                action={setKanjiOptinAction.bind(null, word.id, !word.kanjiPolicy.optedIn)}
-              />
-            )}
-          </div>
+          {word.hasKanjiForm && <p className="mt-2 text-sm text-subtle">Its Kanji form opens in Kanji words once you reach Stage 2 with its kana and each of its characters.</p>}
           <ul className="mt-3 flex flex-col divide-y divide-border">
             {word.kanji.map((k) => (
               <li key={k.character} className="flex items-baseline gap-3 py-3">
@@ -90,48 +67,33 @@ export default async function WordDetailPage({ params }: { params: Promise<{ cod
       <section aria-labelledby="progress-title" className="rounded-3xl border border-border bg-card p-6">
         <h2 id="progress-title" className="font-semibold">Your progress</h2>
         {word.known && <p className="mt-2 text-sm text-success">Learned. This word needs no review and is not on your path.</p>}
-        {!word.progress && !word.known && <p className="mt-2 text-sm text-muted-foreground">You haven&apos;t met this word yet. It will come up in lesson order.</p>}
-        {word.progress && (
+        {word.items.length === 0 && !word.known && <p className="mt-2 text-sm text-muted-foreground">You haven&apos;t met this word yet. It will come up in lesson order.</p>}
+        {word.items.length > 0 && (
+          <ul className="mt-3 flex flex-col divide-y divide-border">
+            {word.items.map((it) => (
+              <li key={it.area} className="flex flex-col gap-1 py-3 text-sm">
+                <span>
+                  {AREA_LABEL[it.area]} · {it.stage === 'review' ? 'review cards' : `Stage ${it.stage}`}
+                </span>
+                {it.types.length > 0 && (
+                  <span className="text-muted-foreground tabular-nums">{it.types.map((t) => `${CARD_TYPES[t.type].label}: ${t.points}/3`).join(' · ')}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+        {word.cards.length > 0 && (
           <>
-            <p className="mt-2 text-sm text-subtle">{word.progress.completed ? 'Vocabulary finished.' : `Vocabulary: Stage ${word.progress.currentStage}.`}</p>
-            {!word.isKanaOnly && !word.progress.stages.some((s) => s.stage === 5) && (
-              <p className="mt-2 text-sm text-muted-foreground">{kanjiOpensNote(word.kanjiPolicy, word.progress.stages.some((s) => s.stage === 3 && s.completed))}</p>
-            )}
-            {word.progress.stages.length > 0 && (
-              <ul className="mt-3 flex flex-col divide-y divide-border">
-                {word.progress.stages.map((s) => (
-                  <li key={s.stage} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
-                    <span>{s.stage === 5 || s.stage === 6 ? 'Kanji word' : 'Vocabulary'} · Stage {s.stage}</span>
-                    <span className="text-muted-foreground tabular-nums">
-                      {s.points} points · {s.completed ? 'complete' : `next ${formatVnDateTime(new Date(s.dueAt))}`}
-                    </span>
-                    {s.completed && !word.known && (
-                      <RelearnButton
-                        label="Learn again"
-                        confirm={`Reopen Stage ${s.stage}? Points drop to ${relearnStagePoints(s.stage)}, and its questions return to Learn. Your cards stay.`}
-                        action={relearnStageAction.bind(null, s.id)}
-                      />
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-            {word.progress.cards.length > 0 && (
-              <>
-                <h3 className="mt-5 text-sm font-medium">Review cards</h3>
-                <ul className="mt-1 flex flex-col divide-y divide-border">
-                  {word.progress.cards.map((c) => (
-                    <li key={c.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
-                      <span>{CARD_LABELS[c.type]}</span>
-                      <span className="text-muted-foreground tabular-nums">
-                        {c.archived ? 'archived' : word.known || (c.type === 'vocab.star_recall' && !word.starred) ? 'paused' : `next ${formatVnDateTime(new Date(c.dueAt))}`}
-                      </span>
-                      {!word.known && (c.type !== 'vocab.star_recall' || word.starred) && <RelearnButton label={c.archived ? 'Restore and review now' : 'Review now'} action={relearnCardAction.bind(null, c.id)} />}
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
+            <h3 className="mt-5 text-sm font-medium">Review cards</h3>
+            <ul className="mt-1 flex flex-col divide-y divide-border">
+              {word.cards.map((c) => (
+                <li key={c.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
+                  <span>{REVIEW_CARDS[c.type].label}</span>
+                  <span className="text-muted-foreground tabular-nums">{c.archived ? 'archived' : word.known ? 'paused' : `next ${formatVnDateTime(new Date(c.dueAt))}`}</span>
+                  {c.archived && !word.known && <RelearnButton label="Restore" action={restoreCardAction.bind(null, 'item', c.id, 'keep', crypto.randomUUID())} />}
+                </li>
+              ))}
+            </ul>
           </>
         )}
         <div className="mt-5">

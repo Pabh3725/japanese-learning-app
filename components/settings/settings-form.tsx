@@ -1,9 +1,9 @@
 'use client'
 
 import { useId, useState, useTransition } from 'react'
-import { saveGrammarFuriganaAction, saveNewPerDayAction, saveReviewAllAtOnceAction, saveStudyLimitAction } from '@/app/(main)/settings/actions'
+import { saveGrammarFuriganaAction, saveStudyLimitAction } from '@/app/(main)/settings/actions'
 import { GRAMMAR_V1 } from '@/lib/grammar/rules'
-import { MAX_NEW_PER_DAY, MIN_NEW_PER_DAY, STUDY_LIMITS, type StudyLimitKey } from '@/lib/learning/new-words'
+import { STUDY_LIMITS, type StudyLimitKey } from '@/lib/learning/new-words'
 import { cn } from '@/lib/utils'
 
 /** Ô nhập số: lưu khi rời ô hoặc nhấn Enter. Sai khoảng hoặc lưu lỗi thì quay về giá trị cũ, để màn hình luôn khớp với dữ liệu thật. */
@@ -60,22 +60,6 @@ export function NumberBox({ id, labelledBy, min, max, field, className }: { id?:
   )
 }
 
-/** Từ mới mỗi ngày: lưu riêng (có quota mượn ngày mai), nhưng hiện như một dòng trong nhóm Vocabulary. */
-function NewPerDayField({ initial }: { initial: number }) {
-  const id = useId()
-  const field = useNumberField(initial, MIN_NEW_PER_DAY, MAX_NEW_PER_DAY, saveNewPerDayAction)
-  return (
-    <div className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <label htmlFor={id} className="text-sm font-medium">New words per day</label>
-        <p className="text-sm text-muted-foreground">Fewer words means fewer questions each day and more time to remember them.</p>
-        {field.error && <p role="alert" className="mt-1 text-sm text-error">{field.error}</p>}
-      </div>
-      <NumberBox id={id} min={MIN_NEW_PER_DAY} max={MAX_NEW_PER_DAY} field={field} className="w-full sm:w-28" />
-    </div>
-  )
-}
-
 export function SettingSwitch({ label, description, defaultChecked, onSave }: { label: string; description: string; defaultChecked?: boolean; onSave: (value: boolean) => Promise<unknown> }) {
   const [checked, setChecked] = useState(!!defaultChecked)
   const id = useId()
@@ -104,7 +88,6 @@ export function SettingSwitch({ label, description, defaultChecked, onSave }: { 
   )
 }
 
-
 /** Lưu khi rời ô. Số ngoài khoảng cho phép thì báo lỗi và trả về giá trị cũ. */
 function StudyLimitField({ limitKey, initial }: { limitKey: StudyLimitKey; initial: number }) {
   const { label, hint, min, max } = STUDY_LIMITS[limitKey]
@@ -128,9 +111,6 @@ function StudyLimitField({ limitKey, initial }: { limitKey: StudyLimitKey; initi
   )
 }
 
-/** Mục hay chỉnh hiện sẵn; trần mỗi ngày nằm trong Advanced, đóng sẵn (chủ dự án chốt 2026-11-15). */
-const ADVANCED: readonly StudyLimitKey[] = ['learn_cap', 'review_cap', 'word_kanji_review_cap', 'unlock_threshold', 'kanji_cap', 'kanji_review_cap', 'grammar_review_cap']
-
 export function Group({ id, title, description, children }: { id: string; title: string; description: string; children: React.ReactNode }) {
   return (
     <section aria-labelledby={`${id}-title`} className="rounded-3xl border border-border bg-card px-6 pt-6 pb-2">
@@ -141,34 +121,17 @@ export function Group({ id, title, description, children }: { id: string; title:
   )
 }
 
-export function SettingsForm({ newPerDay, limits, furigana = true, reviewAllAtOnce = false, v12Slot }: { newPerDay: number; limits: Record<StudyLimitKey, number>; furigana?: boolean; reviewAllAtOnce?: boolean; v12Slot?: React.ReactNode }) {
-  // V12 gói 3: đã bật V12 thì phần học dùng cài đặt V12; Grammar và hiển thị giữ như cũ
-  if (v12Slot) return <div className="flex max-w-2xl flex-col gap-6">{v12Slot}<Group id="grammar" title="Grammar" description="Patterns by Minna lesson.">{(['grammar_new_per_day', 'grammar_review_cap'] as const).map((key) => <StudyLimitField key={key} limitKey={key} initial={limits[key]} />)}<SettingSwitch label="Furigana in Grammar" description="Show readings above Kanji in grammar sentences." defaultChecked={furigana} onSave={saveGrammarFuriganaAction} /></Group></div>
-
-  const field = (key: StudyLimitKey) => <StudyLimitField key={key} limitKey={key} initial={limits[key]} />
+/** V12 (gói 4): phần học dùng cài đặt V12 (`v12Slot`); Grammar và hiển thị giữ như cũ. */
+export function SettingsForm({ limits, furigana = true, v12Slot }: { limits: Record<StudyLimitKey, number>; furigana?: boolean; v12Slot: React.ReactNode }) {
   return (
     <div className="flex max-w-2xl flex-col gap-6">
-      <Group id="pace" title="Daily pace" description="How much new material opens each day.">
-        <NewPerDayField initial={newPerDay} />
-        {field('kanji_new_per_day')}
-        {field('grammar_new_per_day')}
-      </Group>
-      <Group id="sessions" title="Sessions" description="How long each Learn lesson and Review session is.">
-        {field('lesson_size')}
-        {field('review_session_size')}
-        <SettingSwitch label="Review all due cards at once" description="One Review session takes every card due, up to the daily limit. Cards per review session is then ignored." defaultChecked={reviewAllAtOnce} onSave={saveReviewAllAtOnceAction} />
-      </Group>
-      <Group id="display" title="Display" description="How sentences are shown.">
+      {v12Slot}
+      <Group id="grammar" title="Grammar" description="Patterns by Minna lesson.">
+        {(['grammar_new_per_day', 'grammar_review_cap'] as const).map((key) => (
+          <StudyLimitField key={key} limitKey={key} initial={limits[key]} />
+        ))}
         <SettingSwitch label="Furigana in Grammar" description="Show readings above Kanji in grammar sentences." defaultChecked={furigana} onSave={saveGrammarFuriganaAction} />
       </Group>
-      <details className="group rounded-3xl border border-border bg-card px-6 py-5">
-        <summary className="cursor-pointer list-none font-semibold marker:hidden [&::-webkit-details-marker]:hidden">
-          <span className="mr-2 inline-block text-muted-foreground transition-transform group-open:rotate-90" aria-hidden="true">▸</span>
-          Advanced
-          <span className="mt-1 block text-sm font-normal text-muted-foreground">Daily limits. The defaults suit most learners; extra items move to the next day.</span>
-        </summary>
-        <div className="mt-2 divide-y divide-border">{ADVANCED.map(field)}</div>
-      </details>
     </div>
   )
 }
