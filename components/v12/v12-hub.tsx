@@ -16,7 +16,7 @@ const ZONE_INFO: Record<Zone, { title: string; jp: string; body: string; tone: s
 
 const fmtDate = (d: string) => new Date(`${d}T00:00:00+07:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 
-function ZoneCard({ z, radicals }: { z: ZoneSummary; radicals: HubView['radicals'] }) {
+function ZoneCard({ z, radicals, setSize }: { z: ZoneSummary; radicals: HubView['radicals']; setSize: number }) {
   const info = ZONE_INFO[z.zone]
   const todo = z.newItems + z.stageQuestions + z.reviews
   const done = z.deck && z.deck.position >= z.deck.total && z.deck.total > 0
@@ -38,8 +38,18 @@ function ZoneCard({ z, radicals }: { z: ZoneSummary; radicals: HubView['radicals
         ))}
       </dl>
       {z.waiting > 0 && <p className="mt-2 text-xs text-muted-foreground tabular-nums">+{z.waiting} waiting for the next days (over the daily limit)</p>}
-      {z.deck && <p className="mt-3 text-xs text-muted-foreground tabular-nums">Today: {Math.min(z.deck.position, z.deck.total)} / {z.deck.total} cards</p>}
+      {z.deck && (
+        <p className="mt-3 text-xs text-muted-foreground tabular-nums">
+          Today: {Math.min(z.deck.position, z.deck.total)} / {z.deck.total} cards · {Math.max(1, Math.ceil(z.deck.total / setSize))} sets of {setSize}
+        </p>
+      )}
       <p className="mt-1 text-xs text-muted-foreground tabular-nums">{z.remaining} not started in this level</p>
+      {z.userPaused && (
+        <p className="mt-2 text-xs text-yellow">
+          New items paused in{' '}
+          <Link href="/settings#pace" className="underline underline-offset-2">Settings</Link>. Intro and review cards continue.
+        </p>
+      )}
       {z.paused && (
         <p className="mt-2 text-xs text-yellow">New items paused: catching up. Today&apos;s intro and review cards already reach this area&apos;s daily limit.</p>
       )}
@@ -72,7 +82,10 @@ export function V12Hub({ hub }: { hub: HubView }) {
             </p>
             {hub.balance && (
               <p className="mt-1 text-xs text-muted-foreground">
-                Balanced: about {hub.balance.minutes} min of new items a day · all three areas finish this level around {fmtDate(hub.balance.finishDate)} ({hub.balance.days} days)
+                Balanced: about {hub.balance.minutes} min of new items a day ·{' '}
+                {hub.zones.some((z) => z.userPaused)
+                  ? `active areas finish this level around ${fmtDate(hub.balance.finishDate)} (${hub.balance.days} days); paused areas catch up when you resume them`
+                  : `all three areas finish this level around ${fmtDate(hub.balance.finishDate)} (${hub.balance.days} days)`}
               </p>
             )}
           </div>
@@ -105,7 +118,7 @@ export function V12Hub({ hub }: { hub: HubView }) {
 
         <div className="grid gap-4 md:grid-cols-3">
           {hub.zones.map((z) => (
-            <ZoneCard key={z.zone} z={z} radicals={hub.radicals} />
+            <ZoneCard key={z.zone} z={z} radicals={hub.radicals} setSize={hub.setSize} />
           ))}
         </div>
 

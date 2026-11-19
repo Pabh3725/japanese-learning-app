@@ -16,9 +16,11 @@ export interface V12Settings {
   balanceCarry: Record<string, number>
   /** Số mục mới mỗi ngày khi tắt cân bằng. Khu Kanji gồm bộ thủ và chữ. */
   newPerDay: Record<Zone, number>
+  /** Khu người học tự dừng mục mới. */
+  pausedZones: Record<Zone, boolean>
 }
 
-const COLUMNS = 'set_size, v12_kana_cap, v12_kanji_cap, v12_word_kanji_cap, balance_on, balance_target, balance_date, balance_minutes, balance_carry, v12_new_kana, v12_new_kanji, v12_new_word_kanji'
+const COLUMNS = 'set_size, v12_kana_cap, v12_kanji_cap, v12_word_kanji_cap, balance_on, balance_target, balance_date, balance_minutes, balance_carry, v12_new_kana, v12_new_kanji, v12_new_word_kanji, v12_pause_kana, v12_pause_kanji, v12_pause_word_kanji'
 
 export async function readV12Settings(supabase: Awaited<ReturnType<typeof createClient>>, userId: string): Promise<V12Settings> {
   const { data, error } = await supabase.from('learner_settings').select(COLUMNS).eq('user_id', userId).maybeSingle()
@@ -33,6 +35,7 @@ export async function readV12Settings(supabase: Awaited<ReturnType<typeof create
     balanceMinutes: (d.balance_minutes as number) ?? RULES_V12.balance.defaultMinutes,
     balanceCarry: (d.balance_carry as Record<string, number>) ?? {},
     newPerDay: { kana: (d.v12_new_kana as number) ?? 5, kanji: (d.v12_new_kanji as number) ?? 5, word_kanji: (d.v12_new_word_kanji as number) ?? 5 },
+    pausedZones: { kana: d.v12_pause_kana === true, kanji: d.v12_pause_kanji === true, word_kanji: d.v12_pause_word_kanji === true },
   }
 }
 
@@ -56,7 +59,7 @@ const LIMITS: Record<string, [number, number]> = {
 export async function saveV12Setting(key: unknown, value: unknown): Promise<{ status: 'saved' | 'invalid' }> {
   let ok = false
   if (typeof key === 'string' && key in LIMITS) ok = Number.isInteger(value) && (value as number) >= LIMITS[key][0] && (value as number) <= LIMITS[key][1]
-  else if (key === 'balance_on') ok = typeof value === 'boolean'
+  else if (key === 'balance_on' || key === 'v12_pause_kana' || key === 'v12_pause_kanji' || key === 'v12_pause_word_kanji') ok = typeof value === 'boolean'
   else if (key === 'balance_target') ok = value === 'minutes' || value === 'date'
   // Ngày hoàn thành: từ ngày học mai trở đi (hôm nay hoặc ngày đã qua sẽ dồn mọi mục còn lại vào một ngày)
   else if (key === 'balance_date') ok = value === null || (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && value >= addStudyDays(studyDate(new Date()), 1))

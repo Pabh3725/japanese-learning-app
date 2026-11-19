@@ -56,7 +56,7 @@ function zoneLoad(l: Loaded, now: Date): Record<Zone, number> {
   return { kana: countQuestions({ ...split.kana, newItems: [] }), kanji: countQuestions({ ...split.kanji, newItems: [] }), word_kanji: countQuestions({ ...split.word_kanji, newItems: [] }) }
 }
 
-function plan(l: Loaded, now: Date): PlanResult & { paused: Record<Zone, boolean> } {
+function plan(l: Loaded, now: Date): PlanResult & { paused: Record<Zone, boolean>; userPaused: Record<Zone, boolean> } {
   const today = studyDate(now)
   const paused = pausedZones(zoneLoad(l, now), l.settings.caps)
   const openedToday: Record<Area, number> = { kana: 0, radical: 0, kanji: 0, word_kanji: 0 }
@@ -75,8 +75,9 @@ function plan(l: Loaded, now: Date): PlanResult & { paused: Record<Zone, boolean
     manual: l.settings.newPerDay,
     carry: carry ?? {},
     paused,
+    userPaused: l.settings.pausedZones,
   })
-  return { ...result, paused }
+  return { ...result, paused, userPaused: l.settings.pausedZones }
 }
 
 /** Mở các mục mới hôm nay của các khu trong phạm vi; lưu phần lẻ cân bằng của ngày. */
@@ -359,9 +360,13 @@ export interface ZoneSummary {
   remaining: number
   /** Tồn quá trần: hôm nay không mở mục mới (luật dừng mục mới). */
   paused: boolean
+  /** Người học tự dừng mục mới của khu trong Settings. */
+  userPaused: boolean
 }
 
 export interface HubView {
+  /** Số thẻ mỗi set (Settings). */
+  setSize: number
   /** Bộ thủ trong phạm vi: tổng và số đã đánh dấu "đã biết" (nút cả nhóm). */
   radicals: { total: number; known: number }
   level: number | null
@@ -396,7 +401,8 @@ export async function getHub(): Promise<HubView> {
       waiting: stageAll - stageQuestions + split[zone].reviews.length - capped.reviews.length,
       deck: decks[i] ? { position: decks[i]!.position, total: decks[i]!.cards.length } : null,
       remaining: zone === 'kanji' ? p.remaining.radical + p.remaining.kanji : p.remaining[zone],
-      paused: p.paused[zone],
+      paused: p.paused[zone] && !p.userPaused[zone],
+      userPaused: p.userPaused[zone],
     }
   })
   // Dự báo 7 ngày: Card đến hạn theo ngày, mục đang học, mục mới mỗi ngày như hôm nay
@@ -417,6 +423,7 @@ export async function getHub(): Promise<HubView> {
     caps: l.settings.caps,
   })
   return {
+    setSize: l.settings.setSize,
     radicals: { total: l.content.radicals.length, known: l.items.filter((i) => i.area === 'radical' && i.known).length },
     level: p.level,
     zones,

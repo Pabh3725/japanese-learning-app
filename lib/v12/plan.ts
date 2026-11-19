@@ -34,8 +34,10 @@ export interface PlanInput {
   manual: Readonly<Record<Zone, number>>
   carry?: Partial<Record<keyof Remaining, number>>
   seconds?: Record<Area, number>
-  /** Khu đang tồn quá trần: hôm nay không mở mục mới (pausedZones). */
+  /** Khu đang tồn quá trần: hôm nay không mở mục mới (pausedZones). Thời gian của khu không chia cho khu khác. */
   paused?: Partial<Record<Zone, boolean>>
+  /** Khu người học tự dừng trong Settings: không mở mục mới; khi bật cân bằng, thời gian của khu chia cho các khu còn chạy. */
+  userPaused?: Partial<Record<Zone, boolean>>
 }
 
 export interface PlanResult {
@@ -78,7 +80,7 @@ export function planNewItems(input: PlanInput): PlanResult {
   const o = input.openedToday
   if (input.balanceOn) {
     const startOfDay = { kana: remaining.kana + o.kana, radical: remaining.radical + o.radical, kanji: remaining.kanji + o.kanji, word_kanji: remaining.word_kanji + o.word_kanji }
-    result = balance(startOfDay, input.target, input.today, input.seconds, input.carry)
+    result = balance(startOfDay, input.target, input.today, input.seconds, input.carry, input.userPaused)
     quota = {
       kana: Math.max(0, result.today.kana - o.kana),
       radical: Math.max(0, result.today.radical - o.radical),
@@ -92,7 +94,7 @@ export function planNewItems(input: PlanInput): PlanResult {
   }
 
   // Khu tồn quá trần: không mở mục mới hôm nay (cân bằng tự bù vào các ngày sau vì tính lại trên số còn lại thật)
-  const paused = input.paused ?? {}
+  const paused = { ...input.userPaused, ...Object.fromEntries(Object.entries(input.paused ?? {}).filter(([, v]) => v)) } as Partial<Record<Zone, boolean>>
   if (paused.kana) quota.kana = 0
   if (paused.kanji) quota = { ...quota, radical: 0, kanji: 0 }
   if (paused.word_kanji) quota.word_kanji = 0

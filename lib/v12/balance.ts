@@ -79,7 +79,17 @@ export function balance(
   todayDate: StudyDate,
   seconds: Record<Area, number> = { kana: estimatedSeconds('kana'), radical: estimatedSeconds('radical'), kanji: estimatedSeconds('kanji'), word_kanji: estimatedSeconds('word_kanji') },
   carryIn: Partial<Record<keyof Remaining, number>> = {},
+  paused: Partial<Record<Zone, boolean>> = {},
 ): BalanceResult {
+  // Khu người học tự dừng (chủ dự án chốt 2026-11-19): không mở mục mới, thời gian của khu chia cho các khu còn chạy —
+  // tính như thể khu dừng không còn mục nào; phần lẻ cộng dồn của khu dừng giữ nguyên tới khi bật lại.
+  const all = remaining
+  remaining = {
+    kana: paused.kana ? 0 : all.kana,
+    radical: paused.kanji ? 0 : all.radical,
+    kanji: paused.kanji ? 0 : all.kanji,
+    word_kanji: paused.word_kanji ? 0 : all.word_kanji,
+  }
   const totalSeconds = AREAS.reduce((s, a) => s + remaining[a] * seconds[a], 0)
   const days = Math.max(
     1,
@@ -92,7 +102,7 @@ export function balance(
     // Tránh sai số dấu phẩy động khi tổng phần lẻ vừa tròn
     const whole = Math.min(remaining[a], Math.floor(withCarry + 1e-9))
     today[a] = whole
-    carry[a] = remaining[a] - whole > 0 ? Math.max(0, withCarry - whole) : 0
+    carry[a] = remaining[a] - whole > 0 ? Math.max(0, withCarry - whole) : all[a] > 0 && remaining[a] === 0 ? (carryIn[a] ?? 0) : 0
   }
   share('kana', remaining.kana / days)
   share('word_kanji', remaining.word_kanji / days)
