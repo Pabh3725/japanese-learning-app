@@ -5,6 +5,7 @@ import { requireUser } from '@/lib/dal/auth'
 import { isValidStudyLimit, type StudyLimitKey } from '@/lib/learning/new-words'
 import { GRAMMAR_V1 } from '@/lib/grammar/rules'
 import { RULES_V9 } from '@/lib/learning/rules'
+import { addStudyDays, studyDate } from '@/lib/learning/time'
 
 export async function getStudyLimits(): Promise<Record<StudyLimitKey, number>> {
   const user = await requireUser()
@@ -53,6 +54,21 @@ export async function saveGrammarFurigana(value: unknown): Promise<{ status: 'sa
   const user = await requireUser()
   const supabase = await createClient()
   const { error } = await supabase.from('learner_settings').upsert({ user_id: user.id, grammar_furigana: value }, { onConflict: 'user_id' })
+  if (error) throw new Error(`Không lưu được learner_settings: ${error.message}`)
+  return { status: 'saved' }
+}
+
+/** §3a cân bằng mẫu ngữ pháp mới: bật/tắt, mục tiêu, số phút, ngày hoàn thành (từ ngày mai trở đi). */
+export async function saveGrammarBalance(key: unknown, value: unknown): Promise<{ status: 'saved' | 'invalid' }> {
+  let ok = false
+  if (key === 'grammar_balance_on') ok = typeof value === 'boolean'
+  else if (key === 'grammar_balance_target') ok = value === 'minutes' || value === 'date'
+  else if (key === 'grammar_balance_minutes') ok = Number.isInteger(value) && (value as number) >= 5 && (value as number) <= 240
+  else if (key === 'grammar_balance_date') ok = value === null || (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && value >= addStudyDays(studyDate(new Date()), 1))
+  if (!ok) return { status: 'invalid' }
+  const user = await requireUser()
+  const supabase = await createClient()
+  const { error } = await supabase.from('learner_settings').upsert({ user_id: user.id, [key as string]: value }, { onConflict: 'user_id' })
   if (error) throw new Error(`Không lưu được learner_settings: ${error.message}`)
   return { status: 'saved' }
 }

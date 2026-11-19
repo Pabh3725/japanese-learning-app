@@ -2,7 +2,7 @@ import { BarChart3, BookOpen, ClipboardCheck, Gamepad2, GraduationCap, Hash, Hom
 
 export const primaryNav = [
   { href: '/', label: 'Home', icon: Home },
-  { href: '/learn', label: 'Learn', icon: GraduationCap },
+  { href: '/learn', label: 'Vocab', icon: GraduationCap },
   // Grammar là tab chính (docs/grammar-rules.md §1); Thể động từ nằm trong tab Grammar
   { href: '/grammar', label: 'Grammar', icon: ScrollText },
   // JLPT: ôn thi theo dạng bài (docs/jlpt-rules.md)

@@ -51,7 +51,7 @@ export default async function WordDetailPage({ params }: { params: Promise<{ cod
       {word.kanji.length > 0 && (
         <section aria-labelledby="kanji-title" className="rounded-3xl border border-border bg-card p-6">
           <h2 id="kanji-title" className="font-semibold">Kanji in this word</h2>
-          {word.hasKanjiForm && <p className="mt-2 text-sm text-subtle">Its Kanji form opens in Kanji words once you reach Stage 2 with its kana and each of its characters.</p>}
+          {word.hasKanjiForm && <p className="mt-2 text-sm text-subtle">Its Kanji form opens in Kanji words once you reach Intro 2 with its kana and each of its characters.</p>}
           <ul className="mt-3 flex flex-col divide-y divide-border">
             {word.kanji.map((k) => (
               <li key={k.character} className="flex items-baseline gap-3 py-3">
@@ -73,7 +73,7 @@ export default async function WordDetailPage({ params }: { params: Promise<{ cod
             {word.items.map((it) => (
               <li key={it.area} className="flex flex-col gap-1 py-3 text-sm">
                 <span>
-                  {AREA_LABEL[it.area]} · {it.stage === 'review' ? 'review cards' : `Stage ${it.stage}`}
+                  {AREA_LABEL[it.area]} · {it.stage === 'review' ? 'review cards' : `Intro ${it.stage}`}
                 </span>
                 {it.types.length > 0 && (
                   <span className="text-muted-foreground tabular-nums">{it.types.map((t) => `${CARD_TYPES[t.type].label}: ${t.points}/3`).join(' · ')}</span>

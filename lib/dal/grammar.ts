@@ -5,6 +5,7 @@
 //   openGrammarPoint / submitGrammarAnswer: lưu đã xem thẻ, chấm và lưu một câu
 //   Bài kiểm tra: lib/dal/grammar-test.ts
 import 'server-only'
+import { grammarBalance, grammarBalanceTarget } from '@/lib/grammar/balance'
 import { readKanaStages } from '@/lib/dal/v12/state'
 import { randomUUID } from 'node:crypto'
 import { createClient } from '@/lib/supabase/server'
@@ -176,18 +177,34 @@ const scheduleOf = (r: LearnerRow): Schedule => ({
 })
 
 interface GrammarSettings {
+  /** Mẫu mới mỗi ngày đang áp dụng: số trong Settings, hoặc số tính từ cân bằng khi bật (snapshot). */
   newPerDay: number
   reviewCap: number
   furigana: boolean
+  /** §3a cân bằng mẫu mới theo mục tiêu riêng. */
+  balanceOn: boolean
+  balanceTarget: 'minutes' | 'date'
+  balanceMinutes: number
+  balanceDate: string | null
+  /** Có khi bật cân bằng: cấp đang học và ngày dự kiến xong. */
+  balance?: { level: 'N5' | 'N4'; remaining: number; finishDate: string }
 }
 
 export async function readSettings(supabase: Supabase, userId: string): Promise<GrammarSettings> {
-  const { data, error } = await supabase.from('learner_settings').select('grammar_new_per_day, grammar_review_cap, grammar_furigana').eq('user_id', userId).maybeSingle()
+  const { data, error } = await supabase
+    .from('learner_settings')
+    .select('grammar_new_per_day, grammar_review_cap, grammar_furigana, grammar_balance_on, grammar_balance_target, grammar_balance_minutes, grammar_balance_date')
+    .eq('user_id', userId)
+    .maybeSingle()
   if (error) throw new Error(`Không đọc được learner_settings: ${error.message}`)
   return {
     newPerDay: data?.grammar_new_per_day ?? GRAMMAR_V1.newPerDay.default,
     reviewCap: data?.grammar_review_cap ?? GRAMMAR_V1.review.maxPerDay,
     furigana: data?.grammar_furigana ?? true,
+    balanceOn: data?.grammar_balance_on ?? false,
+    balanceTarget: data?.grammar_balance_target === 'date' ? 'date' : 'minutes',
+    balanceMinutes: data?.grammar_balance_minutes ?? GRAMMAR_V1.balance.defaultMinutes,
+    balanceDate: data?.grammar_balance_date ?? null,
   }
 }
 
@@ -287,7 +304,23 @@ export async function snapshot(supabase: Supabase, userId: string): Promise<Snap
     const v = vocab.get(lesson) ?? { total: 0, done: 0 }
     unlock.set(lesson, lessonUnlock({ vocabTotal: v.total, vocabDone: v.done, previousTotal: prev.length, previousDone: prev.filter((p) => byPoint.get(p.id)?.phase === 'review').length }))
   }
-  return { content, learners, logs, settings, unlock, userId }
+  return { content, learners, logs, settings: balancedSettings(settings, content, learners), unlock, userId }
+}
+
+/**
+ * §3a: bật cân bằng thì số mẫu mới mỗi ngày tính từ số mẫu chưa mở của cấp đang học (N5 bài 1–25, rồi N4) theo mục tiêu riêng.
+ * Mẫu đã mở hôm nay được cộng lại để tải lại trang không đổi chỉ tiêu trong ngày. Điều kiện mở bài vẫn áp ở freshPoints.
+ */
+function balancedSettings(settings: GrammarSettings, content: readonly GrammarPointContent[], learners: readonly LearnerRow[]): GrammarSettings {
+  if (!settings.balanceOn) return settings
+  const today = studyDate(new Date())
+  const opened = new Set(learners.map((l) => l.point_id))
+  const openedToday = new Set(learners.filter((l) => studyDate(new Date(l.created_at)) === today).map((l) => l.point_id))
+  const inLevel = (level: 'N5' | 'N4') => content.filter((p) => (level === 'N5' ? p.lesson <= 25 : p.lesson > 25))
+  const level = inLevel('N5').some((p) => !opened.has(p.id) || openedToday.has(p.id)) ? 'N5' : 'N4'
+  const remaining = inLevel(level).filter((p) => !opened.has(p.id) || openedToday.has(p.id)).length
+  const r = grammarBalance(remaining, grammarBalanceTarget(settings.balanceTarget, settings.balanceDate, settings.balanceMinutes, today), today)
+  return { ...settings, newPerDay: r.perDay, balance: { level, remaining, finishDate: r.finishDate } }
 }
 
 /** Mẫu mới còn mở được hôm nay, theo thứ tự bài và thứ tự trong bài. */

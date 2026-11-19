@@ -34,9 +34,9 @@ export function V12SettingsFields({ s, minDate }: { s: V12Settings; minDate: str
   return (
     <>
       <p className="rounded-2xl border border-border bg-card px-5 py-3 text-sm text-muted-foreground">
-        Changes apply to today&apos;s cards in areas you haven&apos;t started yet, and fully from tomorrow.
+        Vocab changes apply to today&apos;s cards in areas you haven&apos;t started yet, and fully from tomorrow.
       </p>
-      <Group id="pace" title="Daily pace" description="How many new items open each day in Kana vocabulary, Kanji and Kanji words.">
+      <Group id="pace" title="Vocab · Daily pace" description="How many new items open each day in Kana vocabulary, Kanji and Kanji words. Grammar has its own settings below.">
         <SettingSwitch
           label="Balance new items"
           description="Split new items by study time so all three areas finish the level on the same day."
@@ -98,23 +98,23 @@ export function V12SettingsFields({ s, minDate }: { s: V12Settings; minDate: str
           <>
             <Field name="v12_new_kana" label="New Kana words a day" hint="Kana vocabulary." initial={s.newPerDay.kana} min={0} max={50} />
             <Field name="v12_new_kanji" label="New radicals and Kanji a day" hint="Radicals come first, then characters." initial={s.newPerDay.kanji} min={0} max={50} />
-            <Field name="v12_new_word_kanji" label="New Kanji words a day" hint="Opens when the word's kana and characters have reached Stage 2." initial={s.newPerDay.word_kanji} min={0} max={50} />
+            <Field name="v12_new_word_kanji" label="New Kanji words a day" hint="Opens when the word's kana and characters have reached Intro 2." initial={s.newPerDay.word_kanji} min={0} max={50} />
           </>
         )}
       </Group>
-      <Group id="sessions" title="Sessions" description="Today's cards are shuffled and split into sets.">
+      <Group id="sessions" title="Vocab · Sessions" description="Today's Vocab cards are shuffled and split into sets.">
         <Field name="set_size" label="Cards per set" hint="After each set you can take a break or keep going." initial={s.setSize} min={RULES_V12.set.min} max={RULES_V12.set.max} />
       </Group>
       <details id="advanced" className="group rounded-3xl border border-border bg-card px-6 py-5">
         <summary className="cursor-pointer list-none font-semibold marker:hidden [&::-webkit-details-marker]:hidden">
           <span className="mr-2 inline-block text-muted-foreground transition-transform group-open:rotate-90" aria-hidden="true">▸</span>
-          Advanced
+          Vocab · Advanced
           <span className="mt-1 block text-sm font-normal text-muted-foreground">Daily limits per area. Extra cards move to the next day; you are warned before a day goes over.</span>
         </summary>
         <div className="mt-2 divide-y divide-border">
-          <Field name="v12_kana_cap" label="Kana vocabulary cards a day" hint="Stage questions and review cards." initial={s.caps.kana} min={RULES_V12.caps.min} max={RULES_V12.caps.max} />
+          <Field name="v12_kana_cap" label="Kana vocabulary cards a day" hint="Intro questions and review cards." initial={s.caps.kana} min={RULES_V12.caps.min} max={RULES_V12.caps.max} />
           <Field name="v12_kanji_cap" label="Kanji cards a day" hint="Radicals and characters." initial={s.caps.kanji} min={RULES_V12.caps.min} max={RULES_V12.caps.max} />
-          <Field name="v12_word_kanji_cap" label="Kanji word cards a day" hint="Stage questions and review cards." initial={s.caps.word_kanji} min={RULES_V12.caps.min} max={RULES_V12.caps.max} />
+          <Field name="v12_word_kanji_cap" label="Kanji word cards a day" hint="Intro questions and review cards." initial={s.caps.word_kanji} min={RULES_V12.caps.min} max={RULES_V12.caps.max} />
         </div>
       </details>
     </>

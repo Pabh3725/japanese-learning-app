@@ -61,5 +61,5 @@ export function StarButton({ vocabularyId, className }: { vocabularyId: string; 
 
 export function StarNote({ vocabularyId }: { vocabularyId: string }) {
   if (!useStarredWords().has(vocabularyId)) return null
-  return <p className="mt-2 text-sm text-yellow">Starred: you get a short extra round in Learn and its own review card. Your normal path doesn&apos;t change. Remove the star when it feels easy.</p>
+  return <p className="mt-2 text-sm text-yellow">Starred: one extra practice question a day in your Vocab cards. Your normal path doesn&apos;t change. Remove the star when it feels easy.</p>
 }

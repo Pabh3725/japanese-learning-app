@@ -18,7 +18,7 @@ const STATUS: Record<PointStatus, { label: string; className: string }> = {
 
 function lockNote(l: GrammarLessonSummary): string {
   const parts = []
-  if (l.unlock.vocabMissing > 0) parts.push(`${l.unlock.vocabMissing} more ${l.unlock.vocabMissing === 1 ? 'word' : 'words'} of lesson ${l.lesson} through Stage 3`)
+  if (l.unlock.vocabMissing > 0) parts.push(`${l.unlock.vocabMissing} more ${l.unlock.vocabMissing === 1 ? 'word' : 'words'} of lesson ${l.lesson} through Intro 3`)
   if (l.unlock.previousMissing > 0) parts.push(`${l.unlock.previousMissing} more ${l.unlock.previousMissing === 1 ? 'pattern' : 'patterns'} of lesson ${l.lesson - 1} learned`)
   return `Opens after ${parts.join(' and ')}.`
 }
@@ -73,6 +73,12 @@ export default async function GrammarPage() {
           <p className="text-sm text-muted-foreground">
             {learnCount === 0 ? 'Nothing to learn right now.' : `${g.today.newLeft} new ${g.today.newLeft === 1 ? 'pattern' : 'patterns'} · ${g.today.learningDue} ${g.today.learningDue === 1 ? 'pattern' : 'patterns'} to practice`}
           </p>
+          {g.settings.balance && (
+            <p className="text-xs text-muted-foreground">
+              Balanced: {g.settings.newPerDay} new {g.settings.newPerDay === 1 ? 'pattern' : 'patterns'} a day · {g.settings.balance.level} finishes around{' '}
+              {new Date(`${g.settings.balance.finishDate}T00:00:00+07:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </p>
+          )}
           <Link href="/grammar/session?mode=learn" aria-disabled={learnCount === 0} className={cn(actionButton({ size: 'lg' }), 'w-full', learnCount === 0 && 'pointer-events-none opacity-50')}>Start</Link>
         </div>
         <div className="flex flex-col gap-3 rounded-3xl border border-border bg-card p-5">

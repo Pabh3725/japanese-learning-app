@@ -35,6 +35,13 @@ Trong bài đã mở, mẫu mới đến theo thứ tự trong bài. Mỗi ngày
 
 Trang Grammar hiện mỗi bài với trạng thái: chưa mở (kèm điều kiện còn thiếu, ví dụ "Cần thêm 4 từ xong Stage 3"), đang học, xong.
 
+### 3a. Cân bằng mẫu mới — CONFIRMED (chủ dự án chốt 2026-11-19)
+
+- Grammar có **mục tiêu riêng**, độc lập với Vocab: **số phút mỗi ngày** cho mẫu mới, hoặc **ngày hoàn thành** cấp đang học (N5 = bài 1–25, rồi N4 = bài 26–50). Settings → Grammar → "Balance new patterns". Mặc định tắt; tắt thì dùng "Mẫu ngữ pháp mới mỗi ngày" (1–10).
+- **Giữ điều kiện mở bài §3:** chỉ mở mẫu của bài đã mở; thiếu thì các ngày sau tự bù vì tính lại mỗi ngày trên số mẫu còn lại thật.
+- Số phút: tốc độ r = phút × 60 / thời gian một mẫu; hôm nay mở ⌊r·(k+1)⌋ − ⌊r·k⌋ mẫu (k = số thứ tự ngày) để trung bình đúng r. Ngày hoàn thành: chia đều số còn lại cho số ngày còn lại. Luôn 1–10 mẫu mỗi ngày khi còn mẫu. Ngày chỉ chọn từ ngày mai; ngày đã qua hoặc chưa chọn thì dùng số phút.
+- Thời gian một mẫu (PROPOSED, chỉnh khi có số liệu thật): (5 buổi × 8 câu + 10 câu ôn đầu) × 15 giây = 12,5 phút. Code: `lib/grammar/balance.ts`, migration `20261130000001`.
+
 ## 4. Dữ liệu
 
 ### 4.1 Mẫu

@@ -19,6 +19,7 @@ export default async function SettingsPage() {
   // Ngữ pháp: mẫu mới và mẫu đang học mỗi buổi 8 câu, mẫu ôn 2–3 câu
   const grammarQuestions = (grammar.today.newLeft + grammar.today.learningDue) * GRAMMAR_V1.learning.questionsPerSitting + grammar.today.reviewDue * 3
   const minutes = Math.ceil(((learnCards + grammarQuestions) * SECONDS_PER_ITEM) / 60)
+  const minDate = addStudyDays(studyDate(new Date()), 1)
 
   return (
     <>
@@ -36,7 +37,16 @@ export default async function SettingsPage() {
           )}
         </ul>
       </section>
-      <SettingsForm limits={limits} furigana={furigana} v12Slot={<V12SettingsFields s={v12} minDate={addStudyDays(studyDate(new Date()), 1)} />} />
+      <SettingsForm limits={limits} furigana={furigana} v12Slot={<V12SettingsFields s={v12} minDate={minDate} />}
+        grammarBalance={{
+          on: grammar.settings.balanceOn,
+          target: grammar.settings.balanceTarget,
+          minutes: grammar.settings.balanceMinutes,
+          date: grammar.settings.balanceDate,
+          minDate,
+          today: grammar.settings.balance && { perDay: grammar.settings.newPerDay, level: grammar.settings.balance.level, finishDate: grammar.settings.balance.finishDate },
+        }}
+      />
 
       <section aria-labelledby="account-title" className="mt-6 max-w-2xl rounded-3xl border border-border bg-card p-6">
         <h2 id="account-title" className="font-semibold">Account</h2>
