@@ -7,7 +7,7 @@ import { MAX_NEW_PER_DAY, MIN_NEW_PER_DAY, STUDY_LIMITS, type StudyLimitKey } fr
 import { cn } from '@/lib/utils'
 
 /** Ô nhập số: lưu khi rời ô hoặc nhấn Enter. Sai khoảng hoặc lưu lỗi thì quay về giá trị cũ, để màn hình luôn khớp với dữ liệu thật. */
-function useNumberField(initial: number, min: number, max: number, save: (value: number) => Promise<{ status: string }>) {
+export function useNumberField(initial: number, min: number, max: number, save: (value: number) => Promise<{ status: string }>) {
   const [text, setText] = useState(String(initial))
   const [saved, setSaved] = useState(initial)
   const [error, setError] = useState<string | null>(null)
@@ -40,7 +40,7 @@ function useNumberField(initial: number, min: number, max: number, save: (value:
   return { text, setText, commit, error }
 }
 
-function NumberBox({ id, labelledBy, min, max, field, className }: { id?: string; labelledBy?: string; min: number; max: number; field: ReturnType<typeof useNumberField>; className?: string }) {
+export function NumberBox({ id, labelledBy, min, max, field, className }: { id?: string; labelledBy?: string; min: number; max: number; field: ReturnType<typeof useNumberField>; className?: string }) {
   return (
     <input
       id={id}
@@ -76,7 +76,7 @@ function NewPerDayField({ initial }: { initial: number }) {
   )
 }
 
-function SettingSwitch({ label, description, defaultChecked, onSave }: { label: string; description: string; defaultChecked?: boolean; onSave: (value: boolean) => Promise<unknown> }) {
+export function SettingSwitch({ label, description, defaultChecked, onSave }: { label: string; description: string; defaultChecked?: boolean; onSave: (value: boolean) => Promise<unknown> }) {
   const [checked, setChecked] = useState(!!defaultChecked)
   const id = useId()
   return (
@@ -131,7 +131,7 @@ function StudyLimitField({ limitKey, initial }: { limitKey: StudyLimitKey; initi
 /** Mục hay chỉnh hiện sẵn; trần mỗi ngày nằm trong Advanced, đóng sẵn (chủ dự án chốt 2026-11-15). */
 const ADVANCED: readonly StudyLimitKey[] = ['learn_cap', 'review_cap', 'word_kanji_review_cap', 'unlock_threshold', 'kanji_cap', 'kanji_review_cap', 'grammar_review_cap']
 
-function Group({ id, title, description, children }: { id: string; title: string; description: string; children: React.ReactNode }) {
+export function Group({ id, title, description, children }: { id: string; title: string; description: string; children: React.ReactNode }) {
   return (
     <section aria-labelledby={`${id}-title`} className="rounded-3xl border border-border bg-card px-6 pt-6 pb-2">
       <h2 id={`${id}-title`} className="font-semibold">{title}</h2>
@@ -141,7 +141,10 @@ function Group({ id, title, description, children }: { id: string; title: string
   )
 }
 
-export function SettingsForm({ newPerDay, limits, furigana = true, reviewAllAtOnce = false }: { newPerDay: number; limits: Record<StudyLimitKey, number>; furigana?: boolean; reviewAllAtOnce?: boolean }) {
+export function SettingsForm({ newPerDay, limits, furigana = true, reviewAllAtOnce = false, v12Slot }: { newPerDay: number; limits: Record<StudyLimitKey, number>; furigana?: boolean; reviewAllAtOnce?: boolean; v12Slot?: React.ReactNode }) {
+  // V12 gói 3: đã bật V12 thì phần học dùng cài đặt V12; Grammar và hiển thị giữ như cũ
+  if (v12Slot) return <div className="flex max-w-2xl flex-col gap-6">{v12Slot}<Group id="grammar" title="Grammar" description="Patterns by Minna lesson.">{(['grammar_new_per_day', 'grammar_review_cap'] as const).map((key) => <StudyLimitField key={key} limitKey={key} initial={limits[key]} />)}<SettingSwitch label="Furigana in Grammar" description="Show readings above Kanji in grammar sentences." defaultChecked={furigana} onSave={saveGrammarFuriganaAction} /></Group></div>
+
   const field = (key: StudyLimitKey) => <StudyLimitField key={key} limitKey={key} initial={limits[key]} />
   return (
     <div className="flex max-w-2xl flex-col gap-6">

@@ -5,6 +5,7 @@ import { readAllPages } from '@/lib/dal/pages'
 import type { Area, CardType, ReviewCardType, Stage } from '@/lib/v12/card-types'
 import type { ItemState, TypeState } from '@/lib/v12/stage'
 import type { Schedule, ScheduleState } from '@/lib/srs/scheduler'
+import { studyDate } from '@/lib/learning/time'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 
@@ -18,6 +19,8 @@ export interface ItemRow {
   introSeen: boolean
   known: boolean
   version: number
+  /** Ngày học mở mục. */
+  createdOn: string
   state: ItemState
 }
 
@@ -30,9 +33,9 @@ export interface CardRow {
   schedule: Schedule
 }
 
-const ITEM_COLUMNS = 'id, area, vocabulary_id, kanji_id, radical_number, stage, stage_from, intro_seen_at, has_similar, known_at, version'
+const ITEM_COLUMNS = 'id, area, vocabulary_id, kanji_id, radical_number, stage, stage_from, intro_seen_at, has_similar, known_at, version, created_at'
 
-type RawItem = { id: string; area: Area; vocabulary_id: string | null; kanji_id: string | null; radical_number: number | null; stage: string; stage_from: string; intro_seen_at: string | null; has_similar: boolean; known_at: string | null; version: number }
+type RawItem = { id: string; area: Area; vocabulary_id: string | null; kanji_id: string | null; radical_number: number | null; stage: string; stage_from: string; intro_seen_at: string | null; has_similar: boolean; known_at: string | null; version: number; created_at: string }
 type RawType = { learner_item_id: string; stage: number; card_type: CardType; points: number; seen_date: string | null; seen_today: number; wrong_today: number }
 
 function toItem(r: RawItem, types: readonly RawType[]): ItemRow {
@@ -54,6 +57,7 @@ function toItem(r: RawItem, types: readonly RawType[]): ItemRow {
     introSeen: r.intro_seen_at !== null,
     known: r.known_at !== null,
     version: r.version,
+    createdOn: studyDate(new Date(r.created_at)),
     state,
   }
 }

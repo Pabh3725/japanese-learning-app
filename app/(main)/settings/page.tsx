@@ -1,5 +1,7 @@
 import { PageHeader } from '@/components/page-header'
 import { SettingsForm } from '@/components/settings/settings-form'
+import { V12BetaSwitch, V12SettingsFields } from '@/components/v12/v12-settings'
+import { getV12Settings } from '@/lib/dal/v12/settings'
 import { actionButton } from '@/components/action-button'
 import { requireUser } from '@/lib/dal/auth'
 import { getGrammarOverview } from '@/lib/dal/grammar'
@@ -25,6 +27,7 @@ export default async function SettingsPage() {
     getGrammarOverview(),
     getReviewAllAtOnce(),
   ])
+  const v12 = await getV12Settings()
   const kanjiQuestions = kanji.questionsToday + kanji.newToday * RULES_V9.kanji.questionsPerSitting
   // Ngữ pháp: mẫu mới và mẫu đang học mỗi buổi 8 câu, mẫu ôn 2–3 câu
   const grammarQuestions = (grammar.today.newLeft + grammar.today.learningDue) * GRAMMAR_V1.learning.questionsPerSitting + grammar.today.reviewDue * 3
@@ -48,7 +51,11 @@ export default async function SettingsPage() {
           {daysToFinish !== null && <li>{learn.wordsLeft} words left on your path: about {daysToFinish} more days at this pace.</li>}
         </ul>
       </section>
-      <SettingsForm newPerDay={newPerDay} limits={limits} furigana={furigana} reviewAllAtOnce={reviewAllAtOnce} />
+      <SettingsForm newPerDay={newPerDay} limits={limits} furigana={furigana} reviewAllAtOnce={reviewAllAtOnce} v12Slot={v12.enabled ? <V12SettingsFields s={v12} /> : undefined} />
+      <section aria-labelledby="beta-title" className="mt-6 max-w-2xl rounded-3xl border border-border bg-card px-6 pt-6 pb-2">
+        <h2 id="beta-title" className="font-semibold">Beta</h2>
+        <V12BetaSwitch enabled={v12.enabled} />
+      </section>
 
       <section aria-labelledby="account-title" className="mt-6 max-w-2xl rounded-3xl border border-border bg-card p-6">
         <h2 id="account-title" className="font-semibold">Account</h2>

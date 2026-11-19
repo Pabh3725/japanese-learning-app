@@ -362,3 +362,56 @@ describe('Dữ liệu thật N5–N4: mọi mục dựng được đủ loại t
     expect(n).toBeGreaterThan(10000)
   })
 })
+
+describe('Chọn mục mới hôm nay (plan)', () => {
+  const words = Array.from({ length: 6 }, (_, i) => ({ id: `w${i}`, level: i < 4 ? 5 : 4, sortOrder: i, kanaOnly: false, kanji: i === 0 ? ['日'] : [] }))
+  const kanji = [
+    { id: 'k-hi', character: '日', level: 5, freq: 1, strokes: 4, components: [], radicals: [72] },
+    { id: 'k-me', character: '目', level: 5, freq: 50, strokes: 5, components: [], radicals: [109] },
+  ]
+  const base = {
+    today: D0,
+    words,
+    radicals: [72, 109],
+    kanji,
+    wordKanji: [words[0]],
+    progress: new Map<string, Progress>(),
+    openedToday: { kana: 0, radical: 0, kanji: 0, word_kanji: 0 },
+    balanceOn: false,
+    target: { kind: 'minutes' as const, minutes: 20 },
+    manual: { kana: 2, kanji: 3, word_kanji: 2 },
+  }
+
+  it('cấp N5 trước; Kana theo thứ tự; khu Kanji: bộ thủ trước, chữ chỉ mở khi bộ đã qua Stage 1', async () => {
+    const { planNewItems } = await import('../plan')
+    const r = planNewItems(base)
+    expect(r.level).toBe(5)
+    expect(r.open.kana).toEqual(['w0', 'w1'])
+    expect(r.open.radical).toEqual([72, 109])
+    expect(r.open.kanji).toEqual([])
+    // Bộ 72 đã qua Stage 1 → mở được 日, chưa mở được 目
+    const r2 = planNewItems({ ...base, progress: new Map<string, Progress>([['radical:72', 2], ['radical:109', 1]]) })
+    expect(r2.open.radical).toEqual([])
+    expect(r2.open.kanji).toEqual(['k-hi'])
+  })
+
+  it('đã mở hôm nay thì không mở thêm quá chỉ tiêu', async () => {
+    const { planNewItems } = await import('../plan')
+    expect(planNewItems({ ...base, openedToday: { kana: 2, radical: 0, kanji: 0, word_kanji: 0 } }).open.kana).toEqual([])
+  })
+
+  it('Từ vựng Kanji: mở khi Kana và chữ đã vào Stage 2; thiếu chữ thì vào hàng chờ, mở khi không còn từ khác mở được', async () => {
+    const { planNewItems } = await import('../plan')
+    const ready = new Map<string, Progress>([['kana:w0', 2], ['kanji:k-hi', 2]])
+    expect(planNewItems({ ...base, progress: ready }).open.word_kanji).toEqual(['w0'])
+    // Chữ chưa học: hàng chờ; không có từ nào khác mở được → mở luôn
+    expect(planNewItems({ ...base, progress: new Map<string, Progress>([['kana:w0', 2]]) }).open.word_kanji).toEqual(['w0'])
+  })
+
+  it('cân bằng: chỉ tiêu từ balance, ba khu cùng chia theo số ngày', async () => {
+    const { planNewItems } = await import('../plan')
+    const r = planNewItems({ ...base, balanceOn: true, target: { kind: 'date', date: addStudyDays(D0, 1) } })
+    expect(r.balance?.days).toBe(2)
+    expect(r.open.kana).toHaveLength(2) // 4 từ N5 / 2 ngày
+  })
+})
