@@ -1,6 +1,5 @@
 // V12 §4–6: dựng câu cho từng loại thẻ và Card Review gom chung; chấm. Pure.
 import { isHanVietAnswerCorrect, isKanaAnswerCorrect } from '../exercise/answer-normalize'
-import { mixKanaPieces, pickKanaDistractors, splitKana } from '../exercise/kana-pieces'
 import { REVIEW_CARDS, type CardType, type ReviewCardType, type ReviewPart } from './card-types'
 
 type Rng = () => number
@@ -90,11 +89,6 @@ export function buildStageQuestion(type: CardType, item: KanaWordItem | RadicalI
       const w = item as KanaWordItem
       return choice('', 'listen', w.kana, choices(w.kana, pools.kana.map((x) => x.kana), rng, pools.kana.filter((x) => x.kana[0] === w.kana[0]).map((x) => x.kana)), 'kana', w.kana)
     }
-    case 'kana_assembly': {
-      const w = item as KanaWordItem
-      const pieces = splitKana(w.kana)
-      return { kind: 'assembly', prompt: w.meaning, promptKind: 'meaning', pieces: mixKanaPieces(pieces, pickKanaDistractors(pieces, rng), rng), answer: pieces }
-    }
     case 'meaning_type_kana': {
       const w = item as KanaWordItem
       return { kind: 'typing', prompt: w.meaning, promptKind: 'meaning', input: isKatakana(w.kana) ? 'katakana' : 'hiragana', answer: w.kana }
@@ -166,6 +160,14 @@ export function buildStageQuestion(type: CardType, item: KanaWordItem | RadicalI
     case 'word_type_hanviet': {
       const w = item as WordKanjiItem
       return { kind: 'typing', prompt: w.expression, promptKind: 'kanji', speak: w.kana, input: 'text', answer: w.hanViet }
+    }
+    case 'word_assembly': {
+      // Nghĩa → chọn từng chữ (Kanji và Kana đi kèm) theo thứ tự để viết từ; thêm chữ Kanji nhiễu cùng cấp
+      const w = item as WordKanjiItem
+      const pieces = Array.from(w.expression)
+      const own = new Set(pieces)
+      const distractors = shuffle(pools.kanji.map((k) => k.char).filter((c) => !own.has(c)), rng).slice(0, Math.max(3, 6 - pieces.length))
+      return { kind: 'assembly', prompt: w.meaning, promptKind: 'meaning', speak: w.kana, pieces: shuffle([...pieces, ...distractors], rng), answer: pieces }
     }
   }
 }

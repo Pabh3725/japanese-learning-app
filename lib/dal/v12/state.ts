@@ -6,7 +6,7 @@ import { readKnownKanjiIds } from '@/lib/dal/kanji'
 import { readKnownWordIds } from '@/lib/dal/known-words'
 import { readStarredKanjiIds } from '@/lib/dal/kanji-stars'
 import { readStarredIds } from '@/lib/dal/star-relearn'
-import type { Area, CardType, ReviewCardType, Stage } from '@/lib/v12/card-types'
+import { typesFor, type Area, type CardType, type ReviewCardType, type Stage } from '@/lib/v12/card-types'
 import type { ItemState, TypeState } from '@/lib/v12/stage'
 import type { Schedule, ScheduleState } from '@/lib/srs/scheduler'
 import { studyDate } from '@/lib/learning/time'
@@ -44,7 +44,12 @@ type RawType = { learner_item_id: string; stage: number; card_type: CardType; po
 
 function toItem(r: RawItem, types: readonly RawType[]): ItemRow {
   const stage = r.stage === 'review' ? 'review' : (Number(r.stage) as Stage)
-  const current = types.filter((t) => t.learner_item_id === r.id && t.stage === stage)
+  // Loại thẻ theo luật hiện tại: loại đã bỏ (vd. ghép Kana, 2026-11-19) bỏ qua; loại mới thêm bắt đầu từ 0 điểm
+  const rows = new Map(types.filter((t) => t.learner_item_id === r.id && t.stage === stage).map((t) => [t.card_type, t]))
+  const current: RawType[] =
+    stage === 'review'
+      ? []
+      : typesFor(r.area, stage, { hasSimilar: r.has_similar }).map((type) => rows.get(type) ?? { learner_item_id: r.id, stage, card_type: type, points: 0, seen_date: null, seen_today: 0, wrong_today: 0 })
   const state: ItemState = {
     area: r.area,
     stage,
@@ -96,7 +101,10 @@ export async function readV12State(supabase: Supabase, userId: string): Promise<
     readStarredIds(supabase, userId),
     readStarredKanjiIds(supabase, userId),
   ])
-  const rows = (items as RawItem[]).map((r) => toItem(r, types as RawType[]))
+  // Gom loại thẻ theo mục một lần (tránh lọc cả bảng cho từng mục)
+  const byItem = new Map<string, RawType[]>()
+  for (const t of types as RawType[]) byItem.set(t.learner_item_id, [...(byItem.get(t.learner_item_id) ?? []), t])
+  const rows = (items as RawItem[]).map((r) => toItem(r, byItem.get(r.id) ?? []))
   for (const i of rows) if ((i.area === 'kana' || i.area === 'word_kanji') ? knownWords.has(i.ref) : i.area === 'kanji' && knownKanji.has(i.ref)) i.known = true
   return { items: rows, cards: (cards as Record<string, unknown>[]).map((c) => toCard(c)), knownWords, knownKanji, starred: new Set([...starredWords, ...starredKanji]) }
 }

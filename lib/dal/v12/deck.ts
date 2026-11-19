@@ -329,7 +329,8 @@ async function viewOf(supabase: Supabase, l: Loaded, card: DeckCard, position: n
     return { ...base, kind: 'intro', intro }
   }
   // Hán Việt dưới đề khi đề là chính chữ đang học (Kana / Kanji) và câu không hỏi về Hán Việt
-  const hanViet = (promptKind: string, type: string) => (promptKind === 'kana' || promptKind === 'kanji') && !asksHanViet(type) ? hanVietOf(item, data) : undefined
+  // Ghép chữ Kanji: Hán Việt hiện dưới nghĩa để nối âm Hán Việt với từng chữ
+  const hanViet = (promptKind: string, type: string) => ((promptKind === 'kana' || promptKind === 'kanji' || type === 'word_assembly') && !asksHanViet(type) ? hanVietOf(item, data) : undefined)
   if (card.kind === 'stage' || card.kind === 'star') {
     const q = buildStageQuestion(card.type, data, p, Math.random)
     const kanaOf = item.area === 'kana' ? (data as { kana: string }).kana : undefined

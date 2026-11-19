@@ -16,7 +16,6 @@ export const CARD_TYPES = {
   kana_meaning: { kind: 'choice', label: 'Kana → meaning' },
   meaning_kana: { kind: 'choice', label: 'Meaning → Kana' },
   listen_kana: { kind: 'choice', label: 'Listen → Kana' },
-  kana_assembly: { kind: 'assembly', label: 'Build the word' },
   meaning_type_kana: { kind: 'typing', label: 'Meaning → type Kana' },
   listen_type_kana: { kind: 'typing', label: 'Listen → type Kana' },
   // Bộ thủ (§5.1)
@@ -37,6 +36,8 @@ export const CARD_TYPES = {
   hanviet_word: { kind: 'choice', label: 'Sino-Vietnamese → word' },
   meaning_word: { kind: 'choice', label: 'Meaning → word' },
   word_type_hanviet: { kind: 'typing', label: 'Word → type Sino-Vietnamese' },
+  // Chủ dự án chốt 2026-11-19: ghép chữ chỉ còn ở Từ vựng Kanji (Intro 2), bỏ ghép Kana
+  word_assembly: { kind: 'assembly', label: 'Build the word in Kanji' },
 } as const satisfies Record<string, { kind: AnswerKind; label: string }>
 
 export type CardType = keyof typeof CARD_TYPES
@@ -49,7 +50,7 @@ const WORD_CHOICES = ['word_hanviet', 'word_meaning', 'hanviet_word', 'meaning_w
 export const STAGE_TYPES: Record<Area, Record<Stage, readonly CardType[]>> = {
   kana: {
     1: ['kana_meaning', 'meaning_kana'],
-    2: ['kana_meaning', 'meaning_kana', 'listen_kana', 'kana_assembly'],
+    2: ['kana_meaning', 'meaning_kana', 'listen_kana'],
     3: ['meaning_type_kana', 'listen_type_kana', 'kana_meaning'],
   },
   radical: {
@@ -64,7 +65,7 @@ export const STAGE_TYPES: Record<Area, Record<Stage, readonly CardType[]>> = {
   },
   word_kanji: {
     1: WORD_CHOICES,
-    2: WORD_CHOICES,
+    2: [...WORD_CHOICES, 'word_assembly'],
     3: ['word_type_hanviet', 'word_meaning'],
   },
 }
