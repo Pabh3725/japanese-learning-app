@@ -1,38 +1,23 @@
 import { PageHeader } from '@/components/page-header'
 import { SettingsForm } from '@/components/settings/settings-form'
-import { V12BetaSwitch, V12SettingsFields } from '@/components/v12/v12-settings'
-import { getV12Settings } from '@/lib/dal/v12/settings'
+import { V12SettingsFields } from '@/components/v12/v12-settings'
 import { actionButton } from '@/components/action-button'
 import { requireUser } from '@/lib/dal/auth'
 import { getGrammarOverview } from '@/lib/dal/grammar'
-import { getKanjiOverview } from '@/lib/dal/kanji'
-import { getLearnOverview } from '@/lib/dal/learn-overview'
-import { getReviewOverview } from '@/lib/dal/review'
-import { getGrammarFurigana, getNewPerDay, getReviewAllAtOnce, getStudyLimits } from '@/lib/dal/settings'
+import { getGrammarFurigana, getStudyLimits } from '@/lib/dal/settings'
+import { getHub } from '@/lib/dal/v12/deck'
+import { getV12Settings } from '@/lib/dal/v12/settings'
 import { GRAMMAR_V1 } from '@/lib/grammar/rules'
-import { RULES_V9 } from '@/lib/learning/rules'
 
 /** Ước lượng thời gian mỗi câu hoặc thẻ. */
 const SECONDS_PER_ITEM = 15
 
 export default async function SettingsPage() {
-  const [user, newPerDay, limits, learn, review, kanji, furigana, grammar, reviewAllAtOnce] = await Promise.all([
-    requireUser(),
-    getNewPerDay(),
-    getStudyLimits(),
-    getLearnOverview(),
-    getReviewOverview(),
-    getKanjiOverview(),
-    getGrammarFurigana(),
-    getGrammarOverview(),
-    getReviewAllAtOnce(),
-  ])
-  const v12 = await getV12Settings()
-  const kanjiQuestions = kanji.questionsToday + kanji.newToday * RULES_V9.kanji.questionsPerSitting
+  const [user, limits, hub, furigana, grammar, v12] = await Promise.all([requireUser(), getStudyLimits(), getHub(), getGrammarFurigana(), getGrammarOverview(), getV12Settings()])
+  const learnCards = hub.zones.reduce((n, z) => n + z.newItems + z.stageQuestions + z.reviews, 0)
   // Ngữ pháp: mẫu mới và mẫu đang học mỗi buổi 8 câu, mẫu ôn 2–3 câu
   const grammarQuestions = (grammar.today.newLeft + grammar.today.learningDue) * GRAMMAR_V1.learning.questionsPerSitting + grammar.today.reviewDue * 3
-  const minutes = Math.ceil(((learn.questionsToday + learn.newToday + review.dueNow + kanjiQuestions + grammarQuestions) * SECONDS_PER_ITEM) / 60)
-  const daysToFinish = newPerDay > 0 ? Math.ceil(learn.wordsLeft / newPerDay) : null
+  const minutes = Math.ceil(((learnCards + grammarQuestions) * SECONDS_PER_ITEM) / 60)
 
   return (
     <>
@@ -41,21 +26,16 @@ export default async function SettingsPage() {
         <h2 id="estimate-title" className="font-semibold">With your current settings</h2>
         <ul className="mt-3 flex flex-col gap-2 text-sm text-subtle">
           <li>
-            About {minutes} {minutes === 1 ? 'minute' : 'minutes'} of study left today ({learn.questionsToday} practice questions, {review.dueNow} cards, {kanjiQuestions} Kanji questions, about {grammarQuestions} grammar questions).
+            About {minutes} {minutes === 1 ? 'minute' : 'minutes'} of study left today ({learnCards} Learn cards, about {grammarQuestions} grammar questions).
           </li>
-          <li>
-            {learn.block
-              ? 'No more new words today: too many items are due.'
-              : `${learn.newToday} new ${learn.newToday === 1 ? 'word' : 'words'} left today.`}
-          </li>
-          {daysToFinish !== null && <li>{learn.wordsLeft} words left on your path: about {daysToFinish} more days at this pace.</li>}
+          {hub.balance && (
+            <li>
+              Kana vocabulary, Kanji and Kanji words all finish N{hub.level} in about {hub.balance.days} days at {hub.balance.minutes} minutes of new items a day.
+            </li>
+          )}
         </ul>
       </section>
-      <SettingsForm newPerDay={newPerDay} limits={limits} furigana={furigana} reviewAllAtOnce={reviewAllAtOnce} v12Slot={v12.enabled ? <V12SettingsFields s={v12} /> : undefined} />
-      <section aria-labelledby="beta-title" className="mt-6 max-w-2xl rounded-3xl border border-border bg-card px-6 pt-6 pb-2">
-        <h2 id="beta-title" className="font-semibold">Beta</h2>
-        <V12BetaSwitch enabled={v12.enabled} />
-      </section>
+      <SettingsForm limits={limits} furigana={furigana} v12Slot={<V12SettingsFields s={v12} />} />
 
       <section aria-labelledby="account-title" className="mt-6 max-w-2xl rounded-3xl border border-border bg-card p-6">
         <h2 id="account-title" className="font-semibold">Account</h2>

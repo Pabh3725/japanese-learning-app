@@ -15,50 +15,47 @@ import { libraryStatus } from '@/lib/library/status'
 type Supabase = Awaited<ReturnType<typeof createClient>>
 type CardCount = { active: number; archived: number }
 
-/** V10: Card chính (không tính Card sao) của mỗi từ: còn ôn và đã lưu trữ. */
-async function readWordCards(supabase: Supabase, userId: string): Promise<Map<string, CardCount>> {
-  const rows = await readAllPages('review_cards', (from, to) =>
-    supabase
-      .from('review_cards')
-      .select('archived_at, learner_vocabulary!inner(vocabulary_id)')
-      .eq('user_id', userId)
-      .in('card_type', ['vocab.kana', 'vocab.kanji'])
-      .order('id')
-      .range(from, to),
-  )
-  const out = new Map<string, CardCount>()
-  for (const r of rows as unknown as { archived_at: string | null; learner_vocabulary: { vocabulary_id: string } }[]) {
-    const c = out.get(r.learner_vocabulary.vocabulary_id) ?? { active: 0, archived: 0 }
-    if (r.archived_at) c.archived++
-    else c.active++
-    out.set(r.learner_vocabulary.vocabulary_id, c)
-  }
-  return out
-}
+type ItemProgress = { stage: string; cards: CardCount }
 
-/** V10: chữ đã mở: xong giai đoạn Học chưa, và Card chính còn ôn / đã lưu trữ. */
-async function readKanjiProgress(supabase: Supabase, userId: string): Promise<Map<string, { doneLearning: boolean; cards: CardCount }>> {
-  const rows = await readAllPages('learner_kanji', (from, to) =>
-    supabase.from('learner_kanji').select('kanji_id, phase, learner_kanji_cards(card_type, archived_at)').eq('user_id', userId).order('id').range(from, to),
+/**
+ * V12 (gói 4): tiến độ từ bảng mới. Từ: mục Kana (Stage, Card Kana) cộng Card của mục Từ vựng Kanji.
+ * Chữ: mục Kanji (Stage, Card). Khóa: vocabulary_id / kanji_id.
+ */
+async function readV12Progress(supabase: Supabase, userId: string): Promise<{ words: Map<string, ItemProgress>; kanji: Map<string, ItemProgress> }> {
+  const rows = await readAllPages('learner_items', (from, to) =>
+    supabase.from('learner_items').select('area, vocabulary_id, kanji_id, stage, item_cards(archived_at)').eq('user_id', userId).in('area', ['kana', 'word_kanji', 'kanji']).order('id').range(from, to),
   )
-  const out = new Map<string, { doneLearning: boolean; cards: CardCount }>()
-  for (const r of rows as unknown as { kanji_id: string; phase: string; learner_kanji_cards: { card_type: string; archived_at: string | null }[] }[]) {
-    const main = r.learner_kanji_cards.filter((c) => c.card_type !== 'kanji.star')
-    out.set(r.kanji_id, { doneLearning: r.phase === 'review', cards: { active: main.filter((c) => !c.archived_at).length, archived: main.filter((c) => c.archived_at).length } })
+  const words = new Map<string, ItemProgress>()
+  const kanji = new Map<string, ItemProgress>()
+  for (const r of rows as unknown as { area: string; vocabulary_id: string | null; kanji_id: string | null; stage: string; item_cards: { archived_at: string | null }[] }[]) {
+    const map = r.area === 'kanji' ? kanji : words
+    const id = (r.kanji_id ?? r.vocabulary_id)!
+    const p = map.get(id) ?? { stage: 'none', cards: { active: 0, archived: 0 } }
+    if (r.area !== 'word_kanji') p.stage = r.stage
+    for (const c of r.item_cards) {
+      if (c.archived_at) p.cards.archived++
+      else p.cards.active++
+    }
+    map.set(id, p)
   }
-  return out
+  return { words, kanji }
 }
 
 /** V10: mục đang được đánh dấu "đã học" (chưa hoàn tác), theo loại. */
 export async function readMarkedIds(supabase: Supabase, userId: string, kind: 'vocab' | 'grammar'): Promise<Set<string>> {
   const rows = await readAllPages('learner_mark_history', (from, to) =>
-    supabase.from('learner_mark_history').select('item_id').eq('user_id', userId).eq('kind', kind).is('undone_at', null).order('id').range(from, to),
+    // Từ vựng: chỉ lần đánh dấu V12 (before.v = 12) hoàn tác được ở V12
+    (kind === 'vocab' ? supabase.from('learner_mark_history').select('item_id').eq('before->>v', '12') : supabase.from('learner_mark_history').select('item_id'))
+      .eq('user_id', userId)
+      .eq('kind', kind)
+      .is('undone_at', null)
+      .order('id')
+      .range(from, to),
   )
   return new Set(rows.map((r) => r.item_id as string))
 }
 
 const VOCAB_COLUMNS = 'id, code, sort_order, expression, reading_kana, meaning_vi, han_viet, is_kana_only, jlpt_level, lesson'
-const PROGRESS_COLUMNS = 'vocabulary_id, current_stage, learning_status'
 const KANJI_COLUMNS = 'id, character, han_viet, meaning_vi, onyomi, kunyomi, stroke_count, jlpt_level'
 
 /**
@@ -85,10 +82,9 @@ export async function getLibraryData(): Promise<LibraryData> {
   const user = await requireUser()
   const supabase = await createClient()
 
-  const [vocab, progress, kanji, known, starredIds, knownKanji] = await Promise.all([
+  const [vocab, v12, kanji, known, starredIds, knownKanji] = await Promise.all([
     readAllVocabulary(supabase),
-    // RLS đã chỉ trả dòng của chính user; lọc thêm user_id cho rõ ý và để query dùng index.
-    readAllPages('learner_vocabulary', (from, to) => supabase.from('learner_vocabulary').select(PROGRESS_COLUMNS).eq('user_id', user.id).order('id').range(from, to)),
+    readV12Progress(supabase, user.id),
     readAllPages('kanji', (from, to) =>
       supabase
         .from('kanji')
@@ -101,13 +97,13 @@ export async function getLibraryData(): Promise<LibraryData> {
     readStarredIds(supabase, user.id),
     readKnownKanjiIds(supabase, user.id),
   ])
-  const [wordCards, kanjiProgress, marked, starredKanji] = await Promise.all([
-    readWordCards(supabase, user.id),
-    readKanjiProgress(supabase, user.id),
+  const [marked, starredKanji] = await Promise.all([
     readMarkedIds(supabase, user.id, 'vocab'),
     readStarredKanjiIds(supabase, user.id),
   ])
 
+  // Dạng dòng tiến độ của mapper: Stage 1–3 của mục Kana, hoặc đã xong (đã có Card)
+  const progress = [...v12.words].filter(([, p]) => p.stage !== 'none').map(([id, p]) => ({ vocabulary_id: id, current_stage: p.stage === 'review' ? 3 : Number(p.stage), learning_status: p.stage === 'review' ? 'initial_complete' : 'learning' }))
   const vocabulary = toVocabList(vocab, progress)
   const kanjiList = toKanjiList(kanji)
 
@@ -122,11 +118,11 @@ export async function getLibraryData(): Promise<LibraryData> {
       ...item,
       known: known.has(item.id),
       marked: marked.has(item.id),
-      status: libraryStatus({ started: item.progress.kind !== 'not_started', doneLearning: item.progress.kind === 'complete', cards: wordCards.get(item.id) ?? { active: 0, archived: 0 } }),
+      status: libraryStatus({ started: item.progress.kind !== 'not_started', doneLearning: item.progress.kind === 'complete', cards: v12.words.get(item.id)?.cards ?? { active: 0, archived: 0 } }),
     })),
     kanji: kanjiList.items.map((item) => {
-      const p = kanjiProgress.get(item.id)
-      return { ...item, known: knownKanji.has(item.id), status: libraryStatus({ started: p !== undefined, doneLearning: p?.doneLearning ?? false, cards: p?.cards ?? { active: 0, archived: 0 } }) }
+      const p = v12.kanji.get(item.id)
+      return { ...item, known: knownKanji.has(item.id), status: libraryStatus({ started: p !== undefined, doneLearning: p?.stage === 'review', cards: p?.cards ?? { active: 0, archived: 0 } }) }
     }),
   }
 }

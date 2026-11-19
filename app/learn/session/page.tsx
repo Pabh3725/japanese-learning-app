@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
 
-// V9: phiên 20 câu của từng nhóm được thay bằng bài Learn lọc một nhóm.
-export default async function LearnSessionPage({ searchParams }: { searchParams: Promise<{ skill?: string }> }) {
-  const { skill } = await searchParams
-  redirect(`/learn/lesson?groups=${skill === 'word_kanji' ? 'word_kanji' : 'vocabulary'}`)
+// V12 gói 4: trang học V11 đã thay bằng bộ thẻ ba khu ở /learn (code cũ dọn ở gói 5).
+export default function Page() {
+  redirect('/learn')
 }

@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { AlertTriangle, Play } from 'lucide-react'
 import { actionButton } from '@/components/action-button'
 import { PageHeader } from '@/components/page-header'
+import { RadicalsKnownButton } from '@/components/v12/radicals-known-button'
 import type { HubView, ZoneSummary } from '@/lib/dal/v12/deck'
 import type { Zone } from '@/lib/v12/card-types'
 import { cn } from '@/lib/utils'
@@ -15,7 +16,7 @@ const ZONE_INFO: Record<Zone, { title: string; jp: string; body: string; tone: s
 
 const fmtDate = (d: string) => new Date(`${d}T00:00:00+07:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 
-function ZoneCard({ z }: { z: ZoneSummary }) {
+function ZoneCard({ z, radicals }: { z: ZoneSummary; radicals: HubView['radicals'] }) {
   const info = ZONE_INFO[z.zone]
   const todo = z.newItems + z.stageQuestions + z.reviews
   const done = z.deck && z.deck.position >= z.deck.total && z.deck.total > 0
@@ -38,6 +39,7 @@ function ZoneCard({ z }: { z: ZoneSummary }) {
       </dl>
       {z.deck && <p className="mt-3 text-xs text-muted-foreground tabular-nums">Today: {Math.min(z.deck.position, z.deck.total)} / {z.deck.total} cards</p>}
       <p className="mt-1 text-xs text-muted-foreground tabular-nums">{z.remaining} not started in this level</p>
+      {z.zone === 'kanji' && radicals.total > 0 && <RadicalsKnownButton total={radicals.total} known={radicals.known} />}
       <div className="mt-auto pt-4">
         {done ? (
           <p className="text-sm text-success">Done for today</p>
@@ -99,9 +101,14 @@ export function V12Hub({ hub }: { hub: HubView }) {
 
         <div className="grid gap-4 md:grid-cols-3">
           {hub.zones.map((z) => (
-            <ZoneCard key={z.zone} z={z} />
+            <ZoneCard key={z.zone} z={z} radicals={hub.radicals} />
           ))}
         </div>
+
+        <p className="text-sm text-muted-foreground">
+          Review cards are part of each area&apos;s daily cards.{' '}
+          <Link href="/review/archive" className="underline underline-offset-2 hover:text-foreground">Archived cards</Link>: cards you marked as learned.
+        </p>
       </div>
     </>
   )

@@ -10,7 +10,7 @@ const SAVE_ERROR = "Couldn't save. Check your connection and try again."
  * Nút "Đã học xong" (R13): lưu trữ riêng Card đang ôn, bỏ Card khỏi phiên ngay và có Undo.
  * Card khác của từ và chữ thành phần không đổi. Khôi phục được ở /review/archive.
  */
-export function ArchiveCardBar({ kind, cardId, onArchived }: { kind: 'vocab' | 'kanji'; cardId: string | null; onArchived: (cardId: string) => void }) {
+export function ArchiveCardBar({ kind, cardId, onArchived }: { kind: 'vocab' | 'kanji' | 'item'; cardId: string | null; onArchived: (cardId: string) => void }) {
   const [last, setLast] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 

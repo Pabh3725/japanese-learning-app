@@ -9,6 +9,7 @@ import { actionButton } from '@/components/action-button'
 import { KanjiCard } from '@/components/kanji/kanji-card'
 import { AnswerOption, type AnswerState } from '@/components/learning/answer-option'
 import { SessionHeader } from '@/components/learning/session-header'
+import { ArchiveCardBar } from '@/components/review/archive-card-bar'
 import type { AnswerView, CardView, DeckView, IntroView, PublicQuestion } from '@/lib/dal/v12/deck'
 import { convertAtCaret } from '@/lib/exercise/answer-normalize'
 import { CARD_TYPES, REVIEW_CARDS } from '@/lib/v12/card-types'
@@ -287,7 +288,7 @@ export function V12Player({ initial }: { initial: DeckView }) {
     )
 
   const label =
-    card.kind === 'intro' ? 'New' : card.kind === 'stage' ? `Stage ${card.stage} · ${CARD_TYPES[card.type].label}${card.retry ? ' · again' : ''}` : `Review · ${REVIEW_CARDS[card.card].label}${card.retry ? ' · again' : ''}`
+    card.kind === 'intro' ? 'New' : card.kind === 'star' ? `Starred · ${CARD_TYPES[card.type].label} · extra practice` : card.kind === 'stage' ? `Stage ${card.stage} · ${CARD_TYPES[card.type].label}${card.retry ? ' · again' : ''}` : `Review · ${REVIEW_CARDS[card.card].label}${card.retry ? ' · again' : ''}`
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -302,11 +303,13 @@ export function V12Player({ initial }: { initial: DeckView }) {
             </button>
           </>
         )}
-        {card.kind === 'stage' && <QuestionInput q={card.question} locked={!!result || busy} onAnswer={submit} />}
+        {(card.kind === 'stage' || card.kind === 'star') && <QuestionInput q={card.question} locked={!!result || busy} onAnswer={submit} />}
         {card.kind === 'review' && <ReviewCard card={card} locked={!!result || busy} answered={!!result} onSubmit={submit} />}
         {error && <p role="alert" className="text-sm text-error">{error}</p>}
         {result && <Feedback result={result} onNext={load} last={deck.position + 1 >= deck.total} />}
       </main>
+      {/* R13: lưu trữ riêng Card đang ôn; thẻ tiếp theo bỏ qua Card đã lưu trữ */}
+      <ArchiveCardBar kind="item" cardId={card.kind === 'review' && !card.retry && !result ? card.cardId : null} onArchived={load} />
     </div>
   )
 }

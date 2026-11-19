@@ -12,9 +12,9 @@ export default async function ArchivePage() {
   const cards = await getArchivedCards()
   return (
     <>
-      <Link href="/review" className="mb-4 inline-flex w-fit items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+      <Link href="/learn" className="mb-4 inline-flex w-fit items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" aria-hidden="true" />
-        Back to Review
+        Back to Learn
       </Link>
       <PageHeader eyebrow="保管" title="Archived cards" description="Cards you marked as learned. They keep their schedule and history; restore one to review it again." />
       <ArchiveList cards={cards} />

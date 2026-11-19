@@ -2,6 +2,7 @@
 // Dựng câu ở server từ dữ liệu sẵn có, lưu cả phiên (đáp án không gửi trước cho trình duyệt), chấm ở server.
 // Không đổi điểm, lịch hay FSRS nào; mỗi câu ghi jlpt_logs để tính tỷ lệ đúng từng dạng.
 import 'server-only'
+import { readKanaStages } from '@/lib/dal/v12/state'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { readAllPages } from '@/lib/dal/pages'
@@ -112,11 +113,11 @@ async function readMaterial(supabase: Supabase, userId: string, level: JlptLevel
 
   if (scope === 'learned') {
     const [met, known, opened] = await Promise.all([
-      readAllPages('learner_vocabulary', (from, to) => supabase.from('learner_vocabulary').select('vocabulary_id').eq('user_id', userId).order('id').range(from, to)),
+      readKanaStages(supabase, userId),
       readKnownWordIds(supabase, userId),
       readAllPages('learner_grammar', (from, to) => supabase.from('learner_grammar').select('point_id').eq('user_id', userId).order('id').range(from, to)),
     ])
-    const learned = new Set([...met.map((r) => r.vocabulary_id as string), ...known])
+    const learned = new Set([...met.keys(), ...known])
     const openedPoints = new Set(opened.map((r) => r.point_id as string))
     words = words.filter((w) => learned.has(w.id))
     points = points.filter((p) => openedPoints.has(p.id))

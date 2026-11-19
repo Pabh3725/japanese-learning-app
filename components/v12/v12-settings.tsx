@@ -1,8 +1,7 @@
 'use client'
 
-// V12 §2, §8: Settings — cân bằng theo thời gian (hoặc số mục mới thủ công), kích thước set, trần từng khu; công tắc thử V12.
+// V12 §2, §8: Settings — cân bằng theo thời gian (hoặc số mục mới thủ công), kích thước set, trần từng khu.
 import { useId, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { saveV12SettingAction } from '@/app/learn/v12/actions'
 import { Group, NumberBox, SettingSwitch, useNumberField } from '@/components/settings/settings-form'
 import type { V12Settings } from '@/lib/dal/v12/settings'
@@ -21,22 +20,6 @@ function Field({ name, label, hint, initial, min, max }: { name: string; label: 
       </div>
       <NumberBox id={id} min={min} max={max} field={field} className="w-full sm:w-28" />
     </div>
-  )
-}
-
-/** Công tắc thử V12 (gói 3): bật thì trang Learn và Settings dùng luật V12. */
-export function V12BetaSwitch({ enabled }: { enabled: boolean }) {
-  const router = useRouter()
-  return (
-    <SettingSwitch
-      label="New learning system (V12, beta)"
-      description="Three areas — Kana vocabulary, Kanji, Kanji words — with shuffled daily sets. For testing; your old progress is not moved yet."
-      defaultChecked={enabled}
-      onSave={async (v) => {
-        await saveV12SettingAction('learning_v12', v)
-        router.refresh()
-      }}
-    />
   )
 }
 

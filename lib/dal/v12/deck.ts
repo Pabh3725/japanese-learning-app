@@ -5,7 +5,7 @@ import { requireUser } from '@/lib/dal/auth'
 import { readAllKanjiCached, readKanjiVisuals } from '@/lib/dal/kanji-content'
 import { revealOf, type KanjiReveal } from '@/lib/kanji/questions'
 import { nextStudyDayStart, studyDate } from '@/lib/learning/time'
-import { typesFor, ZONES, zoneOf, type Area, type CardType, type ReviewCardType, type Zone } from '@/lib/v12/card-types'
+import { STAGE_TYPES, typesFor, ZONES, zoneOf, type Area, type CardType, type ReviewCardType, type Zone } from '@/lib/v12/card-types'
 import { applyCap, buildDeck, countQuestions, insertRetry, reviewRetryGap, splitByZone, type DeckCard, type DeckInput } from '@/lib/v12/deck'
 import { forecast, overflowDays, type ForecastDay } from '@/lib/v12/forecast'
 import type { Progress } from '@/lib/v12/order'
@@ -15,7 +15,7 @@ import { canShow, isActive, plannedShows, remainingTypes } from '@/lib/v12/stage
 import { readV12Content, type V12Content } from './content'
 import { readV12Settings, type V12Settings } from './settings'
 import { readV12State, type CardRow, type ItemRow } from './state'
-import { markIntroSeen, openItem, saveCardReview, saveStageAnswer } from './write'
+import { markIntroSeen, openItem, saveCardReview, saveStageAnswer, saveStarAnswer, setRadicalsKnown } from './write'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 export type Scope = Zone | 'all'
@@ -26,17 +26,27 @@ interface Loaded {
   content: V12Content
   items: ItemRow[]
   cards: CardRow[]
+  knownWords: Set<string>
+  knownKanji: Set<string>
+  starred: Set<string>
   settings: V12Settings
 }
 
 async function load(supabase: Supabase, userId: string): Promise<Loaded> {
   const [content, state, settings] = await Promise.all([readV12Content(supabase), readV12State(supabase, userId), readV12Settings(supabase, userId)])
-  return { content, items: state.items, cards: state.cards, settings }
+  return { content, ...state, settings }
 }
 
-/** Tiến độ theo khoá `${area}:${ref}`. Mục "đã biết" coi như đã học xong. */
-function progressOf(items: readonly ItemRow[]): Map<string, Progress> {
-  return new Map(items.map((i) => [key(i.area, i.ref), i.known ? 'review' : i.stage]))
+/** Tiến độ theo khoá `${area}:${ref}`. Mục "đã biết" (kể cả từ / chữ chưa mở) coi như đã học xong. */
+function progressOf(l: Pick<Loaded, 'items' | 'knownWords' | 'knownKanji'>): Map<string, Progress> {
+  const p = new Map<string, Progress>()
+  for (const id of l.knownWords) {
+    p.set(key('kana', id), 'review')
+    p.set(key('word_kanji', id), 'review')
+  }
+  for (const id of l.knownKanji) p.set(key('kanji', id), 'review')
+  for (const i of l.items) p.set(key(i.area, i.ref), i.known ? 'review' : i.stage)
+  return p
 }
 
 function plan(l: Loaded, today: string): PlanResult {
@@ -49,7 +59,7 @@ function plan(l: Loaded, today: string): PlanResult {
     radicals: l.content.radicals.map((r) => r.number),
     kanji: l.content.kanji.map((k) => ({ ...k, character: k.char })),
     wordKanji: l.content.wordKanji.map((w) => ({ id: w.id, level: w.level, sortOrder: l.content.words.find((x) => x.id === w.id)?.sortOrder ?? 0, kanaOnly: false, kanji: w.kanji })),
-    progress: progressOf(l.items),
+    progress: progressOf(l),
     openedToday,
     balanceOn: l.settings.balanceOn,
     target: l.settings.balanceTarget === 'date' && l.settings.balanceDate ? { kind: 'date', date: l.settings.balanceDate } : { kind: 'minutes', minutes: l.settings.balanceMinutes },
@@ -97,7 +107,14 @@ function deckInput(l: Loaded, zones: readonly Zone[], now: Date): DeckInput {
   const reviews = l.cards
     .filter((c) => !c.archived && c.schedule.due.getTime() < dueBefore && byId.has(c.itemId))
     .map((c) => ({ area: byId.get(c.itemId)!.area, itemId: c.itemId, card: c.type, cardId: c.id, due: c.schedule.due }))
-  return { newItems, stageItems, reviews }
+  // Từ / chữ có sao đã gặp (qua thẻ giới thiệu): mỗi mục một câu học thêm mỗi ngày, loại thẻ Stage 2 ngẫu nhiên
+  const stars = live
+    .filter((i) => l.starred.has(i.ref) && (i.stage !== 1 || i.introSeen))
+    .map((i) => {
+      const types = STAGE_TYPES[i.area][2]
+      return { area: i.area, itemId: i.id, type: types[Math.floor(Math.random() * types.length)] }
+    })
+  return { newItems, stageItems, reviews, stars }
 }
 
 interface DeckRow {
@@ -123,13 +140,14 @@ async function ensureDeck(supabase: Supabase, userId: string, scope: Scope, now:
   if (await openNewItems(supabase, userId, loaded, scope, now)) loaded = await load(supabase, userId)
   const zones = zonesOf(scope)
   const split = splitByZone(deckInput(loaded, zones, now))
-  const merged: DeckInput = { newItems: [], stageItems: [], reviews: [] }
+  const merged: DeckInput = { newItems: [], stageItems: [], reviews: [], stars: [] }
   const deferred: Record<string, number> = {}
   for (const z of zones) {
     const capped = applyCap(split[z], loaded.settings.caps[z])
     merged.newItems = [...merged.newItems, ...capped.input.newItems]
     merged.stageItems = [...merged.stageItems, ...capped.input.stageItems]
     merged.reviews = [...merged.reviews, ...capped.input.reviews]
+    merged.stars = [...merged.stars!, ...(split[z].stars ?? [])]
     deferred[z] = capped.deferred.newItems + capped.deferred.stageItems + capped.deferred.reviews
   }
   const cards = buildDeck(merged, Math.random, loaded.settings.setSize)
@@ -175,6 +193,7 @@ function isValid(l: Loaded, card: DeckCard, now: Date): boolean {
     const c = l.cards.find((x) => x.id === card.cardId)
     return !!c && !c.archived && (card.retry === true || c.schedule.due.getTime() < nextStudyDayStart(now).getTime())
   }
+  if (card.kind === 'star') return l.starred.has(item.ref)
   return false
 }
 
@@ -193,7 +212,8 @@ export type IntroView =
 export type CardView =
   | { kind: 'intro'; position: number; area: Area; intro: IntroView }
   | { kind: 'stage'; position: number; area: Area; type: CardType; stage: 1 | 2 | 3; retry: boolean; question: PublicQuestion }
-  | { kind: 'review'; position: number; area: Area; card: ReviewCardType; retry: boolean; prompt: string; promptKind: string; speak?: string; parts: { part: string; question: PublicQuestion }[] }
+  | { kind: 'star'; position: number; area: Area; type: CardType; question: PublicQuestion }
+  | { kind: 'review'; position: number; area: Area; card: ReviewCardType; cardId: string; retry: boolean; prompt: string; promptKind: string; speak?: string; parts: { part: string; question: PublicQuestion }[] }
 
 export interface DeckView {
   scope: Scope
@@ -229,9 +249,10 @@ async function viewOf(supabase: Supabase, l: Loaded, card: DeckCard, position: n
     return { kind: 'intro', position, area: item.area, intro }
   }
   if (card.kind === 'stage') return { kind: 'stage', position, area: item.area, type: card.type, stage: card.stage, retry: card.retry === true, question: strip(buildStageQuestion(card.type, data, p, Math.random)) }
+  if (card.kind === 'star') return { kind: 'star', position, area: item.area, type: card.type, question: strip(buildStageQuestion(card.type, data, p, Math.random)) }
   if (card.kind === 'review') {
     const built = buildReviewCard(card.card, data, p, Math.random)
-    return { kind: 'review', position, area: item.area, card: card.card, retry: card.retry === true, prompt: built.prompt, promptKind: built.promptKind, speak: built.speak, parts: built.parts.map((x) => ({ part: x.part, question: strip(x.question) })) }
+    return { kind: 'review', position, area: item.area, card: card.card, cardId: card.cardId, retry: card.retry === true, prompt: built.prompt, promptKind: built.promptKind, speak: built.speak, parts: built.parts.map((x) => ({ part: x.part, question: strip(x.question) })) }
   }
   return null
 }
@@ -289,6 +310,11 @@ export async function answerDeck(input: unknown): Promise<AnswerView> {
     if (saved.status !== 'saved' && saved.status !== 'duplicate') return { status: 'conflict' }
     if (saved.result?.retry) cards = insertRetry(cards, deck.position, card)
     out = { status: 'graded', correct, answers: [Array.isArray(q.answer) ? q.answer.join('') : q.answer], speak: q.speak ?? (item.area === 'kana' ? (data as { kana: string }).kana : undefined), stageDone: saved.result?.stageDone, cardsCreated: saved.result?.cardsCreated.length, retry: saved.result?.retry }
+  } else if (card.kind === 'star') {
+    const q = buildStageQuestion(card.type, data, pools(loaded.content), Math.random)
+    const correct = gradeQuestion(q, v.given as string | string[])
+    await saveStarAnswer(supabase, user.id, { itemId: item.id, area: item.area, type: card.type, correct, elapsedMs, clientEventId: v.clientEventId }, now)
+    out = { status: 'graded', correct, answers: [Array.isArray(q.answer) ? q.answer.join('') : q.answer], speak: q.speak ?? (item.area === 'kana' ? (data as { kana: string }).kana : undefined) }
   } else if (card.kind === 'review') {
     const built = buildReviewCard(card.card, data, pools(loaded.content), Math.random)
     const given = Array.isArray(v.given) ? (v.given as string[]) : []
@@ -320,7 +346,8 @@ export interface ZoneSummary {
 }
 
 export interface HubView {
-  enabled: boolean
+  /** Bộ thủ trong phạm vi: tổng và số đã đánh dấu "đã biết" (nút cả nhóm). */
+  radicals: { total: number; known: number }
   level: number | null
   zones: ZoneSummary[]
   all: { position: number; total: number } | null
@@ -366,7 +393,7 @@ export async function getHub(): Promise<HubView> {
     caps: l.settings.caps,
   })
   return {
-    enabled: l.settings.enabled,
+    radicals: { total: l.content.radicals.length, known: l.items.filter((i) => i.area === 'radical' && i.known).length },
     level: p.level,
     zones,
     all: decks[3] ? { position: decks[3]!.position, total: decks[3]!.cards.length } : null,
@@ -374,4 +401,14 @@ export async function getHub(): Promise<HubView> {
     warnings: overflowDays(days),
     caps: l.settings.caps,
   }
+}
+
+/** Nút "đã biết cả nhóm" của bộ thủ. Bộ thẻ hôm nay đã dựng vẫn giữ; thẻ của bộ đã biết bị bỏ qua khi tới lượt. */
+export async function markRadicalsKnown(known: unknown): Promise<{ status: 'saved' | 'invalid'; count?: number }> {
+  if (typeof known !== 'boolean') return { status: 'invalid' }
+  const user = await requireUser()
+  const supabase = await createClient()
+  const content = await readV12Content(supabase)
+  const count = await setRadicalsKnown(supabase, user.id, content.radicals.map((r) => r.number), known, new Date())
+  return { status: 'saved', count }
 }
