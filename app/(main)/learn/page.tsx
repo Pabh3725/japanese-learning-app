@@ -9,6 +9,9 @@ import { getKanjiOverview } from '@/lib/dal/kanji'
 import { getLearnOverview } from '@/lib/dal/learn-overview'
 import { getWordKanjiOverview } from '@/lib/dal/word-kanji'
 import { cn } from '@/lib/utils'
+import { V12Hub } from '@/components/v12/v12-hub'
+import { getHub } from '@/lib/dal/v12/deck'
+import { getV12Settings } from '@/lib/dal/v12/settings'
 
 // V9: một khu Learn. Ô trên cùng có nút Learn trộn cả ba nhóm; ba ô bên dưới để theo dõi và học riêng từng nhóm.
 const stages = [
@@ -66,6 +69,8 @@ function SectionBox({
 }
 
 export default async function LearnPage() {
+  // V12 gói 3: giao diện ba khu cho người đã bật cờ learning_v12 (docs/v12-implementation-plan.md)
+  if ((await getV12Settings()).enabled) return <V12Hub hub={await getHub()} />
   const [vocab, wordKanji, kanji] = await Promise.all([getLearnOverview(), getWordKanjiOverview(), getKanjiOverview()])
   const questions = vocab.questionsToday + wordKanji.questionsToday + kanji.questionsToday
   const fresh = vocab.newToday + wordKanji.waiting + kanji.newToday
