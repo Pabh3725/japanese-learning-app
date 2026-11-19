@@ -14,7 +14,8 @@ import { ContinueFooter, ExerciseFooter, type CheckStatus } from '@/components/l
 import { ExercisePanel } from '@/components/learning/exercise-panel'
 import { SessionHeader } from '@/components/learning/session-header'
 import { SpeakerButton, useAutoSpeak } from '@/components/learning/speaker-button'
-import type { AnswerView, CardView, DeckView, IntroView, PublicQuestion, WordInfo } from '@/lib/dal/v12/deck'
+import type { AnswerView, CardView, DeckView, IntroView, WordInfo } from '@/lib/dal/v12/deck'
+import { gradeCard, gradeQuestion, type Question } from '@/lib/v12/questions'
 import { convertAtCaret } from '@/lib/exercise/answer-normalize'
 import { jpSizeClass } from '@/lib/jp-size'
 import { isShortcutEvent, pieceIndexForKey, pieceKeyLabel } from '@/lib/keyboard'
@@ -27,8 +28,31 @@ const SCOPE_NAME: Record<string, string> = { kana: 'Kana vocabulary', kanji: 'Ka
 const SAVE_ERROR = "Couldn't save your answer. Check your connection and try again."
 const optionKind = (k: string): DisplayKind => (k === 'kana' ? 'kana' : k === 'kanji' ? 'kanji' : 'meaning')
 type Given = string | string[]
-/** Kết quả chấm ở server; null khi bộ thẻ đã đổi (thẻ khác ở vị trí này) và trình học tự tải lại. */
+/** Gửi câu trả lời cho server chấm lại và lưu; null khi lỗi hoặc bộ thẻ đã đổi (trình học tự tải lại khi sang thẻ). */
 type Grade = (given: unknown) => Promise<AnswerView | null>
+const answerOf = (q: Question) => (Array.isArray(q.answer) ? q.answer.join('') : q.answer)
+
+/**
+ * Chấm ngay ở trình duyệt (chủ dự án duyệt 2026-11-19) rồi gửi server ở phía sau. Kết quả server (luôn là kết quả được lưu)
+ * ghi đè lên khi về: thêm dòng hỏi lại / xong Intro, và sửa đúng / sai nếu khác.
+ */
+function useInstantGrade(onGrade: Grade, local: (given: unknown) => AnswerView, speakText?: string) {
+  const [status, setStatus] = useState<CheckStatus>('idle')
+  const [result, setResult] = useState<AnswerView | null>(null)
+  const check = (given: unknown) => {
+    if (status !== 'idle') return
+    const mine = local(given)
+    setResult(mine)
+    setStatus(mine.correct ? 'correct' : 'incorrect')
+    if (speakText) speak(speakText)
+    void onGrade(given).then((server) => {
+      if (!server) return
+      setResult({ ...mine, ...server, word: mine.word })
+      if (server.correct !== undefined && server.correct !== mine.correct) setStatus(server.correct ? 'correct' : 'incorrect')
+    })
+  }
+  return { status, result, check }
+}
 
 /** Gắn phím tắt toàn trang cho một màn hình. */
 function useKeys(onKey: (e: KeyboardEvent) => void) {
@@ -102,26 +126,19 @@ function noteOf(r: AnswerView | null): string | undefined {
 }
 
 /** Một câu chọn / gõ / ghép. Chấm ở server khi bấm Check (hoặc Enter); Continue (Enter / Space) sang thẻ sau. */
-function QuestionScreen({ label, q, hanViet, onGrade, onContinue }: { label: string; q: PublicQuestion; hanViet?: string; onGrade: Grade; onContinue: () => void }) {
+function QuestionScreen({ label, q, hanViet, word, afterSpeak, onGrade, onContinue }: { label: string; q: Question; hanViet?: string; word?: WordInfo; afterSpeak?: string; onGrade: Grade; onContinue: () => void }) {
   const [picked, setPicked] = useState<string | null>(null)
   const [typed, setTyped] = useState('')
   const [placed, setPlaced] = useState<number[]>([])
-  const [status, setStatus] = useState<CheckStatus>('idle')
-  const [checking, setChecking] = useState(false)
-  const [result, setResult] = useState<AnswerView | null>(null)
+  const graded = useInstantGrade(onGrade, (g) => ({ status: 'graded', correct: gradeQuestion(q, g as Given), answers: [answerOf(q)], word }), afterSpeak)
+  const { status, result } = graded
   const input = useRef<HTMLInputElement>(null)
-  const locked = status !== 'idle' || checking
+  const locked = status !== 'idle'
   const given: Given | null = q.kind === 'choice' ? picked : q.kind === 'typing' ? (typed.trim() ? typed : null) : placed.length ? placed.map((i) => q.pieces[i]) : null
 
-  const check = async (value: Given | null = given) => {
+  const check = (value: Given | null = given) => {
     if (locked || value === null) return
-    setChecking(true)
-    const r = await onGrade(value)
-    setChecking(false)
-    if (!r) return
-    setResult(r)
-    setStatus(r.correct ? 'correct' : 'incorrect')
-    if (r.speak) speak(r.speak)
+    graded.check(value)
   }
 
   // Trắc nghiệm: chọn là chấm ngay (bấm hoặc phím số), rồi Enter / Space sang câu sau
@@ -259,8 +276,8 @@ function QuestionScreen({ label, q, hanViet, onGrade, onContinue }: { label: str
       footer={
         <ExerciseFooter
           status={status}
-          canCheck={q.kind !== 'choice' && given !== null && !checking}
-          checkLabel={checking ? 'Checking…' : q.kind === 'choice' ? 'Pick an answer' : 'Check'}
+          canCheck={q.kind !== 'choice' && given !== null}
+          checkLabel={q.kind === 'choice' ? 'Pick an answer' : 'Check'}
           onCheck={() => void check()}
           onContinue={onContinue}
           correctAnswer={result?.answers?.join(' · ')}
@@ -278,10 +295,13 @@ const PART_LABEL: Record<string, string> = { type_kana: 'Type the reading', type
 /** Card Review gom chung: một đề, nhiều phần; chấm cả Card khi bấm Check (§3.3). Phím số chọn ở phần trắc nghiệm đang chờ. */
 function ReviewScreen({ label, card, onGrade, onContinue }: { label: string; card: Extract<CardView, { kind: 'review' }>; onGrade: Grade; onContinue: () => void }) {
   const [parts, setParts] = useState<(string | null)[]>(() => card.parts.map(() => null))
-  const [status, setStatus] = useState<CheckStatus>('idle')
-  const [checking, setChecking] = useState(false)
-  const [result, setResult] = useState<AnswerView | null>(null)
-  const locked = status !== 'idle' || checking
+  const graded = useInstantGrade(
+    onGrade,
+    (g) => ({ status: 'graded', correct: gradeCard(card.parts, g as string[]), answers: card.parts.map((p) => answerOf(p.question)), word: card.word }),
+    card.afterSpeak,
+  )
+  const { status, result } = graded
+  const locked = status !== 'idle'
   const ready = parts.every((p) => p !== null && p.trim() !== '')
   const allChoice = card.parts.every((p) => p.question.kind === 'choice')
   const set = (i: number, v: string) => {
@@ -292,15 +312,9 @@ function ReviewScreen({ label, card, onGrade, onContinue }: { label: string; car
     if (allChoice && nextParts.every((p) => p !== null)) void check(nextParts)
   }
 
-  const check = async (value: (string | null)[] = parts) => {
+  const check = (value: (string | null)[] = parts) => {
     if (locked || !value.every((p) => p !== null && p.trim() !== '')) return
-    setChecking(true)
-    const r = await onGrade(value)
-    setChecking(false)
-    if (!r) return
-    setResult(r)
-    setStatus(r.correct ? 'correct' : 'incorrect')
-    if (r.speak) speak(r.speak)
+    graded.check(value)
   }
 
   useKeys((e) => {
@@ -363,8 +377,8 @@ function ReviewScreen({ label, card, onGrade, onContinue }: { label: string; car
       footer={
         <ExerciseFooter
           status={status}
-          canCheck={!allChoice && ready && !checking}
-          checkLabel={checking ? 'Checking…' : allChoice ? 'Pick an answer' : 'Check'}
+          canCheck={!allChoice && ready}
+          checkLabel={allChoice ? 'Pick an answer' : 'Check'}
           onCheck={() => void check()}
           onContinue={onContinue}
           correctAnswer={result?.answers?.join(' · ')}
@@ -377,7 +391,7 @@ function ReviewScreen({ label, card, onGrade, onContinue }: { label: string; car
   )
 }
 
-function ReviewTyping({ q, value, locked, autoFocus, status, onChange }: { q: Extract<PublicQuestion, { kind: 'typing' }>; value: string; locked: boolean; autoFocus: boolean; status: 'idle' | 'correct' | 'checked'; onChange: (v: string) => void }) {
+function ReviewTyping({ q, value, locked, autoFocus, status, onChange }: { q: Extract<Question, { kind: 'typing' }>; value: string; locked: boolean; autoFocus: boolean; status: 'idle' | 'correct' | 'checked'; onChange: (v: string) => void }) {
   const input = useRef<HTMLInputElement>(null)
   return (
     <input
@@ -595,13 +609,20 @@ export function V12Player({ initial }: { initial: DeckView }) {
     shownAt.current = performance.now()
   }, [card?.position])
 
+  /** Câu trả lời đang gửi server: sang thẻ sau thì chờ nó xong (thường đã xong khi người học đọc kết quả). */
+  const pending = useRef<Promise<unknown> | null>(null)
+
   const advance = () => {
-    const next = nextDeck.current
-    nextDeck.current = null
-    if (next) {
+    if (busy) return
+    start(async () => {
+      if (pending.current) await pending.current
+      pending.current = null
+      const next = nextDeck.current ?? (await getDeckAction(deck.scope))
+      nextDeck.current = null
+      if (!next) return
       setDeck(next)
       setError(null)
-    } else load()
+    })
   }
 
   const load = () =>
@@ -612,15 +633,20 @@ export function V12Player({ initial }: { initial: DeckView }) {
       setError(null)
     })
 
-  const grade: Grade = async (given) => {
+  const grade: Grade = (given) => {
+    const p = send(given)
+    pending.current = p
+    return p
+  }
+
+  const send = async (given: unknown): Promise<AnswerView | null> => {
     if (!card) return null
     setError(null)
+    nextDeck.current = null
     try {
       const res = await answerDeckAction({ scope: deck.scope, position: card.position, given, elapsedMs: performance.now() - shownAt.current, clientEventId: crypto.randomUUID() })
-      if (res.status === 'conflict') {
-        load()
-        return null
-      }
+      // Bộ thẻ đã đổi (tab khác): không lưu được câu này; sang thẻ sau sẽ tải lại bộ thẻ
+      if (res.status === 'conflict') return null
       if (res.status !== 'graded') throw new Error(res.status)
       nextDeck.current = res.next ?? null
       if (card.kind !== 'intro') {
@@ -690,18 +716,17 @@ export function V12Player({ initial }: { initial: DeckView }) {
                 label={busy ? 'Saving…' : 'Continue'}
                 disabled={busy}
                 hint="Press Enter to continue"
-                onClick={() =>
-                  start(async () => {
-                    if (await grade(null)) advance()
-                  })
-                }
+                onClick={() => {
+                  pending.current = send(null)
+                  advance()
+                }}
               />
             }
           >
             <Intro intro={card.intro} />
           </ExercisePanel>
         )}
-        {(card.kind === 'stage' || card.kind === 'star') && <QuestionScreen label={label} q={card.question} hanViet={card.promptHanViet} onGrade={grade} onContinue={advance} />}
+        {(card.kind === 'stage' || card.kind === 'star') && <QuestionScreen label={label} q={card.question} hanViet={card.promptHanViet} word={card.word} afterSpeak={card.afterSpeak} onGrade={grade} onContinue={advance} />}
         {card.kind === 'review' && <ReviewScreen label={label} card={card} onGrade={grade} onContinue={advance} />}
       </Fragment>
     </div>

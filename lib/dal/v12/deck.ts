@@ -11,7 +11,7 @@ import { balanceTarget, secondsFromStats } from '@/lib/v12/balance'
 import { forecast, overflowDays, type ForecastDay } from '@/lib/v12/forecast'
 import type { Progress } from '@/lib/v12/order'
 import { key, pausedZones, planNewItems, type PlanResult } from '@/lib/v12/plan'
-import { buildReviewCard, buildStageQuestion, gradeCard, gradeQuestion, type Pools, type Question } from '@/lib/v12/questions'
+import { buildReviewCard, buildStageQuestion, gradeCard, gradeQuestion, type CardPart, type Pools, type Question } from '@/lib/v12/questions'
 import { canShow, isActive, plannedShows, remainingTypes } from '@/lib/v12/stage'
 import { readV12Content, type V12Content } from './content'
 import { readV12Settings, type V12Settings } from './settings'
@@ -230,11 +230,9 @@ function isValid(l: Loaded, card: DeckCard, now: Date): boolean {
   return false
 }
 
-export type PublicQuestion = Question extends infer Q ? (Q extends { answer: unknown } ? Omit<Q, 'answer'> : never) : never
-const strip = (q: Question): PublicQuestion => {
-  const { answer: _a, ...rest } = q
-  return rest as PublicQuestion
-}
+// Câu gửi kèm đáp án (chủ dự án duyệt 2026-11-19): trình duyệt chấm ngay để hiện đúng / sai tức thì;
+// server vẫn chấm lại và chỉ kết quả của server được lưu.
+export type { Question }
 
 export type IntroView =
   | { area: 'kana'; kana: string; meaning: string; hanViet: string | null }
@@ -251,14 +249,17 @@ interface CardBase {
   starred: boolean | null
   /** Hán Việt hiện dưới chữ ở đề để tiếp xúc nhiều với Hán tự — không có ở câu hỏi về Hán Việt. */
   promptHanViet?: string
+  /** Hiện sau khi chấm (chấm ngay ở trình duyệt): chữ, cách đọc, Hán Việt, nghĩa; Kana để đọc lại. */
+  word?: WordInfo
+  afterSpeak?: string
 }
 
 export type CardView = CardBase &
   (
     | { kind: 'intro'; intro: IntroView }
-    | { kind: 'stage'; type: CardType; stage: 1 | 2 | 3; retry: boolean; question: PublicQuestion }
-    | { kind: 'star'; type: CardType; question: PublicQuestion }
-    | { kind: 'review'; card: ReviewCardType; cardId: string; retry: boolean; prompt: string; promptKind: string; speak?: string; parts: { part: string; question: PublicQuestion }[] }
+    | { kind: 'stage'; type: CardType; stage: 1 | 2 | 3; retry: boolean; question: Question }
+    | { kind: 'star'; type: CardType; question: Question }
+    | { kind: 'review'; card: ReviewCardType; cardId: string; retry: boolean; prompt: string; promptKind: string; speak?: string; parts: CardPart[] }
   )
 
 /** Từ / chữ vừa học, hiện sau khi chấm để đọc lại (shadowing): chữ, cách đọc, Hán Việt, nghĩa. */
@@ -331,7 +332,8 @@ async function viewOf(supabase: Supabase, l: Loaded, card: DeckCard, position: n
   const hanViet = (promptKind: string, type: string) => (promptKind === 'kana' || promptKind === 'kanji') && !asksHanViet(type) ? hanVietOf(item, data) : undefined
   if (card.kind === 'stage' || card.kind === 'star') {
     const q = buildStageQuestion(card.type, data, p, Math.random)
-    const common = { ...base, type: card.type, question: strip(q), promptHanViet: hanViet(q.promptKind, card.type) }
+    const kanaOf = item.area === 'kana' ? (data as { kana: string }).kana : undefined
+    const common = { ...base, type: card.type, question: q, promptHanViet: hanViet(q.promptKind, card.type), word: wordOf(item, data), afterSpeak: q.speak ?? kanaOf }
     return card.kind === 'stage' ? { ...common, kind: 'stage', stage: card.stage, retry: card.retry === true } : { ...common, kind: 'star' }
   }
   if (card.kind === 'review') {
@@ -346,8 +348,10 @@ async function viewOf(supabase: Supabase, l: Loaded, card: DeckCard, position: n
       prompt: built.prompt,
       promptKind: built.promptKind,
       speak: built.speak,
-      parts: built.parts.map((x) => ({ part: x.part, question: strip(x.question) })),
+      parts: built.parts,
       promptHanViet: hanViet(built.promptKind, parts),
+      word: wordOf(item, data),
+      afterSpeak: built.speak,
     }
   }
   return null
