@@ -7,9 +7,10 @@ import { revealOf, type KanjiReveal } from '@/lib/kanji/questions'
 import { nextStudyDayStart, studyDate } from '@/lib/learning/time'
 import { STAGE_TYPES, typesFor, ZONES, zoneOf, type Area, type CardType, type ReviewCardType, type Zone } from '@/lib/v12/card-types'
 import { applyCap, buildDeck, countQuestions, insertRetry, reviewRetryGap, splitByZone, type DeckCard, type DeckInput } from '@/lib/v12/deck'
+import { balanceTarget } from '@/lib/v12/balance'
 import { forecast, overflowDays, type ForecastDay } from '@/lib/v12/forecast'
 import type { Progress } from '@/lib/v12/order'
-import { key, planNewItems, type PlanResult } from '@/lib/v12/plan'
+import { key, pausedZones, planNewItems, type PlanResult } from '@/lib/v12/plan'
 import { buildReviewCard, buildStageQuestion, gradeCard, gradeQuestion, type Pools, type Question } from '@/lib/v12/questions'
 import { canShow, isActive, plannedShows, remainingTypes } from '@/lib/v12/stage'
 import { readV12Content, type V12Content } from './content'
@@ -49,11 +50,19 @@ function progressOf(l: Pick<Loaded, 'items' | 'knownWords' | 'knownKanji'>): Map
   return p
 }
 
-function plan(l: Loaded, today: string): PlanResult {
+/** Số câu tồn của từng khu hôm nay: câu Stage đến lượt + Card đến hạn (không tính mục mới). */
+function zoneLoad(l: Loaded, now: Date): Record<Zone, number> {
+  const split = splitByZone(deckInput(l, ZONES, now))
+  return { kana: countQuestions({ ...split.kana, newItems: [] }), kanji: countQuestions({ ...split.kanji, newItems: [] }), word_kanji: countQuestions({ ...split.word_kanji, newItems: [] }) }
+}
+
+function plan(l: Loaded, now: Date): PlanResult & { paused: Record<Zone, boolean> } {
+  const today = studyDate(now)
+  const paused = pausedZones(zoneLoad(l, now), l.settings.caps)
   const openedToday: Record<Area, number> = { kana: 0, radical: 0, kanji: 0, word_kanji: 0 }
   for (const i of l.items) if (i.createdOn === today) openedToday[i.area]++
   const carry = (l.settings.balanceCarry as { date?: string; in?: Record<string, number> }).date === today ? (l.settings.balanceCarry as { in?: Record<string, number> }).in : (l.settings.balanceCarry as { out?: Record<string, number> }).out
-  return planNewItems({
+  const result = planNewItems({
     today,
     words: l.content.words,
     radicals: l.content.radicals.map((r) => r.number),
@@ -62,16 +71,18 @@ function plan(l: Loaded, today: string): PlanResult {
     progress: progressOf(l),
     openedToday,
     balanceOn: l.settings.balanceOn,
-    target: l.settings.balanceTarget === 'date' && l.settings.balanceDate ? { kind: 'date', date: l.settings.balanceDate } : { kind: 'minutes', minutes: l.settings.balanceMinutes },
+    target: balanceTarget(l.settings.balanceTarget, l.settings.balanceDate, l.settings.balanceMinutes, today),
     manual: l.settings.newPerDay,
     carry: carry ?? {},
+    paused,
   })
+  return { ...result, paused }
 }
 
 /** Mở các mục mới hôm nay của các khu trong phạm vi; lưu phần lẻ cân bằng của ngày. */
 async function openNewItems(supabase: Supabase, userId: string, l: Loaded, scope: Scope, now: Date): Promise<boolean> {
   const today = studyDate(now)
-  const p = plan(l, today)
+  const p = plan(l, now)
   const zones = zonesOf(scope)
   const jobs: Promise<unknown>[] = []
   const similar = new Set(l.content.kanji.filter((k) => k.similar.length > 0).map((k) => k.id))
@@ -338,11 +349,16 @@ export interface ZoneSummary {
   zone: Zone
   /** Mục mới hôm nay (chưa xem thẻ giới thiệu, kể cả mục sẽ mở). */
   newItems: number
+  /** Câu Stage và Card hôm nay, đã áp trần của khu. */
   stageQuestions: number
   reviews: number
+  /** Câu Stage và Card vượt trần, chờ các ngày sau. */
+  waiting: number
   /** Bộ thẻ đã dựng: đã làm / tổng. */
   deck: { position: number; total: number } | null
   remaining: number
+  /** Tồn quá trần: hôm nay không mở mục mới (luật dừng mục mới). */
+  paused: boolean
 }
 
 export interface HubView {
@@ -362,19 +378,27 @@ export async function getHub(): Promise<HubView> {
   const now = new Date()
   const today = studyDate(now)
   const l = await load(supabase, user.id)
-  const p = plan(l, today)
+  const p = plan(l, now)
   const input = deckInput(l, ZONES, now)
   const split = splitByZone(input)
   const decks = await Promise.all([...ZONES, 'all' as const].map((s) => readDeck(supabase, user.id, today, s)))
   const willOpen: Record<Zone, number> = { kana: p.open.kana.length, kanji: p.open.radical.length + p.open.kanji.length, word_kanji: p.open.word_kanji.length }
-  const zones = ZONES.map((zone, i) => ({
-    zone,
-    newItems: split[zone].newItems.length + willOpen[zone],
-    stageQuestions: countQuestions({ ...split[zone], reviews: [], newItems: [] }),
-    reviews: split[zone].reviews.length,
-    deck: decks[i] ? { position: decks[i]!.position, total: decks[i]!.cards.length } : null,
-    remaining: zone === 'kanji' ? p.remaining.radical + p.remaining.kanji : p.remaining[zone],
-  }))
+  const zones = ZONES.map((zone, i) => {
+    // Số thật hôm nay sau trần của khu (như khi dựng bộ thẻ); phần vượt trần là "waiting"
+    const capped = applyCap(split[zone], l.settings.caps[zone]).input
+    const stageAll = countQuestions({ ...split[zone], reviews: [], newItems: [] })
+    const stageQuestions = countQuestions({ ...capped, reviews: [], newItems: [] })
+    return {
+      zone,
+      newItems: capped.newItems.length + willOpen[zone],
+      stageQuestions,
+      reviews: capped.reviews.length,
+      waiting: stageAll - stageQuestions + split[zone].reviews.length - capped.reviews.length,
+      deck: decks[i] ? { position: decks[i]!.position, total: decks[i]!.cards.length } : null,
+      remaining: zone === 'kanji' ? p.remaining.radical + p.remaining.kanji : p.remaining[zone],
+      paused: p.paused[zone],
+    }
+  })
   // Dự báo 7 ngày: Card đến hạn theo ngày, mục đang học, mục mới mỗi ngày như hôm nay
   const reviewsByDay: Record<Zone, number[]> = { kana: new Array(7).fill(0), kanji: new Array(7).fill(0), word_kanji: new Array(7).fill(0) }
   const itemById = new Map(l.items.map((i) => [i.id, i]))

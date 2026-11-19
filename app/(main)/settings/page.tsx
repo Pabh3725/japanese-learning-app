@@ -8,6 +8,7 @@ import { getGrammarFurigana, getStudyLimits } from '@/lib/dal/settings'
 import { getHub } from '@/lib/dal/v12/deck'
 import { getV12Settings } from '@/lib/dal/v12/settings'
 import { GRAMMAR_V1 } from '@/lib/grammar/rules'
+import { addStudyDays, studyDate } from '@/lib/learning/time'
 
 /** Ước lượng thời gian mỗi câu hoặc thẻ. */
 const SECONDS_PER_ITEM = 15
@@ -35,7 +36,7 @@ export default async function SettingsPage() {
           )}
         </ul>
       </section>
-      <SettingsForm limits={limits} furigana={furigana} v12Slot={<V12SettingsFields s={v12} />} />
+      <SettingsForm limits={limits} furigana={furigana} v12Slot={<V12SettingsFields s={v12} minDate={addStudyDays(studyDate(new Date()), 1)} />} />
 
       <section aria-labelledby="account-title" className="mt-6 max-w-2xl rounded-3xl border border-border bg-card p-6">
         <h2 id="account-title" className="font-semibold">Account</h2>

@@ -4,13 +4,14 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { addStudyDays } from '../../learning/time'
 import { parseCsv } from '../../../scripts/seed/csv'
-import { balance, estimatedSeconds, type Remaining } from '../balance'
+import { balance, balanceTarget, estimatedSeconds, type Remaining } from '../balance'
 import { reviewCardsFor, typesFor, type CardType } from '../card-types'
 import { applyCap, buildDeck, insertRetry, type DeckCard, type DeckInput } from '../deck'
 import { forecast, overflowDays, simulateItem } from '../forecast'
 import { migrateKanji, migrateWord } from '../migrate'
 import { canOpenKanji, kanjiOrder, queueTriggered, radicalOrder, wordKanjiStatus, type KanjiRow, type Progress } from '../order'
 import { buildReviewCard, buildStageQuestion, gradeCard, gradeQuestion, type Pools } from '../questions'
+import { pausedZones } from '../plan'
 import { RULES_V12 } from '../rules'
 import { applyAnswer, canShow, newItem, plannedShows, type ItemState } from '../stage'
 
@@ -223,6 +224,25 @@ describe('§8 Cân bằng theo thời gian', () => {
     expect(lastDay.word_kanji).toBe(first.days - 1)
   })
 
+  it('luật dừng mục mới: khu tồn (câu Stage + Card đến hạn) từ trần trở lên thì không mở mục mới', () => {
+    const caps = { kana: 120, kanji: 100, word_kanji: 80 }
+    expect(pausedZones({ kana: 119, kanji: 100, word_kanji: 300 }, caps)).toEqual({ kana: false, kanji: true, word_kanji: true })
+    expect(pausedZones({ kana: 0, kanji: 0, word_kanji: 0 }, caps)).toEqual({ kana: false, kanji: false, word_kanji: false })
+  })
+
+  it('mục tiêu từ Settings: ngày đã qua hoặc chưa chọn thì dùng số phút, không dồn mọi mục vào một ngày', () => {
+    const tomorrow = addStudyDays(D0, 1)
+    expect(balanceTarget('date', tomorrow, 20, D0)).toEqual({ kind: 'date', date: tomorrow })
+    expect(balanceTarget('date', D0, 20, D0)).toEqual({ kind: 'date', date: D0 })
+    expect(balanceTarget('date', addStudyDays(D0, -3), 20, D0)).toEqual({ kind: 'minutes', minutes: 20 })
+    expect(balanceTarget('date', null, 20, D0)).toEqual({ kind: 'minutes', minutes: 20 })
+    expect(balanceTarget('minutes', tomorrow, 30, D0)).toEqual({ kind: 'minutes', minutes: 30 })
+    const rem: Remaining = { kana: 425, radical: 100, kanji: 263, word_kanji: 300 }
+    const passed = balance(rem, balanceTarget('date', addStudyDays(D0, -3), 20, D0), D0)
+    expect(passed.days).toBeGreaterThan(30)
+    expect(passed.today.kana).toBeLessThan(rem.kana / 10)
+  })
+
   it('mục tiêu số phút: trung bình cả kỳ gần đúng số phút đặt ra (phần lẻ cộng dồn)', () => {
     let rem: Remaining = { kana: 425, radical: 0, kanji: 263, word_kanji: 300 }
     let carry = {}
@@ -393,6 +413,17 @@ describe('Chọn mục mới hôm nay (plan)', () => {
     const r2 = planNewItems({ ...base, progress: new Map<string, Progress>([['radical:72', 2], ['radical:109', 1]]) })
     expect(r2.open.radical).toEqual([])
     expect(r2.open.kanji).toEqual(['k-hi'])
+  })
+
+  it('khu bị dừng mục mới thì không mở gì ở khu đó, khu khác vẫn mở (cả khi bật cân bằng)', async () => {
+    const { planNewItems } = await import('../plan')
+    const r = planNewItems({ ...base, paused: { kanji: true } })
+    expect(r.open.kana).toEqual(['w0', 'w1'])
+    expect(r.open.radical).toEqual([])
+    expect(r.open.kanji).toEqual([])
+    const b = planNewItems({ ...base, balanceOn: true, paused: { kana: true } })
+    expect(b.open.kana).toEqual([])
+    expect(b.open.radical.length).toBeGreaterThan(0)
   })
 
   it('đã mở hôm nay thì không mở thêm quá chỉ tiêu', async () => {

@@ -34,6 +34,8 @@ export interface PlanInput {
   manual: Readonly<Record<Zone, number>>
   carry?: Partial<Record<keyof Remaining, number>>
   seconds?: Record<Area, number>
+  /** Khu đang tồn quá trần: hôm nay không mở mục mới (pausedZones). */
+  paused?: Partial<Record<Zone, boolean>>
 }
 
 export interface PlanResult {
@@ -89,6 +91,12 @@ export function planNewItems(input: PlanInput): PlanResult {
     quota = { kana: Math.max(0, input.manual.kana - o.kana), radical, kanji: kanjiZone - radical, word_kanji: Math.max(0, input.manual.word_kanji - o.word_kanji) }
   }
 
+  // Khu tồn quá trần: không mở mục mới hôm nay (cân bằng tự bù vào các ngày sau vì tính lại trên số còn lại thật)
+  const paused = input.paused ?? {}
+  if (paused.kana) quota.kana = 0
+  if (paused.kanji) quota = { ...quota, radical: 0, kanji: 0 }
+  if (paused.word_kanji) quota.word_kanji = 0
+
   const kana = unopenedWords(level).slice(0, quota.kana).map((w) => w.id)
   const radical = unopenedRadicals(level).slice(0, quota.radical)
 
@@ -117,6 +125,14 @@ export function planNewItems(input: PlanInput): PlanResult {
     if (triggered) word_kanji.push(...candidates.filter((w) => status.get(w.id) === 'queued').slice(0, quota.word_kanji - word_kanji.length).map((w) => w.id))
   }
   return { level, open: { kana, radical, kanji, word_kanji }, remaining, balance: result }
+}
+
+/**
+ * Luật dừng mục mới (chủ dự án chốt 2026-11-19): khu nào có câu Stage đến lượt cộng Card đến hạn hôm nay
+ * (không tính mục mới) từ trần trở lên thì hôm đó không mở mục mới cho khu đó.
+ */
+export function pausedZones(load: Readonly<Record<Zone, number>>, caps: Readonly<Record<Zone, number>>): Record<Zone, boolean> {
+  return { kana: load.kana >= caps.kana, kanji: load.kanji >= caps.kanji, word_kanji: load.word_kanji >= caps.word_kanji }
 }
 
 export { pastStage1 }
