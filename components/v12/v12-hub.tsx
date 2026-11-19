@@ -28,7 +28,7 @@ function ZoneCard({ z, radicals }: { z: ZoneSummary; radicals: HubView['radicals
       <dl className="mt-4 grid grid-cols-3 gap-2 text-center">
         {[
           ['New', z.newItems],
-          ['Stage', z.stageQuestions],
+          ['Intro', z.stageQuestions],
           ['Review', z.reviews],
         ].map(([label, n]) => (
           <div key={label as string} className="rounded-2xl bg-secondary px-2 py-2">
@@ -41,7 +41,7 @@ function ZoneCard({ z, radicals }: { z: ZoneSummary; radicals: HubView['radicals
       {z.deck && <p className="mt-3 text-xs text-muted-foreground tabular-nums">Today: {Math.min(z.deck.position, z.deck.total)} / {z.deck.total} cards</p>}
       <p className="mt-1 text-xs text-muted-foreground tabular-nums">{z.remaining} not started in this level</p>
       {z.paused && (
-        <p className="mt-2 text-xs text-yellow">New items paused: catching up. Today&apos;s stage and review cards already reach this area&apos;s daily limit.</p>
+        <p className="mt-2 text-xs text-yellow">New items paused: catching up. Today&apos;s intro and review cards already reach this area&apos;s daily limit.</p>
       )}
       {z.zone === 'kanji' && radicals.total > 0 && <RadicalsKnownButton total={radicals.total} known={radicals.known} />}
       <div className="mt-auto pt-4">
@@ -62,7 +62,7 @@ export function V12Hub({ hub }: { hub: HubView }) {
   const total = hub.zones.reduce((n, z) => n + z.newItems + z.stageQuestions + z.reviews, 0)
   return (
     <>
-      <PageHeader eyebrow="学習" title="Learn" description="Three areas, each mixing new items, stage practice and review cards for today." />
+      <PageHeader eyebrow="学習" title="Learn" description="Three areas, each mixing new items, intro practice and review cards for today." />
       <div className="flex max-w-4xl flex-col gap-5">
         <section className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-primary/40 bg-primary/5 p-5">
           <div>
