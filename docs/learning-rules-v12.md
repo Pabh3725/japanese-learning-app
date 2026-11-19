@@ -118,7 +118,7 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 | Stage 1 | từ Kanji → Hán Việt · từ Kanji → nghĩa · Hán Việt → từ Kanji · nghĩa → từ Kanji (trắc nghiệm) |
 | Stage 2 | Như Stage 1 (trắc nghiệm) |
 | Stage 3 | từ Kanji → **gõ** Hán Việt · từ Kanji → nghĩa (trắc nghiệm) |
-| **Review: 1 Card** | nhìn từ → **gõ** Kana + **gõ** Hán Việt + **chọn** nghĩa |
+| **Review: 1 Card** | nhìn từ → **gõ** Hán Việt + **chọn** nghĩa (bỏ gõ Kana, chủ dự án chốt 2026-11-19; cách đọc hiện và đọc to sau khi chấm) |
 
 ## 7. Chuyển dữ liệu người học (từ V11)
 

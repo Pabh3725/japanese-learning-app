@@ -217,7 +217,7 @@ export function buildReviewCard(card: ReviewCardType, item: KanaWordItem | Radic
         promptKind: 'kanji',
         speak: w.kana,
         parts: parts({
-          type_kana: () => ({ kind: 'typing', prompt: w.expression, promptKind: 'kanji', input: isKatakana(w.kana) ? 'katakana' : 'hiragana', answer: w.kana }),
+          type_kana: never,
           type_hanviet: () => buildStageQuestion('word_type_hanviet', w, pools, rng),
           choose_meaning: () => buildStageQuestion('word_meaning', w, pools, rng),
           choose_hanviet: never,
