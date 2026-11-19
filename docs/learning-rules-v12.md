@@ -63,7 +63,7 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 |---|---|
 | Thẻ giới thiệu | Kana, nghĩa, âm thanh, Hán Việt (nếu có, hiện nhỏ) |
 | Stage 1 | Kana → nghĩa (trắc nghiệm) · nghĩa → Kana (trắc nghiệm) |
-| Stage 2 | Kana → nghĩa · nghĩa → Kana · nghe → chọn Kana · sắp xếp chữ cái thành từ — đều trắc nghiệm hoặc ghép |
+| Stage 2 | Kana → nghĩa · nghĩa → Kana · nghe → chọn Kana — đều trắc nghiệm (bỏ ghép chữ cái, chủ dự án chốt 2026-11-19) |
 | Stage 3 | nghĩa → **gõ** Kana · nghe → **gõ** Kana · Kana → nghĩa (trắc nghiệm) |
 | **Review: 2 Card** | ① nghĩa → **gõ** Kana; đúng hay sai đều phát âm thanh. ② Kana (kèm âm thanh) → **chọn** nghĩa |
 
@@ -98,7 +98,7 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 | | Loại thẻ |
 |---|---|
 | Stage 1 | Kanji → Hán Việt · Kanji → nghĩa · Hán Việt → Kanji · nghĩa → Kanji (trắc nghiệm) |
-| Stage 2 | Như Stage 1 (trắc nghiệm) |
+| Stage 2 | Như Stage 1 (trắc nghiệm) + **ghép chữ**: nghĩa (kèm Hán Việt) → chọn từng chữ theo thứ tự để viết từ, có chữ Kanji nhiễu (chủ dự án chốt 2026-11-19) |
 | Stage 3 | Kanji → **gõ** Hán Việt · Kanji → nghĩa (trắc nghiệm) · Hán Việt → Kanji (trắc nghiệm) · nghĩa → Kanji (trắc nghiệm) · **phân biệt Kanji giống nhau** (chỉ có khi chữ đó có cặp chữ giống nhau đã duyệt) |
 | **Review: 1 Card** | nhìn chữ → **gõ** Hán Việt + **chọn** nghĩa |
 
@@ -156,10 +156,10 @@ Mỗi mục được quy ra **thời gian học** theo số câu tối thiểu c
 
 | Mục | Câu học (tối thiểu) | Card Review | Thời gian ước tính |
 |---|---|---|---|
-| Từ vựng Kana | thẻ giới thiệu + Stage 1: 2 trắc nghiệm + Stage 2: 12 trắc nghiệm/ghép + Stage 3: 6 gõ, 3 trắc nghiệm | 2 Card × 4 lần | 15 + 102 + 72 + 120 ≈ **5,2 phút** |
+| Từ vựng Kana | thẻ giới thiệu + Stage 1: 2 trắc nghiệm + Stage 2: 9 trắc nghiệm + Stage 3: 6 gõ, 3 trắc nghiệm | 2 Card × 4 lần | 15 + 84 + 72 + 120 ≈ **4,9 phút** (bỏ ghép Kana 2026-11-19) |
 | Bộ thủ | thẻ giới thiệu + Stage 1: 2 + Stage 2: 12 trắc nghiệm | 1 Card × 4 lần | 15 + 84 + 60 ≈ **2,7 phút** |
 | Chữ Kanji | thẻ giới thiệu + Stage 1: 4 + Stage 2: 12 trắc nghiệm + Stage 3: 3 gõ, 9–12 trắc nghiệm | 1 Card × 4 lần | 15 + 150 + 36 + 60 ≈ **4,4 phút** |
-| Từ vựng Kanji | thẻ giới thiệu + Stage 1: 4 + Stage 2: 12 trắc nghiệm + Stage 3: 3 gõ, 3 trắc nghiệm | 1 Card × 4 lần | 15 + 114 + 36 + 60 ≈ **3,8 phút** |
+| Từ vựng Kanji | thẻ giới thiệu + Stage 1: 4 + Stage 2: 12 trắc nghiệm + 3 ghép chữ + Stage 3: 3 gõ, 3 trắc nghiệm | 1 Card × 4 lần | 15 + 132 + 36 + 60 ≈ **4,1 phút** (thêm ghép chữ 2026-11-19) |
 
 - Sai thì có thêm câu hỏi lại, nên thời gian thật dài hơn. App ghi thời gian trả lời thật và **sau 14 ngày** thay các con số ước tính bằng trung bình thật của người học .
 
