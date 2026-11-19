@@ -102,6 +102,17 @@ export function V12SettingsFields({ s, minDate }: { s: V12Settings; minDate: str
           </>
         )}
       </Group>
+      <Group id="pause" title="Vocab · Pause an area" description="Stop new items in one area for a while. Its intro and review cards continue. With balancing on, its time goes to the other areas.">
+        {(
+          [
+            ['v12_pause_kana', 'kana', 'Pause new Kana words'],
+            ['v12_pause_kanji', 'kanji', 'Pause new radicals and Kanji'],
+            ['v12_pause_word_kanji', 'word_kanji', 'Pause new Kanji words'],
+          ] as const
+        ).map(([key, zone, label]) => (
+          <SettingSwitch key={key} label={label} description="No new items open in this area until you turn this off." defaultChecked={s.pausedZones[zone]} onSave={(v) => saveV12SettingAction(key, v)} />
+        ))}
+      </Group>
       <Group id="sessions" title="Vocab · Sessions" description="Today's Vocab cards are shuffled and split into sets.">
         <Field name="set_size" label="Cards per set" hint="After each set you can take a break or keep going." initial={s.setSize} min={RULES_V12.set.min} max={RULES_V12.set.max} />
       </Group>

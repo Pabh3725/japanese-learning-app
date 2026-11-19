@@ -224,6 +224,33 @@ describe('§8 Cân bằng theo thời gian', () => {
     expect(lastDay.word_kanji).toBe(first.days - 1)
   })
 
+  it('dừng một khu khi bật cân bằng: khu dừng không mở mục mới, thời gian chia cho các khu còn chạy', () => {
+    const rem: Remaining = { kana: 425, radical: 0, kanji: 263, word_kanji: 300 }
+    const normal = balance(rem, { kind: 'minutes', minutes: 20 }, D0)
+    const paused = balance(rem, { kind: 'minutes', minutes: 20 }, D0, undefined, { kanji: 0.4 }, { kanji: true })
+    expect(paused.today.kanji).toBe(0)
+    expect(paused.carry.kanji).toBe(0.4)
+    expect(paused.today.kana).toBeGreaterThan(normal.today.kana)
+    // Tổng thời gian mục mới trung bình mỗi ngày vẫn gần 20 phút (phần lẻ cộng dồn)
+    let r2 = rem
+    let carry: Partial<Record<keyof Remaining, number>> = {}
+    let day = D0
+    const mins: number[] = []
+    for (let d = 0; d < 30; d++) {
+      const r = balance(r2, { kind: 'minutes', minutes: 20 }, day, undefined, carry, { kanji: true })
+      mins.push(r.minutes.kana + r.minutes.kanji + r.minutes.word_kanji)
+      r2 = { ...r2, kana: r2.kana - r.today.kana, word_kanji: r2.word_kanji - r.today.word_kanji }
+      carry = r.carry
+      day = addStudyDays(day, 1)
+    }
+    const avg = mins.reduce((a, b) => a + b, 0) / mins.length
+    expect(avg).toBeGreaterThan(18)
+    expect(avg).toBeLessThanOrEqual(20.5)
+    // Mục tiêu ngày: khu còn chạy giữ chỉ tiêu theo ngày đó
+    const date = addStudyDays(D0, 99)
+    expect(balance(rem, { kind: 'date', date }, D0, undefined, {}, { kanji: true }).today.kana).toBe(balance(rem, { kind: 'date', date }, D0).today.kana)
+  })
+
   it('luật dừng mục mới: khu tồn (câu Stage + Card đến hạn) từ trần trở lên thì không mở mục mới', () => {
     const caps = { kana: 120, kanji: 100, word_kanji: 80 }
     expect(pausedZones({ kana: 119, kanji: 100, word_kanji: 300 }, caps)).toEqual({ kana: false, kanji: true, word_kanji: true })
