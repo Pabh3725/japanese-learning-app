@@ -1,5 +1,7 @@
 # ENG-01 — Luật học (Learning Rules) `RULES_V9`
 
+> **Đã bị thay (2026-11-19):** phần Từ vựng, Kanji riêng lẻ (§12), Stage, AIS, vòng boss, vòng ghép ô và Review của tài liệu này đã được thay bằng Luật V12 `docs/learning-rules-v12.md` (IMPLEMENTED, prod 2026-11-19); code V9–V11 tương ứng đã gỡ ở gói 5. Tài liệu giữ lại để truy vết quyết định.
+
 > Trạng thái: **Đã chốt thiết kế V9** (chủ dự án duyệt 2026-11-10), gói 1 của nâng cấp V9 (xem `docs/upgrade-v9-audit.md`). Gói 2 (R1, R4, R5 cho Card Kana, R9: 6 Stage) đã có trong code trên nhánh `feature/v9-stages`, migration `20261110000001_v9_six_stages.sql`. Gói 3 (§6a chính sách Kanji của từ) đã có trên nhánh `feature/v9-kanji-policy`: `pnpm policy:propose` tạo `data/n5/kanji_policy.csv` và `docs/kanji-policy-review.md`, migration `20261111000001`–`000002`, nút "Học dạng Kanji", server kiểm tra trong `open_word_kanji`. Cấp chữ: N5 của file gốc giữ nguyên, các chữ khác theo danh sách Waller (`pnpm policy:levels`). Gói 4 (§9.4 Review tách 2 mục, trần riêng; §12 Kanji 2 Card và điều kiện hoàn tất Học không cần On/Kun; R13 Archive) đã có trên nhánh `feature/v9-review-archive`: migration `20261112000001`–`000003`, trang `/review/archive`. Gói 5 (R7 bài 50 câu và ngân sách chung, R11 AIS) đã có trên nhánh `feature/v9-ais`: `lib/learn/ais.ts`, `lib/dal/lesson.ts`, trang `/learn/lesson`, migration `20261113000001`. Câu kiểm tra nhanh ghi ở `learn_micro_logs`; câu Học Kanji và câu Card Kanji ghi `kanji_logs.day_seq` để giãn cách R3 đếm chung với câu Stage. Gói 6 (R12 dữ liệu) đã có trên nhánh `feature/v9-kanji-data`: `pnpm kanji:visual` đọc KanjiVG r20260714 (Ulrich Apel, CC BY-SA 3.0) tạo `data/n5/kanji_visual.json` (nét viết, thành phần đủ mọi tầng, vị trí, số bộ thủ), `data/n5/kanji_similar.csv` (cặp gần giống, giải thích tự động, chờ duyệt) và điền số nét vào `kanji.csv`; `data/n5/radicals.csv` có tên 214 bộ chờ duyệt; migration `20261114000001`; `pnpm seed` ghi cả ba. Gói 7 (R12 dạng bài) đã có trên nhánh `feature/v9-kanji-visual`: thẻ chữ hiện bộ thủ, thành phần và hoạt hình nét viết (thẻ giới thiệu, thẻ học lại khi sai); câu "viết rồi tự chấm" của Review hiện nét từng chữ sau khi lật; trang `/library/kanji/[char]`; câu hỗ trợ C, E, F xen vào bài Learn (`lib/kanji/visual.ts`, `lib/dal/lesson.ts`). Bản V8 (`RULES_V4`) còn trong lịch sử git. Mục còn ghi PROPOSED là chi tiết kỹ thuật người viết đề xuất, được phép chỉnh khi code và test, nhưng phải báo lại.
 >
 > Ngày: 2026-11-10. Cơ sở: lộ trình v2 (`PROJECT_SPEC.md` §18.5b, §18.6, code trên `feature/path-v2`) và yêu cầu nâng cấp V9.
@@ -236,6 +238,8 @@ Mỗi từ × Stage 2, 3, 5, 6 có một lịch `ts-fsrs`, tối đa 2 ngày, kh
 V10 (2026-11-14): không có bước học tính bằng phút (`learning_steps` rỗng); đúng → 2 ngày, sai/gợi ý → 1 ngày; hạn làm tròn về 00:00 giờ VN. Lặp trong ngày do AIS đảm nhận, tối đa 3 câu tính điểm mỗi mục mỗi ngày (§0). — CONFIRMED
 
 ## 12. R10 — Kanji riêng lẻ
+
+> **Đã bị thay bởi V12** (`docs/learning-rules-v12.md` §5, 2026-11-19): bộ thủ học trước, chữ 3 Stage theo điểm từng loại thẻ, 1 Card gom chung. Nội dung dưới đây chỉ còn để truy vết.
 
 - Thứ tự chữ mới, cấp, thẻ "đã biết", quá tải: giữ §18.6. — CONFIRMED
 - Thẻ giới thiệu: mặt chữ, nghĩa, Hán Việt, bộ thủ, thành phần và vị trí, hoạt hình thứ tự nét, từ liên quan (R12). **Không có mẹo ghi nhớ.** — CONFIRMED (2026-11-10)

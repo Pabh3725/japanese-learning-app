@@ -1,5 +1,4 @@
 // Câu hỏi và cách chấm của khu Kanji. Pure. Đáp án nhiễu không được tạo thêm một đáp án đúng.
-import { toHiragana } from 'wanakana'
 import type { Outcome } from '../learning/types'
 import { rankByTier, type KanjiTier } from './distractor-tier'
 import type { KanjiExercise } from './rules'
@@ -204,36 +203,4 @@ export const REMEMBERED = 'remembered'
 export interface KanjiGrade {
   outcome: Outcome
   answer: string
-}
-
-/** Chấm theo dữ liệu thật, không tin trình duyệt. `wordMeaning`: nghĩa thật của từ trong câu word_meaning. */
-export function gradeKanjiAnswer(kanji: KanjiRow, exercise: KanjiExercise, answer: string, wordMeaning: string | null = null): KanjiGrade {
-  switch (exercise) {
-    case 'kanji_to_meaning':
-      return { outcome: answer === kanji.meaning_vi ? 'correct' : 'wrong', answer: kanji.meaning_vi }
-    case 'kanji_to_hanviet':
-      return { outcome: answer === kanji.han_viet ? 'correct' : 'wrong', answer: kanji.han_viet }
-    case 'pick_kanji':
-    case 'hanviet_to_kanji':
-    case 'similar_kanji':
-      return { outcome: answer === kanji.character ? 'correct' : 'wrong', answer: kanji.character }
-    case 'meaning_self':
-      return { outcome: answer === REMEMBERED ? 'correct' : 'wrong', answer: kanji.meaning_vi }
-    case 'kanji_reading': {
-      const readings = readingsOf(kanji)
-      return { outcome: readings.includes(answer) ? 'correct' : 'wrong', answer: readings.join('、') }
-    }
-    case 'hanviet_typing':
-      return { outcome: plainHanViet(answer) === plainHanViet(kanji.han_viet) ? 'correct' : 'wrong', answer: kanji.han_viet }
-    case 'reading_typing': {
-      // Gõ Katakana hay Hiragana đều được; đủ một âm của chữ là đúng
-      const readings = readingsOf(kanji)
-      const typed = toHiragana(answer.trim())
-      return { outcome: readings.some((reading) => toHiragana(reading) === typed) ? 'correct' : 'wrong', answer: readings.join('、') }
-    }
-    case 'kanji_write':
-      return { outcome: answer === REMEMBERED ? 'correct' : 'wrong', answer: kanji.character }
-    case 'word_meaning':
-      return { outcome: wordMeaning !== null && answer === wordMeaning ? 'correct' : 'wrong', answer: wordMeaning ?? '' }
-  }
 }

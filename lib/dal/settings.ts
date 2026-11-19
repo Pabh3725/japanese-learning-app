@@ -2,28 +2,9 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
-import { isValidNewPerDay, isValidStudyLimit, newPerDayOf, type StudyLimitKey } from '@/lib/learning/new-words'
+import { isValidStudyLimit, type StudyLimitKey } from '@/lib/learning/new-words'
 import { GRAMMAR_V1 } from '@/lib/grammar/rules'
 import { RULES_V9 } from '@/lib/learning/rules'
-
-export async function getNewPerDay(): Promise<number> {
-  const user = await requireUser()
-  const supabase = await createClient()
-  const { data, error } = await supabase.from('learner_settings').select('daily_new_limit').eq('user_id', user.id).maybeSingle()
-  if (error) throw new Error(`Không đọc được learner_settings: ${error.message}`)
-  return newPerDayOf(data?.daily_new_limit)
-}
-
-export async function saveNewPerDay(value: unknown): Promise<{ status: 'saved' | 'invalid' }> {
-  if (!isValidNewPerDay(value)) return { status: 'invalid' }
-  const user = await requireUser()
-  const supabase = await createClient()
-  const { error } = await supabase
-    .from('learner_settings')
-    .upsert({ user_id: user.id, daily_new_limit: value }, { onConflict: 'user_id' })
-  if (error) throw new Error(`Không lưu được learner_settings: ${error.message}`)
-  return { status: 'saved' }
-}
 
 export async function getStudyLimits(): Promise<Record<StudyLimitKey, number>> {
   const user = await requireUser()
@@ -55,23 +36,6 @@ export async function saveStudyLimit(key: unknown, value: unknown): Promise<{ st
   const user = await requireUser()
   const supabase = await createClient()
   const { error } = await supabase.from('learner_settings').upsert({ user_id: user.id, [key]: value }, { onConflict: 'user_id' })
-  if (error) throw new Error(`Không lưu được learner_settings: ${error.message}`)
-  return { status: 'saved' }
-}
-
-export async function getReviewAllAtOnce(): Promise<boolean> {
-  const user = await requireUser()
-  const supabase = await createClient()
-  const { data, error } = await supabase.from('learner_settings').select('review_all_at_once').eq('user_id', user.id).maybeSingle()
-  if (error) throw new Error(`Không đọc được learner_settings: ${error.message}`)
-  return data?.review_all_at_once ?? false
-}
-
-export async function saveReviewAllAtOnce(value: unknown): Promise<{ status: 'saved' | 'invalid' }> {
-  if (typeof value !== 'boolean') return { status: 'invalid' }
-  const user = await requireUser()
-  const supabase = await createClient()
-  const { error } = await supabase.from('learner_settings').upsert({ user_id: user.id, review_all_at_once: value }, { onConflict: 'user_id' })
   if (error) throw new Error(`Không lưu được learner_settings: ${error.message}`)
   return { status: 'saved' }
 }

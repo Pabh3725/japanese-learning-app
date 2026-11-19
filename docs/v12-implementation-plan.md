@@ -3,6 +3,8 @@
 > Trạng thái: **CONFIRMED** (chủ dự án duyệt 2026-11-18, đồng ý cả 4 đề xuất ở §7). Luật: `docs/learning-rules-v12.md` (CONFIRMED 2026-11-18).
 > Nguyên tắc: làm theo từng gói, mỗi gói merge riêng và app vẫn chạy được. Người học **không thấy thay đổi** cho tới gói 4 (bật V12). Không xóa bảng cũ cho tới gói 6.
 
+> **Tiến độ:** gói 1–3 lên main 0fd3566; gói 4 lên prod (main ede75df, migration `20261129000001`, 2026-11-19); gói 5 dọn code (2026-11-19). Còn gói 6: xóa bảng cũ sớm nhất 2026-12-03, cần chủ dự án đồng ý và báo số dòng.
+
 ## 1. Hiện trạng cần thay
 
 | Phần | Hiện tại (V9–V11) | Ở V12 |

@@ -445,11 +445,6 @@ export interface BuildOptions {
   blind?: boolean
 }
 
-/** Từ vựng ở Stage 3 chỉ dùng Kana: chưa học Kanji của từ thì không được lộ cách viết. */
-export function kanaView<W extends StageWord>(word: W): W {
-  return { ...word, expression: word.reading_kana, is_kana_only: true }
-}
-
 export function buildStageQuestion(word: StageWord, exercise: ExerciseCode, pools: QuestionPools, rng: Rng = Math.random, options: BuildOptions = {}): QuestionData {
   const blind = options.blind === true
   const extra = blind ? extraDistractors(rng) : 0

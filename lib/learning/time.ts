@@ -28,11 +28,6 @@ export function addStudyDays(date: StudyDate, n: number): StudyDate {
   return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10)
 }
 
-/** Card đã đến hạn ở thời điểm `now` chưa (đúng giờ hạn là đã đến hạn). */
-export function isDueAt(due: Date, now: Date): boolean {
-  return due.getTime() <= now.getTime()
-}
-
 /**
  * Hiển thị một thời điểm theo giờ Việt Nam, dạng 'DD/MM/YYYY HH:mm'.
  * Không dùng toLocaleString(): kết quả đó phụ thuộc múi giờ của máy đang chạy.

@@ -25,11 +25,6 @@ export function countMetToday(
   return started.filter((r) => r.created_at >= startOfToday && !excludedIds.has(r.vocabulary_id)).length
 }
 
-/** Số từ mới còn được học hôm nay. */
-export function remainingNewToday(limit: number, metToday: number): number {
-  return Math.max(0, limit - metToday)
-}
-
 /** Các giới hạn khối lượng trong Settings. Khoảng cho phép: docs/PROJECT_SPEC.md §18.5. */
 export const STUDY_LIMITS = {
   lesson_size: { label: 'Questions per lesson', hint: 'Each Learn lesson has this many questions, including quick checks.', min: 20, max: 100 },

@@ -116,11 +116,6 @@ export function nextReviewSchedule(schedule: Schedule, rating: GrammarRating, no
   return capInterval(fromFsrs((fuzz ? withFuzz : noFuzz).next(toFsrs(schedule), now, grade).card), now, maxDays)
 }
 
-/** Số câu của một mẫu trong lượt ôn: 3 khi mẫu làm được đủ dạng "dùng/tạo", không thì 2. */
-export function reviewQuestionCount(rng: () => number): 2 | 3 {
-  return rng() < 0.5 ? 2 : 3
-}
-
 // ---------------------------------------------------------------------------
 // Mở bài (§3)
 // ---------------------------------------------------------------------------

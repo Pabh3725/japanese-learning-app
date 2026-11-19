@@ -2,11 +2,11 @@
 
 > **Vai trò:** Single Source of Truth cho sản phẩm, learning system, kiến trúc và trạng thái dự án.
 >
-> **Phiên bản:** 4.0 — Learning System Design V9 (thiết kế đã chốt, đang triển khai)
+> **Phiên bản:** 5.0 — Learning System Design V12 (IMPLEMENTED, trên prod từ 2026-11-19)
 >
-> **Ngày:** 2026-11-10 (V8: 2026-11-05; V7: 2026-10-31; V6: 2026-10-16)
+> **Ngày:** 2026-11-19 (V9: 2026-11-10; V8: 2026-11-05; V7: 2026-10-31; V6: 2026-10-16)
 >
-> **Đọc §19 trước** (Design V9, luật đầy đủ ở `docs/learning-rules.md` `RULES_V9`). Phần nào V9 chưa triển khai thì code vẫn chạy theo §18.5b (v2).
+> **Đọc §21 trước** (Design V12, luật đầy đủ ở `docs/learning-rules-v12.md` `RULES_V12`). Với Từ vựng, Kanji và Review, §21 thay cho §5–§7, §18 và các mục Stage / AIS / Kanji của §19; các mục đó chỉ còn để truy vết quyết định. Grammar (§20), JLPT, Luyện nghe, Practice, Library giữ như cũ.
 >
 > **§18:** §18 là bản mô tả đầy đủ của Design V8. Mọi chỗ khác trong tài liệu mâu thuẫn với §18 thì §18 được ưu tiên. Các bảng lịch sử V7 được giữ để truy vết quyết định.
 >
@@ -1472,7 +1472,7 @@ Mục **Kanji trong tab Learn** (`/learn/kanji`), bên cạnh mục Vocabulary. 
 - Tách Dashboard, Learn, Review; thêm khu Kanji. Xem `docs/learning-rules.md` (RULES_V3) và `docs/database.md` §9.
 - Dữ liệu đang có: dòng tiến độ hiện tại được chuyển sang lịch Stage, giữ điểm; card đã tạo được giữ.
 
-## 19. Design V9 (2026-11-10) — CONFIRMED, đang triển khai
+## 19. Design V9 (2026-11-10) — CONFIRMED; phần Từ vựng / Kanji / Review đã bị V12 thay (§21)
 
 Chủ dự án chốt ngày 2026-11-10. Luật đầy đủ: `docs/learning-rules.md` (`RULES_V9`). Audit, quyết định và chia gói: `docs/upgrade-v9-audit.md`. Khi mâu thuẫn, §19 và `RULES_V9` được ưu tiên hơn §18.
 
@@ -1508,6 +1508,21 @@ Chi tiết: `docs/grammar-rules.md` (GRAMMAR_V1). Thay đoạn "bản xem trư�
 - Mở bài n: ≥ 50% từ bài n xong Stage 3 và ≥ 50% mẫu bài n−1 học xong. 1 mẫu mới mỗi ngày (1–10, nới từ 1–3 ngày 2026-11-14).
 - Mỗi mẫu 30 câu gốc tự soạn, dễ → khó, có kết hợp mẫu cũ; sinh 13 dạng bài, không vùng xám. Chủ dự án duyệt mẫu + 5 câu tiêu biểu theo nhóm 5 bài.
 - Học: 40 điểm, 5 buổi (ngày 1, 2, 3, 5, 8), 8 câu mỗi buổi, 3 bậc Hiểu / Dùng / Tạo. Ôn: tối đa 20 mẫu mỗi ngày, 2–3 câu mỗi mẫu, gộp thành Good / Hard / Again, tối đa 90 ngày.
+
+## 21. Design V12 (2026-11-18) — CONFIRMED, IMPLEMENTED (prod 2026-11-19)
+
+Luật đầy đủ: `docs/learning-rules-v12.md` (`RULES_V12`, lõi thuần `lib/v12/*`). Kế hoạch và các gói: `docs/v12-implementation-plan.md`. Khi mâu thuẫn, §21 được ưu tiên hơn §5–§7, §18, §19 với phần Từ vựng, Kanji và Review.
+
+- **Ba khu:** Từ vựng Kana (mọi từ, 3 Stage), Kanji (bộ thủ trước — 2 Stage, rồi chữ — 3 Stage), Từ vựng Kanji (3 Stage, mở khi Kana của từ và mọi chữ của từ đã tới Stage 2). Trang `/learn` có ba ô và nút **Learn all**; mỗi khu học riêng ở `/learn/v12/[zone]`, trộn cả ba ở `/learn/v12/all`.
+- **Bộ thẻ trong ngày:** mục mới (thẻ giới thiệu + Stage 1), câu Stage đến lượt và Card đến hạn trộn ngẫu nhiên, chia set (kích thước chỉnh trong Settings); lưu ở `daily_decks` nên tải lại trang vẫn giữ thứ tự. Trần mỗi khu, phần vượt chuyển sang hôm sau, cảnh báo 7 ngày.
+- **Điểm theo loại thẻ:** đúng +1, sai −1, sàn 0; 3 điểm mỗi loại để qua Stage 2/3; Stage 1 mỗi loại đúng một lần; 2 lần/ngày nếu đúng, tối đa 3 nếu sai; sai thì hỏi lại sau 5 thẻ. Stage sau bắt đầu từ ngày học kế tiếp.
+- **Card:** giữ FSRS (tối đa 90 ngày, 00:00 giờ VN). Từ vựng Kana 2 Card (gõ Kana, chọn nghĩa); bộ thủ, chữ, Từ vựng Kanji mỗi mục 1 Card gom nhiều phần. Card ôn ngay trong bộ thẻ của khu, **không còn tab Review**; `/review` chuyển về `/learn`, kho lưu trữ vẫn ở `/review/archive` (nút "I've learned this card" trong lúc ôn).
+- **Cân bằng mục mới:** theo thời gian học (phút/ngày hoặc ngày hoàn thành) để ba khu xong cấp cùng lúc, từng cấp N5 rồi N4; hoặc nhập số mục mới thủ công.
+- **Đã biết / sao:** "đã biết" của từ và chữ đọc từ `learner_vocabulary_exclusions` / `learner_kanji_exclusions`; bộ thủ có nút "đã biết cả nhóm". Từ / chữ có sao thêm một câu học thêm mỗi ngày, tối đa 2 câu mỗi set, không tính điểm.
+- **Dữ liệu:** bảng `learner_items`, `learner_item_types`, `item_cards`, `item_logs`, `daily_decks` (migration `20261128000001`); chuyển tiến độ V11 và bật cho mọi người ở migration `20261129000001` (2026-11-19). Library "Mark as learned" / hoàn tác qua RPC `v12_mark_words_learned` / `v12_undo_mark_words_learned`.
+- **Đã gỡ (gói 5, 2026-11-19):** AIS và bài `/learn/lesson`, câu kiểm tra nhanh, vòng boss, vòng ghép ô, các route Stage cũ (`/learn/stage2…5`, `/learn/mixed`, `/learn/intro`, `/learn/build`, `/learn/session`), khu Kanji cũ (`/learn/kanji`), vòng sao cũ (`/learn/starred`), phiên Review cũ (`/review/session`), cùng DAL đọc/ghi bảng V11. Bảng V11 còn nguyên (chỉ đọc) tới gói 6; Progress vẫn đọc log cũ (`exercise_logs`, `review_logs`, `kanji_logs`) để tính chuỗi ngày và tỷ lệ nhớ.
+
+---
 
 ## Phụ lục — Quy tắc bảo trì tài liệu
 
