@@ -1,7 +1,7 @@
 // RULES_V9 — mọi con số của luật học nằm ở đây, không hard-code chỗ khác.
 // Nguồn: docs/learning-rules.md §12. Đổi luật = đổi file này + tăng version.
 
-import type { CardType, ExerciseCode, ExerciseKind, ScoredStage, Skill, Stage } from './types'
+import type { CardType, ExerciseCode, ExerciseKind, Skill, Stage } from './types'
 
 export const RULES_V9 = {
   version: 9,
@@ -113,16 +113,6 @@ export const EXERCISES: Record<ExerciseCode, { kind: ExerciseKind; skill: Skill 
   hanviet_free_recall: { kind: 'typing', skill: 'S4' },
   kanji_read_typing: { kind: 'typing', skill: 'S2' },
   kanji_write_self: { kind: 'self', skill: 'S3' },
-}
-
-/** Dạng bài được phép xuất hiện ở mỗi Stage tính điểm. */
-export const STAGE_EXERCISES: Record<ScoredStage, readonly ExerciseCode[]> = {
-  // Từ vựng Kana. Câu Hán Việt chỉ hỏi nhẹ, không bắt buộc.
-  2: ['kana_to_meaning', 'meaning_to_kana', 'kana_assembly', 'listening', 'hanviet_from_kana'],
-  3: ['meaning_assembly', 'meaning_recognition_6', 'kana_free_recall'],
-  // Từ vựng Kanji
-  5: ['hanviet_from_kana', 'kanji_char_meaning', 'listening_kanji', 'kanji_recognition', 'kanji_assembly', 'hanviet_recognition', 'hanviet_assembly'],
-  6: ['kanji_assembly_nohint', 'kanji_recognition_6', 'hanviet_free_recall', 'hanviet_recognition', 'hanviet_assembly'],
 }
 
 /** Yêu cầu bắt buộc để mở stage sau ở Stage 2 và 5 (mỗi dạng ≥ 1 lần được +1). */

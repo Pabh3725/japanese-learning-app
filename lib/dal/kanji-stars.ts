@@ -21,17 +21,6 @@ export async function readStarredKanjiIds(supabase: Supabase, userId: string): P
   return new Set((await readStars(supabase, userId)).map((r) => r.kanji_id))
 }
 
-export interface StarredAreaKanji {
-  id: string
-  character: string
-  hanViet: string
-  meaning: string
-  met: boolean
-  roundAnswered: number
-  roundSize: number
-  cardDueAt: string | null
-}
-
 /** Đánh sao chữ: V12 thêm câu học thêm của chữ vào bộ thẻ (không tính điểm). */
 export async function setKanjiStarred(kanjiId: unknown, starred: unknown): Promise<{ status: 'saved' | 'invalid' }> {
   if (typeof kanjiId !== 'string' || !UUID.test(kanjiId) || typeof starred !== 'boolean') return { status: 'invalid' }

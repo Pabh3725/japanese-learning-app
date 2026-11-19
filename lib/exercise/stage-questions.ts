@@ -1,11 +1,5 @@
-// VOC-02, VOC-03, VOC-07, VOC-08, AUD-02 — Chọn dạng bài, dựng câu hỏi và chấm cho Stage 2, 3, 5, 6. Pure.
-// Luật đáp án nhiễu: docs/data-spec.md §5. Câu chọn có đáp án ở trình duyệt để phản hồi ngay;
-// câu ghép và câu gõ thì không, server chấm sau khi nộp. Điểm luôn theo kết quả của server.
 
-import { EXERCISES, REQUIRED_EXERCISES, REQUIRED_SKILLS, RULES_V9 } from '../learning/rules'
-import { allowedExercises, stageStep } from '../learning/stage'
-import type { ExerciseCode, Outcome, ScoredStage, Skill } from '../learning/types'
-import { isHanVietAnswerCorrect, isKanaAnswerCorrect } from './answer-normalize'
+import type { ExerciseCode, Outcome } from '../learning/types'
 import { KANA_DISTRACTORS_MAX, mixKanaPieces, pickKanaDistractors, splitKana } from './kana-pieces'
 import { sameMeaning, type Rng } from './questions'
 import { kanaSimilarity, kanjiSimilarity, lookalikeKanji } from './similarity'
@@ -31,23 +25,6 @@ export interface WordReveal {
   romaji: string | null
   hanViet: string | null
   meaning: string
-}
-
-/** Người học đã biết tới đâu: Kanji chỉ hiện sau thẻ Stage 4. */
-export interface WordKnowledge {
-  currentStage: number
-  kanjiIntroSeen: boolean
-}
-
-export function wordReveal(word: StageWord, known: WordKnowledge): WordReveal {
-  return {
-    expression: known.kanjiIntroSeen && !word.is_kana_only ? word.expression : null,
-    kana: word.reading_kana,
-    romaji: word.romaji ?? null,
-    // Hán Việt làm quen ngay từ đầu; Kanji chỉ hiện sau khi học phần Từ Kanji
-    hanViet: word.han_viet,
-    meaning: word.meaning_vi,
-  }
 }
 
 export interface KanjiRow {
@@ -129,85 +106,6 @@ function shuffle<T>(items: readonly T[], rng: Rng): T[] {
 
 function pickOne<T>(items: readonly T[], rng: Rng): T {
   return items[Math.floor(rng() * items.length)]
-}
-
-// ---------------------------------------------------------------------------
-// Chọn dạng bài (R9)
-// ---------------------------------------------------------------------------
-
-const SKILL_ORDER: readonly Skill[] = ['S1', 'S2', 'S3', 'S4']
-
-/**
- * Dạng bài dùng được cho từ này. Stage 3 và 6 đã thay chọn 1/6 bằng vòng ghép ô:
- * nghĩa đơn giản thì ghép nghĩa; nghĩa không ghép được thì vẫn chọn 1/6 để còn đạt kỹ năng Nghĩa;
- * Kanji đạt kỹ năng qua ghép không gợi ý.
- */
-export function usableExercises(word: StageWord, stage: ScoredStage): ExerciseCode[] {
-  const canAssembleMeaning = meaningPieces(word.meaning_vi) !== null
-  return allowedExercises(stage).filter((code) => {
-    if (code === 'hanviet_from_kana') return word.han_viet !== null
-    if (code === 'meaning_assembly') return canAssembleMeaning
-    if (code === 'meaning_recognition_6') return !canAssembleMeaning
-    return code !== 'kanji_recognition_6'
-  })
-}
-
-/** Dạng bài theo từng bước, đi từ dễ tới khó. Bước sau vẫn hỏi dạng bắt buộc còn thiếu của bước trước. */
-const STAGE2_CHOICE: readonly ExerciseCode[] = ['kana_to_meaning', 'meaning_to_kana']
-const STAGE2_REVIEW_CHOICE: readonly ExerciseCode[] = [...STAGE2_CHOICE, 'listening']
-const STAGE5_STEP1: readonly ExerciseCode[] = ['hanviet_from_kana']
-const STAGE5_STEP2: readonly ExerciseCode[] = ['hanviet_assembly', 'kanji_char_meaning', 'kanji_recognition', 'hanviet_recognition']
-const STAGE5_STEP3: readonly ExerciseCode[] = ['kanji_assembly', 'hanviet_assembly']
-const STAGE5_REVIEW_CHOICE: readonly ExerciseCode[] = ['hanviet_from_kana', 'kanji_char_meaning', 'kanji_recognition', 'hanviet_recognition']
-
-/** Đủ dạng bắt buộc: phần lớn là bài ghép, thỉnh thoảng một câu trắc nghiệm. */
-function assemblyOrChoice(assembly: readonly ExerciseCode[], choice: readonly ExerciseCode[], rng: Rng): ExerciseCode {
-  return pickOne(rng() < RULES_V9.stageSteps.choiceShareInAssembly ? choice : assembly, rng)
-}
-
-function chooseStage2(earned: readonly ExerciseCode[], points: number, rng: Rng): ExerciseCode {
-  if (stageStep(2, points) === 'choice') {
-    const missing = STAGE2_CHOICE.filter((code) => !earned.includes(code))
-    return pickOne(missing.length > 0 ? missing : STAGE2_CHOICE, rng)
-  }
-  const missing = REQUIRED_EXERCISES[2].filter((code) => !earned.includes(code))
-  return missing.length > 0 ? pickOne(missing, rng) : assemblyOrChoice(['kana_assembly'], STAGE2_REVIEW_CHOICE, rng)
-}
-
-function chooseStage5(earned: readonly ExerciseCode[], points: number, rng: Rng): ExerciseCode {
-  const step = stageStep(5, points)
-  if (step === 'choice') return STAGE5_STEP1[0]
-  const missingOf = (codes: readonly ExerciseCode[]) => codes.filter((code) => !earned.includes(code))
-  const missingEarlier = [...missingOf(STAGE5_STEP1), ...missingOf(STAGE5_STEP2)]
-  if (step === 'mixed') return pickOne(missingEarlier.length > 0 ? missingEarlier : STAGE5_STEP2, rng)
-  if (missingEarlier.length > 0) return pickOne(missingEarlier, rng)
-  const missingNow = missingOf(STAGE5_STEP3)
-  if (missingNow.length > 0) return pickOne(missingNow, rng)
-  const exercise = assemblyOrChoice(STAGE5_STEP3, STAGE5_REVIEW_CHOICE, rng)
-  // Câu nghe không bắt buộc, vì thiết bị không có giọng Nhật không làm được
-  return STAGE5_REVIEW_CHOICE.includes(exercise) && rng() < RULES_V9.stageSteps.listeningShareOfChoice ? 'listening_kanji' : exercise
-}
-
-/** Stage 2 và 5 đi theo bước; Stage 3 và 6 ưu tiên kỹ năng còn thiếu, đủ rồi thì xoay vòng. */
-export function chooseStageExercise(
-  word: StageWord,
-  stage: ScoredStage,
-  earned: readonly ExerciseCode[],
-  points: number,
-  rng: Rng = Math.random,
-): ExerciseCode {
-  if (stage === 2) {
-    // Hỏi nhẹ Hán Việt, không bắt buộc; chỉ khi đã đủ dạng bắt buộc
-    if (word.han_viet && REQUIRED_EXERCISES[2].every((code) => earned.includes(code)) && rng() < RULES_V9.stageSteps[2].hanVietShare) return 'hanviet_from_kana'
-    return chooseStage2(earned, points, rng)
-  }
-  if (stage === 5) return chooseStage5(earned, points, rng)
-  const usable = usableExercises(word, stage)
-  const required = REQUIRED_SKILLS[stage]
-  const earnedSkills = new Set(earned.map((code) => EXERCISES[code].skill))
-  const missingSkill = SKILL_ORDER.find((skill) => required.includes(skill) && !earnedSkills.has(skill))
-  if (missingSkill) return pickOne(usable.filter((code) => EXERCISES[code].skill === missingSkill), rng)
-  return pickOne(usable, rng)
 }
 
 // ---------------------------------------------------------------------------
@@ -545,106 +443,4 @@ export interface GradeResult {
   outcome: Outcome
   /** Đáp án để hiện sau khi nộp. */
   answer: string
-}
-
-/** `kanji`: bảng chữ Kanji, chỉ dạng chọn nghĩa của chữ Kanji mới cần. */
-export function gradeStageAnswer(
-  word: StageWord,
-  exercise: ExerciseCode,
-  given: string | readonly string[],
-  kanji: readonly KanjiRow[] = [],
-): GradeResult {
-  const text = typeof given === 'string' ? given : ''
-  const pieces = typeof given === 'string' ? [] : given
-  const verdict = (ok: boolean, answer: string): GradeResult => ({ outcome: ok ? 'correct' : 'wrong', answer })
-
-  switch (exercise) {
-    case 'kana_to_meaning':
-    case 'meaning_recognition_6':
-      return verdict(text.trim() === word.meaning_vi.trim(), word.meaning_vi)
-    case 'meaning_to_kana':
-    case 'listening':
-      return verdict(text === word.reading_kana, word.reading_kana)
-    case 'kana_assembly':
-      return verdict(pieces.join('') === word.reading_kana, word.reading_kana)
-    case 'kana_free_recall':
-      return verdict(isKanaAnswerCorrect(text, word.reading_kana), word.reading_kana)
-    case 'kanji_recognition':
-    case 'listening_kanji':
-    case 'kanji_recognition_6':
-      return verdict(text === word.expression, word.expression)
-    case 'kanji_assembly':
-    case 'kanji_assembly_nohint':
-      return verdict(pieces.join('') === kanjiPieces(word.expression).join(''), word.expression)
-    case 'hanviet_from_kana':
-    case 'hanviet_recognition':
-      return verdict(text === word.han_viet, word.han_viet ?? '')
-    case 'kanji_char_meaning': {
-      const chars = kanjiPieces(word.expression)
-      const meanings = kanji.filter((k) => chars.includes(k.character)).map((k) => k.meaning_vi)
-      return verdict(meanings.includes(text), meanings.join('; '))
-    }
-    case 'hanviet_assembly':
-      return verdict(pieces.join(' ') === hanVietPieces(word.han_viet ?? '').join(' '), word.han_viet ?? '')
-    case 'hanviet_free_recall':
-      return verdict(isHanVietAnswerCorrect(text, word.han_viet ?? ''), word.han_viet ?? '')
-    case 'meaning_assembly':
-      return verdict(pieces.join(' ') === (meaningPieces(word.meaning_vi) ?? []).join(' '), word.meaning_vi)
-    case 'kanji_read_typing':
-    case 'kanji_write_self':
-      throw new Error(`${exercise} chấm ở Review`)
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Kiểm tra dữ liệu trình duyệt gửi lên
-// ---------------------------------------------------------------------------
-
-export interface StageAnswerRequest {
-  learnerVocabularyId: string
-  stage: ScoredStage
-  exercise: ExerciseCode
-  answer: string | string[]
-  clientEventId: string
-  responseMs?: number
-  /** Đã bấm gợi ý xem có bao nhiêu ô. */
-  usedHint?: boolean
-}
-
-/** Đúng nhờ gợi ý không được tính là đúng hoàn toàn. */
-export function withHint(outcome: Outcome, usedHint: boolean | undefined): Outcome {
-  return outcome === 'correct' && usedHint ? 'hint' : outcome
-}
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-const MAX_TEXT = 300
-const MAX_PIECES = 40
-
-export function parseStageAnswerRequest(input: unknown): StageAnswerRequest | null {
-  if (typeof input !== 'object' || input === null) return null
-  const v = input as Record<string, unknown>
-  const answerOk =
-    (typeof v.answer === 'string' && v.answer.length > 0 && v.answer.length <= MAX_TEXT) ||
-    (Array.isArray(v.answer) &&
-      v.answer.length >= 1 &&
-      v.answer.length <= MAX_PIECES &&
-      v.answer.every((p) => typeof p === 'string' && p.length >= 1 && p.length <= 40))
-  const ok =
-    typeof v.learnerVocabularyId === 'string' && UUID.test(v.learnerVocabularyId) &&
-    typeof v.clientEventId === 'string' && UUID.test(v.clientEventId) &&
-    (v.stage === 2 || v.stage === 3 || v.stage === 5 || v.stage === 6) &&
-    typeof v.exercise === 'string' && Object.hasOwn(EXERCISES, v.exercise) &&
-    answerOk &&
-    (v.responseMs === undefined || (typeof v.responseMs === 'number' && Number.isFinite(v.responseMs) && v.responseMs >= 0)) &&
-    (v.usedHint === undefined || typeof v.usedHint === 'boolean')
-  if (!ok) return null
-  return {
-    learnerVocabularyId: v.learnerVocabularyId as string,
-    stage: v.stage as ScoredStage,
-    exercise: v.exercise as ExerciseCode,
-    answer: v.answer as string | string[],
-    clientEventId: v.clientEventId as string,
-    responseMs: v.responseMs === undefined ? undefined : Math.round(v.responseMs as number),
-    usedHint: v.usedHint as boolean | undefined,
-  }
 }
