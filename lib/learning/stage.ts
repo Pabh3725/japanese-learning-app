@@ -1,16 +1,7 @@
 // R1, R3, R4 — Stage, giãn cách, điểm stage, mở stage sau, hoàn tất. docs/learning-rules.md §3, §5, §6.
 // V8: mỗi từ × mỗi Stage tính điểm có điểm và lịch riêng, nên một từ có thể chạy nhiều stage cùng lúc.
 
-import {
-  CARDS_ON_PASS,
-  EXERCISES,
-  REQUIRED_EXERCISES,
-  REQUIRED_SKILLS,
-  RULES_V9,
-  STAGE_EXERCISES,
-} from './rules'
-import { scoreExercise } from './scoring'
-import { studyDate } from './time'
+import { CARDS_ON_PASS, EXERCISES, REQUIRED_EXERCISES, REQUIRED_SKILLS, RULES_V9, STAGE_EXERCISES } from './rules'
 import type { CardType, ExerciseCode, Outcome, ScoredStage, Stage, StudyDate } from './types'
 
 /** Trạng thái của một từ ở một Stage tính điểm. Tương ứng một dòng `learner_stage_schedules`. */
@@ -61,14 +52,6 @@ export function nextStage(stage: Stage): Stage | 'complete' {
     case 6:
       return 'complete'
   }
-}
-
-/** Các stage phải hoàn tất thì từ hoàn thành kỹ năng Từ vựng. Từ Kanji tính tiến độ riêng. */
-export const VOCABULARY_STAGES: readonly ScoredStage[] = [2, 3]
-
-/** R5 — Card tạo ra khi hoàn tất `stage`. */
-export function cardsToCreate(stage: Stage): CardType[] {
-  return [...CARDS_ON_PASS[stage]]
 }
 
 /** Điểm cần để hoàn tất stage. */
@@ -132,64 +115,6 @@ export function allowedExercises(stage: ScoredStage): readonly ExerciseCode[] {
   return STAGE_EXERCISES[stage]
 }
 
-/** Học lại Stage: điểm sau khi mở lại, để đúng thêm vài câu là hoàn tất lại. */
-export function relearnStagePoints(stage: ScoredStage): number {
-  return Math.max(0, completeAt(stage) - RULES_V9.relearn.pointsToComplete)
-}
-
-/** R3 + R4 + R5 — Áp một câu học vào trạng thái của từ ở stage này. */
-export function applyStageAttempt(state: StageState, attempt: StageAttempt): StageAttemptResult {
-  const { stage } = state
-  if (!allowedExercises(stage).includes(attempt.exercise)) {
-    throw new Error(`Dạng bài ${attempt.exercise} không thuộc Stage ${stage}`)
-  }
-
-  const today = studyDate(attempt.now)
-  const plusToday = state.plusDate === today ? state.plusToday : 0
-  const spaced = isSpaced(state, attempt.seq, today)
-  const raw = scoreExercise(attempt.outcome)
-
-  let delta = 0
-  let counted = false
-  if (spaced) {
-    if (raw > 0) {
-      const underCap = plusToday < RULES_V9.stagePoints.maxPositivePerStagePerDay
-      delta = underCap ? raw : 0
-      counted = underCap
-    } else {
-      delta = raw // trừ điểm không có trần
-      counted = true
-    }
-  }
-
-  const next: StageState = {
-    ...state,
-    points: state.points + delta,
-    plusToday: delta > 0 ? plusToday + 1 : plusToday,
-    plusDate: today,
-    earned:
-      delta > 0 && !state.earned.includes(attempt.exercise)
-        ? [...state.earned, attempt.exercise]
-        : state.earned,
-    lastSeq: attempt.seq,
-    lastSeqDate: today,
-    correctStreak: attempt.outcome === 'correct' ? state.correctStreak + 1 : 0,
-  }
-
-  const unlockedNow = !state.unlockedNext && canUnlockNext(next)
-  if (unlockedNow) next.unlockedNext = true
-  const completed = canComplete(next)
-
-  return {
-    state: next,
-    delta,
-    counted,
-    unlockedStage: unlockedNow ? (nextStage(stage) as Stage) : null,
-    completed,
-    cardsCreated: completed ? cardsToCreate(stage) : [],
-  }
-}
-
 /** Stage 1 và 4: xem xong là qua, mở stage kế tiếp ngay. Không tạo Card. */
 export function completeIntro(stage: 1 | 4): { openedStage: Stage } {
   return { openedStage: nextStage(stage) as Stage }
@@ -208,13 +133,7 @@ export function stageStep(stage: ScoredStage, points: number): StageStep {
   return 'assembly'
 }
 
-/** Đã sai liên tiếp đủ số câu để hiện lại thẻ giới thiệu chưa. */
-export function shouldRelearn(wrongStreak: number): boolean {
-  return wrongStreak >= RULES_V9.relearnAfterWrong
-}
-
-/** Số câu cùng kết quả liên tiếp ở đầu danh sách, câu mới nhất đứng đầu. */
-export function trailingCount(outcomes: readonly Outcome[], outcome: Outcome): number {
-  const other = outcomes.findIndex((o) => o !== outcome)
-  return other === -1 ? outcomes.length : other
+/** R5 — Card tạo ra khi hoàn tất `stage`. */
+export function cardsToCreate(stage: Stage): CardType[] {
+  return [...CARDS_ON_PASS[stage]]
 }

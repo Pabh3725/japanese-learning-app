@@ -22,10 +22,6 @@ export const KANJI_EXERCISES = [
 ] as const
 export type KanjiExercise = (typeof KANJI_EXERCISES)[number]
 
-export function isKanjiExercise(value: unknown): value is KanjiExercise {
-  return KANJI_EXERCISES.includes(value as KanjiExercise)
-}
-
 /** Số câu đúng theo từng dạng ở giai đoạn Học. */
 export type KanjiCounts = Partial<Record<KanjiExercise, number>>
 
@@ -77,18 +73,6 @@ export function chooseLearningExercise(points: number, counts: KanjiCounts, hasW
   return leastDone(['hanviet_typing', hasWord ? 'word_meaning' : 'kanji_to_meaning', 'pick_kanji', 'hanviet_to_kanji'], counts, rng)
 }
 
-/** Các câu của một buổi, tính như thể trả lời đúng để dạng bài tăng dần trong buổi. */
-export function planSitting(points: number, counts: KanjiCounts, questions: number, hasWord: boolean, rng: Rng = Math.random, hasSimilar = false): KanjiExercise[] {
-  const plan: KanjiExercise[] = []
-  const running = { ...counts }
-  for (let i = 0; i < questions; i++) {
-    const exercise = chooseLearningExercise(points + i, running, hasWord, rng, hasSimilar)
-    plan.push(exercise)
-    running[exercise] = count(running, exercise) + 1
-  }
-  return plan
-}
-
 /** Hai Card tạo khi chữ hoàn tất giai đoạn Học. */
 export const KANJI_CARD_TYPES = ['kanji.meaning', 'kanji.hanviet'] as const
 /** V10: Card riêng của chữ có sao (như vocab.star_recall), tạo khi đánh sao chữ đã mở. */
@@ -105,16 +89,6 @@ export const KANJI_CARD_EXERCISES: Record<KanjiCardType, readonly KanjiExercise[
 
 /** V10: số câu của vòng học thêm mỗi chữ có sao (như từ vựng). */
 export const KANJI_STAR_ROUND = 4
-
-/** Ôn dài hạn: luân phiên hai dạng của Card, không lặp dạng lần trước. */
-export function chooseCardExercise(cardType: KanjiCardType, last: string | null, rng: Rng = Math.random): KanjiExercise {
-  const list = KANJI_CARD_EXERCISES[cardType]
-  const fresh = list.filter((code) => code !== last)
-  return fresh[Math.floor(rng() * fresh.length)] ?? list[0]
-}
-
-/** Số lựa chọn của câu trắc nghiệm khi ôn Card. */
-export const CARD_CHOICE_OPTIONS = 6
 
 export function canCompleteLearning(state: Pick<KanjiLearningState, 'points' | 'counts' | 'correctStreak'>, hasSimilar = false): boolean {
   const c = state.counts
@@ -160,10 +134,6 @@ export function nextSittingAt(now: Date, sittingsDone: number): { due: Date; day
   return { due: new Date(nextStudyDayStart(now).getTime() + (days - 1) * DAY_MS), days }
 }
 
-export function kanjiRating(outcome: Outcome): 'Again' | 'Hard' | 'Good' {
-  return outcome === 'wrong' ? 'Again' : outcome === 'hint' ? 'Hard' : 'Good'
-}
-
 export interface KanjiDailyInput {
   newPerDay: number
   cap: number
@@ -174,29 +144,10 @@ export interface KanjiDailyInput {
   notOpened: number
 }
 
-/** Số chữ mới còn mở được: ôn và học trước, mỗi chữ mới cần chỗ cho cả buổi đầu trong trần. */
-export function newKanjiToday({ newPerDay, cap, answeredToday, openedToday, dueQuestions, notOpened }: KanjiDailyInput): number {
-  const room = Math.floor((cap - answeredToday - dueQuestions) / RULES_V9.kanji.questionsPerSitting)
-  return Math.max(0, Math.min(newPerDay - openedToday, notOpened, room))
-}
-
 export interface KanjiLoadAdvice {
   /** Số câu đến hạn vượt phần còn lại của trần hôm nay. */
   over: number
   suggestCap: number
   /** Null khi số chữ mới đang đặt đã vừa với trần. */
   suggestNewPerDay: number | null
-}
-
-/** Quá tải khi câu đến hạn vượt phần còn lại của trần từ 10 câu trở lên. */
-export function kanjiLoadAdvice({ dueQuestions, room, cap, newPerDay }: { dueQuestions: number; room: number; cap: number; newPerDay: number }): KanjiLoadAdvice | null {
-  const { overloadFrom, learningShareOfCap, completeAt } = RULES_V9.kanji
-  const over = dueQuestions - room
-  if (over < overloadFrom) return null
-  const fits = Math.max(1, Math.floor((cap * learningShareOfCap) / completeAt))
-  return {
-    over,
-    suggestCap: Math.min(500, Math.ceil((cap + over) / 10) * 10),
-    suggestNewPerDay: newPerDay > fits ? fits : null,
-  }
 }
