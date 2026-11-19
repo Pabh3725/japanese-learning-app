@@ -197,7 +197,7 @@ function Feedback({ result, onNext, last }: { result: AnswerView; onNext: () => 
           {result.retry && <span className="ml-2 text-xs text-muted-foreground">You&apos;ll see it again in a moment.</span>}
         </p>
       )}
-      {result.stageDone && <p className="mt-1 text-sm text-success">{result.cardsCreated ? 'Learned! Review cards start tomorrow.' : 'Stage done! The next stage starts tomorrow.'}</p>}
+      {result.stageDone && <p className="mt-1 text-sm text-success">{result.cardsCreated ? 'Learned! Review cards start tomorrow.' : 'Intro done! The next intro starts tomorrow.'}</p>}
       <button type="button" autoFocus onClick={onNext} className={cn(actionButton({ size: 'lg' }), 'mt-4 w-full')}>
         {last ? 'See results' : 'Next'}
       </button>
@@ -269,7 +269,7 @@ export function V12Player({ initial }: { initial: DeckView }) {
           <p className="text-2xl font-semibold">Done for today 🎉</p>
           <p className="text-sm text-subtle">{stats.answered > 0 ? `${stats.correct} of ${stats.answered} correct this time.` : 'Nothing left in this area today.'}</p>
           {Object.values(deck.deferred).some((n) => n > 0) && <p className="text-xs text-muted-foreground">Some items went over your daily limit and moved to tomorrow.</p>}
-          <Link href="/learn" className={cn(actionButton({ size: 'lg' }), 'w-full')}>Back to Learn</Link>
+          <Link href="/learn" className={cn(actionButton({ size: 'lg' }), 'w-full')}>Back to Vocab</Link>
         </main>
       </div>
     )
@@ -282,13 +282,13 @@ export function V12Player({ initial }: { initial: DeckView }) {
           <p className="text-2xl font-semibold">Set {setNo - 1} done</p>
           <p className="text-sm text-subtle">{stats.correct} of {stats.answered} correct so far. Take a break or keep going.</p>
           <button type="button" autoFocus onClick={() => setBreakAt(null)} className={cn(actionButton({ size: 'lg' }), 'w-full')}>Next set</button>
-          <Link href="/learn" className={cn(actionButton({ size: 'lg', variant: 'secondary' }), 'w-full')}>Back to Learn</Link>
+          <Link href="/learn" className={cn(actionButton({ size: 'lg', variant: 'secondary' }), 'w-full')}>Back to Vocab</Link>
         </main>
       </div>
     )
 
   const label =
-    card.kind === 'intro' ? 'New' : card.kind === 'star' ? `Starred · ${CARD_TYPES[card.type].label} · extra practice` : card.kind === 'stage' ? `Stage ${card.stage} · ${CARD_TYPES[card.type].label}${card.retry ? ' · again' : ''}` : `Review · ${REVIEW_CARDS[card.card].label}${card.retry ? ' · again' : ''}`
+    card.kind === 'intro' ? 'New' : card.kind === 'star' ? `Starred · ${CARD_TYPES[card.type].label} · extra practice` : card.kind === 'stage' ? `Intro ${card.stage} · ${CARD_TYPES[card.type].label}${card.retry ? ' · again' : ''}` : `Review · ${REVIEW_CARDS[card.card].label}${card.retry ? ' · again' : ''}`
 
   return (
     <div className="flex min-h-dvh flex-col">

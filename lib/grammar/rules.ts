@@ -10,6 +10,8 @@ export const GRAMMAR_V1 = {
   lessons: 50,
   unlock: { vocabStage3Share: 0.5, previousLessonDoneShare: 0.5 },
   newPerDay: { default: 1, min: 1, max: 10 },
+  /** §3a cân bằng mẫu mới: thời gian ước tính mỗi câu và số câu ôn đầu của một mẫu (PROPOSED). */
+  balance: { secondsPerQuestion: 15, reviewQuestionsPerPattern: 10, defaultMinutes: 15 },
   learning: {
     completeAt: 40,
     questionsPerSitting: 8,

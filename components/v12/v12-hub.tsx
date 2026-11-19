@@ -62,7 +62,7 @@ export function V12Hub({ hub }: { hub: HubView }) {
   const total = hub.zones.reduce((n, z) => n + z.newItems + z.stageQuestions + z.reviews, 0)
   return (
     <>
-      <PageHeader eyebrow="学習" title="Learn" description="Three areas, each mixing new items, intro practice and review cards for today." />
+      <PageHeader eyebrow="語彙" title="Vocab" description="Three areas, each mixing new items, intro practice and review cards for today." />
       <div className="flex max-w-4xl flex-col gap-5">
         <section className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-primary/40 bg-primary/5 p-5">
           <div>

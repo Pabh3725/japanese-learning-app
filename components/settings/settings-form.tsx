@@ -1,7 +1,7 @@
 'use client'
 
 import { useId, useState, useTransition } from 'react'
-import { saveGrammarFuriganaAction, saveStudyLimitAction } from '@/app/(main)/settings/actions'
+import { saveGrammarBalanceAction, saveGrammarFuriganaAction, saveStudyLimitAction } from '@/app/(main)/settings/actions'
 import { GRAMMAR_V1 } from '@/lib/grammar/rules'
 import { STUDY_LIMITS, type StudyLimitKey } from '@/lib/learning/new-words'
 import { cn } from '@/lib/utils'
@@ -121,15 +121,114 @@ export function Group({ id, title, description, children }: { id: string; title:
   )
 }
 
-/** V12 (gói 4): phần học dùng cài đặt V12 (`v12Slot`); Grammar và hiển thị giữ như cũ. */
-export function SettingsForm({ limits, furigana = true, v12Slot }: { limits: Record<StudyLimitKey, number>; furigana?: boolean; v12Slot: React.ReactNode }) {
+export interface GrammarBalanceInit {
+  on: boolean
+  target: 'minutes' | 'date'
+  minutes: number
+  date: string | null
+  /** Ngày học mai (YYYY-MM-DD): ngày hoàn thành sớm nhất được chọn. */
+  minDate: string
+  /** Khi đang bật: số mẫu mới hôm nay, cấp và ngày dự kiến xong (tính ở server). */
+  today?: { perDay: number; level: string; finishDate: string }
+}
+
+const fmtDate = (d: string) => new Date(`${d}T00:00:00+07:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+
+/** §3a cân bằng mẫu ngữ pháp mới: mục tiêu riêng của Grammar (số phút mỗi ngày hoặc ngày xong cấp). */
+function GrammarPace({ init, newPerDay }: { init: GrammarBalanceInit; newPerDay: number }) {
+  const [on, setOn] = useState(init.on)
+  const [target, setTarget] = useState(init.target)
+  const [date, setDate] = useState(init.date ?? '')
+  const [dateError, setDateError] = useState<string | null>(null)
+  const minutesId = useId()
+  const minutes = useNumberField(init.minutes, 5, 240, (value) => saveGrammarBalanceAction('grammar_balance_minutes', value))
+  const dateNote = date === '' ? 'Pick a date — using minutes a day until then.' : date < init.minDate ? 'This date has passed — using minutes a day. Pick a new date.' : null
+  return (
+    <>
+      <SettingSwitch
+        label="Balance new patterns"
+        description="Open new patterns automatically to reach your own Grammar goal: minutes a day or a finish date for the level."
+        defaultChecked={on}
+        onSave={async (v) => {
+          setOn(v)
+          await saveGrammarBalanceAction('grammar_balance_on', v)
+        }}
+      />
+      {on ? (
+        <div className="flex flex-col gap-3 py-4">
+          <div role="radiogroup" aria-label="Grammar goal" className="flex gap-2">
+            {(['minutes', 'date'] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                role="radio"
+                aria-checked={target === t}
+                onClick={() => {
+                  setTarget(t)
+                  void saveGrammarBalanceAction('grammar_balance_target', t)
+                }}
+                className={cn('h-9 rounded-full border px-3.5 text-sm', target === t ? 'border-primary bg-primary/12 text-primary' : 'border-border text-subtle')}
+              >
+                {t === 'minutes' ? 'Minutes a day' : 'Finish by a date'}
+              </button>
+            ))}
+          </div>
+          {target === 'minutes' ? (
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <label htmlFor={minutesId} className="text-sm font-medium">Minutes of new patterns a day</label>
+                <p className="text-sm text-muted-foreground">About 12–13 minutes per new pattern, counting its 5 sittings and first reviews. At least 1 pattern a day.</p>
+                {minutes.error && <p role="alert" className="mt-1 text-sm text-error">{minutes.error}</p>}
+              </div>
+              <NumberBox id={minutesId} min={5} max={240} field={minutes} className="w-full sm:w-28" />
+            </div>
+          ) : (
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="font-medium">Finish this level by</span>
+              <input
+                type="date"
+                min={init.minDate}
+                value={date}
+                onChange={(e) => {
+                  const value = e.target.value
+                  if (value !== '' && value < init.minDate) {
+                    setDateError('Pick a date from tomorrow on.')
+                    return
+                  }
+                  setDateError(null)
+                  setDate(value)
+                  saveGrammarBalanceAction('grammar_balance_date', value || null)
+                    .then(({ status }) => {
+                      if (status !== 'saved') throw new Error(status)
+                    })
+                    .catch(() => setDateError("Couldn't save. Pick a date from tomorrow on and try again."))
+                }}
+                className="h-10 w-48 rounded-xl border border-border bg-card px-3"
+              />
+              {dateError ? <span role="alert" className="text-error">{dateError}</span> : dateNote && <span className="text-yellow">{dateNote}</span>}
+            </label>
+          )}
+          {init.on && init.today && (
+            <p className="text-sm text-subtle">
+              Today: {init.today.perDay} new {init.today.perDay === 1 ? 'pattern' : 'patterns'} · {init.today.level} finishes around {fmtDate(init.today.finishDate)}. Patterns still open only when their lesson is unlocked.
+            </p>
+          )}
+        </div>
+      ) : (
+        <StudyLimitField limitKey="grammar_new_per_day" initial={newPerDay} />
+      )}
+    </>
+  )
+}
+
+/** V12 (gói 4): phần Vocab dùng cài đặt V12 (`v12Slot`); Grammar có nhịp riêng (§3a) và hiển thị. */
+export function SettingsForm({ limits, furigana = true, v12Slot, grammarBalance }: { limits: Record<StudyLimitKey, number>; furigana?: boolean; v12Slot: React.ReactNode; grammarBalance: GrammarBalanceInit }) {
   return (
     <div className="flex max-w-2xl flex-col gap-6">
       {v12Slot}
-      <Group id="grammar" title="Grammar" description="Patterns by Minna lesson.">
-        {(['grammar_new_per_day', 'grammar_review_cap'] as const).map((key) => (
-          <StudyLimitField key={key} limitKey={key} initial={limits[key]} />
-        ))}
+      <Group id="grammar" title="Grammar" description="Patterns by Minna lesson. Grammar has its own pace, separate from Vocab.">
+        <GrammarPace init={grammarBalance} newPerDay={limits.grammar_new_per_day} />
+        <StudyLimitField limitKey="grammar_review_cap" initial={limits.grammar_review_cap} />
         <SettingSwitch label="Furigana in Grammar" description="Show readings above Kanji in grammar sentences." defaultChecked={furigana} onSave={saveGrammarFuriganaAction} />
       </Group>
     </div>

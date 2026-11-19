@@ -45,7 +45,7 @@ export function VerbSetup({ forms }: { forms: VerbFormSummary[] }) {
   )
 
   if (open.length === 0) {
-    return <p className="text-sm text-muted-foreground">The first forms (ます / ません / ました) open with lesson 4. A lesson opens when half of its words have finished Stage 3.</p>
+    return <p className="text-sm text-muted-foreground">The first forms (ます / ません / ました) open with lesson 4. A lesson opens when half of its words have finished Intro 3.</p>
   }
 
   return (

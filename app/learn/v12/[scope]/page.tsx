@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { V12Player } from '@/components/v12/v12-player'
 import { getDeck } from '@/lib/dal/v12/deck'
 
-export const metadata: Metadata = { title: 'Learn · Nihongo' }
+export const metadata: Metadata = { title: 'Vocab · Nihongo' }
 
 export default async function V12DeckPage({ params }: { params: Promise<{ scope: string }> }) {
   const { scope } = await params
