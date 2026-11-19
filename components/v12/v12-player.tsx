@@ -5,8 +5,8 @@
 // 1–9 chọn đáp án, Enter chấm, Enter/Space sang câu, P nghe lại, phím số đặt mảnh ghép, Backspace / Esc sửa mảnh.
 import { Fragment, useEffect, useEffectEvent, useRef, useState, useTransition } from 'react'
 import Link from 'next/link'
-import { Volume2 } from 'lucide-react'
-import { answerDeckAction, getDeckAction } from '@/app/learn/v12/actions'
+import { CheckCheck, Star, Volume2 } from 'lucide-react'
+import { answerDeckAction, getDeckAction, learnItemAction, starItemAction } from '@/app/learn/v12/actions'
 import { actionButton } from '@/components/action-button'
 import { KanjiCard } from '@/components/kanji/kanji-card'
 import { AnswerOption, type AnswerState } from '@/components/learning/answer-option'
@@ -14,8 +14,7 @@ import { ContinueFooter, ExerciseFooter, type CheckStatus } from '@/components/l
 import { ExercisePanel } from '@/components/learning/exercise-panel'
 import { SessionHeader } from '@/components/learning/session-header'
 import { SpeakerButton, useAutoSpeak } from '@/components/learning/speaker-button'
-import { ArchiveCardBar } from '@/components/review/archive-card-bar'
-import type { AnswerView, CardView, DeckView, IntroView, PublicQuestion } from '@/lib/dal/v12/deck'
+import type { AnswerView, CardView, DeckView, IntroView, PublicQuestion, WordInfo } from '@/lib/dal/v12/deck'
 import { convertAtCaret } from '@/lib/exercise/answer-normalize'
 import { jpSizeClass } from '@/lib/jp-size'
 import { isShortcutEvent, pieceIndexForKey, pieceKeyLabel } from '@/lib/keyboard'
@@ -42,8 +41,14 @@ function useKeys(onKey: (e: KeyboardEvent) => void) {
 }
 
 /** Đề: chữ Nhật cỡ lớn theo độ dài, nghĩa, Hán Việt, hoặc nút loa của câu nghe (tự đọc, phím P nghe lại). */
-function Prompt({ text, kind, speakText }: { text: string; kind: string; speakText?: string }) {
-  if (kind === 'listen' && speakText) return <ListenPrompt kana={speakText} />
+function Prompt({ text, kind, speakText, hanViet, word }: { text: string; kind: string; speakText?: string; hanViet?: string; word?: WordInfo }) {
+  if (kind === 'listen' && speakText)
+    return (
+      <div className="flex flex-col items-center gap-4">
+        <ListenPrompt kana={speakText} />
+        {word && <WordLine word={word} />}
+      </div>
+    )
   const japanese = kind === 'kana' || kind === 'kanji'
   return (
     <div className="flex flex-col items-center gap-3 text-center">
@@ -56,7 +61,23 @@ function Prompt({ text, kind, speakText }: { text: string; kind: string; speakTe
       ) : (
         <p className="text-balance text-3xl font-semibold md:text-4xl">{text}</p>
       )}
+      {hanViet && <p className="text-sm font-semibold tracking-wider text-yellow">{hanViet}</p>}
       {japanese && speakText && <SpeakerButton kana={speakText} />}
+      {word && <WordLine word={word} />}
+    </div>
+  )
+}
+
+/** Sau khi chấm: chữ, cách đọc, Hán Việt, nghĩa của mục vừa học — để đọc lại (shadowing) và tiếp xúc với Hán tự. */
+function WordLine({ word }: { word: WordInfo }) {
+  return (
+    <div className="mt-2 flex animate-in flex-col items-center gap-1 rounded-2xl border border-border bg-card/60 px-5 py-3 fade-in">
+      <p className="flex items-baseline gap-3">
+        <span lang="ja" className="font-jp text-3xl font-medium">{word.text}</span>
+        {word.reading && <span lang="ja" className="font-jp text-lg text-cyan">{word.reading}</span>}
+      </p>
+      {word.hanViet && <p className="text-sm font-semibold tracking-wider text-yellow">{word.hanViet}</p>}
+      <p className="text-sm text-subtle">{word.meaning}</p>
     </div>
   )
 }
@@ -81,7 +102,7 @@ function noteOf(r: AnswerView | null): string | undefined {
 }
 
 /** Một câu chọn / gõ / ghép. Chấm ở server khi bấm Check (hoặc Enter); Continue (Enter / Space) sang thẻ sau. */
-function QuestionScreen({ label, q, onGrade, onContinue, footerExtra }: { label: string; q: PublicQuestion; onGrade: Grade; onContinue: () => void; footerExtra?: React.ReactNode }) {
+function QuestionScreen({ label, q, hanViet, onGrade, onContinue }: { label: string; q: PublicQuestion; hanViet?: string; onGrade: Grade; onContinue: () => void }) {
   const [picked, setPicked] = useState<string | null>(null)
   const [typed, setTyped] = useState('')
   const [placed, setPlaced] = useState<number[]>([])
@@ -92,10 +113,10 @@ function QuestionScreen({ label, q, onGrade, onContinue, footerExtra }: { label:
   const locked = status !== 'idle' || checking
   const given: Given | null = q.kind === 'choice' ? picked : q.kind === 'typing' ? (typed.trim() ? typed : null) : placed.length ? placed.map((i) => q.pieces[i]) : null
 
-  const check = async () => {
-    if (locked || given === null) return
+  const check = async (value: Given | null = given) => {
+    if (locked || value === null) return
     setChecking(true)
-    const r = await onGrade(given)
+    const r = await onGrade(value)
     setChecking(false)
     if (!r) return
     setResult(r)
@@ -103,11 +124,19 @@ function QuestionScreen({ label, q, onGrade, onContinue, footerExtra }: { label:
     if (r.speak) speak(r.speak)
   }
 
+  // Trắc nghiệm: chọn là chấm ngay (bấm hoặc phím số), rồi Enter / Space sang câu sau
+  const pick = (o: string) => {
+    if (locked) return
+    setPicked(o)
+    void check(o)
+  }
+
   useKeys((e) => {
     if (locked || !isShortcutEvent(e)) return
     if (q.kind === 'choice') {
       const n = Number(e.key)
-      if (n >= 1 && n <= q.options.length) setPicked(q.options[n - 1])
+      if (n >= 1 && n <= q.options.length) pick(q.options[n - 1])
+      return
     } else if (q.kind === 'assembly') {
       if (e.key === 'Backspace') {
         e.preventDefault()
@@ -132,7 +161,7 @@ function QuestionScreen({ label, q, onGrade, onContinue, footerExtra }: { label:
     controls = (
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2" role="group" aria-label="Answer options">
         {q.options.map((o, i) => (
-          <AnswerOption key={o} index={i} label={o} kind={optionKind(q.optionKind)} state={stateFor(o)} disabled={locked} onSelect={() => setPicked(o)} />
+          <AnswerOption key={o} index={i} label={o} kind={optionKind(q.optionKind)} state={stateFor(o)} disabled={locked} onSelect={() => pick(o)} />
         ))}
       </div>
     )
@@ -230,17 +259,16 @@ function QuestionScreen({ label, q, onGrade, onContinue, footerExtra }: { label:
       footer={
         <ExerciseFooter
           status={status}
-          canCheck={given !== null && !checking}
-          checkLabel={checking ? 'Checking…' : 'Check'}
+          canCheck={q.kind !== 'choice' && given !== null && !checking}
+          checkLabel={checking ? 'Checking…' : q.kind === 'choice' ? 'Pick an answer' : 'Check'}
           onCheck={() => void check()}
           onContinue={onContinue}
           correctAnswer={result?.answers?.join(' · ')}
           explanation={noteOf(result)}
-          secondary={footerExtra}
         />
       }
     >
-      <Prompt text={q.prompt} kind={q.promptKind} speakText={q.speak} />
+      <Prompt text={q.prompt} kind={q.promptKind} speakText={q.speak} hanViet={hanViet} word={result?.word} />
     </ExercisePanel>
   )
 }
@@ -248,19 +276,26 @@ function QuestionScreen({ label, q, onGrade, onContinue, footerExtra }: { label:
 const PART_LABEL: Record<string, string> = { type_kana: 'Type the reading', type_hanviet: 'Type the Sino-Vietnamese', choose_meaning: 'Choose the meaning', choose_hanviet: 'Choose the name' }
 
 /** Card Review gom chung: một đề, nhiều phần; chấm cả Card khi bấm Check (§3.3). Phím số chọn ở phần trắc nghiệm đang chờ. */
-function ReviewScreen({ label, card, onGrade, onContinue, footerExtra }: { label: string; card: Extract<CardView, { kind: 'review' }>; onGrade: Grade; onContinue: () => void; footerExtra?: React.ReactNode }) {
+function ReviewScreen({ label, card, onGrade, onContinue }: { label: string; card: Extract<CardView, { kind: 'review' }>; onGrade: Grade; onContinue: () => void }) {
   const [parts, setParts] = useState<(string | null)[]>(() => card.parts.map(() => null))
   const [status, setStatus] = useState<CheckStatus>('idle')
   const [checking, setChecking] = useState(false)
   const [result, setResult] = useState<AnswerView | null>(null)
   const locked = status !== 'idle' || checking
   const ready = parts.every((p) => p !== null && p.trim() !== '')
-  const set = (i: number, v: string) => setParts((cur) => cur.map((x, j) => (j === i ? v : x)))
+  const allChoice = card.parts.every((p) => p.question.kind === 'choice')
+  const set = (i: number, v: string) => {
+    if (locked) return
+    const nextParts = parts.map((x, j) => (j === i ? v : x))
+    setParts(nextParts)
+    // Card chỉ có phần trắc nghiệm: chọn đủ các phần là chấm ngay
+    if (allChoice && nextParts.every((p) => p !== null)) void check(nextParts)
+  }
 
-  const check = async () => {
-    if (locked || !ready) return
+  const check = async (value: (string | null)[] = parts) => {
+    if (locked || !value.every((p) => p !== null && p.trim() !== '')) return
     setChecking(true)
-    const r = await onGrade(parts)
+    const r = await onGrade(value)
     setChecking(false)
     if (!r) return
     setResult(r)
@@ -328,17 +363,16 @@ function ReviewScreen({ label, card, onGrade, onContinue, footerExtra }: { label
       footer={
         <ExerciseFooter
           status={status}
-          canCheck={ready && !checking}
-          checkLabel={checking ? 'Checking…' : 'Check'}
+          canCheck={!allChoice && ready && !checking}
+          checkLabel={checking ? 'Checking…' : allChoice ? 'Pick an answer' : 'Check'}
           onCheck={() => void check()}
           onContinue={onContinue}
           correctAnswer={result?.answers?.join(' · ')}
           explanation={noteOf(result)}
-          secondary={footerExtra}
         />
       }
     >
-      <Prompt text={card.prompt} kind={card.promptKind} speakText={card.promptKind === 'kana' ? card.speak : undefined} />
+      <Prompt text={card.prompt} kind={card.promptKind} speakText={card.promptKind === 'kana' ? card.speak : undefined} hanViet={card.promptHanViet} word={result?.word} />
     </ExercisePanel>
   )
 }
@@ -413,6 +447,108 @@ function Intro({ intro }: { intro: IntroView }) {
   )
 }
 
+/**
+ * Thanh trên mỗi thẻ (giới thiệu, Intro, Review): dấu sao và nút "Learned".
+ * Learned hỏi có ôn mục này không: có → sang Card ngay; không → đánh dấu đã biết, không ôn nữa. Xong thì sang thẻ sau.
+ */
+function CardTools({ card, onLearned }: { card: CardView; onLearned: () => void }) {
+  const [starred, setStarred] = useState(card.starred)
+  const [asking, setAsking] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [saving, start] = useTransition()
+  const reviewing = card.kind === 'review'
+
+  const toggleStar = () => {
+    if (starred === null) return
+    const value = !starred
+    setStarred(value)
+    starItemAction(card.itemId, value)
+      .then(({ status }) => {
+        if (status !== 'saved') throw new Error(status)
+      })
+      .catch(() => {
+        setStarred(!value)
+        setError("Couldn't save. Check your connection and try again.")
+      })
+  }
+
+  const learned = (review: boolean) => {
+    // Card đang ôn mà chọn "Keep reviewing": không đổi gì
+    if (review && reviewing) return setAsking(false)
+    start(async () => {
+      setError(null)
+      try {
+        const { status } = await learnItemAction(card.itemId, review)
+        if (status !== 'saved') throw new Error(status)
+        setAsking(false)
+        onLearned()
+      } catch {
+        setError("Couldn't save. Check your connection and try again.")
+      }
+    })
+  }
+
+  return (
+    <>
+      <div className="mx-auto flex w-full max-w-2xl items-center justify-end gap-2 px-4 pt-2">
+        {error && <p role="alert" className="mr-auto text-sm text-error">{error}</p>}
+        {starred !== null && (
+          <button
+            type="button"
+            onClick={toggleStar}
+            aria-pressed={starred}
+            title={starred ? 'Remove the star' : 'Star: one extra practice question a day'}
+            className="flex h-9 items-center gap-1.5 rounded-full border border-border px-3 text-sm text-subtle transition-colors hover:border-yellow/60 hover:text-foreground"
+          >
+            <Star className={cn('size-4', starred && 'fill-current text-yellow')} aria-hidden="true" />
+            {starred ? 'Starred' : 'Star'}
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => setAsking(true)}
+          className="flex h-9 items-center gap-1.5 rounded-full border border-border px-3 text-sm text-subtle transition-colors hover:border-success/60 hover:text-foreground"
+        >
+          <CheckCheck className="size-4" aria-hidden="true" />
+          Learned
+        </button>
+      </div>
+      {asking && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="learned-title"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 sm:items-center"
+          onClick={() => !saving && setAsking(false)}
+          // Phím trong hộp thoại không tới phím tắt của câu hỏi phía sau; Esc đóng hộp thoại
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setAsking(false)
+            e.stopPropagation()
+          }}
+        >
+          <div className="w-full max-w-sm rounded-3xl border border-border bg-card p-6" onClick={(e) => e.stopPropagation()}>
+            <h2 id="learned-title" className="font-semibold">{reviewing ? 'Keep reviewing this?' : 'Mark as learned'}</h2>
+            <p className="mt-1 text-sm text-subtle">
+              {reviewing ? 'You can keep its review cards, or stop reviewing it because you know it well.' : 'Do you want to review it? It skips the remaining intro steps either way.'}
+            </p>
+            <div className="mt-5 flex flex-col gap-2">
+              <button type="button" autoFocus disabled={saving} onClick={() => learned(true)} className={cn(actionButton({ size: 'lg' }), 'w-full')}>
+                {reviewing ? 'Keep reviewing' : 'Yes, review it'}
+              </button>
+              <button type="button" disabled={saving} onClick={() => learned(false)} className={cn(actionButton({ size: 'lg', variant: 'secondary' }), 'w-full')}>
+                {reviewing ? 'Stop — I know it well' : 'No, I know it well'}
+              </button>
+              <button type="button" disabled={saving} onClick={() => setAsking(false)} className="mt-1 text-sm text-muted-foreground hover:text-foreground">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
 /** Màn giữa hai set và cuối ngày. Enter / Space bấm nút chính. */
 function Pause({ header, title, body, note, primary, onPrimary }: { header: React.ReactNode; title: string; body: string; note?: string; primary?: string; onPrimary?: () => void }) {
   useKeys((e) => {
@@ -451,11 +587,22 @@ export function V12Player({ initial }: { initial: DeckView }) {
   const [error, setError] = useState<string | null>(null)
   const [busy, start] = useTransition()
   const shownAt = useRef(0)
+  /** Thẻ kế tiếp server trả kèm kết quả chấm: Continue dùng luôn, không phải tải lại bộ thẻ. */
+  const nextDeck = useRef<DeckView | null>(null)
   const card = deck.card
 
   useEffect(() => {
     shownAt.current = performance.now()
   }, [card?.position])
+
+  const advance = () => {
+    const next = nextDeck.current
+    nextDeck.current = null
+    if (next) {
+      setDeck(next)
+      setError(null)
+    } else load()
+  }
 
   const load = () =>
     start(async () => {
@@ -475,6 +622,7 @@ export function V12Player({ initial }: { initial: DeckView }) {
         return null
       }
       if (res.status !== 'graded') throw new Error(res.status)
+      nextDeck.current = res.next ?? null
       if (card.kind !== 'intro') {
         const add = (s: { answered: number; correct: number }) => ({ answered: s.answered + 1, correct: s.correct + (res.correct ? 1 : 0) })
         setSetStats(add)
@@ -527,14 +675,13 @@ export function V12Player({ initial }: { initial: DeckView }) {
         : card.kind === 'stage'
           ? `Intro ${card.stage} · ${CARD_TYPES[card.type].label}${card.retry ? ' · again' : ''}`
           : `Review · ${REVIEW_CARDS[card.card].label}${card.retry ? ' · again' : ''}`
-  // R13: lưu trữ riêng Card đang ôn; thẻ tiếp theo bỏ qua Card đã lưu trữ
-  const archive = card.kind === 'review' && !card.retry ? <ArchiveCardBar kind="item" cardId={card.cardId} onArchived={load} /> : undefined
 
   return (
     <div className="flex min-h-dvh flex-col">
       {header}
       {error && <p role="alert" className="mx-auto w-full max-w-2xl px-4 pt-2 text-sm text-error">{error}</p>}
       <Fragment key={card.position}>
+        <CardTools card={card} onLearned={load} />
         {card.kind === 'intro' && (
           <ExercisePanel
             stage={label}
@@ -545,7 +692,7 @@ export function V12Player({ initial }: { initial: DeckView }) {
                 hint="Press Enter to continue"
                 onClick={() =>
                   start(async () => {
-                    if (await grade(null)) await load()
+                    if (await grade(null)) advance()
                   })
                 }
               />
@@ -554,8 +701,8 @@ export function V12Player({ initial }: { initial: DeckView }) {
             <Intro intro={card.intro} />
           </ExercisePanel>
         )}
-        {(card.kind === 'stage' || card.kind === 'star') && <QuestionScreen label={label} q={card.question} onGrade={grade} onContinue={load} />}
-        {card.kind === 'review' && <ReviewScreen label={label} card={card} onGrade={grade} onContinue={load} footerExtra={archive} />}
+        {(card.kind === 'stage' || card.kind === 'star') && <QuestionScreen label={label} q={card.question} hanViet={card.promptHanViet} onGrade={grade} onContinue={advance} />}
+        {card.kind === 'review' && <ReviewScreen label={label} card={card} onGrade={grade} onContinue={advance} />}
       </Fragment>
     </div>
   )

@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { addStudyDays } from '../../learning/time'
 import { parseCsv } from '../../../scripts/seed/csv'
-import { balance, balanceTarget, estimatedSeconds, type Remaining } from '../balance'
+import { balance, balanceTarget, estimatedSeconds, secondsFromStats, type Remaining } from '../balance'
 import { reviewCardsFor, typesFor, type CardType } from '../card-types'
 import { applyCap, buildDeck, insertRetry, type DeckCard, type DeckInput } from '../deck'
 import { forecast, overflowDays, simulateItem } from '../forecast'
@@ -249,6 +249,17 @@ describe('§8 Cân bằng theo thời gian', () => {
     // Mục tiêu ngày: khu còn chạy giữ chỉ tiêu theo ngày đó
     const date = addStudyDays(D0, 99)
     expect(balance(rem, { kind: 'date', date }, D0, undefined, {}, { kanji: true }).today.kana).toBe(balance(rem, { kind: 'date', date }, D0).today.kana)
+  })
+
+  it('§8.1 hiệu chỉnh bằng thời gian thật: chưa đủ 14 ngày giữ ước tính; đủ thì nhân theo tỷ lệ thật / ước tính', () => {
+    const rows = (days: number) => [
+      { area: 'kana' as const, cardType: 'kana_meaning', isCard: false, answers: 100, realMs: 1_200_000, studyDays: days },
+      { area: 'kana' as const, cardType: 'kana_type', isCard: true, answers: 10, realMs: 150_000, studyDays: days },
+    ]
+    expect(secondsFromStats(rows(13)).kana).toBe(estimatedSeconds('kana'))
+    // Ước tính 100 × 6 + 10 × 15 = 750 giây; thật 1.350 giây → ×1,8
+    expect(secondsFromStats(rows(14)).kana).toBeCloseTo(estimatedSeconds('kana') * 1.8)
+    expect(secondsFromStats(rows(14)).kanji).toBe(estimatedSeconds('kanji'))
   })
 
   it('luật dừng mục mới: khu tồn (câu Stage + Card đến hạn) từ trần trở lên thì không mở mục mới', () => {

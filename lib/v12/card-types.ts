@@ -90,7 +90,6 @@ export const REVIEW_CARDS = {
 
 export type ReviewCardType = keyof typeof REVIEW_CARDS
 export type ReviewPart = (typeof REVIEW_CARDS)[ReviewCardType]['parts'][number]
-export const partKind = (part: ReviewPart): 'choice' | 'typing' => (part.startsWith('type_') ? 'typing' : 'choice')
 
 /** Card tạo khi mục xong Stage cuối. Từ vựng Kana có 2 Card (§4). */
 export function reviewCardsFor(area: Area): ReviewCardType[] {
