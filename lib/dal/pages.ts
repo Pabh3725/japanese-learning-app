@@ -19,17 +19,3 @@ export async function readAllPages<T>(what: string, page: (from: number, to: num
     if ((data?.length ?? 0) < PAGE_SIZE) return rows
   }
 }
-
-/** Số giá trị tối đa trong một bộ lọc .in(): id nằm trong URL, 1000 UUID dài khoảng 37KB, dễ bị máy chủ từ chối. */
-export const IN_CHUNK = 100
-
-/** Chạy truy vấn .in() theo từng nhóm IN_CHUNK giá trị rồi gộp kết quả. */
-export async function readInChunks<T>(what: string, values: readonly string[], query: (chunk: string[]) => PageResult<T>): Promise<T[]> {
-  const chunks: string[][] = []
-  for (let i = 0; i < values.length; i += IN_CHUNK) chunks.push(values.slice(i, i + IN_CHUNK))
-  const results = await Promise.all(chunks.map((chunk) => query(chunk)))
-  return results.flatMap(({ data, error }) => {
-    if (error) throw new Error(`Không đọc được ${what}: ${error.message}`)
-    return data ?? []
-  })
-}

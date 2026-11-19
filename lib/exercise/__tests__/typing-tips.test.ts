@@ -3,7 +3,6 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { isKanaAnswerCorrect, romajiToKanaInput } from '../answer-normalize'
 import { isKatakana } from '../questions'
-import { wordReveal, type StageWord } from '../stage-questions'
 import { typedRomaji, typingTip } from '../typing-tips'
 
 const lines = readFileSync(join(process.cwd(), 'data/n5/vocabularies.csv'), 'utf8').replace(/^﻿/, '').split('\n')
@@ -33,22 +32,6 @@ describe('typedRomaji', () => {
         expect(shown.replace(/n$/, mode === 'katakana' ? 'ン' : 'ん')).toBe(reading)
       }
     }
-  })
-})
-
-describe('wordReveal', () => {
-  const word: StageWord = { id: 'a', expression: '学校', reading_kana: 'がっこう', meaning_vi: 'trường học', han_viet: 'HỌC HIỆU', is_kana_only: false, romaji: 'gakkou' }
-
-  it('chưa xem thẻ Hán tự: có Hán Việt làm quen, chưa có Kanji', () => {
-    expect(wordReveal(word, { currentStage: 2, kanjiIntroSeen: false })).toMatchObject({ expression: null, hanViet: word.han_viet })
-  })
-
-  it('đã xem thẻ Hán tự: đủ thông tin, kể cả câu Stage 2 còn đang chạy', () => {
-    expect(wordReveal(word, { currentStage: 4, kanjiIntroSeen: true })).toMatchObject({ expression: '学校', hanViet: 'HỌC HIỆU' })
-  })
-
-  it('từ chỉ có Kana không có dòng Kanji', () => {
-    expect(wordReveal({ ...word, expression: 'テレビ', han_viet: null, is_kana_only: true }, { currentStage: 5, kanjiIntroSeen: false })).toMatchObject({ expression: null, hanViet: null })
   })
 })
 

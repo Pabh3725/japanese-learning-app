@@ -188,10 +188,3 @@ export async function getLevelProgress(): Promise<LevelProgress> {
   })
   return { levels, inProgress: state.items.filter((i) => !i.known && i.stage !== 'review').length, cards: state.cards.length }
 }
-
-export interface SkillSummary {
-  answered: number
-  correct: number
-  /** Số stage hoàn tất hôm nay; ở Kanji là số chữ xong giai đoạn Học. */
-  completed: number
-}

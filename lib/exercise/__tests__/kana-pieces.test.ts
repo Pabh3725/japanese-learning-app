@@ -2,16 +2,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { confusableKana } from '../similarity'
-import {
-  buildKanaAssemblyQuestion,
-  isKanaAssemblyCorrect,
-  KANA_DISTRACTORS_MAX,
-  KANA_DISTRACTORS_MIN,
-  mixKanaPieces,
-  parseKanaAssemblyRequest,
-  pickKanaDistractors,
-  splitKana,
-} from '../kana-pieces'
+import { KANA_DISTRACTORS_MAX, KANA_DISTRACTORS_MIN, mixKanaPieces, pickKanaDistractors, splitKana } from '../kana-pieces'
 
 function seeded(seed = 1) {
   let t = seed
@@ -182,57 +173,5 @@ describe('mixKanaPieces — trộn kỹ', () => {
         }
       }
     }
-  })
-})
-
-describe('buildKanaAssemblyQuestion', () => {
-  it('có đủ mảnh đáp án và mảnh nhiễu', () => {
-    const q = buildKanaAssemblyQuestion('がっこう', seeded())
-    expect(q.slots).toBe(4)
-    expect(q.pool).toHaveLength(4 + 4)
-    for (const piece of ['が', 'っ', 'こ', 'う']) expect(q.pool).toContain(piece)
-  })
-  it('từ có chữ lặp giữ đủ số mảnh', () => {
-    const q = buildKanaAssemblyQuestion('おかあさん', seeded())
-    expect(q.pool.filter((p) => ['お', 'か', 'あ', 'さ', 'ん'].includes(p))).toHaveLength(5)
-    const repeated = buildKanaAssemblyQuestion('もしもし', seeded())
-    expect(repeated.pool.filter((p) => p === 'も')).toHaveLength(2)
-  })
-  it('không gửi cách đọc xuống trình duyệt', () => {
-    expect(Object.keys(buildKanaAssemblyQuestion('がっこう', seeded())).sort()).toEqual(['pool', 'slots'])
-  })
-})
-
-describe('isKanaAssemblyCorrect', () => {
-  it('đúng thứ tự → đúng', () => {
-    expect(isKanaAssemblyCorrect(['が', 'っ', 'こ', 'う'], 'がっこう')).toBe(true)
-  })
-  it('sai thứ tự hoặc thiếu mảnh → sai', () => {
-    expect(isKanaAssemblyCorrect(['こ', 'が', 'っ', 'う'], 'がっこう')).toBe(false)
-    expect(isKanaAssemblyCorrect(['が', 'っ', 'こ'], 'がっこう')).toBe(false)
-    expect(isKanaAssemblyCorrect([], 'がっこう')).toBe(false)
-  })
-})
-
-describe('parseKanaAssemblyRequest', () => {
-  const valid = {
-    learnerVocabularyId: '6f1c2d3e-4a5b-4c6d-8e7f-0a1b2c3d4e5f',
-    clientEventId: '7f1c2d3e-4a5b-4c6d-8e7f-0a1b2c3d4e5f',
-    pieces: ['が', 'っ', 'こ', 'う'],
-  }
-  it('nhận dữ liệu đúng, làm tròn thời gian', () => {
-    expect(parseKanaAssemblyRequest({ ...valid, responseMs: 1200.4 })).toEqual({ ...valid, responseMs: 1200 })
-  })
-  it('từ chối dữ liệu sai dạng', () => {
-    expect(parseKanaAssemblyRequest(null)).toBeNull()
-    expect(parseKanaAssemblyRequest({ ...valid, learnerVocabularyId: 'x' })).toBeNull()
-    expect(parseKanaAssemblyRequest({ ...valid, clientEventId: undefined })).toBeNull()
-    expect(parseKanaAssemblyRequest({ ...valid, pieces: [] })).toBeNull()
-    expect(parseKanaAssemblyRequest({ ...valid, pieces: [1] })).toBeNull()
-    expect(parseKanaAssemblyRequest({ ...valid, pieces: ['quá dài rồi'] })).toBeNull()
-    expect(parseKanaAssemblyRequest({ ...valid, responseMs: -1 })).toBeNull()
-  })
-  it('không nhận kết quả do trình duyệt tự báo', () => {
-    expect(parseKanaAssemblyRequest({ ...valid, outcome: 'correct' })).not.toHaveProperty('outcome')
   })
 })

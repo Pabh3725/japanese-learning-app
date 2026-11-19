@@ -2,7 +2,7 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
-import { IN_CHUNK, PAGE_SIZE, readAllPages, readInChunks } from '../pages'
+import { PAGE_SIZE, readAllPages } from '../pages'
 
 // vi.mock được đưa lên trước các import: pages.ts import 'server-only', gói này báo lỗi ngoài React Server
 vi.mock('server-only', () => ({}))
@@ -62,30 +62,5 @@ describe('DAL không xin quá 1000 dòng trong một lần', () => {
       }
     }
     expect(bad).toEqual([])
-  })
-})
-
-describe('readInChunks', () => {
-  it('1000 id chia thành nhóm 100, gộp đủ kết quả', async () => {
-    const ids = Array.from({ length: 1000 }, (_, i) => `id-${i}`)
-    const sizes: number[] = []
-    const rows = await readInChunks('vocabularies', ids, (chunk) => {
-      sizes.push(chunk.length)
-      return Promise.resolve({ data: chunk.map((id) => ({ id })), error: null })
-    })
-    expect(sizes).toEqual(Array(10).fill(IN_CHUNK))
-    expect(rows.map((r) => r.id)).toEqual(ids)
-  })
-
-  it('không có id thì không gọi truy vấn', async () => {
-    let calls = 0
-    expect(await readInChunks('t', [], () => (calls++, Promise.resolve({ data: [], error: null })))).toEqual([])
-    expect(calls).toBe(0)
-  })
-
-  it('một nhóm lỗi thì báo lỗi', async () => {
-    await expect(readInChunks('vocabularies', ['a'], () => Promise.resolve({ data: null, error: { message: 'URI too long' } }))).rejects.toThrow(
-      'Không đọc được vocabularies: URI too long',
-    )
   })
 })

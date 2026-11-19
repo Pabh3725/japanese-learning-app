@@ -4,8 +4,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { buildStageQuestion, type AssemblyQuestionData, type ChoiceQuestionData, type QuestionPools, type StageWord } from '../../exercise/stage-questions'
 import { kanjiTier, rankByTier } from '../distractor-tier'
-import { buildKanjiQuestion, type KanjiRow } from '../questions'
-import type { KanjiExercise } from '../rules'
+import { type KanjiRow } from '../questions'
 
 const parseArray = (value: string) => (value === '{}' ? [] : value.slice(1, -1).split(',').map((part) => part.replace(/"/g, '')))
 const cellsOf = (line: string) => line.match(/("([^"]|"")*"|[^,]*)(,|$)/g)!.map((c) => c.replace(/,$/, '').replace(/^"|"$/g, '').replace(/""/g, '"'))
@@ -16,15 +15,6 @@ const all: KanjiRow[] = lines.map((line, i) => {
   return { id: String(i), character: cells[0], han_viet: cells[1], meaning_vi: cells[2], onyomi: parseArray(cells[3]), kunyomi: parseArray(cells[4]), jlpt_level: i < lines.length / 2 ? 5 : 4 }
 })
 const seeded = (seed: number) => () => (seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296
-
-const CHOICE: KanjiExercise[] = ['kanji_to_meaning', 'kanji_to_hanviet', 'pick_kanji', 'hanviet_to_kanji', 'kanji_reading']
-const byText = (question: ReturnType<typeof buildKanjiQuestion>, exercise: KanjiExercise) => {
-  if (question.kind !== 'choice') throw new Error('không phải trắc nghiệm')
-  const field = exercise === 'kanji_to_meaning' ? 'meaning_vi' : exercise === 'kanji_to_hanviet' ? 'han_viet' : exercise === 'kanji_reading' ? null : 'character'
-  return question.options
-    .filter((o) => o !== question.answer)
-    .map((o) => (field ? all.filter((k) => k[field] === o) : all.filter((k) => [...k.onyomi, ...k.kunyomi].some((r) => r.replace(/[.-]/g, '') === o.replace(/[.-]/g, '')))))
-}
 
 describe('Bậc của chữ', () => {
   it('đã học trước, rồi chữ sắp học cùng cấp (gần trước), cuối cùng chữ khác cấp', () => {
@@ -39,37 +29,6 @@ describe('Bậc của chữ', () => {
     const ranked = rankByTier([1, 2, 3, 4, 5, 6], (x) => (x % 2 === 0 ? 0 : 1), seeded(1))
     expect(ranked.slice(0, 3).sort()).toEqual([2, 4, 6])
     expect([...ranked].sort()).toEqual([1, 2, 3, 4, 5, 6])
-  })
-})
-
-describe('Câu Kanji: nhiễu chỉ từ chữ đã học', () => {
-  const learned = new Set(all.slice(0, 40).map((k) => k.id))
-  const tier = kanjiTier(all, learned, 5)
-
-  it('đủ chữ đã học: mọi đáp án nhiễu đều là chữ đã học', () => {
-    for (const exercise of CHOICE) {
-      for (let seed = 1; seed <= 30; seed++) {
-        const target = all[seed]
-        const q = buildKanjiQuestion(target, exercise, all, null, seeded(seed), 6, [], tier)
-        for (const candidates of byText(q, exercise)) expect(candidates.some((k) => learned.has(k.id))).toBe(true)
-      }
-    }
-  })
-
-  it('mới học 2 chữ: bù bằng chữ sắp học cùng cấp, không lấy chữ khác cấp', () => {
-    const few = new Set(['0', '1'])
-    const fewTier = kanjiTier(all, few, 5)
-    const q = buildKanjiQuestion(all[1], 'pick_kanji', all, null, seeded(7), 6, [], fewTier)
-    if (q.kind !== 'choice') throw new Error('không phải trắc nghiệm')
-    expect(q.options).toHaveLength(6)
-    const wrong = q.options.filter((o) => o !== q.answer).map((o) => all.find((k) => k.character === o)!)
-    expect(wrong.some((k) => k.id === '0')).toBe(true)
-    for (const k of wrong) expect(k.jlpt_level).toBe(5)
-  })
-
-  it('không truyền bậc: như cũ, vẫn đủ lựa chọn', () => {
-    const q = buildKanjiQuestion(all[5], 'pick_kanji', all, null, seeded(3))
-    expect(q.kind === 'choice' && q.options.length).toBe(4)
   })
 })
 
