@@ -86,7 +86,8 @@ export const REVIEW_CARDS = {
   kana_choose: { area: 'kana', parts: ['choose_meaning'], label: 'Kana → meaning' },
   radical: { area: 'radical', parts: ['choose_hanviet', 'choose_meaning'], label: 'Radical' },
   kanji: { area: 'kanji', parts: ['type_hanviet', 'choose_meaning'], label: 'Kanji' },
-  word_kanji: { area: 'word_kanji', parts: ['type_kana', 'type_hanviet', 'choose_meaning'], label: 'Kanji word' },
+  // Chủ dự án chốt 2026-11-19: bỏ gõ Kana khỏi Card Từ vựng Kanji (cách đọc vẫn hiện và đọc to sau khi chấm)
+  word_kanji: { area: 'word_kanji', parts: ['type_hanviet', 'choose_meaning'], label: 'Kanji word' },
 } as const satisfies Record<string, { area: Area; parts: readonly string[]; label: string }>
 
 export type ReviewCardType = keyof typeof REVIEW_CARDS
