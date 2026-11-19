@@ -1,7 +1,7 @@
 // V12 §8: tự cân bằng số mục mới mỗi ngày theo thời gian học — ba khu xong cùng ngày, theo từng cấp. Pure.
 import { addStudyDays } from '../learning/time'
 import type { StudyDate } from '../learning/types'
-import { kindOf, lastStage, reviewCardsFor, typesFor, type Area, type Stage, type Zone } from './card-types'
+import { CARD_TYPES, kindOf, lastStage, reviewCardsFor, typesFor, type Area, type CardType, type Stage, type Zone } from './card-types'
 import { passPoints } from './stage'
 import { RULES_V12 } from './rules'
 
@@ -26,6 +26,31 @@ export function calibratedSeconds(area: Area, stats: { studyDays: number; realMs
   const base = estimatedSeconds(area)
   if (!stats || stats.studyDays < RULES_V12.realTimeAfterDays || stats.estimatedSeconds <= 0 || stats.realMs <= 0) return base
   return base * (stats.realMs / 1000 / stats.estimatedSeconds)
+}
+
+/** Một dòng thống kê thời gian trả lời thật (v12_time_stats). */
+export interface TimeStatRow {
+  area: Area
+  cardType: string
+  isCard: boolean
+  answers: number
+  realMs: number
+  studyDays: number
+}
+
+/**
+ * §8.1: thời gian của một mục theo từng loại mục, đã hiệu chỉnh bằng thời gian trả lời thật khi đủ 14 ngày học.
+ * Ước tính của các câu đã trả lời: Card 15 giây, câu gõ 12 giây, trắc nghiệm / ghép 6 giây.
+ */
+export function secondsFromStats(rows: readonly TimeStatRow[]): Record<Area, number> {
+  const { choice, typing, card } = RULES_V12.seconds
+  const studyDays = rows[0]?.studyDays ?? 0
+  const of = (area: Area) => {
+    const own = rows.filter((r) => r.area === area)
+    const est = own.reduce((n, r) => n + r.answers * (r.isCard ? card : r.cardType in CARD_TYPES && kindOf(r.cardType as CardType) === 'typing' ? typing : choice), 0)
+    return calibratedSeconds(area, own.length ? { studyDays, realMs: own.reduce((n, r) => n + r.realMs, 0), estimatedSeconds: est } : null)
+  }
+  return { kana: of('kana'), radical: of('radical'), kanji: of('kanji'), word_kanji: of('word_kanji') }
 }
 
 export interface Remaining {

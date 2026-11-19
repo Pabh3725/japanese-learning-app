@@ -88,9 +88,6 @@ export function applyCap(input: DeckInput, cap: number): CappedInput {
   return { input: { ...input, newItems, stageItems, reviews }, deferred: { newItems: dn, stageItems: ds, reviews: dr } }
 }
 
-/** Trần của bộ thẻ: một khu dùng trần của khu đó, "Học tất cả" dùng tổng (§2). */
-export const capFor = (zones: readonly Zone[], caps: Record<Zone, number>) => zones.reduce((n, z) => n + caps[z], 0)
-
 /** Chia đầu vào theo khu (để áp trần từng khu trước khi trộn "Học tất cả"). */
 export function splitByZone(input: DeckInput): Record<Zone, DeckInput> {
   const of = (z: Zone): DeckInput => ({
@@ -236,7 +233,3 @@ export function insertRetry(deck: readonly DeckCard[], answeredAt: number, card:
 
 /** Khoảng hỏi lại Card sai: 3–5 thẻ (§3.3). */
 export const reviewRetryGap = (rng: Rng) => RULES_V12.reviewRetry.min + Math.floor(rng() * (RULES_V12.reviewRetry.max - RULES_V12.reviewRetry.min + 1))
-
-/** Số set và set của một vị trí. */
-export const setCount = (deckLength: number, setSize: number) => Math.ceil(deckLength / setSize)
-export const setOf = (index: number, setSize: number) => Math.floor(index / setSize)

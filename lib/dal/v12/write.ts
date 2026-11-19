@@ -3,11 +3,11 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { firstDueAt } from '@/lib/learning/cards'
-import { studyDate } from '@/lib/learning/time'
-import { createScheduler, type ReviewCard } from '@/lib/srs/scheduler'
-import { typesFor, type Area, type CardType, type ReviewCardType } from '@/lib/v12/card-types'
+import { addStudyDays, studyDate } from '@/lib/learning/time'
+import { createScheduler, type ReviewCard, type Schedule } from '@/lib/srs/scheduler'
+import { reviewCardsFor, typesFor, type Area, type CardType, type ReviewCardType } from '@/lib/v12/card-types'
 import { applyAnswer, canShow, type AnswerResult } from '@/lib/v12/stage'
-import { readItem, toCard } from './state'
+import type { CardRow, ItemRow } from './state'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 export type WriteStatus = 'saved' | 'duplicate' | 'conflict' | 'not_found' | 'not_active' | 'not_allowed'
@@ -48,11 +48,10 @@ export async function markIntroSeen(supabase: Supabase, userId: string, itemId: 
 export async function saveStageAnswer(
   supabase: Supabase,
   userId: string,
-  input: { itemId: string; type: CardType; correct: boolean; elapsedMs: number; clientEventId: string },
+  input: { item: ItemRow; type: CardType; correct: boolean; elapsedMs: number; clientEventId: string },
   now: Date,
 ): Promise<{ status: WriteStatus; result?: AnswerResult }> {
-  const item = await readItem(supabase, userId, input.itemId)
-  if (!item) return { status: 'not_found' }
+  const item = input.item
   const today = studyDate(now)
   if (item.known || !canShow(item.state, input.type, today)) return { status: 'not_allowed' }
   const result = applyAnswer(item.state, input.type, input.correct, today)
@@ -107,18 +106,10 @@ export async function saveStarAnswer(
 export async function saveCardReview(
   supabase: Supabase,
   userId: string,
-  input: { cardId: string; correct: boolean; elapsedMs: number; clientEventId: string },
+  input: { card: CardRow; correct: boolean; elapsedMs: number; clientEventId: string },
   now: Date,
-): Promise<{ status: WriteStatus; due?: Date; card?: ReviewCardType }> {
-  const { data: raw, error: readError } = await supabase
-    .from('item_cards')
-    .select('id, learner_item_id, card_type, state, due_at, stability, difficulty, scheduled_days, learning_steps, reps, lapses, last_review_at, archived_at, version')
-    .eq('id', input.cardId)
-    .eq('user_id', userId)
-    .maybeSingle()
-  if (readError) throw new Error(`Không đọc được item_cards: ${readError.message}`)
-  if (!raw) return { status: 'not_found' }
-  const card = toCard(raw)
+): Promise<{ status: WriteStatus; schedule?: Schedule; card?: ReviewCardType }> {
+  const card = input.card
   if (card.archived) return { status: 'not_active' }
   const scheduler = createScheduler()
   const reviewed = scheduler.reviewCard({ type: 'vocab.kana', status: 'active', schedule: card.schedule } as ReviewCard, { outcome: input.correct ? 'correct' : 'wrong', exercise: card.type, responseMs: input.elapsedMs }, now)
@@ -143,7 +134,7 @@ export async function saveCardReview(
     p_answered_at: now.toISOString(),
   })
   if (error) throw new Error(`v12_save_card lỗi: ${error.message}`)
-  return { status: statusOf(data), due: s.due, card: card.type }
+  return { status: statusOf(data), schedule: s, card: card.type }
 }
 
 /**
@@ -176,4 +167,15 @@ export async function setRadicalsKnown(supabase: Supabase, userId: string, numbe
     if (typesError) throw new Error(`Không tạo được learner_item_types: ${typesError.message}`)
   }
   return numbers.length
+}
+
+/** Nút "Learned" → có ôn: mục sang Card ngay, Card đến hạn ngày học kế tiếp (mục đã có Card thì giữ nguyên). */
+export async function markItemLearned(supabase: Supabase, item: Pick<ItemRow, 'id' | 'area'>, now: Date): Promise<void> {
+  const { error } = await supabase.rpc('v12_mark_item_learned', {
+    p_item_id: item.id,
+    p_cards: reviewCardsFor(item.area),
+    p_due: firstDueAt(now).toISOString(),
+    p_stage_from: addStudyDays(studyDate(now), 1),
+  })
+  if (error) throw new Error(`v12_mark_item_learned lỗi: ${error.message}`)
 }

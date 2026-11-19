@@ -101,17 +101,6 @@ export async function readV12State(supabase: Supabase, userId: string): Promise<
   return { items: rows, cards: (cards as Record<string, unknown>[]).map((c) => toCard(c)), knownWords, knownKanji, starred: new Set([...starredWords, ...starredKanji]) }
 }
 
-/** Một mục (để ghi câu trả lời). */
-export async function readItem(supabase: Supabase, userId: string, itemId: string): Promise<ItemRow | null> {
-  const [{ data, error }, { data: types, error: typesError }] = await Promise.all([
-    supabase.from('learner_items').select(ITEM_COLUMNS).eq('id', itemId).eq('user_id', userId).maybeSingle(),
-    supabase.from('learner_item_types').select('learner_item_id, stage, card_type, points, seen_date, seen_today, wrong_today').eq('learner_item_id', itemId).eq('user_id', userId),
-  ])
-  if (error) throw new Error(`Không đọc được learner_items: ${error.message}`)
-  if (typesError) throw new Error(`Không đọc được learner_item_types: ${typesError.message}`)
-  return data ? toItem(data as RawItem, (types ?? []) as RawType[]) : null
-}
-
 export function toCard(c: Record<string, unknown>): CardRow {
   return {
     id: c.id as string,

@@ -7,7 +7,7 @@ import { revealOf, type KanjiReveal } from '@/lib/kanji/questions'
 import { nextStudyDayStart, studyDate } from '@/lib/learning/time'
 import { STAGE_TYPES, typesFor, ZONES, zoneOf, type Area, type CardType, type ReviewCardType, type Zone } from '@/lib/v12/card-types'
 import { applyCap, buildDeck, countQuestions, insertRetry, reviewRetryGap, splitByZone, type DeckCard, type DeckInput } from '@/lib/v12/deck'
-import { balanceTarget } from '@/lib/v12/balance'
+import { balanceTarget, secondsFromStats } from '@/lib/v12/balance'
 import { forecast, overflowDays, type ForecastDay } from '@/lib/v12/forecast'
 import type { Progress } from '@/lib/v12/order'
 import { key, pausedZones, planNewItems, type PlanResult } from '@/lib/v12/plan'
@@ -16,7 +16,11 @@ import { canShow, isActive, plannedShows, remainingTypes } from '@/lib/v12/stage
 import { readV12Content, type V12Content } from './content'
 import { readV12Settings, type V12Settings } from './settings'
 import { readV12State, type CardRow, type ItemRow } from './state'
-import { markIntroSeen, openItem, saveCardReview, saveStageAnswer, saveStarAnswer, setRadicalsKnown } from './write'
+import { markIntroSeen, markItemLearned, openItem, saveCardReview, saveStageAnswer, saveStarAnswer, setRadicalsKnown } from './write'
+import { setKanjiKnown } from '@/lib/dal/kanji'
+import { setKanjiStarred } from '@/lib/dal/kanji-stars'
+import { markWordsKnown } from '@/lib/dal/known-words'
+import { setWordStarred } from '@/lib/dal/star-relearn'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 export type Scope = Zone | 'all'
@@ -38,6 +42,22 @@ async function load(supabase: Supabase, userId: string): Promise<Loaded> {
   return { content, ...state, settings }
 }
 
+/** §8.1: thời gian một mục theo thời gian trả lời thật (đủ 14 ngày học), chỉ đọc khi cần cân bằng. */
+async function readSeconds(supabase: Supabase): Promise<Record<Area, number>> {
+  const { data, error } = await supabase.rpc('v12_time_stats')
+  if (error) throw new Error(`v12_time_stats lỗi: ${error.message}`)
+  return secondsFromStats(
+    ((data ?? []) as { area: Area; card_type: string; is_card: boolean; answers: number; real_ms: number; study_days: number }[]).map((r) => ({
+      area: r.area,
+      cardType: r.card_type,
+      isCard: r.is_card,
+      answers: Number(r.answers),
+      realMs: Number(r.real_ms),
+      studyDays: Number(r.study_days),
+    })),
+  )
+}
+
 /** Tiến độ theo khoá `${area}:${ref}`. Mục "đã biết" (kể cả từ / chữ chưa mở) coi như đã học xong. */
 function progressOf(l: Pick<Loaded, 'items' | 'knownWords' | 'knownKanji'>): Map<string, Progress> {
   const p = new Map<string, Progress>()
@@ -56,7 +76,7 @@ function zoneLoad(l: Loaded, now: Date): Record<Zone, number> {
   return { kana: countQuestions({ ...split.kana, newItems: [] }), kanji: countQuestions({ ...split.kanji, newItems: [] }), word_kanji: countQuestions({ ...split.word_kanji, newItems: [] }) }
 }
 
-function plan(l: Loaded, now: Date): PlanResult & { paused: Record<Zone, boolean>; userPaused: Record<Zone, boolean> } {
+function plan(l: Loaded, now: Date, seconds?: Record<Area, number>): PlanResult & { paused: Record<Zone, boolean>; userPaused: Record<Zone, boolean> } {
   const today = studyDate(now)
   const paused = pausedZones(zoneLoad(l, now), l.settings.caps)
   const openedToday: Record<Area, number> = { kana: 0, radical: 0, kanji: 0, word_kanji: 0 }
@@ -76,6 +96,7 @@ function plan(l: Loaded, now: Date): PlanResult & { paused: Record<Zone, boolean
     carry: carry ?? {},
     paused,
     userPaused: l.settings.pausedZones,
+    seconds,
   })
   return { ...result, paused, userPaused: l.settings.pausedZones }
 }
@@ -83,7 +104,7 @@ function plan(l: Loaded, now: Date): PlanResult & { paused: Record<Zone, boolean
 /** Mở các mục mới hôm nay của các khu trong phạm vi; lưu phần lẻ cân bằng của ngày. */
 async function openNewItems(supabase: Supabase, userId: string, l: Loaded, scope: Scope, now: Date): Promise<boolean> {
   const today = studyDate(now)
-  const p = plan(l, now)
+  const p = plan(l, now, l.settings.balanceOn ? await readSeconds(supabase) : undefined)
   const zones = zonesOf(scope)
   const jobs: Promise<unknown>[] = []
   const similar = new Set(l.content.kanji.filter((k) => k.similar.length > 0).map((k) => k.id))
@@ -221,11 +242,56 @@ export type IntroView =
   | { area: 'kanji'; reveal: KanjiReveal }
   | { area: 'word_kanji'; expression: string; kana: string; hanViet: string; meaning: string }
 
-export type CardView =
-  | { kind: 'intro'; position: number; area: Area; intro: IntroView }
-  | { kind: 'stage'; position: number; area: Area; type: CardType; stage: 1 | 2 | 3; retry: boolean; question: PublicQuestion }
-  | { kind: 'star'; position: number; area: Area; type: CardType; question: PublicQuestion }
-  | { kind: 'review'; position: number; area: Area; card: ReviewCardType; cardId: string; retry: boolean; prompt: string; promptKind: string; speak?: string; parts: { part: string; question: PublicQuestion }[] }
+/** Phần chung của mọi thẻ: mục đang học (cho nút sao / Learned) và Hán Việt hiện dưới đề. */
+interface CardBase {
+  position: number
+  area: Area
+  itemId: string
+  /** Mục đang có sao không; null với bộ thủ (không đánh sao). */
+  starred: boolean | null
+  /** Hán Việt hiện dưới chữ ở đề để tiếp xúc nhiều với Hán tự — không có ở câu hỏi về Hán Việt. */
+  promptHanViet?: string
+}
+
+export type CardView = CardBase &
+  (
+    | { kind: 'intro'; intro: IntroView }
+    | { kind: 'stage'; type: CardType; stage: 1 | 2 | 3; retry: boolean; question: PublicQuestion }
+    | { kind: 'star'; type: CardType; question: PublicQuestion }
+    | { kind: 'review'; card: ReviewCardType; cardId: string; retry: boolean; prompt: string; promptKind: string; speak?: string; parts: { part: string; question: PublicQuestion }[] }
+  )
+
+/** Từ / chữ vừa học, hiện sau khi chấm để đọc lại (shadowing): chữ, cách đọc, Hán Việt, nghĩa. */
+export interface WordInfo {
+  text: string
+  reading?: string
+  hanViet?: string
+  meaning: string
+}
+
+/** Hán Việt của mục (bộ thủ: tên bộ). */
+function hanVietOf(item: ItemRow, data: NonNullable<ReturnType<typeof itemData>>): string | undefined {
+  if (item.area === 'radical') return `Bộ ${(data as V12Content['radicals'][number]).name}`
+  return (data as { hanViet: string | null }).hanViet ?? undefined
+}
+
+function wordOf(item: ItemRow, data: NonNullable<ReturnType<typeof itemData>>): WordInfo {
+  const hanViet = hanVietOf(item, data)
+  if (item.area === 'kana') {
+    const w = data as V12Content['words'][number]
+    // Từ có dạng Kanji: hiện cả chữ Kanji để tiếp xúc với Hán tự
+    return w.expression !== w.kana && !w.kanaOnly ? { text: w.expression, reading: w.kana, hanViet, meaning: w.meaning } : { text: w.kana, hanViet, meaning: w.meaning }
+  }
+  if (item.area === 'word_kanji') {
+    const w = data as V12Content['wordKanji'][number]
+    return { text: w.expression, reading: w.kana, hanViet, meaning: w.meaning }
+  }
+  const k = data as { char: string; meaning: string }
+  return { text: k.char, hanViet, meaning: k.meaning }
+}
+
+/** Câu hỏi về Hán Việt (hỏi hoặc chọn Hán Việt / tên bộ): không hiện Hán Việt dưới đề. */
+const asksHanViet = (type: string) => type.includes('hanviet')
 
 export interface DeckView {
   scope: Scope
@@ -241,6 +307,7 @@ async function viewOf(supabase: Supabase, l: Loaded, card: DeckCard, position: n
   const data = itemData(l, item)
   if (!data) return null
   const p = pools(l.content)
+  const base = { position, area: item.area, itemId: item.id, starred: item.area === 'radical' ? null : l.starred.has(item.ref) }
   if (card.kind === 'intro') {
     let intro: IntroView
     if (item.area === 'kana') {
@@ -258,15 +325,40 @@ async function viewOf(supabase: Supabase, l: Loaded, card: DeckCard, position: n
       const w = data as V12Content['wordKanji'][number]
       intro = { area: 'word_kanji', expression: w.expression, kana: w.kana, hanViet: w.hanViet, meaning: w.meaning }
     }
-    return { kind: 'intro', position, area: item.area, intro }
+    return { ...base, kind: 'intro', intro }
   }
-  if (card.kind === 'stage') return { kind: 'stage', position, area: item.area, type: card.type, stage: card.stage, retry: card.retry === true, question: strip(buildStageQuestion(card.type, data, p, Math.random)) }
-  if (card.kind === 'star') return { kind: 'star', position, area: item.area, type: card.type, question: strip(buildStageQuestion(card.type, data, p, Math.random)) }
+  // Hán Việt dưới đề khi đề là chính chữ đang học (Kana / Kanji) và câu không hỏi về Hán Việt
+  const hanViet = (promptKind: string, type: string) => (promptKind === 'kana' || promptKind === 'kanji') && !asksHanViet(type) ? hanVietOf(item, data) : undefined
+  if (card.kind === 'stage' || card.kind === 'star') {
+    const q = buildStageQuestion(card.type, data, p, Math.random)
+    const common = { ...base, type: card.type, question: strip(q), promptHanViet: hanViet(q.promptKind, card.type) }
+    return card.kind === 'stage' ? { ...common, kind: 'stage', stage: card.stage, retry: card.retry === true } : { ...common, kind: 'star' }
+  }
   if (card.kind === 'review') {
     const built = buildReviewCard(card.card, data, p, Math.random)
-    return { kind: 'review', position, area: item.area, card: card.card, cardId: card.cardId, retry: card.retry === true, prompt: built.prompt, promptKind: built.promptKind, speak: built.speak, parts: built.parts.map((x) => ({ part: x.part, question: strip(x.question) })) }
+    const parts = built.parts.map((x) => x.part).join(',')
+    return {
+      ...base,
+      kind: 'review',
+      card: card.card,
+      cardId: card.cardId,
+      retry: card.retry === true,
+      prompt: built.prompt,
+      promptKind: built.promptKind,
+      speak: built.speak,
+      parts: built.parts.map((x) => ({ part: x.part, question: strip(x.question) })),
+      promptHanViet: hanViet(built.promptKind, parts),
+    }
   }
   return null
+}
+
+/** Từ `from`, bỏ qua thẻ không còn hợp lệ; trả vị trí và thẻ hiện ra. */
+async function viewFrom(supabase: Supabase, l: Loaded, scope: Scope, cards: readonly DeckCard[], from: number, deferred: Record<string, number>, now: Date): Promise<DeckView> {
+  let position = from
+  while (position < cards.length && !isValid(l, cards[position], now)) position++
+  const card = position < cards.length ? await viewOf(supabase, l, cards[position], position) : null
+  return { scope, total: cards.length, position, setSize: l.settings.setSize, deferred, card }
 }
 
 /** Thẻ hiện tại của bộ thẻ (bỏ qua thẻ không còn hợp lệ, lưu vị trí mới). */
@@ -276,11 +368,9 @@ export async function getDeck(scope: unknown): Promise<DeckView | null> {
   const supabase = await createClient()
   const now = new Date()
   const { deck, loaded } = await ensureDeck(supabase, user.id, scope, now)
-  let position = deck.position
-  while (position < deck.cards.length && !isValid(loaded, deck.cards[position], now)) position++
-  if (position !== deck.position) await supabase.from('daily_decks').update({ position, version: deck.version + 1 }).eq('id', deck.id).eq('version', deck.version)
-  const card = position < deck.cards.length ? await viewOf(supabase, loaded, deck.cards[position], position) : null
-  return { scope, total: deck.cards.length, position, setSize: loaded.settings.setSize, deferred: deck.deferred, card }
+  const view = await viewFrom(supabase, loaded, scope, deck.cards, deck.position, deck.deferred, now)
+  if (view.position !== deck.position) await supabase.from('daily_decks').update({ position: view.position, version: deck.version + 1 }).eq('id', deck.id).eq('version', deck.version)
+  return view
 }
 
 export interface AnswerView {
@@ -293,53 +383,73 @@ export interface AnswerView {
   stageDone?: boolean
   cardsCreated?: number
   retry?: boolean
+  /** Thẻ kế tiếp (đã tính sau câu trả lời này), để trình học không phải tải lại bộ thẻ. */
+  next?: DeckView
+  /** Từ / chữ vừa học: chữ, cách đọc, Hán Việt, nghĩa — hiện sau khi chấm. */
+  word?: WordInfo
 }
 
-/** Chấm một thẻ ở server rồi lưu; sai thì chèn lượt hỏi lại; tiến vị trí. Thẻ giới thiệu: đánh dấu đã xem. */
+const answerOf = (q: Question) => (Array.isArray(q.answer) ? q.answer.join('') : q.answer)
+
+/**
+ * Chấm một thẻ ở server rồi lưu; sai thì chèn lượt hỏi lại; tiến vị trí. Thẻ giới thiệu: đánh dấu đã xem.
+ * Tiến độ đọc một lần: sau khi lưu, cập nhật mục / Card vừa đổi trong bộ nhớ rồi tính luôn thẻ kế tiếp.
+ */
 export async function answerDeck(input: unknown): Promise<AnswerView> {
   const v = (input ?? {}) as { scope?: unknown; position?: unknown; given?: unknown; elapsedMs?: unknown; clientEventId?: unknown }
   if (!isScope(v.scope) || !Number.isInteger(v.position) || typeof v.clientEventId !== 'string') return { status: 'invalid' }
   const user = await requireUser()
   const supabase = await createClient()
   const now = new Date()
-  const deck = await readDeck(supabase, user.id, studyDate(now), v.scope)
+  const [deck, loaded] = await Promise.all([readDeck(supabase, user.id, studyDate(now), v.scope), load(supabase, user.id)])
   if (!deck || deck.position !== v.position || (v.position as number) >= deck.cards.length) return { status: 'conflict' }
-  const loaded = await load(supabase, user.id)
   const card = deck.cards[deck.position]
   if (!isValid(loaded, card, now)) return { status: 'conflict' }
-  const item = loaded.items.find((i) => i.id === card.itemId)!
+  const itemIndex = loaded.items.findIndex((i) => i.id === card.itemId)
+  const item = loaded.items[itemIndex]
   const data = itemData(loaded, item)!
   const elapsedMs = typeof v.elapsedMs === 'number' ? v.elapsedMs : 0
+  const kanaOf = item.area === 'kana' ? (data as { kana: string }).kana : undefined
   let cards = deck.cards
   let out: AnswerView = { status: 'graded' }
 
   if (card.kind === 'intro') {
     await markIntroSeen(supabase, user.id, item.id, now)
-  } else if (card.kind === 'stage') {
+    loaded.items[itemIndex] = { ...item, introSeen: true }
+  } else if (card.kind === 'stage' || card.kind === 'star') {
     const q = buildStageQuestion(card.type, data, pools(loaded.content), Math.random)
     const correct = gradeQuestion(q, v.given as string | string[])
-    const saved = await saveStageAnswer(supabase, user.id, { itemId: item.id, type: card.type, correct, elapsedMs, clientEventId: v.clientEventId }, now)
-    if (saved.status !== 'saved' && saved.status !== 'duplicate') return { status: 'conflict' }
-    if (saved.result?.retry) cards = insertRetry(cards, deck.position, card)
-    out = { status: 'graded', correct, answers: [Array.isArray(q.answer) ? q.answer.join('') : q.answer], speak: q.speak ?? (item.area === 'kana' ? (data as { kana: string }).kana : undefined), stageDone: saved.result?.stageDone, cardsCreated: saved.result?.cardsCreated.length, retry: saved.result?.retry }
-  } else if (card.kind === 'star') {
-    const q = buildStageQuestion(card.type, data, pools(loaded.content), Math.random)
-    const correct = gradeQuestion(q, v.given as string | string[])
-    await saveStarAnswer(supabase, user.id, { itemId: item.id, area: item.area, type: card.type, correct, elapsedMs, clientEventId: v.clientEventId }, now)
-    out = { status: 'graded', correct, answers: [Array.isArray(q.answer) ? q.answer.join('') : q.answer], speak: q.speak ?? (item.area === 'kana' ? (data as { kana: string }).kana : undefined) }
+    out = { status: 'graded', correct, answers: [answerOf(q)], speak: q.speak ?? kanaOf }
+    if (card.kind === 'star') {
+      await saveStarAnswer(supabase, user.id, { itemId: item.id, area: item.area, type: card.type, correct, elapsedMs, clientEventId: v.clientEventId }, now)
+    } else {
+      const saved = await saveStageAnswer(supabase, user.id, { item, type: card.type, correct, elapsedMs, clientEventId: v.clientEventId }, now)
+      if (saved.status !== 'saved' && saved.status !== 'duplicate') return { status: 'conflict' }
+      const r = saved.result
+      if (r) {
+        loaded.items[itemIndex] = { ...item, stage: r.item.stage, stageFrom: r.item.stageFrom, version: item.version + 1, state: r.item }
+        if (r.retry) cards = insertRetry(cards, deck.position, card)
+      }
+      out = { ...out, stageDone: r?.stageDone, cardsCreated: r?.cardsCreated.length, retry: r?.retry }
+    }
   } else if (card.kind === 'review') {
     const built = buildReviewCard(card.card, data, pools(loaded.content), Math.random)
-    const given = Array.isArray(v.given) ? (v.given as string[]) : []
-    const correct = gradeCard(built.parts, given)
-    const saved = await saveCardReview(supabase, user.id, { cardId: card.cardId, correct, elapsedMs, clientEventId: v.clientEventId }, now)
+    const correct = gradeCard(built.parts, Array.isArray(v.given) ? (v.given as string[]) : [])
+    const cardIndex = loaded.cards.findIndex((c) => c.id === card.cardId)
+    const saved = await saveCardReview(supabase, user.id, { card: loaded.cards[cardIndex], correct, elapsedMs, clientEventId: v.clientEventId }, now)
     if (saved.status !== 'saved' && saved.status !== 'duplicate') return { status: 'conflict' }
-    const retries = cards.filter((c) => c.key.startsWith(`rv:${card.cardId}:r`)).length
-    if (!correct && retries < 3) cards = insertRetry(cards, deck.position, { ...card, key: `rv:${card.cardId}` }, reviewRetryGap(Math.random))
-    out = { status: 'graded', correct, answers: built.parts.map((x) => (Array.isArray(x.question.answer) ? x.question.answer.join('') : x.question.answer)), speak: built.speak, retry: !correct && retries < 3 }
+    if (saved.schedule) loaded.cards[cardIndex] = { ...loaded.cards[cardIndex], schedule: saved.schedule, version: loaded.cards[cardIndex].version + 1 }
+    // Sai thì hỏi lại sau 3–5 thẻ, tối đa 3 lần mỗi Card mỗi ngày (§3.3)
+    const retry = !correct && cards.filter((c) => c.key.startsWith(`rv:${card.cardId}:r`)).length < 3
+    if (retry) cards = insertRetry(cards, deck.position, { ...card, key: `rv:${card.cardId}` }, reviewRetryGap(Math.random))
+    out = { status: 'graded', correct, answers: built.parts.map((x) => answerOf(x.question)), speak: built.speak, retry }
   }
-  const { error } = await supabase.from('daily_decks').update({ cards, position: deck.position + 1, version: deck.version + 1 }).eq('id', deck.id).eq('version', deck.version)
+  const next = await viewFrom(supabase, loaded, v.scope, cards, deck.position + 1, deck.deferred, now)
+  const { data: updated, error } = await supabase.from('daily_decks').update({ cards, position: next.position, version: deck.version + 1 }).eq('id', deck.id).eq('version', deck.version).select('id')
   if (error) throw new Error(`Không lưu được daily_decks: ${error.message}`)
-  return out
+  // Bộ thẻ vừa đổi ở tab khác: câu trả lời đã lưu, trình học tự tải lại bộ thẻ thay vì dùng `next`
+  if (card.kind !== 'intro') out = { ...out, word: wordOf(item, data) }
+  return updated && updated.length > 0 ? { ...out, next } : out
 }
 
 // ---------------------------------------------------------------------------
@@ -383,7 +493,7 @@ export async function getHub(): Promise<HubView> {
   const now = new Date()
   const today = studyDate(now)
   const l = await load(supabase, user.id)
-  const p = plan(l, now)
+  const p = plan(l, now, l.settings.balanceOn ? await readSeconds(supabase) : undefined)
   const input = deckInput(l, ZONES, now)
   const split = splitByZone(input)
   const decks = await Promise.all([...ZONES, 'all' as const].map((s) => readDeck(supabase, user.id, today, s)))
@@ -442,4 +552,50 @@ export async function markRadicalsKnown(known: unknown): Promise<{ status: 'save
   const content = await readV12Content(supabase)
   const count = await setRadicalsKnown(supabase, user.id, content.radicals.map((r) => r.number), known, new Date())
   return { status: 'saved', count }
+}
+
+// ---------------------------------------------------------------------------
+// Nút sao và nút Learned trên mỗi thẻ
+// ---------------------------------------------------------------------------
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+async function readItemRef(supabase: Supabase, userId: string, itemId: unknown) {
+  if (typeof itemId !== 'string' || !UUID.test(itemId)) return null
+  const { data, error } = await supabase.from('learner_items').select('id, area, vocabulary_id, kanji_id, radical_number, stage').eq('id', itemId).eq('user_id', userId).maybeSingle()
+  if (error) throw new Error(`Không đọc được learner_items: ${error.message}`)
+  return data as { id: string; area: Area; vocabulary_id: string | null; kanji_id: string | null; radical_number: number | null; stage: string } | null
+}
+
+/** Đánh / bỏ sao mục của thẻ: từ (Kana, Từ vựng Kanji) hoặc chữ Kanji. Bộ thủ không có sao. */
+export async function starItem(itemId: unknown, starred: unknown): Promise<{ status: 'saved' | 'invalid' }> {
+  if (typeof starred !== 'boolean') return { status: 'invalid' }
+  const user = await requireUser()
+  const supabase = await createClient()
+  const item = await readItemRef(supabase, user.id, itemId)
+  if (!item || item.area === 'radical') return { status: 'invalid' }
+  return item.kanji_id ? setKanjiStarred(item.kanji_id, starred) : setWordStarred(item.vocabulary_id, starred)
+}
+
+/**
+ * Nút "Learned" (chủ dự án yêu cầu 2026-11-19): `review` = true → mục sang Card ngay (đã có Card thì giữ nguyên);
+ * false → đánh dấu "đã biết": từ (cả Kana và Kanji của từ) / chữ vào bảng exclusions, bộ thủ đặt known_at. Không còn ôn.
+ */
+export async function learnItem(itemId: unknown, review: unknown): Promise<{ status: 'saved' | 'invalid' }> {
+  if (typeof review !== 'boolean') return { status: 'invalid' }
+  const user = await requireUser()
+  const supabase = await createClient()
+  const item = await readItemRef(supabase, user.id, itemId)
+  if (!item) return { status: 'invalid' }
+  const now = new Date()
+  if (review) {
+    if (item.stage !== 'review') await markItemLearned(supabase, { id: item.id, area: item.area }, now)
+    return { status: 'saved' }
+  }
+  if (item.area === 'radical') {
+    const { error } = await supabase.from('learner_items').update({ known_at: now.toISOString() }).eq('id', item.id).eq('user_id', user.id)
+    if (error) throw new Error(`Không lưu được learner_items: ${error.message}`)
+    return { status: 'saved' }
+  }
+  return item.kanji_id ? setKanjiKnown(item.kanji_id, true) : markWordsKnown([item.vocabulary_id])
 }
