@@ -37,8 +37,12 @@ function ZoneCard({ z, radicals }: { z: ZoneSummary; radicals: HubView['radicals
           </div>
         ))}
       </dl>
+      {z.waiting > 0 && <p className="mt-2 text-xs text-muted-foreground tabular-nums">+{z.waiting} waiting for the next days (over the daily limit)</p>}
       {z.deck && <p className="mt-3 text-xs text-muted-foreground tabular-nums">Today: {Math.min(z.deck.position, z.deck.total)} / {z.deck.total} cards</p>}
       <p className="mt-1 text-xs text-muted-foreground tabular-nums">{z.remaining} not started in this level</p>
+      {z.paused && (
+        <p className="mt-2 text-xs text-yellow">New items paused: catching up. Today&apos;s stage and review cards already reach this area&apos;s daily limit.</p>
+      )}
       {z.zone === 'kanji' && radicals.total > 0 && <RadicalsKnownButton total={radicals.total} known={radicals.known} />}
       <div className="mt-auto pt-4">
         {done ? (

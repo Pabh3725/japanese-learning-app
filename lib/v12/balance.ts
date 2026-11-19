@@ -38,6 +38,14 @@ export interface Remaining {
 
 export type BalanceTarget = { kind: 'date'; date: StudyDate } | { kind: 'minutes'; minutes: number }
 
+/**
+ * Mục tiêu cân bằng từ Settings. "Xong trước ngày" chỉ dùng khi đã có ngày và ngày đó chưa qua; ngày đã qua hoặc chưa chọn
+ * thì dùng số phút mỗi ngày — để không bao giờ dồn toàn bộ mục còn lại vào một ngày (Settings chỉ cho chọn từ ngày mai).
+ */
+export function balanceTarget(kind: 'minutes' | 'date', date: StudyDate | null, minutes: number, today: StudyDate): BalanceTarget {
+  return kind === 'date' && date !== null && date >= today ? { kind: 'date', date } : { kind: 'minutes', minutes }
+}
+
 export interface BalanceResult {
   /** Số ngày còn lại tới lúc xong cấp (kể cả hôm nay). */
   days: number

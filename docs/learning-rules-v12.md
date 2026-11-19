@@ -21,6 +21,7 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
   - Thẻ hỏi lại sau khi sai được chèn vào trong set; nếu set đã hết thì chèn sang set sau.
 - **"Học tất cả":** trộn hoàn toàn thẻ trong ngày của cả 3 khu.
 - **Trần mỗi khu mỗi ngày** chỉnh trong Settings. "Học tất cả" dùng tổng các trần. Phần vượt trần chuyển sang hôm sau.
+- **Dừng mục mới khi tồn quá trần** (chủ dự án chốt 2026-11-19): khu nào có câu Stage đến lượt cộng Card đến hạn hôm nay (không tính mục mới) từ trần trở lên thì hôm đó không mở mục mới cho khu đó; trang Learn ghi "New items paused: catching up". Cân bằng tính lại mỗi ngày trên số còn lại thật nên tự bù vào các ngày sau. — CONFIRMED
 - **Cảnh báo sắp vượt trần:** app tính trước số thẻ đến hạn của 7 ngày tới. Nếu có ngày vượt trần, trang Learn và Settings hiện cảnh báo: ngày nào, vượt bao nhiêu, kèm hai nút "Giảm số mục mới mỗi ngày" và "Tăng trần".
 - Settings còn lại các mục:
   - số mục mới mỗi ngày của từng khu (hoặc chế độ tự cân bằng, §8);

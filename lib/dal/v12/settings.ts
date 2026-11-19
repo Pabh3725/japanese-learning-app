@@ -3,6 +3,7 @@ import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import type { Zone } from '@/lib/v12/card-types'
+import { addStudyDays, studyDate } from '@/lib/learning/time'
 import { RULES_V12 } from '@/lib/v12/rules'
 
 export interface V12Settings {
@@ -57,7 +58,8 @@ export async function saveV12Setting(key: unknown, value: unknown): Promise<{ st
   if (typeof key === 'string' && key in LIMITS) ok = Number.isInteger(value) && (value as number) >= LIMITS[key][0] && (value as number) <= LIMITS[key][1]
   else if (key === 'balance_on') ok = typeof value === 'boolean'
   else if (key === 'balance_target') ok = value === 'minutes' || value === 'date'
-  else if (key === 'balance_date') ok = value === null || (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value))
+  // Ngày hoàn thành: từ ngày học mai trở đi (hôm nay hoặc ngày đã qua sẽ dồn mọi mục còn lại vào một ngày)
+  else if (key === 'balance_date') ok = value === null || (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && value >= addStudyDays(studyDate(new Date()), 1))
   if (!ok) return { status: 'invalid' }
   const user = await requireUser()
   const supabase = await createClient()

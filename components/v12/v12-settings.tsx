@@ -23,12 +23,19 @@ function Field({ name, label, hint, initial, min, max }: { name: string; label: 
   )
 }
 
-export function V12SettingsFields({ s }: { s: V12Settings }) {
+/** `minDate`: ngày học mai (YYYY-MM-DD) — ngày hoàn thành sớm nhất được chọn. */
+export function V12SettingsFields({ s, minDate }: { s: V12Settings; minDate: string }) {
   const [balanceOn, setBalanceOn] = useState(s.balanceOn)
   const [target, setTarget] = useState(s.balanceTarget)
   const [date, setDate] = useState(s.balanceDate ?? '')
+  const [dateError, setDateError] = useState<string | null>(null)
+  // Chưa chọn ngày, hoặc ngày đã qua: lõi cân bằng dùng số phút mỗi ngày
+  const dateNote = date === '' ? 'Pick a date — using minutes a day until then.' : date < minDate ? 'This date has passed — using minutes a day. Pick a new date.' : null
   return (
     <>
+      <p className="rounded-2xl border border-border bg-card px-5 py-3 text-sm text-muted-foreground">
+        Changes apply to today&apos;s cards in areas you haven&apos;t started yet, and fully from tomorrow.
+      </p>
       <Group id="pace" title="Daily pace" description="How many new items open each day in Kana vocabulary, Kanji and Kanji words.">
         <SettingSwitch
           label="Balance new items"
@@ -65,13 +72,25 @@ export function V12SettingsFields({ s }: { s: V12Settings }) {
                 <span className="font-medium">Finish this level by</span>
                 <input
                   type="date"
+                  min={minDate}
                   value={date}
                   onChange={(e) => {
-                    setDate(e.target.value)
-                    void saveV12SettingAction('balance_date', e.target.value || null)
+                    const value = e.target.value
+                    if (value !== '' && value < minDate) {
+                      setDateError('Pick a date from tomorrow on.')
+                      return
+                    }
+                    setDateError(null)
+                    setDate(value)
+                    saveV12SettingAction('balance_date', value || null)
+                      .then(({ status }) => {
+                        if (status !== 'saved') throw new Error(status)
+                      })
+                      .catch(() => setDateError("Couldn't save. Pick a date from tomorrow on and try again."))
                   }}
                   className="h-10 w-48 rounded-xl border border-border bg-card px-3"
                 />
+                {dateError ? <span role="alert" className="text-error">{dateError}</span> : dateNote && <span className="text-yellow">{dateNote}</span>}
               </label>
             )}
           </div>
