@@ -18,7 +18,6 @@ import { applyAnswer, canShow, newItem, plannedShows, type ItemState } from '../
 const seeded = (seed: number) => () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296)
 const D0 = '2026-11-20'
 const D1 = addStudyDays(D0, 1)
-const D2 = addStudyDays(D0, 2)
 
 /** Trả lời đúng hết các câu dự kiến của một ngày. */
 function playDay(item: ItemState, date: string) {
@@ -49,16 +48,20 @@ describe('§3 Điểm theo loại thẻ', () => {
     expect(canShow(r.item, 'kana_meaning', D1)).toBe(true)
   })
 
-  it('Stage 2: đúng thì 2 lần/ngày, điểm thứ 3 rơi vào hôm sau', () => {
+  it('Stage 2: mỗi loại 2 điểm (2026-11-20) — đúng hết thì xong trong ngày đầu, Stage 3 từ hôm sau', () => {
     const item: ItemState = { area: 'kana', stage: 2, stageFrom: D0, types: Object.fromEntries(typesFor('kana', 2).map((t) => [t, { points: 0, seenDate: null, seenToday: 0, wrongToday: 0 }])) }
     const day1 = playDay(item, D0)
     expect(day1.asked).toBe(6)
-    for (const t of typesFor('kana', 2)) expect(day1.state.types[t]!.points).toBe(2)
-    expect(canShow(day1.state, 'kana_meaning', D0)).toBe(false)
-    const day2 = playDay(day1.state, D1)
-    expect(day2.asked).toBe(3)
-    expect(day2.state.stage).toBe(3)
-    expect(day2.state.stageFrom).toBe(D2)
+    expect(day1.state.stage).toBe(3)
+    expect(day1.state.stageFrom).toBe(D1)
+  })
+
+  it('Stage 3: cũng 2 điểm mỗi loại (2026-11-20) — đúng hết thì có Card từ hôm sau', () => {
+    const item: ItemState = { area: 'kana', stage: 3, stageFrom: D0, types: Object.fromEntries(typesFor('kana', 3).map((t) => [t, { points: 0, seenDate: null, seenToday: 0, wrongToday: 0 }])) }
+    const day1 = playDay(item, D0)
+    expect(day1.asked).toBe(6)
+    expect(day1.state.stage).toBe('review')
+    expect(day1.state.stageFrom).toBe(D1)
   })
 
   it('sai: −1 (sàn 0), hỏi lại, tối đa 3 lần/ngày; lần hỏi lại đúng cũng +1', () => {
@@ -79,7 +82,7 @@ describe('§3 Điểm theo loại thẻ', () => {
   it('xong Stage cuối thì tạo Card: Kana 2 Card, bộ thủ (không có Stage 3) 1 Card, chữ 1 Card', () => {
     expect(reviewCardsFor('kana')).toEqual(['kana_type', 'kana_choose'])
     expect(reviewCardsFor('radical')).toEqual(['radical'])
-    const radical: ItemState = { area: 'radical', stage: 2, stageFrom: D0, types: { radical_hanviet: { points: 2, seenDate: null, seenToday: 0, wrongToday: 0 } } }
+    const radical: ItemState = { area: 'radical', stage: 2, stageFrom: D0, types: { radical_hanviet: { points: 1, seenDate: null, seenToday: 0, wrongToday: 0 } } }
     const r = applyAnswer(radical, 'radical_hanviet', true, D0)
     expect(r.item.stage).toBe('review')
     expect(r.cardsCreated).toEqual(['radical'])
@@ -196,10 +199,10 @@ describe('§5–6 Thứ tự mở', () => {
 
 describe('§8 Cân bằng theo thời gian', () => {
   it('thời gian ước tính khớp bảng §8.1', () => {
-    expect(estimatedSeconds('kana')).toBe(291)
-    expect(estimatedSeconds('radical')).toBe(159)
-    expect(estimatedSeconds('kanji')).toBe(261)
-    expect(estimatedSeconds('word_kanji')).toBe(243)
+    expect(estimatedSeconds('kana')).toBe(243)
+    expect(estimatedSeconds('radical')).toBe(135)
+    expect(estimatedSeconds('kanji')).toBe(207)
+    expect(estimatedSeconds('word_kanji')).toBe(195)
   })
 
   it('ba khu hết cùng ngày (tính lại mỗi ngày, cộng dồn phần lẻ); bộ thủ học trước chữ', () => {
@@ -210,7 +213,8 @@ describe('§8 Cân bằng theo thời gian', () => {
     const first = balance(rem, { kind: 'minutes', minutes: 30 }, D0)
     for (let d = 0; d < first.days + 5 && Object.values(rem).some((n) => n > 0); d++) {
       const r = balance(rem, { kind: 'date', date: first.finishDate }, date, undefined, carry)
-      if (rem.radical > 0) expect(r.today.kanji).toBe(0)
+      // Chữ chỉ mở khi bộ thủ đã mở hết (ngày mở bộ cuối cùng thì phần thời gian còn lại dành cho chữ)
+      if (rem.radical > r.today.radical) expect(r.today.kanji).toBe(0)
       for (const a of ['kana', 'radical', 'kanji', 'word_kanji'] as const) {
         rem = { ...rem, [a]: rem[a] - r.today[a] }
         if (r.today[a] > 0) lastDay[a] = d
@@ -230,7 +234,8 @@ describe('§8 Cân bằng theo thời gian', () => {
     const paused = balance(rem, { kind: 'minutes', minutes: 20 }, D0, undefined, { kanji: 0.4 }, { kanji: true })
     expect(paused.today.kanji).toBe(0)
     expect(paused.carry.kanji).toBe(0.4)
-    expect(paused.today.kana).toBeGreaterThan(normal.today.kana)
+    // Thời gian của khu dừng dồn sang khu còn chạy: các khu còn chạy xong sớm hơn
+    expect(paused.days).toBeLessThan(normal.days)
     // Tổng thời gian mục mới trung bình mỗi ngày vẫn gần 20 phút (phần lẻ cộng dồn)
     let r2 = rem
     let carry: Partial<Record<keyof Remaining, number>> = {}
@@ -300,10 +305,10 @@ describe('§8 Cân bằng theo thời gian', () => {
 })
 
 describe('§2 Dự báo vượt trần', () => {
-  it('một từ Kana mới (đúng hết): 2, 6, 3, 6, 3 câu rồi Card từ ngày thứ 6', () => {
+  it('một từ Kana mới (đúng hết): 2, 6, 6 câu rồi Card từ ngày thứ 4', () => {
     const sim = simulateItem(newItem('kana', D0), D0, 7)
-    expect(sim.counts).toEqual([2, 6, 3, 6, 3, 0, 0])
-    expect(sim.cardsFrom).toBe(5)
+    expect(sim.counts).toEqual([2, 6, 6, 0, 0, 0, 0])
+    expect(sim.cardsFrom).toBe(3)
   })
 
   it('báo ngày vượt trần', () => {
@@ -370,7 +375,7 @@ describe('Câu hỏi và chấm', () => {
     expect(card.parts.map((p) => p.part)).toEqual(['type_hanviet', 'choose_meaning'])
     expect(gradeCard(card.parts, ['hv 0', 'nghĩa 0'])).toBe(true)
     expect(gradeCard(card.parts, ['hv 0', 'nghĩa 1'])).toBe(false)
-    expect(RULES_V12.points.pass).toBe(3)
+    expect(RULES_V12.points.pass).toBe(2)
   })
 })
 

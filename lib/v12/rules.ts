@@ -3,7 +3,8 @@
 export const RULES_V12 = {
   version: 12,
   /** §3.1: điểm theo loại thẻ. */
-  points: { correct: 1, wrong: -1, floor: 0, pass: 3, passStage1: 1 },
+  /** Stage 2 và 3: 2 điểm mỗi loại thẻ (chủ dự án chốt 2026-11-20, trước là 3); Stage 1: đúng 1 lần. */
+  points: { correct: 1, wrong: -1, floor: 0, pass: 2, passStage1: 1 },
   /** §3.1: số lần gặp một loại thẻ mỗi ngày (Stage 2–3): đúng thì 2, có sai thì tối đa 3. */
   perDay: { shows: 2, maxShows: 3 },
   /** §3.1–3.2: sai thì hỏi lại sau chừng này thẻ. Hai lần gặp cùng loại thẻ trong ngày cũng cách ít nhất chừng này. */
