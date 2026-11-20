@@ -273,17 +273,47 @@ describe('§8 Cân bằng theo thời gian', () => {
     expect(pausedZones({ kana: 0, kanji: 0, word_kanji: 0 }, caps)).toEqual({ kana: false, kanji: false, word_kanji: false })
   })
 
-  it('mục tiêu từ Settings: ngày đã qua hoặc chưa chọn thì dùng số phút, không dồn mọi mục vào một ngày', () => {
+  it('mục tiêu từ Settings: ngày đã qua hoặc chưa chọn thì dùng số mục mỗi ngày, không dồn mọi mục vào một ngày', () => {
     const tomorrow = addStudyDays(D0, 1)
-    expect(balanceTarget('date', tomorrow, 20, D0)).toEqual({ kind: 'date', date: tomorrow })
-    expect(balanceTarget('date', D0, 20, D0)).toEqual({ kind: 'date', date: D0 })
-    expect(balanceTarget('date', addStudyDays(D0, -3), 20, D0)).toEqual({ kind: 'minutes', minutes: 20 })
-    expect(balanceTarget('date', null, 20, D0)).toEqual({ kind: 'minutes', minutes: 20 })
-    expect(balanceTarget('minutes', tomorrow, 30, D0)).toEqual({ kind: 'minutes', minutes: 30 })
+    expect(balanceTarget('date', tomorrow, 12, D0)).toEqual({ kind: 'date', date: tomorrow })
+    expect(balanceTarget('date', D0, 12, D0)).toEqual({ kind: 'date', date: D0 })
+    expect(balanceTarget('date', addStudyDays(D0, -3), 12, D0)).toEqual({ kind: 'items', perDay: 12 })
+    expect(balanceTarget('date', null, 12, D0)).toEqual({ kind: 'items', perDay: 12 })
+    expect(balanceTarget('items', tomorrow, 30, D0)).toEqual({ kind: 'items', perDay: 30 })
     const rem: Remaining = { kana: 425, radical: 100, kanji: 263, word_kanji: 300 }
-    const passed = balance(rem, balanceTarget('date', addStudyDays(D0, -3), 20, D0), D0)
+    const passed = balance(rem, balanceTarget('date', addStudyDays(D0, -3), 12, D0), D0)
     expect(passed.days).toBeGreaterThan(30)
     expect(passed.today.kana).toBeLessThan(rem.kana / 10)
+  })
+
+  it('mục tiêu số mục (2026-11-20): mỗi ngày đúng tổng số mục (trung bình), chia theo số mục còn lại, ba khu xong cùng ngày', () => {
+    let rem: Remaining = { kana: 581, radical: 100, kanji: 78, word_kanji: 526 }
+    let carry: Partial<Record<keyof Remaining, number>> = {}
+    let date = D0
+    const totals: number[] = []
+    const lastDay: Record<string, number> = {}
+    const first = balance(rem, { kind: 'items', perDay: 12 }, D0)
+    expect(first.days).toBe(Math.ceil(1285 / 12))
+    // Hôm nay: Kana ~581/108, Từ vựng Kanji ~526/108, khu Kanji ~178/108 (bộ thủ trước)
+    expect(first.today.kana + first.today.radical + first.today.kanji + first.today.word_kanji).toBeLessThanOrEqual(12)
+    expect(first.today.kanji).toBe(0)
+    for (let d = 0; d < 200 && Object.values(rem).some((n) => n > 0); d++) {
+      const r = balance(rem, { kind: 'items', perDay: 12 }, date, undefined, carry)
+      totals.push(r.today.kana + r.today.radical + r.today.kanji + r.today.word_kanji)
+      for (const a of ['kana', 'radical', 'kanji', 'word_kanji'] as const) {
+        rem = { ...rem, [a]: rem[a] - r.today[a] }
+        if (r.today[a] > 0) lastDay[a] = d
+      }
+      carry = r.carry
+      date = addStudyDays(date, 1)
+    }
+    expect(Object.values(rem).every((n) => n === 0)).toBe(true)
+    const avg = totals.reduce((a, b) => a + b, 0) / totals.length
+    expect(avg).toBeGreaterThan(11.5)
+    expect(avg).toBeLessThanOrEqual(12)
+    expect(Math.max(...totals)).toBeLessThanOrEqual(14)
+    expect(Math.abs(lastDay.kana - lastDay.word_kanji)).toBeLessThanOrEqual(1)
+    expect(Math.abs(lastDay.kana - lastDay.kanji)).toBeLessThanOrEqual(1)
   })
 
   it('mục tiêu số phút: trung bình cả kỳ gần đúng số phút đặt ra (phần lẻ cộng dồn)', () => {

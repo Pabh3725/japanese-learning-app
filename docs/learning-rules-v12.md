@@ -165,17 +165,17 @@ Mỗi mục được quy ra **thời gian học** theo số câu tối thiểu c
 
 ### 8.2 Cách chia
 
-- **Khối lượng còn lại** của một khu = số mục chưa mở của cấp hiện tại × thời gian của một mục. Khu Kanji gồm bộ thủ và chữ, mỗi loại tính theo thời gian riêng.
-- Người học chọn **một** trong hai mục tiêu trong Settings:
-  - **ngày muốn học xong cấp** D;
-  - hoặc **số phút học mục mới mỗi ngày** P (mặc định 20 phút).
-- **Số ngày còn lại:** `N` = số ngày tới D, hoặc `⌈tổng khối lượng còn lại / P⌉`.
-- **Mỗi khu mở `số mục còn lại / N` mục mỗi ngày.** Ba khu cùng hết vào ngày thứ N. Mỗi khu chiếm một phần thời gian mỗi ngày đúng bằng tỷ lệ khối lượng còn lại của nó. Phần lẻ được cộng dồn qua các ngày.
+- **Cân bằng theo số mục** (chủ dự án chốt 2026-11-20, thay cho số phút). Người học chọn **một** trong hai mục tiêu trong Settings:
+  - **tổng số mục mới mỗi ngày** M (mặc định 10; gồm từ vựng Kana, bộ thủ / chữ Kanji, từ vựng Kanji);
+  - hoặc **ngày muốn học xong cấp** D.
+- **Số ngày còn lại:** `N` = `⌈tổng số mục còn lại của cấp / M⌉`, hoặc số ngày tới D.
+- **Mỗi khu mở `số mục còn lại / N` mục mỗi ngày** (chia theo số mục, không theo thời gian). Ba khu cùng hết vào ngày thứ N; khu Kanji dùng phần của mình cho bộ thủ trước rồi tới chữ. Phần lẻ được cộng dồn qua các ngày, nên tổng mỗi ngày trung bình đúng M (có ngày nhiều hoặc ít hơn một mục).
+- **Thời gian học ước tính** = số mục mới mỗi ngày của từng loại × thời gian một mục (§8.1, đã gồm Intro và các lần ôn đầu; sau 14 ngày dùng thời gian thật). Đây là thời gian học mỗi ngày khi đã đều đặn.
 - App **tính lại mỗi ngày** theo số còn lại thật. Khu nào chậm (ví dụ Từ vựng Kanji chưa đủ điều kiện mở) thì các ngày sau tự tăng chỉ tiêu cho khu đó.
 - **Ràng buộc của Từ vựng Kanji:** chỉ mở được khi đủ điều kiện ở §6. Ngày nào không đạt chỉ tiêu thì phần thiếu không chuyển sang khu khác (để ba khu vẫn kết thúc cùng lúc), mà dồn sang các ngày sau. Hàng chờ ở §6 bù vào cuối cấp.
-- **Trần mỗi khu** (§2) vẫn được áp dụng. Nếu chỉ tiêu làm một ngày trong 7 ngày tới vượt trần thì hiện cảnh báo như §2, kèm gợi ý lùi ngày D hoặc giảm số phút P.
+- **Trần mỗi khu** (§2) vẫn được áp dụng. Nếu chỉ tiêu làm một ngày trong 7 ngày tới vượt trần thì hiện cảnh báo như §2, kèm gợi ý lùi ngày D hoặc giảm số mục M.
 
 **Hiển thị:**
 - Settings có công tắc **"Balance new items"**, bật sẵn.
-- Khi bật, app hiện số mục mới mỗi ngày của từng khu, số phút ước tính mỗi ngày và ngày dự kiến xong cấp.
+- Khi bật, app hiện số mục mới hôm nay của từng khu, thời gian học ước tính mỗi ngày và ngày dự kiến xong cấp.
 - Khi tắt, người học tự chỉnh số mục mới của từng khu như cũ.

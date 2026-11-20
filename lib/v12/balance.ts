@@ -61,14 +61,18 @@ export interface Remaining {
   word_kanji: number
 }
 
-export type BalanceTarget = { kind: 'date'; date: StudyDate } | { kind: 'minutes'; minutes: number }
+/**
+ * Mục tiêu cân bằng. `items` (chủ dự án chốt 2026-11-20, mặc định): tổng số mục mới mỗi ngày, chia cho ba khu theo số mục
+ * còn lại để ba khu xong cấp cùng ngày. `date`: xong cấp vào ngày đã chọn. `minutes`: số phút mục mới mỗi ngày (bản cũ).
+ */
+export type BalanceTarget = { kind: 'items'; perDay: number } | { kind: 'date'; date: StudyDate } | { kind: 'minutes'; minutes: number }
 
 /**
  * Mục tiêu cân bằng từ Settings. "Xong trước ngày" chỉ dùng khi đã có ngày và ngày đó chưa qua; ngày đã qua hoặc chưa chọn
  * thì dùng số phút mỗi ngày — để không bao giờ dồn toàn bộ mục còn lại vào một ngày (Settings chỉ cho chọn từ ngày mai).
  */
-export function balanceTarget(kind: 'minutes' | 'date', date: StudyDate | null, minutes: number, today: StudyDate): BalanceTarget {
-  return kind === 'date' && date !== null && date >= today ? { kind: 'date', date } : { kind: 'minutes', minutes }
+export function balanceTarget(kind: 'items' | 'minutes' | 'date', date: StudyDate | null, items: number, today: StudyDate): BalanceTarget {
+  return kind === 'date' && date !== null && date >= today ? { kind: 'date', date } : { kind: 'items', perDay: items }
 }
 
 export interface BalanceResult {
@@ -80,7 +84,10 @@ export interface BalanceResult {
   today: Record<keyof Remaining, number>
   /** Phần lẻ cộng dồn sang ngày mai, theo loại mục. */
   carry: Record<keyof Remaining, number>
-  /** Số phút ước tính cho mục mới hôm nay, theo khu. */
+  /**
+   * Số phút ước tính cho mục mới hôm nay, theo khu — thời gian cả vòng đời của các mục này (Intro và các lần ôn đầu),
+   * nên khi học đều đặn đây là thời gian học mỗi ngày.
+   */
   minutes: Record<Zone, number>
 }
 
@@ -115,10 +122,16 @@ export function balance(
     kanji: paused.kanji ? 0 : all.kanji,
     word_kanji: paused.word_kanji ? 0 : all.word_kanji,
   }
-  const totalSeconds = AREAS.reduce((s, a) => s + remaining[a] * seconds[a], 0)
+  // Trọng số khi chia: theo thời gian (mục tiêu số phút) hoặc mỗi mục như nhau (mục tiêu số mục, ngày hoàn thành)
+  const weight: Record<Area, number> = target.kind === 'minutes' ? seconds : { kana: 1, radical: 1, kanji: 1, word_kanji: 1 }
+  const totalWeight = AREAS.reduce((s, a) => s + remaining[a] * weight[a], 0)
   const days = Math.max(
     1,
-    target.kind === 'date' ? daysInclusive(todayDate, target.date) : Math.ceil(totalSeconds / (Math.max(1, target.minutes) * 60)),
+    target.kind === 'date'
+      ? daysInclusive(todayDate, target.date)
+      : target.kind === 'items'
+        ? Math.ceil(totalWeight / Math.max(1, target.perDay))
+        : Math.ceil(totalWeight / (Math.max(1, target.minutes) * 60)),
   )
   const today = { kana: 0, radical: 0, kanji: 0, word_kanji: 0 }
   const carry = { kana: 0, radical: 0, kanji: 0, word_kanji: 0 }
@@ -131,12 +144,12 @@ export function balance(
   }
   share('kana', remaining.kana / days)
   share('word_kanji', remaining.word_kanji / days)
-  // Khu Kanji: chỉ tiêu theo thời gian của cả khu, bộ thủ dùng trước
-  const zoneSecondsToday = (remaining.radical * seconds.radical + remaining.kanji * seconds.kanji) / days
-  const radicalExact = Math.min(remaining.radical, zoneSecondsToday / seconds.radical)
+  // Khu Kanji: chỉ tiêu của cả khu, bộ thủ dùng trước
+  const zoneToday = (remaining.radical * weight.radical + remaining.kanji * weight.kanji) / days
+  const radicalExact = Math.min(remaining.radical, zoneToday / weight.radical)
   share('radical', radicalExact)
-  const leftForKanji = Math.max(0, zoneSecondsToday - today.radical * seconds.radical)
-  share('kanji', remaining.radical - today.radical > 0 ? 0 : leftForKanji / seconds.kanji)
+  const leftForKanji = Math.max(0, zoneToday - today.radical * weight.radical)
+  share('kanji', remaining.radical - today.radical > 0 ? 0 : leftForKanji / weight.kanji)
   const minutes = {
     kana: (today.kana * seconds.kana) / 60,
     kanji: (today.radical * seconds.radical + today.kanji * seconds.kanji) / 60,

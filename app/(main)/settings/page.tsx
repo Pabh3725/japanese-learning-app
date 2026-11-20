@@ -32,12 +32,12 @@ export default async function SettingsPage() {
           </li>
           {hub.balance && (
             <li>
-              Kana vocabulary, Kanji and Kanji words all finish N{hub.level} in about {hub.balance.days} days at {hub.balance.minutes} minutes of new items a day.
+              Kana vocabulary, Kanji and Kanji words all finish N{hub.level} in about {hub.balance.days} days at {hub.balance.today.kana + hub.balance.today.kanji + hub.balance.today.word_kanji} new items a day (about {hub.balance.minutes} min of study a day once reviews settle in).
             </li>
           )}
         </ul>
       </section>
-      <SettingsForm limits={limits} furigana={furigana} v12Slot={<V12SettingsFields s={v12} minDate={minDate} />}
+      <SettingsForm limits={limits} furigana={furigana} v12Slot={<V12SettingsFields s={v12} minDate={minDate} estimate={hub.balance && { ...hub.balance, level: hub.level }} />}
         grammarBalance={{
           on: grammar.settings.balanceOn,
           target: grammar.settings.balanceTarget,
