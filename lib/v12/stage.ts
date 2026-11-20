@@ -70,7 +70,7 @@ export function plannedShows(item: ItemState, type: CardType, date: StudyDate): 
   if (!canShow(item, type, date) || item.stage === 'review') return 0
   if (item.stage === 1) return 1
   const t = today(item.types[type]!, date)
-  return Math.max(0, Math.min(RULES_V12.perDay.shows - t.seenToday, RULES_V12.points.pass - t.points))
+  return Math.max(0, Math.min(RULES_V12.perDay.shows - t.seenToday, passPoints(item.stage) - t.points))
 }
 
 export interface AnswerResult {

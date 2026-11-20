@@ -36,9 +36,9 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 
 - Mỗi Stage có một số **loại thẻ** (ví dụ: Kana → nghĩa, nghe → chọn Kana…). **Mỗi loại thẻ có điểm riêng.**
 - Đúng **+1**, sai **−1**. Điểm không xuống dưới **0**. Không có gợi ý: mỗi câu chỉ có đúng hoặc sai.
-- **Stage 2 và 3:** mỗi loại thẻ cần **3 điểm**. Loại thẻ đã đủ điểm thì không xuất hiện nữa. Stage xong khi **mọi loại thẻ** đều đủ điểm. Stage tiếp theo (hoặc Card Review) bắt đầu từ **ngày học kế tiếp**.
+- **Stage 2 và 3:** mỗi loại thẻ cần **2 điểm** (chủ dự án chốt 2026-11-20, trước là 3); số loại thẻ giữ nguyên. Trả lời đúng hết thì xong mỗi Stage ngay trong ngày đầu của Stage đó. Loại thẻ đã đủ điểm thì không xuất hiện nữa. Stage xong khi **mọi loại thẻ** đều đủ điểm. Stage tiếp theo (hoặc Card Review) bắt đầu từ **ngày học kế tiếp**. Loại thẻ đã đủ điểm thì không xuất hiện nữa. Stage xong khi **mọi loại thẻ** đều đủ điểm. Stage tiếp theo (hoặc Card Review) bắt đầu từ **ngày học kế tiếp**.
 - **Số lần gặp mỗi ngày của một loại thẻ:**
-  - Trả lời đúng: gặp **2 lần**. Vì vậy điểm thứ 3 luôn rơi vào hôm sau.
+  - Trả lời đúng: gặp **2 lần**, vừa đủ 2 điểm.
   - Trả lời sai: thẻ được **hỏi lại sau 5 thẻ**. Lần hỏi lại cũng tính điểm (đúng +1, sai −1). Tính cả lần hỏi lại, một loại thẻ gặp **nhiều nhất 3 lần mỗi ngày**.
 
 ### 3.2 Stage 1 (ngày đầu tiên)
@@ -154,12 +154,12 @@ Mỗi mục được quy ra **thời gian học** theo số câu tối thiểu c
 | Gõ | 12 |
 | Card Review (gom chung) | 15 |
 
-| Mục | Câu học (tối thiểu) | Card Review | Thời gian ước tính |
+| Mục | Câu học (tối thiểu; Stage 2–3 tính 2 điểm mỗi loại từ 2026-11-20) | Card Review | Thời gian ước tính |
 |---|---|---|---|
-| Từ vựng Kana | thẻ giới thiệu + Stage 1: 2 trắc nghiệm + Stage 2: 9 trắc nghiệm + Stage 3: 6 gõ, 3 trắc nghiệm | 2 Card × 4 lần | 15 + 84 + 72 + 120 ≈ **4,9 phút** (bỏ ghép Kana 2026-11-19) |
-| Bộ thủ | thẻ giới thiệu + Stage 1: 2 + Stage 2: 12 trắc nghiệm | 1 Card × 4 lần | 15 + 84 + 60 ≈ **2,7 phút** |
-| Chữ Kanji | thẻ giới thiệu + Stage 1: 4 + Stage 2: 12 trắc nghiệm + Stage 3: 3 gõ, 9–12 trắc nghiệm | 1 Card × 4 lần | 15 + 150 + 36 + 60 ≈ **4,4 phút** |
-| Từ vựng Kanji | thẻ giới thiệu + Stage 1: 4 + Stage 2: 12 trắc nghiệm + 3 ghép chữ + Stage 3: 3 gõ, 3 trắc nghiệm | 1 Card × 4 lần | 15 + 132 + 36 + 60 ≈ **4,1 phút** (thêm ghép chữ 2026-11-19) |
+| Từ vựng Kana | thẻ giới thiệu + Stage 1: 2 trắc nghiệm + Stage 2: 6 trắc nghiệm + Stage 3: 4 gõ, 2 trắc nghiệm | 2 Card × 4 lần | 15 + 60 + 48 + 120 ≈ **4,1 phút** |
+| Bộ thủ | thẻ giới thiệu + Stage 1: 2 + Stage 2: 8 trắc nghiệm | 1 Card × 4 lần | 15 + 60 + 60 ≈ **2,3 phút** |
+| Chữ Kanji | thẻ giới thiệu + Stage 1: 4 + Stage 2: 8 trắc nghiệm + Stage 3: 2 gõ, 6–8 trắc nghiệm | 1 Card × 4 lần | 15 + 108 + 24 + 60 ≈ **3,5 phút** |
+| Từ vựng Kanji | thẻ giới thiệu + Stage 1: 4 + Stage 2: 8 trắc nghiệm + 2 ghép chữ + Stage 3: 2 gõ, 2 trắc nghiệm | 1 Card × 4 lần | 15 + 96 + 24 + 60 ≈ **3,3 phút** |
 
 - Sai thì có thêm câu hỏi lại, nên thời gian thật dài hơn. App ghi thời gian trả lời thật và **sau 14 ngày** thay các con số ước tính bằng trung bình thật của người học .
 
