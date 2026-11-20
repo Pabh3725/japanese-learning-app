@@ -28,7 +28,7 @@ export const RULES_V12 = {
   /** §2: dự báo vượt trần. */
   forecastDays: 7,
   /** §8.2: mục tiêu mặc định. */
-  balance: { defaultMinutes: 20 },
+  balance: { defaultMinutes: 20, defaultItems: 10 },
   /** Kế hoạch §7.2: câu học thêm của từ có sao, tối đa mỗi set, không tính điểm. */
   starPerSet: 2,
 } as const

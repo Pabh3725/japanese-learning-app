@@ -2,15 +2,16 @@
 
 // V12 §2, §8: Settings — cân bằng theo thời gian (hoặc số mục mới thủ công), kích thước set, trần từng khu.
 import { useId, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { saveV12SettingAction } from '@/app/learn/v12/actions'
 import { Group, NumberBox, SettingSwitch, useNumberField } from '@/components/settings/settings-form'
 import type { V12Settings } from '@/lib/dal/v12/settings'
 import { RULES_V12 } from '@/lib/v12/rules'
 import { cn } from '@/lib/utils'
 
-function Field({ name, label, hint, initial, min, max }: { name: string; label: string; hint: string; initial: number; min: number; max: number }) {
+function Field({ name, label, hint, initial, min, max, save = saveV12SettingAction }: { name: string; label: string; hint: string; initial: number; min: number; max: number; save?: (key: string, value: number) => Promise<{ status: string }> }) {
   const id = useId()
-  const field = useNumberField(initial, min, max, (value) => saveV12SettingAction(name, value))
+  const field = useNumberField(initial, min, max, (value) => save(name, value))
   return (
     <div className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
@@ -23,14 +24,35 @@ function Field({ name, label, hint, initial, min, max }: { name: string; label: 
   )
 }
 
-/** `minDate`: ngày học mai (YYYY-MM-DD) — ngày hoàn thành sớm nhất được chọn. */
-export function V12SettingsFields({ s, minDate }: { s: V12Settings; minDate: string }) {
+export interface BalanceEstimate {
+  level: number | null
+  /** Số mục mới hôm nay theo khu (khu Kanji gồm bộ thủ và chữ). */
+  today: Record<'kana' | 'kanji' | 'word_kanji', number>
+  /** Phút học mỗi ngày ước tính khi đều đặn (mục mới cả vòng đời: Intro và các lần ôn đầu). */
+  minutes: number
+  finishDate: string
+  days: number
+}
+
+const fmtDate = (d: string) => new Date(`${d}T00:00:00+07:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+
+/**
+ * `minDate`: ngày học mai (YYYY-MM-DD) — ngày hoàn thành sớm nhất được chọn.
+ * `estimate`: kết quả cân bằng hiện tại (tính ở server), cập nhật lại sau mỗi lần lưu.
+ */
+export function V12SettingsFields({ s, minDate, estimate }: { s: V12Settings; minDate: string; estimate?: BalanceEstimate | null }) {
+  const router = useRouter()
+  const saveAndRefresh = async (key: string, value: unknown) => {
+    const res = await saveV12SettingAction(key, value)
+    router.refresh()
+    return res
+  }
   const [balanceOn, setBalanceOn] = useState(s.balanceOn)
   const [target, setTarget] = useState(s.balanceTarget)
   const [date, setDate] = useState(s.balanceDate ?? '')
   const [dateError, setDateError] = useState<string | null>(null)
-  // Chưa chọn ngày, hoặc ngày đã qua: lõi cân bằng dùng số phút mỗi ngày
-  const dateNote = date === '' ? 'Pick a date — using minutes a day until then.' : date < minDate ? 'This date has passed — using minutes a day. Pick a new date.' : null
+  // Chưa chọn ngày, hoặc ngày đã qua: lõi cân bằng dùng số mục mới mỗi ngày
+  const dateNote = date === '' ? 'Pick a date — using new items a day until then.' : date < minDate ? 'This date has passed — using new items a day. Pick a new date.' : null
   return (
     <>
       <p className="rounded-2xl border border-border bg-card px-5 py-3 text-sm text-muted-foreground">
@@ -39,17 +61,17 @@ export function V12SettingsFields({ s, minDate }: { s: V12Settings; minDate: str
       <Group id="pace" title="Vocab · Daily pace" description="How many new items open each day in Kana vocabulary, Kanji and Kanji words. Grammar has its own settings below.">
         <SettingSwitch
           label="Balance new items"
-          description="Split new items by study time so all three areas finish the level on the same day."
+          description="Split your new items across the three areas so they all finish the level on the same day."
           defaultChecked={balanceOn}
           onSave={async (v) => {
             setBalanceOn(v)
-            await saveV12SettingAction('balance_on', v)
+            await saveAndRefresh('balance_on', v)
           }}
         />
         {balanceOn ? (
           <div className="flex flex-col gap-3 py-4">
             <div role="radiogroup" aria-label="Goal" className="flex gap-2">
-              {(['minutes', 'date'] as const).map((t) => (
+              {(['items', 'date'] as const).map((t) => (
                 <button
                   key={t}
                   type="button"
@@ -57,16 +79,24 @@ export function V12SettingsFields({ s, minDate }: { s: V12Settings; minDate: str
                   aria-checked={target === t}
                   onClick={() => {
                     setTarget(t)
-                    void saveV12SettingAction('balance_target', t)
+                    void saveAndRefresh('balance_target', t)
                   }}
                   className={cn('h-9 rounded-full border px-3.5 text-sm', target === t ? 'border-primary bg-primary/12 text-primary' : 'border-border text-subtle')}
                 >
-                  {t === 'minutes' ? 'Minutes a day' : 'Finish by a date'}
+                  {t === 'items' ? 'New items a day' : 'Finish by a date'}
                 </button>
               ))}
             </div>
-            {target === 'minutes' ? (
-              <Field name="balance_minutes" label="Minutes of new items a day" hint="Time spent on new items, including their stages and first reviews." initial={s.balanceMinutes} min={5} max={240} />
+            {target === 'items' ? (
+              <Field
+                name="balance_items"
+                label="New items a day (total)"
+                hint="Kana words, radicals and Kanji, and Kanji words together. Split by how many each area has left."
+                initial={s.balanceItems}
+                min={1}
+                max={100}
+                save={saveAndRefresh}
+              />
             ) : (
               <label className="flex flex-col gap-1 text-sm">
                 <span className="font-medium">Finish this level by</span>
@@ -82,7 +112,7 @@ export function V12SettingsFields({ s, minDate }: { s: V12Settings; minDate: str
                     }
                     setDateError(null)
                     setDate(value)
-                    saveV12SettingAction('balance_date', value || null)
+                    saveAndRefresh('balance_date', value || null)
                       .then(({ status }) => {
                         if (status !== 'saved') throw new Error(status)
                       })
@@ -92,6 +122,17 @@ export function V12SettingsFields({ s, minDate }: { s: V12Settings; minDate: str
                 />
                 {dateError ? <span role="alert" className="text-error">{dateError}</span> : dateNote && <span className="text-yellow">{dateNote}</span>}
               </label>
+            )}
+            {estimate && (
+              <div className="rounded-2xl bg-secondary px-4 py-3 text-sm">
+                <p className="font-medium">
+                  Today: {estimate.today.kana + estimate.today.kanji + estimate.today.word_kanji} new items — {estimate.today.kana} Kana words · {estimate.today.kanji} radicals / Kanji · {estimate.today.word_kanji} Kanji words
+                </p>
+                <p className="mt-1 text-subtle">
+                  About {estimate.minutes} min of study a day once reviews settle in (new items, their intros and first reviews). {estimate.level ? `N${estimate.level}` : 'This level'} finishes around {fmtDate(estimate.finishDate)} ({estimate.days} days).
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">Some days open one more or one less so the average matches. Kanji words wait until their kana and characters reach Intro 2.</p>
+              </div>
             )}
           </div>
         ) : (

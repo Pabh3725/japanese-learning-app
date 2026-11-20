@@ -91,7 +91,7 @@ function plan(l: Loaded, now: Date, seconds?: Record<Area, number>): PlanResult 
     progress: progressOf(l),
     openedToday,
     balanceOn: l.settings.balanceOn,
-    target: balanceTarget(l.settings.balanceTarget, l.settings.balanceDate, l.settings.balanceMinutes, today),
+    target: balanceTarget(l.settings.balanceTarget, l.settings.balanceDate, l.settings.balanceItems, today),
     manual: l.settings.newPerDay,
     carry: carry ?? {},
     paused,
@@ -487,7 +487,8 @@ export interface HubView {
   level: number | null
   zones: ZoneSummary[]
   all: { position: number; total: number } | null
-  balance: { finishDate: string; minutes: number; days: number } | null
+  /** Cân bằng: số mục mới hôm nay theo khu, phút học ước tính mỗi ngày (khi đều đặn), ngày dự kiến xong cấp. */
+  balance: { finishDate: string; minutes: number; days: number; today: Record<Zone, number> } | null
   warnings: ForecastDay[]
   caps: Record<Zone, number>
 }
@@ -543,7 +544,14 @@ export async function getHub(): Promise<HubView> {
     level: p.level,
     zones,
     all: decks[3] ? { position: decks[3]!.position, total: decks[3]!.cards.length } : null,
-    balance: p.balance ? { finishDate: p.balance.finishDate, minutes: Math.round(p.balance.minutes.kana + p.balance.minutes.kanji + p.balance.minutes.word_kanji), days: p.balance.days } : null,
+    balance: p.balance
+      ? {
+          finishDate: p.balance.finishDate,
+          minutes: Math.round(p.balance.minutes.kana + p.balance.minutes.kanji + p.balance.minutes.word_kanji),
+          days: p.balance.days,
+          today: { kana: p.balance.today.kana, kanji: p.balance.today.radical + p.balance.today.kanji, word_kanji: p.balance.today.word_kanji },
+        }
+      : null,
     warnings: overflowDays(days),
     caps: l.settings.caps,
   }

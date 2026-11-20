@@ -82,7 +82,7 @@ export function V12Hub({ hub }: { hub: HubView }) {
             </p>
             {hub.balance && (
               <p className="mt-1 text-xs text-muted-foreground">
-                Balanced: about {hub.balance.minutes} min of new items a day ·{' '}
+                Balanced: {hub.balance.today.kana + hub.balance.today.kanji + hub.balance.today.word_kanji} new items today ({hub.balance.today.kana} Kana · {hub.balance.today.kanji} Kanji · {hub.balance.today.word_kanji} Kanji words) · about {hub.balance.minutes} min a day ·{' '}
                 {hub.zones.some((z) => z.userPaused)
                   ? `active areas finish this level around ${fmtDate(hub.balance.finishDate)} (${hub.balance.days} days); paused areas catch up when you resume them`
                   : `all three areas finish this level around ${fmtDate(hub.balance.finishDate)} (${hub.balance.days} days)`}
