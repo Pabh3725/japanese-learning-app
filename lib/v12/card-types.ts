@@ -43,30 +43,31 @@ export const CARD_TYPES = {
 export type CardType = keyof typeof CARD_TYPES
 export const kindOf = (type: CardType): AnswerKind => CARD_TYPES[type].kind
 
-const KANJI_CHOICES = ['kanji_hanviet', 'kanji_meaning', 'hanviet_kanji', 'meaning_kanji'] as const satisfies readonly CardType[]
-const WORD_CHOICES = ['word_hanviet', 'word_meaning', 'hanviet_word', 'meaning_word'] as const satisfies readonly CardType[]
-
-/** Loại thẻ theo Stage. Bộ thủ không có Stage 3 (§5.1). */
+/**
+ * Loại thẻ theo Stage. Bộ thủ không có Stage 3 (§5.1).
+ * Chủ dự án chốt 2026-11-22: mỗi Stage một chiều riêng, bỏ câu trùng giữa các Stage —
+ * Stage 1 nhận ra (nhìn chữ / từ → Hán Việt, nghĩa), Stage 2 nhớ lại (Hán Việt, nghĩa, âm → chọn chữ / từ), Stage 3 tự viết ra (gõ).
+ */
 export const STAGE_TYPES: Record<Area, Record<Stage, readonly CardType[]>> = {
   kana: {
     1: ['kana_meaning', 'meaning_kana'],
-    2: ['kana_meaning', 'meaning_kana', 'listen_kana'],
-    3: ['meaning_type_kana', 'listen_type_kana', 'kana_meaning'],
+    2: ['listen_kana', 'meaning_kana'],
+    3: ['meaning_type_kana', 'listen_type_kana'],
   },
   radical: {
     1: ['radical_hanviet', 'radical_meaning'],
-    2: ['radical_hanviet', 'radical_meaning', 'hanviet_radical', 'meaning_radical'],
+    2: ['hanviet_radical', 'meaning_radical'],
     3: [],
   },
   kanji: {
-    1: KANJI_CHOICES,
-    2: KANJI_CHOICES,
-    3: ['kanji_type_hanviet', 'kanji_meaning', 'hanviet_kanji', 'meaning_kanji', 'kanji_similar'],
+    1: ['kanji_hanviet', 'kanji_meaning'],
+    2: ['hanviet_kanji', 'meaning_kanji'],
+    3: ['kanji_type_hanviet', 'kanji_similar'],
   },
   word_kanji: {
-    1: WORD_CHOICES,
-    2: [...WORD_CHOICES, 'word_assembly'],
-    3: ['word_type_hanviet', 'word_meaning'],
+    1: ['word_hanviet', 'word_meaning'],
+    2: ['hanviet_word', 'meaning_word', 'word_assembly'],
+    3: ['word_type_hanviet'],
   },
 }
 

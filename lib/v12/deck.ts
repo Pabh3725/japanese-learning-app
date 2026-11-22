@@ -143,9 +143,10 @@ export function buildDeck(input: DeckInput, rng: Rng, setSize: number = RULES_V1
   // Thẻ giới thiệu có hạn chót: sau nó phải còn đủ chỗ cho chuỗi Stage 1 (khoảng 0 / 5 / 10…)
   const total = free.length + [...followers.values()].reduce((n, l) => n + l.length, 0) + [...chains.values()].reduce((n, l) => n + l.length, 0)
   const span = (n: number) => Array.from({ length: n }, (_, k) => 1 + (k === 0 ? first : k === 1 ? second : rest)).reduce((a, b) => a + b, 0)
+  // Trừ thêm số thẻ giới thiệu: các chuỗi tới hạn cùng lúc có thể đẩy nhau lùi một chỗ, vẫn phải còn đủ khoảng ở cuối bộ
   for (const p of free) {
     const chain = chains.get(p.card.key)
-    if (chain) p.due = Math.max(0, total - 1 - span(chain.length))
+    if (chain) p.due = Math.max(0, total - 1 - span(chain.length) - chains.size)
   }
 
   const scheduled: Pending[] = []
