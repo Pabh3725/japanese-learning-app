@@ -83,9 +83,9 @@ export function typesFor(area: Area, stage: Stage, opts: { hasSimilar?: boolean 
 
 /** Card Review (§3.3–6): mỗi Card gồm các phần trên cùng một thẻ; sai một phần là sai cả Card. */
 export const REVIEW_CARDS = {
+  // Chủ dự án chốt 2026-11-22: Từ vựng Kana còn 1 Card (bỏ "Kana → chọn nghĩa"); bộ thủ không còn Card ôn.
+  // Card cũ của hai loại đã bỏ vẫn nằm trong item_cards nhưng không được đọc (isReviewCard).
   kana_type: { area: 'kana', parts: ['type_kana'], label: 'Meaning → type Kana' },
-  kana_choose: { area: 'kana', parts: ['choose_meaning'], label: 'Kana → meaning' },
-  radical: { area: 'radical', parts: ['choose_hanviet', 'choose_meaning'], label: 'Radical' },
   kanji: { area: 'kanji', parts: ['type_hanviet', 'choose_meaning'], label: 'Kanji' },
   // Chủ dự án chốt 2026-11-19: bỏ gõ Kana khỏi Card Từ vựng Kanji (cách đọc vẫn hiện và đọc to sau khi chấm)
   word_kanji: { area: 'word_kanji', parts: ['type_hanviet', 'choose_meaning'], label: 'Kanji word' },
@@ -94,7 +94,10 @@ export const REVIEW_CARDS = {
 export type ReviewCardType = keyof typeof REVIEW_CARDS
 export type ReviewPart = (typeof REVIEW_CARDS)[ReviewCardType]['parts'][number]
 
-/** Card tạo khi mục xong Stage cuối. Từ vựng Kana có 2 Card (§4). */
+/** Card tạo khi mục xong Stage cuối: Từ vựng Kana, chữ Kanji, Từ vựng Kanji mỗi mục 1 Card; bộ thủ không có Card (2026-11-22). */
+/** Loại Card còn dùng (lọc Card cũ đã bỏ khi đọc item_cards). */
+export const isReviewCard = (type: string): type is ReviewCardType => Object.hasOwn(REVIEW_CARDS, type)
+
 export function reviewCardsFor(area: Area): ReviewCardType[] {
   return (Object.keys(REVIEW_CARDS) as ReviewCardType[]).filter((c) => REVIEW_CARDS[c].area === area)
 }

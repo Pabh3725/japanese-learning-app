@@ -121,7 +121,7 @@ function noteOf(r: AnswerView | null): string | undefined {
   if (!r) return undefined
   const notes = []
   if (!r.correct && r.retry) notes.push("You'll see it again in a moment.")
-  if (r.stageDone) notes.push(r.cardsCreated ? 'Learned! Review cards start tomorrow.' : 'Intro done! The next intro starts tomorrow.')
+  if (r.stageDone) notes.push(r.learned ? (r.cardsCreated ? 'Learned! Review cards start tomorrow.' : 'Learned!') : 'Intro done! The next intro starts tomorrow.')
   return notes.join('\n') || undefined
 }
 

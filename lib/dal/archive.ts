@@ -5,7 +5,7 @@ import { requireUser } from '@/lib/dal/auth'
 import type { ArchivedCard, CardKind } from '@/lib/review/archive'
 import { readAllPages } from '@/lib/dal/pages'
 import { firstDueAt } from '@/lib/learning/cards'
-import type { ReviewCardType } from '@/lib/v12/card-types'
+import { REVIEW_CARDS, type ReviewCardType } from '@/lib/v12/card-types'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 
@@ -81,6 +81,7 @@ export async function getArchivedCards(): Promise<ArchivedCard[]> {
       .from('item_cards')
       .select('id, card_type, archived_at, stability, due_at, reps, lapses, learner_items!inner(area, radical_number, vocabularies(expression, reading_kana, meaning_vi), kanji(character, han_viet, meaning_vi), radicals(character, name_vi, meaning_vi))')
       .eq('user_id', user.id)
+      .in('card_type', Object.keys(REVIEW_CARDS))
       .not('archived_at', 'is', null)
       .order('id')
       .range(from, to),

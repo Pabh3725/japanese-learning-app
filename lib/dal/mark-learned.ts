@@ -20,7 +20,8 @@ export function spreadDue(i: number, now: Date, perDay = NEW_CARDS_PER_DAY): Dat
 }
 
 /**
- * V12 (gói 4): mục Kana của từ sang Card (2 Card Kana), và mục Từ vựng Kanji (1 Card) khi từ có dạng Kanji học được.
+ * V12 (gói 4): mục Kana của từ sang Card, và mục Từ vựng Kanji (1 Card) khi từ có dạng Kanji học được.
+ * RPC v12_mark_words_learned vẫn tạo thêm Card "Kana → chọn nghĩa" như trước; loại Card này đã bỏ (2026-11-22) nên app không đọc.
  * Card đã có giữ nguyên lịch; lần ôn đầu của Card mới rải từ ngày mai.
  */
 export async function markWordsLearned(input: unknown): Promise<{ status: 'saved' | 'invalid'; marked?: number }> {
@@ -37,9 +38,8 @@ export async function markWordsLearned(input: unknown): Promise<{ status: 'saved
     .sort((a, b) => a.sortOrder - b.sortOrder)
     .map((w) => {
       const kanji = withKanji.has(w.id)
-      // Hai Card Kana cùng ngày; Card Từ vựng Kanji tính riêng
-      const kanaDue = spreadDue(card, now)
-      card += 2
+      // Card Kana và Card Từ vựng Kanji mỗi loại một suất trong số Card mới mỗi ngày
+      const kanaDue = spreadDue(card++, now)
       const kanjiDue = kanji ? spreadDue(card++, now) : null
       return { vocabulary_id: w.id, word_kanji: kanji, kana_due: kanaDue.toISOString(), kanji_due: kanjiDue?.toISOString() ?? null }
     })

@@ -3,7 +3,7 @@ import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireUser } from '@/lib/dal/auth'
 import { isWordStarred } from '@/lib/dal/star-relearn'
-import type { CardType, ReviewCardType, Stage } from '@/lib/v12/card-types'
+import { isReviewCard, type CardType, type ReviewCardType, type Stage } from '@/lib/v12/card-types'
 
 export interface WordDetail {
   id: string
@@ -95,6 +95,6 @@ export async function getWordDetail(code: string): Promise<WordDetail | null> {
       const stage = r.stage === 'review' ? 'review' : (Number(r.stage) as Stage)
       return { area: r.area, stage, types: r.learner_item_types.filter((t) => t.stage === stage).map((t) => ({ type: t.card_type, points: t.points })) }
     }),
-    cards: rows.flatMap((r) => r.item_cards.map((c) => ({ id: c.id, type: c.card_type, dueAt: c.due_at, archived: c.archived_at !== null }))),
+    cards: rows.flatMap((r) => r.item_cards.filter((c) => isReviewCard(c.card_type)).map((c) => ({ id: c.id, type: c.card_type, dueAt: c.due_at, archived: c.archived_at !== null }))),
   }
 }

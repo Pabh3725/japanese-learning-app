@@ -65,7 +65,7 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 | Stage 1 | Kana → nghĩa (trắc nghiệm) · nghĩa → Kana (trắc nghiệm) |
 | Stage 2 | nghe → chọn Kana · nghĩa → chọn Kana (trắc nghiệm) (rút gọn, chủ dự án chốt 2026-11-22) |
 | Stage 3 | nghĩa → **gõ** Kana · nghe → **gõ** Kana (rút gọn, chủ dự án chốt 2026-11-22) |
-| **Review: 2 Card** | ① nghĩa → **gõ** Kana; đúng hay sai đều phát âm thanh. ② Kana (kèm âm thanh) → **chọn** nghĩa |
+| **Review: 1 Card** | nghĩa → **gõ** Kana; đúng hay sai đều phát âm thanh và hiện chữ, cách đọc, Hán Việt, nghĩa (bỏ Card "Kana → chọn nghĩa", chủ dự án chốt 2026-11-22) |
 
 ## 5. Khu Kanji
 
@@ -80,7 +80,7 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 | Stage 1 | bộ → tên Hán Việt · bộ → nghĩa (trắc nghiệm) |
 | Stage 2 | tên Hán Việt → bộ · nghĩa → bộ (trắc nghiệm) (rút gọn, chủ dự án chốt 2026-11-22) |
 | Stage 3 | **Không có.** Xong Stage 2 thì chuyển sang Review |
-| **Review: 1 Card** | nhìn bộ → **chọn** tên Hán Việt + **chọn** nghĩa (2 câu trắc nghiệm trên cùng một thẻ) |
+| **Review** | **Không có Card ôn** (chủ dự án chốt 2026-11-22): xong Stage 2 là học xong; bộ thủ được gặp lại trong thẻ giới thiệu và thẻ chữ Kanji |
 
 - **Dữ liệu:** `data/n5/radical_meanings.csv` (sinh bằng `python3 scripts/kanji-data/v12_data.py`, 2026-11-18). Có đủ 214 bộ, gồm: dạng biến thể (亻, 氵, 扌…), **nghĩa tiếng Việt** (Claude soạn, chủ dự án duyệt 2026-11-18), số chữ N5–N4 có bộ đó và tối đa 3 chữ ví dụ.
   - 140 bộ có mặt trong chữ N5–N4; **100 bộ có trong từ 2 chữ trở lên**. Đề xuất phạm vi học là 100 bộ này.
@@ -156,8 +156,8 @@ Mỗi mục được quy ra **thời gian học** theo số câu tối thiểu c
 
 | Mục | Câu học (tối thiểu; Stage 2–3 tính 2 điểm mỗi loại từ 2026-11-20) | Card Review | Thời gian ước tính |
 |---|---|---|---|
-| Từ vựng Kana | thẻ giới thiệu + Stage 1: 2 trắc nghiệm + Stage 2: 4 trắc nghiệm + Stage 3: 4 gõ | 2 Card × 4 lần | 15 + 36 + 48 + 120 ≈ **3,7 phút** |
-| Bộ thủ | thẻ giới thiệu + Stage 1: 2 + Stage 2: 4 trắc nghiệm | 1 Card × 4 lần | 15 + 36 + 60 ≈ **1,9 phút** |
+| Từ vựng Kana | thẻ giới thiệu + Stage 1: 2 trắc nghiệm + Stage 2: 4 trắc nghiệm + Stage 3: 4 gõ | 1 Card × 4 lần | 15 + 36 + 48 + 60 ≈ **2,7 phút** |
+| Bộ thủ | thẻ giới thiệu + Stage 1: 2 + Stage 2: 4 trắc nghiệm | không có Card | 15 + 36 ≈ **0,9 phút** |
 | Chữ Kanji | thẻ giới thiệu + Stage 1: 2 + Stage 2: 4 trắc nghiệm + Stage 3: 2 gõ (+ 2 phân biệt chữ giống nếu có) | 1 Card × 4 lần | 15 + 36 + 24 + 60 ≈ **2,3 phút** |
 | Từ vựng Kanji | thẻ giới thiệu + Stage 1: 2 + Stage 2: 4 trắc nghiệm + 2 ghép chữ + Stage 3: 2 gõ | 1 Card × 4 lần | 15 + 48 + 24 + 60 ≈ **2,5 phút** |
 
