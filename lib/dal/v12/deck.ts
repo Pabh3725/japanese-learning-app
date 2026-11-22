@@ -386,6 +386,8 @@ export interface AnswerView {
   /** Kana để đọc lại sau khi chấm. */
   speak?: string
   stageDone?: boolean
+  /** Xong Stage cuối (có Card ôn, hoặc bộ thủ: học xong không có Card). */
+  learned?: boolean
   cardsCreated?: number
   retry?: boolean
   /** Thẻ kế tiếp (đã tính sau câu trả lời này), để trình học không phải tải lại bộ thẻ. */
@@ -435,7 +437,7 @@ export async function answerDeck(input: unknown): Promise<AnswerView> {
         loaded.items[itemIndex] = { ...item, stage: r.item.stage, stageFrom: r.item.stageFrom, version: item.version + 1, state: r.item }
         if (r.retry) cards = insertRetry(cards, deck.position, card)
       }
-      out = { ...out, stageDone: r?.stageDone, cardsCreated: r?.cardsCreated.length, retry: r?.retry }
+      out = { ...out, stageDone: r?.stageDone, learned: r?.item.stage === 'review', cardsCreated: r?.cardsCreated.length, retry: r?.retry }
     }
   } else if (card.kind === 'review') {
     const built = buildReviewCard(card.card, data, pools(loaded.content), Math.random)

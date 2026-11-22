@@ -6,7 +6,7 @@ import { readKnownKanjiIds } from '@/lib/dal/kanji'
 import { readKnownWordIds } from '@/lib/dal/known-words'
 import { readStarredKanjiIds } from '@/lib/dal/kanji-stars'
 import { readStarredIds } from '@/lib/dal/star-relearn'
-import { typesFor, type Area, type CardType, type ReviewCardType, type Stage } from '@/lib/v12/card-types'
+import { isReviewCard, typesFor, type Area, type CardType, type ReviewCardType, type Stage } from '@/lib/v12/card-types'
 import type { ItemState, TypeState } from '@/lib/v12/stage'
 import type { Schedule, ScheduleState } from '@/lib/srs/scheduler'
 import { studyDate } from '@/lib/learning/time'
@@ -106,7 +106,9 @@ export async function readV12State(supabase: Supabase, userId: string): Promise<
   for (const t of types as RawType[]) byItem.set(t.learner_item_id, [...(byItem.get(t.learner_item_id) ?? []), t])
   const rows = (items as RawItem[]).map((r) => toItem(r, byItem.get(r.id) ?? []))
   for (const i of rows) if ((i.area === 'kana' || i.area === 'word_kanji') ? knownWords.has(i.ref) : i.area === 'kanji' && knownKanji.has(i.ref)) i.known = true
-  return { items: rows, cards: (cards as Record<string, unknown>[]).map((c) => toCard(c)), knownWords, knownKanji, starred: new Set([...starredWords, ...starredKanji]) }
+  // Card của loại đã bỏ (Kana → chọn nghĩa, Card bộ thủ — 2026-11-22) giữ trong DB nhưng không dùng
+  const live = (cards as Record<string, unknown>[]).filter((c) => isReviewCard(c.card_type as string))
+  return { items: rows, cards: live.map((c) => toCard(c)), knownWords, knownKanji, starred: new Set([...starredWords, ...starredKanji]) }
 }
 
 export function toCard(c: Record<string, unknown>): CardRow {

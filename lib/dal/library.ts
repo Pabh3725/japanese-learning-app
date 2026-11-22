@@ -11,6 +11,7 @@ import { readAllPages } from '@/lib/dal/pages'
 import { readKnownWordIds } from '@/lib/dal/known-words'
 import { readStarredKanjiIds } from '@/lib/dal/kanji-stars'
 import { libraryStatus } from '@/lib/library/status'
+import { isReviewCard } from '@/lib/v12/card-types'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 type CardCount = { active: number; archived: number }
@@ -23,16 +24,16 @@ type ItemProgress = { stage: string; cards: CardCount }
  */
 async function readV12Progress(supabase: Supabase, userId: string): Promise<{ words: Map<string, ItemProgress>; kanji: Map<string, ItemProgress> }> {
   const rows = await readAllPages('learner_items', (from, to) =>
-    supabase.from('learner_items').select('area, vocabulary_id, kanji_id, stage, item_cards(archived_at)').eq('user_id', userId).in('area', ['kana', 'word_kanji', 'kanji']).order('id').range(from, to),
+    supabase.from('learner_items').select('area, vocabulary_id, kanji_id, stage, item_cards(card_type, archived_at)').eq('user_id', userId).in('area', ['kana', 'word_kanji', 'kanji']).order('id').range(from, to),
   )
   const words = new Map<string, ItemProgress>()
   const kanji = new Map<string, ItemProgress>()
-  for (const r of rows as unknown as { area: string; vocabulary_id: string | null; kanji_id: string | null; stage: string; item_cards: { archived_at: string | null }[] }[]) {
+  for (const r of rows as unknown as { area: string; vocabulary_id: string | null; kanji_id: string | null; stage: string; item_cards: { card_type: string; archived_at: string | null }[] }[]) {
     const map = r.area === 'kanji' ? kanji : words
     const id = (r.kanji_id ?? r.vocabulary_id)!
     const p = map.get(id) ?? { stage: 'none', cards: { active: 0, archived: 0 } }
     if (r.area !== 'word_kanji') p.stage = r.stage
-    for (const c of r.item_cards) {
+    for (const c of r.item_cards.filter((x) => isReviewCard(x.card_type))) {
       if (c.archived_at) p.cards.archived++
       else p.cards.active++
     }

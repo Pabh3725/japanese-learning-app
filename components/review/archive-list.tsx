@@ -69,7 +69,7 @@ function ArchivedRow({ card }: { card: ArchivedCard }) {
 
 /** Kho lưu trữ (R13): tìm theo từ, cách đọc, nghĩa, Hán Việt; lọc theo loại Card. */
 /** Dòng phụ là cách đọc Kana (từ vựng) hay Hán Việt (chữ, bộ thủ). */
-const readingSubtitle = (card: ArchivedCard) => card.kind === 'vocab' || card.type === 'kana_type' || card.type === 'kana_choose' || card.type === 'word_kanji'
+const readingSubtitle = (card: ArchivedCard) => card.kind === 'vocab' || card.type === 'kana_type' || card.type === 'word_kanji'
 
 export function ArchiveList({ cards }: { cards: ArchivedCard[] }) {
   const [query, setQuery] = useState('')

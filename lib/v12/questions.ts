@@ -188,26 +188,14 @@ export function buildReviewCard(card: ReviewCardType, item: KanaWordItem | Radic
     case 'kana_type': {
       // ① nghĩa → gõ Kana; đúng hay sai đều phát âm thanh (trình học đọc `speak` sau khi chấm)
       const w = item as KanaWordItem
-      return { prompt: w.meaning, promptKind: 'meaning', speak: w.kana, parts: parts({ type_kana: () => buildStageQuestion('meaning_type_kana', w, pools, rng), choose_meaning: never, choose_hanviet: never, type_hanviet: never }) }
-    }
-    case 'kana_choose': {
-      const w = item as KanaWordItem
-      return { prompt: w.kana, promptKind: 'kana', speak: w.kana, parts: parts({ choose_meaning: () => buildStageQuestion('kana_meaning', w, pools, rng), type_kana: never, choose_hanviet: never, type_hanviet: never }) }
-    }
-    case 'radical': {
-      const r = item as RadicalItem
-      return {
-        prompt: r.char,
-        promptKind: 'kanji',
-        parts: parts({ choose_hanviet: () => buildStageQuestion('radical_hanviet', r, pools, rng), choose_meaning: () => buildStageQuestion('radical_meaning', r, pools, rng), type_kana: never, type_hanviet: never }),
-      }
+      return { prompt: w.meaning, promptKind: 'meaning', speak: w.kana, parts: parts({ type_kana: () => buildStageQuestion('meaning_type_kana', w, pools, rng), choose_meaning: never, type_hanviet: never }) }
     }
     case 'kanji': {
       const k = item as KanjiItem
       return {
         prompt: k.char,
         promptKind: 'kanji',
-        parts: parts({ type_hanviet: () => buildStageQuestion('kanji_type_hanviet', k, pools, rng), choose_meaning: () => buildStageQuestion('kanji_meaning', k, pools, rng), type_kana: never, choose_hanviet: never }),
+        parts: parts({ type_hanviet: () => buildStageQuestion('kanji_type_hanviet', k, pools, rng), choose_meaning: () => buildStageQuestion('kanji_meaning', k, pools, rng), type_kana: never }),
       }
     }
     case 'word_kanji': {
@@ -220,7 +208,6 @@ export function buildReviewCard(card: ReviewCardType, item: KanaWordItem | Radic
           type_kana: never,
           type_hanviet: () => buildStageQuestion('word_type_hanviet', w, pools, rng),
           choose_meaning: () => buildStageQuestion('word_meaning', w, pools, rng),
-          choose_hanviet: never,
         }),
       }
     }

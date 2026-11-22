@@ -8,7 +8,6 @@ import { balance, balanceTarget, estimatedSeconds, secondsFromStats, type Remain
 import { reviewCardsFor, typesFor, type CardType } from '../card-types'
 import { applyCap, buildDeck, insertRetry, type DeckCard, type DeckInput } from '../deck'
 import { forecast, overflowDays, simulateItem } from '../forecast'
-import { migrateKanji, migrateWord } from '../migrate'
 import { canOpenKanji, kanjiOrder, queueTriggered, radicalOrder, wordKanjiStatus, type KanjiRow, type Progress } from '../order'
 import { buildReviewCard, buildStageQuestion, gradeCard, gradeQuestion, type Pools } from '../questions'
 import { pausedZones } from '../plan'
@@ -79,13 +78,15 @@ describe('§3 Điểm theo loại thẻ', () => {
     expect(canShow(item, 'kana_meaning', D1)).toBe(true)
   })
 
-  it('xong Stage cuối thì tạo Card: Kana 2 Card, bộ thủ (không có Stage 3) 1 Card, chữ 1 Card', () => {
-    expect(reviewCardsFor('kana')).toEqual(['kana_type', 'kana_choose'])
-    expect(reviewCardsFor('radical')).toEqual(['radical'])
-    const radical: ItemState = { area: 'radical', stage: 2, stageFrom: D0, types: { radical_hanviet: { points: 1, seenDate: null, seenToday: 0, wrongToday: 0 } } }
-    const r = applyAnswer(radical, 'radical_hanviet', true, D0)
+  it('xong Stage cuối: Kana 1 Card, bộ thủ (không có Stage 3) học xong không có Card, chữ 1 Card', () => {
+    // 2026-11-22: Từ vựng Kana 1 Card (nghĩa → gõ Kana); bộ thủ không còn Card ôn
+    expect(reviewCardsFor('kana')).toEqual(['kana_type'])
+    expect(reviewCardsFor('radical')).toEqual([])
+    const radical: ItemState = { area: 'radical', stage: 2, stageFrom: D0, types: { hanviet_radical: { points: 1, seenDate: null, seenToday: 0, wrongToday: 0 } } }
+    const r = applyAnswer(radical, 'hanviet_radical', true, D0)
     expect(r.item.stage).toBe('review')
-    expect(r.cardsCreated).toEqual(['radical'])
+    expect(r.cardsCreated).toEqual([])
+    expect(reviewCardsFor('kanji')).toEqual(['kanji'])
   })
 
   it('loại thẻ phân biệt chữ giống nhau chỉ có khi chữ có cặp đã duyệt', () => {
@@ -102,7 +103,7 @@ describe('§2 Bộ thẻ trong ngày', () => {
     const input: DeckInput = {
       newItems: [{ area: 'kanji', itemId: 'k1', stage1Types: FOUR }],
       stageItems: Array.from({ length: 12 }, (_, i) => ({ area: 'kana' as const, itemId: `w${i}`, stage: 2 as const, types: [{ type: 'kana_meaning' as const, shows: 2 }] })),
-      reviews: Array.from({ length: 20 }, (_, i) => ({ area: 'kana' as const, itemId: `r${i}`, card: 'kana_choose' as const, cardId: `c${i}`, due: new Date(2026, 10, 1) })),
+      reviews: Array.from({ length: 20 }, (_, i) => ({ area: 'kana' as const, itemId: `r${i}`, card: 'kana_type' as const, cardId: `c${i}`, due: new Date(2026, 10, 1) })),
     }
     for (let s = 1; s <= 20; s++) {
       const deck = buildDeck(input, seeded(s))
@@ -142,8 +143,8 @@ describe('§2 Bộ thẻ trong ngày', () => {
       newItems: [{ area: 'kana', itemId: 'n1', stage1Types: ['kana_meaning', 'meaning_kana'] }],
       stageItems: [{ area: 'kana', itemId: 's1', stage: 2, types: [{ type: 'kana_meaning', shows: 2 }] }],
       reviews: [
-        { area: 'kana', itemId: 'a', card: 'kana_choose', cardId: 'late', due: new Date(2026, 10, 19) },
-        { area: 'kana', itemId: 'b', card: 'kana_choose', cardId: 'early', due: new Date(2026, 10, 10) },
+        { area: 'kana', itemId: 'a', card: 'kana_type', cardId: 'late', due: new Date(2026, 10, 19) },
+        { area: 'kana', itemId: 'b', card: 'kana_type', cardId: 'early', due: new Date(2026, 10, 10) },
       ],
     }
     const { input: kept, deferred } = applyCap(input, 3)
@@ -153,7 +154,7 @@ describe('§2 Bộ thẻ trong ngày', () => {
   })
 
   it('hỏi lại sau 5 thẻ; câu sao tối đa 2 mỗi set', () => {
-    const base: DeckInput = { newItems: [], stageItems: [], reviews: Array.from({ length: 30 }, (_, i) => ({ area: 'kana' as const, itemId: `r${i}`, card: 'kana_choose' as const, cardId: `c${i}`, due: new Date() })) }
+    const base: DeckInput = { newItems: [], stageItems: [], reviews: Array.from({ length: 30 }, (_, i) => ({ area: 'kana' as const, itemId: `r${i}`, card: 'kana_type' as const, cardId: `c${i}`, due: new Date() })) }
     const deck = buildDeck(base, seeded(3))
     const again = insertRetry(deck, 4, deck[4])
     expect(again[10].key).toBe(`${deck[4].key}:r4`)
@@ -200,8 +201,8 @@ describe('§5–6 Thứ tự mở', () => {
 
 describe('§8 Cân bằng theo thời gian', () => {
   it('thời gian ước tính khớp bảng §8.1', () => {
-    expect(estimatedSeconds('kana')).toBe(219)
-    expect(estimatedSeconds('radical')).toBe(111)
+    expect(estimatedSeconds('kana')).toBe(159)
+    expect(estimatedSeconds('radical')).toBe(51)
     expect(estimatedSeconds('kanji')).toBe(135)
     expect(estimatedSeconds('word_kanji')).toBe(147)
   })
@@ -348,29 +349,6 @@ describe('§2 Dự báo vượt trần', () => {
     expect(days[0].counts.kana).toBe(5 + 6)
     expect(overflowDays(days).map((d) => d.date)).toEqual([D1])
     expect(days[1].over.kana).toBe(200 + 3 * 4 + 6 - 100)
-  })
-})
-
-describe('§7 Chuyển dữ liệu', () => {
-  it('từ có Card Kana → Review Kana, giữ Card ① và thêm Card ②; Stage 5 cũ → Stage 2 Từ vựng Kanji', () => {
-    const m = migrateWord({ stages: [{ stage: 3, completed: true }, { stage: 5, completed: false }], kanjiIntroSeen: true, cards: ['vocab.kana'] })
-    expect(m.kana.progress).toBe('review')
-    expect(m.wordKanji?.progress).toBe(2)
-    expect(m.cards).toEqual([
-      { card: 'kana_type', from: { kind: 'keep', oldType: 'vocab.kana' } },
-      { card: 'kana_choose', from: { kind: 'new' } },
-    ])
-  })
-
-  it('Stage 2 / 3 cũ → Stage 2 / 3 Kana; chưa đụng nhánh Kanji thì không có Từ vựng Kanji', () => {
-    expect(migrateWord({ stages: [{ stage: 2, completed: false }], kanjiIntroSeen: false, cards: [] })).toEqual({ kana: { progress: 2, introSeen: true }, wordKanji: null, cards: [] })
-    expect(migrateWord({ stages: [{ stage: 2, completed: true }, { stage: 3, completed: false }], kanjiIntroSeen: false, cards: [] }).kana.progress).toBe(3)
-  })
-
-  it('chữ: đang Học → Stage 2; 2 Card → 1, lấy Card đến hạn sớm hơn', () => {
-    expect(migrateKanji({ phase: 'learning', cards: [] }).progress.progress).toBe(2)
-    const m = migrateKanji({ phase: 'review', cards: [{ type: 'kanji.meaning', due: new Date(2026, 11, 5) }, { type: 'kanji.hanviet', due: new Date(2026, 11, 1) }] })
-    expect(m.card).toEqual({ card: 'kanji', from: { kind: 'keep', oldType: 'kanji.hanviet' } })
   })
 })
 
