@@ -21,9 +21,11 @@ export interface V12Settings {
   newPerDay: Record<Zone, number>
   /** Khu người học tự dừng mục mới. */
   pausedZones: Record<Zone, boolean>
+  /** Bộ thủ mới mỗi ngày ở bộ thẻ bộ thủ (phần More). */
+  newRadicalsPerDay: number
 }
 
-const COLUMNS = 'set_size, v12_kana_cap, v12_kanji_cap, v12_word_kanji_cap, balance_on, balance_target, balance_date, balance_minutes, balance_items, balance_carry, v12_new_kana, v12_new_kanji, v12_new_word_kanji, v12_pause_kana, v12_pause_kanji, v12_pause_word_kanji'
+const COLUMNS = 'set_size, v12_kana_cap, v12_kanji_cap, v12_word_kanji_cap, balance_on, balance_target, balance_date, balance_minutes, balance_items, balance_carry, v12_new_kana, v12_new_kanji, v12_new_word_kanji, v12_pause_kana, v12_pause_kanji, v12_pause_word_kanji, v12_new_radical'
 
 export async function readV12Settings(supabase: Awaited<ReturnType<typeof createClient>>, userId: string): Promise<V12Settings> {
   const { data, error } = await supabase.from('learner_settings').select(COLUMNS).eq('user_id', userId).maybeSingle()
@@ -40,6 +42,7 @@ export async function readV12Settings(supabase: Awaited<ReturnType<typeof create
     balanceCarry: (d.balance_carry as Record<string, number>) ?? {},
     newPerDay: { kana: (d.v12_new_kana as number) ?? 5, kanji: (d.v12_new_kanji as number) ?? 5, word_kanji: (d.v12_new_word_kanji as number) ?? 5 },
     pausedZones: { kana: d.v12_pause_kana === true, kanji: d.v12_pause_kanji === true, word_kanji: d.v12_pause_word_kanji === true },
+    newRadicalsPerDay: (d.v12_new_radical as number) ?? 5,
   }
 }
 
@@ -59,6 +62,7 @@ const LIMITS: Record<string, [number, number]> = {
   v12_new_kana: [0, 50],
   v12_new_kanji: [0, 50],
   v12_new_word_kanji: [0, 50],
+  v12_new_radical: [0, 30],
 }
 
 export async function saveV12Setting(key: unknown, value: unknown): Promise<{ status: 'saved' | 'invalid' }> {

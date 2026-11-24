@@ -23,9 +23,15 @@ import { markWordsKnown } from '@/lib/dal/known-words'
 import { setWordStarred } from '@/lib/dal/star-relearn'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
-export type Scope = Zone | 'all'
-export const isScope = (v: unknown): v is Scope => v === 'all' || ZONES.includes(v as Zone)
-const zonesOf = (scope: Scope): readonly Zone[] => (scope === 'all' ? ZONES : [scope])
+/**
+ * Phạm vi một bộ thẻ: một khu, "Học tất cả", hoặc bộ thủ — học riêng ở phần More của Vocab (chủ dự án chốt 2026-11-24),
+ * không thuộc khu Kanji, không tính vào cân bằng, trần hay "Học tất cả".
+ */
+export type Scope = Zone | 'all' | 'radical'
+export const isScope = (v: unknown): v is Scope => v === 'all' || v === 'radical' || ZONES.includes(v as Zone)
+const zonesOf = (scope: Scope): readonly Zone[] => (scope === 'all' ? ZONES : scope === 'radical' ? [] : [scope])
+/** Mục thuộc phạm vi: bộ thủ chỉ ở bộ thẻ bộ thủ; ba khu không gồm bộ thủ. */
+const inScope = (scope: Scope, area: Area) => (scope === 'radical' ? area === 'radical' : area !== 'radical' && zonesOf(scope).includes(zoneOf(area)))
 
 interface Loaded {
   content: V12Content
@@ -72,7 +78,7 @@ function progressOf(l: Pick<Loaded, 'items' | 'knownWords' | 'knownKanji'>): Map
 
 /** Số câu tồn của từng khu hôm nay: câu Stage đến lượt + Card đến hạn (không tính mục mới). */
 function zoneLoad(l: Loaded, now: Date): Record<Zone, number> {
-  const split = splitByZone(deckInput(l, ZONES, now))
+  const split = splitByZone(deckInput(l, 'all', now))
   return { kana: countQuestions({ ...split.kana, newItems: [] }), kanji: countQuestions({ ...split.kanji, newItems: [] }), word_kanji: countQuestions({ ...split.word_kanji, newItems: [] }) }
 }
 
@@ -85,7 +91,8 @@ function plan(l: Loaded, now: Date, seconds?: Record<Area, number>): PlanResult 
   const result = planNewItems({
     today,
     words: l.content.words,
-    radicals: l.content.radicals.map((r) => r.number),
+    // Bộ thủ học riêng ở More (2026-11-24): không vào cân bằng, chữ không phải chờ bộ thủ
+    radicals: [],
     kanji: l.content.kanji.map((k) => ({ ...k, character: k.char })),
     wordKanji: l.content.wordKanji.map((w) => ({ id: w.id, level: w.level, sortOrder: l.content.words.find((x) => x.id === w.id)?.sortOrder ?? 0, kanaOnly: false, kanji: w.kanji })),
     progress: progressOf(l),
@@ -101,22 +108,46 @@ function plan(l: Loaded, now: Date, seconds?: Record<Area, number>): PlanResult 
   return { ...result, paused, userPaused: l.settings.pausedZones }
 }
 
+/** Bộ thủ mới mở hôm nay ở bộ thẻ bộ thủ: theo thứ tự học, trừ bộ đã mở / đã biết và số đã mở hôm nay. */
+function radicalsToOpen(l: Loaded, today: string): number[] {
+  const opened = new Set(l.items.filter((i) => i.area === 'radical').map((i) => i.ref))
+  const openedToday = l.items.filter((i) => i.area === 'radical' && i.createdOn === today).length
+  const left = Math.max(0, l.settings.newRadicalsPerDay - openedToday)
+  return l.content.radicals.filter((r) => !opened.has(String(r.number))).slice(0, left).map((r) => r.number)
+}
+
+export interface RadicalSummary {
+  total: number
+  /** Đã học xong (xong Intro 2) hoặc đã đánh dấu "đã biết". */
+  learned: number
+  learning: number
+  known: number
+}
+
+function radicalSummary(l: Loaded): RadicalSummary {
+  const items = l.items.filter((i) => i.area === 'radical')
+  return {
+    total: l.content.radicals.length,
+    learned: items.filter((i) => i.known || i.stage === 'review').length,
+    learning: items.filter((i) => !i.known && i.stage !== 'review').length,
+    known: items.filter((i) => i.known).length,
+  }
+}
+
 /** Mở các mục mới hôm nay của các khu trong phạm vi; lưu phần lẻ cân bằng của ngày. */
 async function openNewItems(supabase: Supabase, userId: string, l: Loaded, scope: Scope, now: Date): Promise<boolean> {
   const today = studyDate(now)
-  const p = plan(l, now, l.settings.balanceOn ? await readSeconds(supabase) : undefined)
   const zones = zonesOf(scope)
+  const p = zones.length > 0 ? plan(l, now, l.settings.balanceOn ? await readSeconds(supabase) : undefined) : null
   const jobs: Promise<unknown>[] = []
   const similar = new Set(l.content.kanji.filter((k) => k.similar.length > 0).map((k) => k.id))
-  if (zones.includes('kana')) for (const id of p.open.kana) jobs.push(openItem(supabase, 'kana', { vocabularyId: id }, now))
-  if (zones.includes('kanji')) {
-    for (const n of p.open.radical) jobs.push(openItem(supabase, 'radical', { radicalNumber: n }, now))
-    for (const id of p.open.kanji) jobs.push(openItem(supabase, 'kanji', { kanjiId: id }, now, similar.has(id)))
-  }
-  if (zones.includes('word_kanji')) for (const id of p.open.word_kanji) jobs.push(openItem(supabase, 'word_kanji', { vocabularyId: id }, now))
+  if (p && zones.includes('kana')) for (const id of p.open.kana) jobs.push(openItem(supabase, 'kana', { vocabularyId: id }, now))
+  if (p && zones.includes('kanji')) for (const id of p.open.kanji) jobs.push(openItem(supabase, 'kanji', { kanjiId: id }, now, similar.has(id)))
+  if (scope === 'radical') for (const n of radicalsToOpen(l, today)) jobs.push(openItem(supabase, 'radical', { radicalNumber: n }, now))
+  if (p && zones.includes('word_kanji')) for (const id of p.open.word_kanji) jobs.push(openItem(supabase, 'word_kanji', { vocabularyId: id }, now))
   await Promise.all(jobs)
   const stored = l.settings.balanceCarry as { date?: string }
-  if (p.balance && stored.date !== today) {
+  if (p?.balance && stored.date !== today) {
     const prevOut = (l.settings.balanceCarry as { out?: Record<string, number> }).out ?? {}
     await supabase.from('learner_settings').upsert({ user_id: userId, balance_carry: { date: today, in: prevOut, out: p.balance.carry } }, { onConflict: 'user_id' })
   }
@@ -124,11 +155,10 @@ async function openNewItems(supabase: Supabase, userId: string, l: Loaded, scope
 }
 
 /** Đầu vào bộ thẻ hôm nay của các khu (§2): mục mới (thẻ giới thiệu + Stage 1), câu Stage đến lượt, Card đến hạn. */
-function deckInput(l: Loaded, zones: readonly Zone[], now: Date): DeckInput {
+function deckInput(l: Loaded, scope: Scope, now: Date): DeckInput {
   const today = studyDate(now)
   const dueBefore = nextStudyDayStart(now).getTime()
-  const inZones = (area: Area) => zones.includes(zoneOf(area))
-  const live = l.items.filter((i) => !i.known && inZones(i.area))
+  const live = l.items.filter((i) => !i.known && inScope(scope, i.area))
   const newItems = live
     .filter((i) => i.stage === 1 && !i.introSeen && isActive(i.state, today))
     .map((i) => ({ area: i.area, itemId: i.id, stage1Types: typesFor(i.area, 1, { hasSimilar: i.state.hasSimilar }).filter((t) => remainingTypes(i.state).includes(t)) }))
@@ -172,8 +202,10 @@ async function ensureDeck(supabase: Supabase, userId: string, scope: Scope, now:
   if (existing) return { deck: existing, loaded }
   if (await openNewItems(supabase, userId, loaded, scope, now)) loaded = await load(supabase, userId)
   const zones = zonesOf(scope)
-  const split = splitByZone(deckInput(loaded, zones, now))
-  const merged: DeckInput = { newItems: [], stageItems: [], reviews: [], stars: [] }
+  const input = deckInput(loaded, scope, now)
+  const split = splitByZone(input)
+  // Bộ thủ: không có trần (số bộ mới mỗi ngày do người học chọn)
+  const merged: DeckInput = scope === 'radical' ? input : { newItems: [], stageItems: [], reviews: [], stars: [] }
   const deferred: Record<string, number> = {}
   for (const z of zones) {
     const capped = applyCap(split[z], loaded.settings.caps[z])
@@ -484,8 +516,8 @@ export interface ZoneSummary {
 export interface HubView {
   /** Số thẻ mỗi set (Settings). */
   setSize: number
-  /** Bộ thủ trong phạm vi: tổng và số đã đánh dấu "đã biết" (nút cả nhóm). */
-  radicals: { total: number; known: number }
+  /** Bộ thủ (phần More): tổng, đã học xong, đang học, đã đánh dấu "đã biết". */
+  radicals: RadicalSummary
   level: number | null
   zones: ZoneSummary[]
   all: { position: number; total: number } | null
@@ -502,10 +534,10 @@ export async function getHub(): Promise<HubView> {
   const today = studyDate(now)
   const l = await load(supabase, user.id)
   const p = plan(l, now, l.settings.balanceOn ? await readSeconds(supabase) : undefined)
-  const input = deckInput(l, ZONES, now)
+  const input = deckInput(l, 'all', now)
   const split = splitByZone(input)
   const decks = await Promise.all([...ZONES, 'all' as const].map((s) => readDeck(supabase, user.id, today, s)))
-  const willOpen: Record<Zone, number> = { kana: p.open.kana.length, kanji: p.open.radical.length + p.open.kanji.length, word_kanji: p.open.word_kanji.length }
+  const willOpen: Record<Zone, number> = { kana: p.open.kana.length, kanji: p.open.kanji.length, word_kanji: p.open.word_kanji.length }
   const zones = ZONES.map((zone, i) => {
     // Số thật hôm nay sau trần của khu (như khi dựng bộ thẻ); phần vượt trần là "waiting"
     const capped = applyCap(split[zone], l.settings.caps[zone]).input
@@ -518,7 +550,7 @@ export async function getHub(): Promise<HubView> {
       reviews: capped.reviews.length,
       waiting: stageAll - stageQuestions + split[zone].reviews.length - capped.reviews.length,
       deck: decks[i] ? { position: decks[i]!.position, total: decks[i]!.cards.length } : null,
-      remaining: zone === 'kanji' ? p.remaining.radical + p.remaining.kanji : p.remaining[zone],
+      remaining: zone === 'kanji' ? p.remaining.kanji : p.remaining[zone],
       paused: p.paused[zone] && !p.userPaused[zone],
       userPaused: p.userPaused[zone],
     }
@@ -529,20 +561,20 @@ export async function getHub(): Promise<HubView> {
   const dayStart = nextStudyDayStart(now).getTime()
   for (const c of l.cards) {
     const it = itemById.get(c.itemId)
-    if (!it || it.known || c.archived) continue
+    if (!it || it.known || c.archived || it.area === 'radical') continue
     const d = Math.max(0, Math.floor((c.schedule.due.getTime() - dayStart) / 86_400_000) + 1)
     if (d < 7) reviewsByDay[zoneOf(it.area)][d]++
   }
   const days = forecast({
     today,
-    items: l.items.filter((i) => !i.known && i.stage !== 'review').map((i) => i.state),
+    items: l.items.filter((i) => !i.known && i.stage !== 'review' && i.area !== 'radical').map((i) => i.state),
     reviewsByDay,
     newPerDay: p.balance ? p.balance.today : { kana: l.settings.newPerDay.kana, kanji: l.settings.newPerDay.kanji, word_kanji: l.settings.newPerDay.word_kanji },
     caps: l.settings.caps,
   })
   return {
     setSize: l.settings.setSize,
-    radicals: { total: l.content.radicals.length, known: l.items.filter((i) => i.area === 'radical' && i.known).length },
+    radicals: radicalSummary(l),
     level: p.level,
     zones,
     all: decks[3] ? { position: decks[3]!.position, total: decks[3]!.cards.length } : null,
@@ -551,7 +583,7 @@ export async function getHub(): Promise<HubView> {
           finishDate: p.balance.finishDate,
           minutes: Math.round(p.balance.minutes.kana + p.balance.minutes.kanji + p.balance.minutes.word_kanji),
           days: p.balance.days,
-          today: { kana: p.balance.today.kana, kanji: p.balance.today.radical + p.balance.today.kanji, word_kanji: p.balance.today.word_kanji },
+          today: { kana: p.balance.today.kana, kanji: p.balance.today.kanji, word_kanji: p.balance.today.word_kanji },
         }
       : null,
     warnings: overflowDays(days),
@@ -613,4 +645,40 @@ export async function learnItem(itemId: unknown, review: unknown): Promise<{ sta
     return { status: 'saved' }
   }
   return item.kanji_id ? setKanjiKnown(item.kanji_id, true) : markWordsKnown([item.vocabulary_id])
+}
+
+// ---------------------------------------------------------------------------
+// Trang bộ thủ (phần More của Vocab)
+// ---------------------------------------------------------------------------
+
+export interface RadicalsView {
+  summary: RadicalSummary
+  newPerDay: number
+  /** Hôm nay: thẻ của bộ thẻ bộ thủ (nếu đã dựng), câu Intro đến lượt, bộ mới sẽ mở. */
+  today: { deck: { position: number; total: number } | null; stageQuestions: number; newItems: number }
+  list: { number: number; char: string; name: string; meaning: string; examples: string; status: 'new' | 'learning' | 'learned' | 'known'; stage: number | null }[]
+}
+
+export async function getRadicals(): Promise<RadicalsView> {
+  const user = await requireUser()
+  const supabase = await createClient()
+  const now = new Date()
+  const today = studyDate(now)
+  const [l, deck] = await Promise.all([load(supabase, user.id), readDeck(supabase, user.id, today, 'radical')])
+  const input = deckInput(l, 'radical', now)
+  const byRef = new Map(l.items.filter((i) => i.area === 'radical').map((i) => [i.ref, i]))
+  return {
+    summary: radicalSummary(l),
+    newPerDay: l.settings.newRadicalsPerDay,
+    today: {
+      deck: deck ? { position: deck.position, total: deck.cards.length } : null,
+      stageQuestions: countQuestions({ ...input, newItems: [], reviews: [] }),
+      newItems: input.newItems.length + (deck ? 0 : radicalsToOpen(l, today).length),
+    },
+    list: l.content.radicals.map((r) => {
+      const it = byRef.get(String(r.number))
+      const status = !it ? 'new' : it.known ? 'known' : it.stage === 'review' ? 'learned' : 'learning'
+      return { number: r.number, char: r.char, name: r.name, meaning: r.meaning, examples: r.examples, status, stage: it && status === 'learning' ? (it.stage as number) : null }
+    }),
+  }
 }

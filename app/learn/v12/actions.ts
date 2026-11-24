@@ -20,6 +20,7 @@ export async function saveV12SettingAction(key: unknown, value: unknown) {
 export async function markRadicalsKnownAction(known: unknown) {
   const res = await markRadicalsKnown(known)
   revalidatePath('/learn')
+  revalidatePath('/learn/radicals')
   return res
 }
 
