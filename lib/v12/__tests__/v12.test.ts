@@ -8,7 +8,7 @@ import { balance, balanceTarget, estimatedSeconds, secondsFromStats, type Remain
 import { reviewCardsFor, typesFor, type CardType } from '../card-types'
 import { applyCap, buildDeck, insertRetry, type DeckCard, type DeckInput } from '../deck'
 import { forecast, overflowDays, simulateItem } from '../forecast'
-import { canOpenKanji, kanjiOrder, radicalOrder, wordKanjiStatus, type KanjiRow, type Progress } from '../order'
+import { canOpenKanji, kanjiOrder, radicalOrder, wordKanjiStatus, wordKanjiWaiting, type KanjiRow, type Progress } from '../order'
 import { buildReviewCard, buildStageQuestion, gradeCard, gradeQuestion, type Pools } from '../questions'
 import { pausedZones } from '../plan'
 import { RULES_V12 } from '../rules'
@@ -544,5 +544,14 @@ describe('Nhịp học tự nhập (2026-11-24)', () => {
     expect(r.minutes).toBe(Math.round((10 * 135 + 2 * 135 + 147) / 60))
     // Khu đặt 0 mà còn mục: chưa có ngày xong
     expect(paceEstimate({ remaining: { kana: 10, kanji: 5, word_kanji: 0 }, perDay: { kana: 5, kanji: 0, word_kanji: 0 }, seconds: { kana: 1, kanji: 1, word_kanji: 1 } }).total).toBeNull()
+  })
+})
+
+describe('Card Từ vựng Kanji chờ chữ (2026-11-24)', () => {
+  it('chờ khi còn chữ N5–N4 chưa học xong; chữ ngoài phạm vi không chặn', () => {
+    const p = new Map<string, Progress>([['会', 'review'], ['社', 2], ['国', 'review']])
+    expect(wordKanjiWaiting(['会', '社'], p)).toBe(true)
+    expect(wordKanjiWaiting(['会'], p)).toBe(false)
+    expect(wordKanjiWaiting(['韓', '国'], p)).toBe(false)
   })
 })
