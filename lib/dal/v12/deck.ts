@@ -10,7 +10,7 @@ import { applyCap, buildDeck, countQuestions, insertRetry, reviewRetryGap, split
 import { balanceTarget, secondsFromStats } from '@/lib/v12/balance'
 import { forecast, overflowDays, type ForecastDay } from '@/lib/v12/forecast'
 import { paceEstimate, type PaceEstimate } from '@/lib/v12/pace'
-import type { Progress } from '@/lib/v12/order'
+import { wordKanjiWaiting, type Progress } from '@/lib/v12/order'
 import { key, pausedZones, planNewItems, type PlanResult } from '@/lib/v12/plan'
 import { buildReviewCard, buildStageQuestion, gradeCard, gradeQuestion, type CardPart, type Pools, type Question } from '@/lib/v12/questions'
 import { canShow, isActive, plannedShows, remainingTypes } from '@/lib/v12/stage'
@@ -46,7 +46,16 @@ interface Loaded {
 
 async function load(supabase: Supabase, userId: string): Promise<Loaded> {
   const [content, state, settings] = await Promise.all([readV12Content(supabase), readV12State(supabase, userId), readV12Settings(supabase, userId)])
-  return { content, ...state, settings }
+  return { content, ...state, cards: activeCards(content, state), settings }
+}
+
+/** Bỏ Card Từ vựng Kanji đang chờ chữ (wordKanjiWaiting): không vào bộ thẻ, số đếm hay dự báo cho tới khi chữ học xong. */
+function activeCards(content: V12Content, state: Pick<Loaded, 'items' | 'cards' | 'knownWords' | 'knownKanji'>): CardRow[] {
+  const p = progressOf(state)
+  const kanjiProgress = new Map(content.kanji.filter((k) => k.level === 5 || k.level === 4).map((k) => [k.char, p.get(key('kanji', k.id)) ?? ('none' as Progress)]))
+  const charsOf = new Map(content.wordKanji.map((w) => [w.id, w.kanji]))
+  const waiting = new Set(state.items.filter((i) => i.area === 'word_kanji' && wordKanjiWaiting(charsOf.get(i.ref) ?? [], kanjiProgress)).map((i) => i.id))
+  return state.cards.filter((c) => !waiting.has(c.itemId))
 }
 
 /** §8.1: thời gian một mục theo thời gian trả lời thật (đủ 14 ngày học), chỉ đọc khi cần cân bằng. */

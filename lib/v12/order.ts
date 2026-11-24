@@ -107,3 +107,12 @@ export function wordKanjiStatus(word: WordRow, kanaProgress: Progress | undefine
   if (word.kanaOnly || word.kanji.length === 0) return 'none'
   return pastStage1(kanaProgress) && word.kanji.every((c) => kanjiProgress.get(c) === 'review') ? 'open' : 'locked'
 }
+
+/**
+ * Card Từ vựng Kanji đang chờ chữ (chủ dự án chốt 2026-11-24, phương án b): Card chuyển từ bản cũ hoặc mở trước luật trên
+ * có chữ chưa học xong thì tạm không vào lượt ôn (giữ nguyên lịch FSRS) cho tới khi mọi chữ của từ học xong.
+ * `kanjiProgress` chỉ gồm chữ học được ở khu Kanji (N5–N4); chữ ngoài phạm vi không chặn.
+ */
+export function wordKanjiWaiting(kanji: readonly string[], kanjiProgress: ReadonlyMap<string, Progress>): boolean {
+  return kanji.some((c) => kanjiProgress.has(c) && kanjiProgress.get(c) !== 'review')
+}
