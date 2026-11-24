@@ -78,14 +78,13 @@ export function V12Hub({ hub }: { hub: HubView }) {
             <p className="text-sm text-subtle">
               {total} cards today across all three areas, shuffled together{hub.level ? ` · N${hub.level}` : ''}.
             </p>
-            {hub.balance && (
-              <p className="mt-1 text-xs text-muted-foreground">
-                Balanced: {hub.balance.today.kana + hub.balance.today.kanji + hub.balance.today.word_kanji} new items today ({hub.balance.today.kana} Kana · {hub.balance.today.kanji} Kanji · {hub.balance.today.word_kanji} Kanji words) · about {hub.balance.minutes} min a day ·{' '}
-                {hub.zones.some((z) => z.userPaused)
-                  ? `active areas finish this level around ${fmtDate(hub.balance.finishDate)} (${hub.balance.days} days); paused areas catch up when you resume them`
-                  : `all three areas finish this level around ${fmtDate(hub.balance.finishDate)} (${hub.balance.days} days)`}
-              </p>
-            )}
+            <p className="mt-1 text-xs text-muted-foreground">
+              {hub.newPerDay.kana} Kana words · {hub.newPerDay.kanji} Kanji · {hub.newPerDay.word_kanji} Kanji words a day · about {hub.pace.minutes} min a day ·{' '}
+              {hub.pace.total === null
+                ? 'an area is set to 0, so this level will not finish yet'
+                : `${hub.level ? `N${hub.level}` : 'this level'} vocabulary finishes in about ${hub.pace.total} days`}{' '}
+              · <Link href="/settings#pace" className="underline underline-offset-2 hover:text-foreground">Change</Link>
+            </p>
           </div>
           <Link href="/learn/v12/all" className={actionButton({ size: 'lg' })}>
             <Play className="fill-current" aria-hidden="true" />

@@ -533,3 +533,16 @@ describe('Chọn mục mới hôm nay (plan)', () => {
     expect(r.open.kana).toHaveLength(2) // 4 từ N5 / 2 ngày
   })
 })
+
+describe('Nhịp học tự nhập (2026-11-24)', () => {
+  it('đề xuất số chữ / từ Kanji để xong cùng Kana; ước tính ngày xong và phút mỗi ngày', async () => {
+    const { paceEstimate } = await import('../pace')
+    const r = paceEstimate({ remaining: { kana: 580, kanji: 80, word_kanji: 120 }, perDay: { kana: 10, kanji: 2, word_kanji: 1 }, seconds: { kana: 135, kanji: 135, word_kanji: 147 } })
+    expect(r.days).toEqual({ kana: 58, kanji: 40, word_kanji: 120 })
+    expect(r.suggest).toEqual({ kanji: 2, word_kanji: 3 })
+    expect(r.total).toBe(123)
+    expect(r.minutes).toBe(Math.round((10 * 135 + 2 * 135 + 147) / 60))
+    // Khu đặt 0 mà còn mục: chưa có ngày xong
+    expect(paceEstimate({ remaining: { kana: 10, kanji: 5, word_kanji: 0 }, perDay: { kana: 5, kanji: 0, word_kanji: 0 }, seconds: { kana: 1, kanji: 1, word_kanji: 1 } }).total).toBeNull()
+  })
+})
