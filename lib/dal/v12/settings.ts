@@ -34,13 +34,13 @@ export async function readV12Settings(supabase: Awaited<ReturnType<typeof create
   return {
     setSize: (d.set_size as number) ?? RULES_V12.set.default,
     caps: { kana: (d.v12_kana_cap as number) ?? RULES_V12.caps.kana, kanji: (d.v12_kanji_cap as number) ?? RULES_V12.caps.kanji, word_kanji: (d.v12_word_kanji_cap as number) ?? RULES_V12.caps.word_kanji },
-    balanceOn: (d.balance_on as boolean) ?? true,
+    balanceOn: (d.balance_on as boolean) ?? false,
     balanceTarget: d.balance_target === 'date' ? 'date' : 'items',
     balanceItems: (d.balance_items as number) ?? RULES_V12.balance.defaultItems,
     balanceDate: (d.balance_date as string | null) ?? null,
     balanceMinutes: (d.balance_minutes as number) ?? RULES_V12.balance.defaultMinutes,
     balanceCarry: (d.balance_carry as Record<string, number>) ?? {},
-    newPerDay: { kana: (d.v12_new_kana as number) ?? 5, kanji: (d.v12_new_kanji as number) ?? 5, word_kanji: (d.v12_new_word_kanji as number) ?? 5 },
+    newPerDay: { kana: (d.v12_new_kana as number) ?? 10, kanji: (d.v12_new_kanji as number) ?? 2, word_kanji: (d.v12_new_word_kanji as number) ?? 2 },
     pausedZones: { kana: d.v12_pause_kana === true, kanji: d.v12_pause_kanji === true, word_kanji: d.v12_pause_word_kanji === true },
     newRadicalsPerDay: (d.v12_new_radical as number) ?? 5,
   }

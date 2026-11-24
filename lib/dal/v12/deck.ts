@@ -9,6 +9,7 @@ import { STAGE_TYPES, typesFor, ZONES, zoneOf, type Area, type CardType, type Re
 import { applyCap, buildDeck, countQuestions, insertRetry, reviewRetryGap, splitByZone, type DeckCard, type DeckInput } from '@/lib/v12/deck'
 import { balanceTarget, secondsFromStats } from '@/lib/v12/balance'
 import { forecast, overflowDays, type ForecastDay } from '@/lib/v12/forecast'
+import { paceEstimate, type PaceEstimate } from '@/lib/v12/pace'
 import type { Progress } from '@/lib/v12/order'
 import { key, pausedZones, planNewItems, type PlanResult } from '@/lib/v12/plan'
 import { buildReviewCard, buildStageQuestion, gradeCard, gradeQuestion, type CardPart, type Pools, type Question } from '@/lib/v12/questions'
@@ -533,6 +534,12 @@ export interface ZoneSummary {
 }
 
 export interface HubView {
+  /** Nhịp học tự nhập: đề xuất, số ngày tới khi xong từ vựng của cấp, phút mỗi ngày. */
+  pace: PaceEstimate
+  /** Thời gian học ước tính của một mục theo khu (giây), cho phần xem trước ở Settings. */
+  seconds: Record<Zone, number>
+  /** Số mục mới mỗi ngày đang đặt, theo khu. */
+  newPerDay: Record<Zone, number>
   /** Số thẻ mỗi set (Settings). */
   setSize: number
   /** Bộ thủ (phần More): tổng, đã học xong, đang học, đã đánh dấu "đã biết". */
@@ -552,7 +559,9 @@ export async function getHub(): Promise<HubView> {
   const now = new Date()
   const today = studyDate(now)
   const l = await load(supabase, user.id)
-  const p = plan(l, now, l.settings.balanceOn ? await readSeconds(supabase) : undefined)
+  const secondsByArea = await readSeconds(supabase)
+  const p = plan(l, now, l.settings.balanceOn ? secondsByArea : undefined)
+  const seconds: Record<Zone, number> = { kana: secondsByArea.kana, kanji: secondsByArea.kanji, word_kanji: secondsByArea.word_kanji }
   const input = deckInput(l, 'all', now)
   const split = splitByZone(input)
   const decks = await Promise.all([...ZONES, 'all' as const].map((s) => readDeck(supabase, user.id, today, s)))
@@ -591,7 +600,11 @@ export async function getHub(): Promise<HubView> {
     newPerDay: p.balance ? p.balance.today : { kana: l.settings.newPerDay.kana, kanji: l.settings.newPerDay.kanji, word_kanji: l.settings.newPerDay.word_kanji },
     caps: l.settings.caps,
   })
+  const remaining: Record<Zone, number> = { kana: p.remaining.kana, kanji: p.remaining.kanji, word_kanji: p.remaining.word_kanji }
   return {
+    pace: paceEstimate({ remaining, perDay: l.settings.newPerDay, seconds }),
+    seconds,
+    newPerDay: l.settings.newPerDay,
     setSize: l.settings.setSize,
     radicals: radicalSummary(l),
     level: p.level,

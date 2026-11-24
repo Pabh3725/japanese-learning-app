@@ -37,6 +37,8 @@ Trang Grammar hiện mỗi bài với trạng thái: chưa mở (kèm điều ki
 
 ### 3a. Cân bằng mẫu mới — CONFIRMED (chủ dự án chốt 2026-11-19)
 
+> **Thay thế 2026-11-24 (chủ dự án chốt):** bỏ cân bằng Grammar. Người học tự nhập số mẫu mới mỗi ngày trong Settings; Settings hiện ước tính bao lâu nữa mở hết mẫu của cấp (số mẫu chưa mở ÷ số mỗi ngày + 7 ngày). Migration `20261210000001` tắt `grammar_balance_on`.
+
 - Grammar có **mục tiêu riêng**, độc lập với Vocab: **số phút mỗi ngày** cho mẫu mới, hoặc **ngày hoàn thành** cấp đang học (N5 = bài 1–25, rồi N4 = bài 26–50). Settings → Grammar → "Balance new patterns". Mặc định tắt; tắt thì dùng "Mẫu ngữ pháp mới mỗi ngày" (1–10).
 - **Giữ điều kiện mở bài §3:** chỉ mở mẫu của bài đã mở; thiếu thì các ngày sau tự bù vì tính lại mỗi ngày trên số mẫu còn lại thật.
 - Số phút: tốc độ r = phút × 60 / thời gian một mẫu; hôm nay mở ⌊r·(k+1)⌋ − ⌊r·k⌋ mẫu (k = số thứ tự ngày) để trung bình đúng r. Ngày hoàn thành: chia đều số còn lại cho số ngày còn lại. Luôn 1–10 mẫu mỗi ngày khi còn mẫu. Ngày chỉ chọn từ ngày mai; ngày đã qua hoặc chưa chọn thì dùng số phút.

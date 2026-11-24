@@ -25,7 +25,7 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 - **Tự dừng một khu** (chủ dự án chốt 2026-11-19): Settings → "Vocab · Pause an area". Khu dừng không mở mục mới, câu Intro và Card đang có vẫn học. Khi bật cân bằng, thời gian của khu dừng chia cho các khu còn chạy (mục tiêu ngày: khu còn chạy giữ chỉ tiêu theo ngày đó); bật lại thì cân bằng tính lại để các khu xong cùng ngày. — CONFIRMED
 - **Cảnh báo sắp vượt trần:** app tính trước số thẻ đến hạn của 7 ngày tới. Nếu có ngày vượt trần, trang Learn và Settings hiện cảnh báo: ngày nào, vượt bao nhiêu, kèm hai nút "Giảm số mục mới mỗi ngày" và "Tăng trần".
 - Settings còn lại các mục:
-  - số mục mới mỗi ngày của từng khu (hoặc chế độ tự cân bằng, §8);
+  - số mục mới mỗi ngày của từng khu (tự nhập, có đề xuất và ước tính, §8);
   - số thẻ mỗi set;
   - trần của từng khu;
   - các cài đặt của Grammar và Luyện nghe, giữ như cũ.
@@ -136,6 +136,8 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 **Giữ:** từ có sao (học thêm), nút "đã biết", Practice (Speed Matching), trang tra cứu Library.
 
 ## 8. Tự cân bằng số mục mới mỗi ngày
+
+> **Thay thế 2026-11-24 (chủ dự án chốt):** bỏ chế độ cân bằng. Người học **tự nhập số mục mới mỗi ngày của từng khu** (Kana, Kanji, Từ Kanji; 0 = dừng khu, bỏ công tắc "Pause an area"). Cạnh ô Kanji và Từ Kanji, Settings ghi **đề xuất** số mỗi ngày để xong cùng lúc với Kana (= số còn lại ÷ số ngày Kana cần). Settings và trang Learn hiện **ước tính bao lâu nữa xong từ vựng của cấp** (ngày của khu lâu nhất + 3 ngày giới thiệu) và số phút học mỗi ngày (thời gian một mục ở §8.1). Grammar cũng tự nhập số mẫu mỗi ngày kèm ước tính ngày xong (bỏ §3a cân bằng Grammar). Migration `20261210000001` đổi người đang cân bằng sang số riêng từng khu (~75% / 10% / 15% của `balance_items`) và tắt cân bằng; mặc định mới 10 / 2 / 2. Phần dưới đây giữ làm lịch sử; §8.1 vẫn dùng cho ước tính.
 
 **Đã chốt (chủ dự án, 2026-11-18):**
 - Cân bằng theo **thời gian học**: ba khu Từ vựng Kana, Kanji (gồm bộ thủ) và Từ vựng Kanji **học xong cùng một ngày**.
