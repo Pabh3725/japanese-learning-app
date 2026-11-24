@@ -449,6 +449,17 @@ function Intro({ intro }: { intro: IntroView }) {
           <p lang="ja" className="font-jp text-6xl font-medium">{intro.expression}</p>
           <span className="rounded-full bg-yellow/12 px-3 py-1 text-sm font-semibold tracking-wide text-yellow">{intro.hanViet}</span>
           <p className="text-xl font-medium">{intro.meaning}</p>
+          {intro.chars.length > 0 && (
+            <ul aria-label="Characters in this word" className="mt-1 flex w-full flex-col gap-2 border-t border-border pt-4 text-left">
+              {intro.chars.map((c) => (
+                <li key={c.char} className="flex items-baseline gap-3">
+                  <span lang="ja" className="font-jp text-2xl">{c.char}</span>
+                  <span className="text-sm font-semibold tracking-wide text-yellow">{c.hanViet}</span>
+                  <span className="text-sm text-subtle">{c.meaning}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </>
       )}
       {audio && (

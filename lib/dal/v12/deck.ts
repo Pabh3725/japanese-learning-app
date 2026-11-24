@@ -270,7 +270,8 @@ export type IntroView =
   | { area: 'kana'; kana: string; meaning: string; hanViet: string | null }
   | { area: 'radical'; char: string; name: string; meaning: string; examples: string }
   | { area: 'kanji'; reveal: KanjiReveal }
-  | { area: 'word_kanji'; expression: string; kana: string; hanViet: string; meaning: string }
+  /** `chars`: tách từng chữ của từ theo thứ tự, mỗi chữ kèm Hán Việt và nghĩa (chủ dự án yêu cầu 2026-11-24). */
+  | { area: 'word_kanji'; expression: string; kana: string; hanViet: string; meaning: string; chars: { char: string; hanViet: string; meaning: string }[] }
 
 /** Phần chung của mọi thẻ: mục đang học (cho nút sao / Learned) và Hán Việt hiện dưới đề. */
 interface CardBase {
@@ -356,7 +357,13 @@ async function viewOf(supabase: Supabase, l: Loaded, card: DeckCard, position: n
       intro = { area: 'kanji', reveal: { ...revealOf(row, true), ...(visual ? { visual } : {}) } }
     } else {
       const w = data as V12Content['wordKanji'][number]
-      intro = { area: 'word_kanji', expression: w.expression, kana: w.kana, hanViet: w.hanViet, meaning: w.meaning }
+      const byChar = new Map(l.content.kanji.map((k) => [k.char, k]))
+      // Chữ Kanji trong từ theo thứ tự xuất hiện, không lặp (vd. 日曜日 → 日, 曜)
+      const chars = [...new Set(Array.from(w.expression))].flatMap((c) => {
+        const k = byChar.get(c)
+        return k ? [{ char: k.char, hanViet: k.hanViet, meaning: k.meaning }] : []
+      })
+      intro = { area: 'word_kanji', expression: w.expression, kana: w.kana, hanViet: w.hanViet, meaning: w.meaning, chars }
     }
     return { ...base, kind: 'intro', intro }
   }
