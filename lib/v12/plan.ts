@@ -2,7 +2,7 @@
 import type { StudyDate } from '../learning/types'
 import { balance, type BalanceResult, type BalanceTarget, type Remaining } from './balance'
 import type { Area, Zone } from './card-types'
-import { canOpenKanji, kanjiOrder, pastStage1, queueTriggered, wordKanjiStatus, type KanjiRow, type Progress } from './order'
+import { canOpenKanji, kanjiOrder, pastStage1, wordKanjiStatus, type KanjiRow, type Progress } from './order'
 
 export interface PlanWord {
   id: string
@@ -59,7 +59,20 @@ export function planNewItems(input: PlanInput): PlanResult {
   const opened = (area: Area, ref: string | number) => (p.get(key(area, ref)) ?? 'none') !== 'none'
   const unopenedWords = (level: number) => input.words.filter((w) => w.level === level && !opened('kana', w.id)).sort((a, b) => a.sortOrder - b.sortOrder)
   const unopenedKanji = (level: number) => input.kanji.filter((k) => k.level === level && !opened('kanji', k.id))
-  const unopenedWordKanji = (level: number) => input.wordKanji.filter((w) => w.level === level && !opened('word_kanji', w.id))
+  // Cấp của thẻ Từ vựng Kanji = cấp khó nhất giữa từ và các chữ của từ (N5 = 5, N4 = 4); từ có chữ ngoài N5–N4 thì chưa có
+  // (chủ dự án chốt 2026-11-24: từ học bằng Kana ở N5 không bắt buộc học dạng Kanji ở N5)
+  const kanjiLevel = new Map(input.kanji.map((k) => [k.character, k.level]))
+  const wordKanjiLevel = (w: PlanWord): number | null => {
+    let lv = w.level
+    if (lv !== 5 && lv !== 4) return null
+    for (const c of w.kanji) {
+      const l = kanjiLevel.get(c)
+      if (l !== 5 && l !== 4) return null
+      lv = Math.min(lv, l)
+    }
+    return lv
+  }
+  const unopenedWordKanji = (level: number) => input.wordKanji.filter((w) => wordKanjiLevel(w) === level && !opened('word_kanji', w.id))
   // Bộ thủ thuộc cấp N5 (phạm vi N5–N4 học trước chữ)
   const unopenedRadicals = (level: number) => (level === 5 ? input.radicals.filter((n) => !opened('radical', n)) : [])
   const remainingOf = (level: number): Remaining => ({
@@ -112,20 +125,17 @@ export function planNewItems(input: PlanInput): PlanResult {
     .slice(0, quota.kanji)
     .map((k) => k.id)
 
-  // Từ vựng Kanji: mở theo cách thường trước, hàng chờ khi có điều kiện kích hoạt
+  // Từ vựng Kanji: mở khi Kana của từ đã vào Stage 2 và mọi chữ của từ đã học xong; theo thứ tự từ vựng.
+  // Gồm cả từ của cấp dễ hơn còn sót (vd. từ N5 có chữ N4 mở trong lúc học N4).
   const kanjiProgress = new Map(input.kanji.map((k) => [k.character, p.get(key('kanji', k.id)) ?? ('none' as Progress)]))
-  const candidates = unopenedWordKanji(level).sort((a, b) => a.sortOrder - b.sortOrder)
-  const status = new Map(candidates.map((w) => [w.id, wordKanjiStatus(w, p.get(key('kana', w.id)), kanjiProgress)]))
-  const openNow = candidates.filter((w) => status.get(w.id) === 'open')
-  const word_kanji = openNow.slice(0, quota.word_kanji).map((w) => w.id)
-  if (word_kanji.length < quota.word_kanji) {
-    const triggered = queueTriggered({
-      kanaAllOpened: unopenedWords(level).length - kana.length === 0,
-      kanjiAllOpened: unopenedKanji(level).length - kanji.length === 0,
-      otherOpenable: openNow.length - word_kanji.length,
+  const word_kanji = input.wordKanji
+    .filter((w) => {
+      const lv = wordKanjiLevel(w)
+      return lv !== null && lv >= level && !opened('word_kanji', w.id) && wordKanjiStatus(w, p.get(key('kana', w.id)), kanjiProgress) === 'open'
     })
-    if (triggered) word_kanji.push(...candidates.filter((w) => status.get(w.id) === 'queued').slice(0, quota.word_kanji - word_kanji.length).map((w) => w.id))
-  }
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .slice(0, quota.word_kanji)
+    .map((w) => w.id)
   return { level, open: { kana, radical, kanji, word_kanji }, remaining, balance: result }
 }
 

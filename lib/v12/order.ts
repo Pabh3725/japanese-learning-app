@@ -44,16 +44,16 @@ export interface KanjiRow {
 }
 
 /**
- * Thứ tự học chữ: cấp N5 → N4 → …, trong cấp chữ phổ biến hơn trước, rồi ít nét hơn.
- * Chữ là thành phần của chữ khác thì được đưa lên học ngay trước chữ đó.
+ * Thứ tự học chữ: dễ → khó (chủ dự án chốt 2026-11-24) — cấp N5 → N4 → …, trong cấp chữ ít nét hơn trước,
+ * cùng số nét thì chữ phổ biến hơn trước. Chữ là thành phần của chữ khác thì được đưa lên học ngay trước chữ đó.
  */
 export function kanjiOrder(rows: readonly KanjiRow[]): string[] {
   const by = new Map(rows.map((r) => [r.character, r]))
   const sorted = [...rows].sort(
     (a, b) =>
       (b.level ?? 0) - (a.level ?? 0) ||
-      (a.freq ?? Number.MAX_SAFE_INTEGER) - (b.freq ?? Number.MAX_SAFE_INTEGER) ||
       (a.strokes ?? 99) - (b.strokes ?? 99) ||
+      (a.freq ?? Number.MAX_SAFE_INTEGER) - (b.freq ?? Number.MAX_SAFE_INTEGER) ||
       a.character.localeCompare(b.character),
   )
   const out: string[] = []
@@ -82,7 +82,7 @@ export function canOpenKanji(kanji: Pick<KanjiRow, 'radicals'>, inScope: Readonl
 
 export interface WordRow {
   id: string
-  /** JLPT 5 / 4 / …; hàng chờ chỉ dành cho N5–N4. */
+  /** JLPT 5 / 4 / … của từ. */
   level: number | null
   /** Từ "chỉ Kana" theo chính sách Kanji của từ: không có thẻ Từ vựng Kanji. */
   kanaOnly: boolean
@@ -93,28 +93,17 @@ export interface WordRow {
 export type WordKanjiStatus =
   /** Không có thẻ Từ vựng Kanji. */
   | 'none'
-  /** Chưa đủ điều kiện, không thuộc hàng chờ. */
+  /** Chưa đủ điều kiện. */
   | 'locked'
-  /** Đủ điều kiện mở theo cách thường. */
+  /** Đủ điều kiện mở. */
   | 'open'
-  /** Hàng chờ: từ N5–N4 có chữ chưa học; mở khi có điều kiện kích hoạt (`queueTriggered`). */
-  | 'queued'
-
-/** Trạng thái mở thẻ Từ vựng Kanji của một từ (§6). */
-export function wordKanjiStatus(word: WordRow, kanaProgress: Progress | undefined, kanjiProgress: ReadonlyMap<string, Progress>): WordKanjiStatus {
-  if (word.kanaOnly || word.kanji.length === 0) return 'none'
-  const kanaReady = pastStage1(kanaProgress)
-  const kanjiReady = word.kanji.every((c) => pastStage1(kanjiProgress.get(c)))
-  if (kanaReady && kanjiReady) return 'open'
-  // Từ N5–N4 có chữ chưa học vào hàng chờ: học thẳng dạng Kanji khi tới lượt, không cần học chữ trước
-  if (!kanjiReady && (word.level === 5 || word.level === 4)) return 'queued'
-  return 'locked'
-}
 
 /**
- * Hàng chờ được mở khi có một trong ba điều (§6): đã học hết từ vựng Kana của cấp, đã học hết Kanji của cấp,
- * hoặc hôm đó không còn từ vựng Kanji nào khác mở được. "Học hết" = mọi mục của cấp đã mở (đã qua Stage 1 trở đi).
+ * Trạng thái mở thẻ Từ vựng Kanji của một từ (§6, chủ dự án chốt 2026-11-24): từ vựng Kana của từ đã vào Stage 2 trở đi,
+ * **và mọi chữ Kanji của từ đã học xong ở khu Kanji** (xong Intro, có Card, hoặc đã đánh dấu "đã biết").
+ * Không còn hàng chờ: từ có chữ chưa học thì chờ tới khi chữ được học theo thứ tự của khu Kanji.
  */
-export function queueTriggered(state: { kanaAllOpened: boolean; kanjiAllOpened: boolean; otherOpenable: number }): boolean {
-  return state.kanaAllOpened || state.kanjiAllOpened || state.otherOpenable === 0
+export function wordKanjiStatus(word: WordRow, kanaProgress: Progress | undefined, kanjiProgress: ReadonlyMap<string, Progress>): WordKanjiStatus {
+  if (word.kanaOnly || word.kanji.length === 0) return 'none'
+  return pastStage1(kanaProgress) && word.kanji.every((c) => kanjiProgress.get(c) === 'review') ? 'open' : 'locked'
 }
