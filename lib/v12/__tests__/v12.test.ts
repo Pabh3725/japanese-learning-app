@@ -414,6 +414,35 @@ describe('Dữ liệu thật N5–N4: mọi mục dựng được đủ loại t
       .map((r) => ({ id: r.code, expression: r.expression, kana: r.reading_kana, hanViet: r.han_viet, meaning: r.meaning_vi })),
   }
 
+  it('đáp án nhiễu 3 tầng (2026-11-24): có mục gần giống, có mục vừa học, không trùng đáp án đúng', () => {
+    const kanjiOf = (c: string) => pools.kanji.find((k) => k.char === c)!
+    // 休: chữ trông giống / chung thành phần (体, 人, 木) phải có trong lựa chọn
+    for (let s = 1; s <= 20; s++) {
+      const q = buildStageQuestion('meaning_kanji', kanjiOf('休'), pools, seeded(s))
+      if (q.kind !== 'choice') throw new Error('phải là câu chọn')
+      expect(q.options.filter((o) => ['体', '人', '木'].includes(o)).length, q.options.join('')).toBeGreaterThanOrEqual(1)
+    }
+    // 学校: từ có chung chữ (学生, 高校…) phải có trong lựa chọn
+    const gakkou = pools.word_kanji.find((w) => w.expression === '学校')!
+    const q2 = buildStageQuestion('meaning_word', gakkou, pools, seeded(3))
+    if (q2.kind !== 'choice') throw new Error('phải là câu chọn')
+    expect(q2.options.filter((o) => o !== '学校' && (o.includes('学') || o.includes('校'))).length).toBeGreaterThanOrEqual(1)
+    // Có mục vừa học: đáp án nhiễu còn lại lấy từ danh sách vừa học
+    const recentIds = pools.kana.slice(100, 115).map((w) => w.id)
+    const withRecent: Pools = { ...pools, recent: { kana: recentIds } }
+    const target = pools.kana[5]
+    let fromRecent = 0
+    for (let s = 1; s <= 30; s++) {
+      const q = buildStageQuestion('meaning_kana', target, withRecent, seeded(s))
+      if (q.kind !== 'choice') throw new Error('phải là câu chọn')
+      expect(new Set(q.options).size).toBe(4)
+      fromRecent += q.options.filter((o) => recentIds.some((id) => pools.kana.find((w) => w.id === id)!.kana === o)).length
+      // Không đáp án nhiễu nào cùng nghĩa với đáp án đúng
+      for (const o of q.options.filter((x) => x !== target.kana)) expect(pools.kana.find((w) => w.kana === o)!.meaning).not.toBe(target.meaning)
+    }
+    expect(fromRecent).toBeGreaterThanOrEqual(30)
+  })
+
   it('mọi loại thẻ Stage và Card Review của mọi mục: dựng được, đáp án đúng chấm đúng', () => {
     let n = 0
     for (const area of ['kana', 'radical', 'kanji', 'word_kanji'] as const) {
