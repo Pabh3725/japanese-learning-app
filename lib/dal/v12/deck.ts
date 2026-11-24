@@ -225,13 +225,25 @@ async function ensureDeck(supabase: Supabase, userId: string, scope: Scope, now:
 // Dữ liệu từng thẻ
 // ---------------------------------------------------------------------------
 
-function pools(c: V12Content): Pools {
+/** Số mục vừa học gần đây dùng làm đáp án nhiễu tầng 2 (mỗi loại mục). */
+const RECENT_LIMIT = 30
+
+/** Kho đáp án nhiễu N5–N4, kèm mục người học vừa mở gần đây (mới nhất trước) cho đáp án nhiễu tầng 2. */
+function pools(l: Pick<Loaded, 'content' | 'items'>): Pools {
+  const c = l.content
   const n5n4 = (level: number | null) => level === 5 || level === 4
+  const recent = (area: Area) =>
+    l.items
+      .filter((i) => i.area === area && !i.known)
+      .sort((a, b) => b.createdOn.localeCompare(a.createdOn))
+      .slice(0, RECENT_LIMIT)
+      .map((i) => i.ref)
   return {
     kana: c.words.filter((w) => n5n4(w.level)),
     radical: c.radicals,
     kanji: c.kanji.filter((k) => n5n4(k.level)),
     word_kanji: c.wordKanji.filter((w) => n5n4(w.level)),
+    recent: { kana: recent('kana'), radical: recent('radical'), kanji: recent('kanji'), word_kanji: recent('word_kanji') },
   }
 }
 
@@ -340,7 +352,7 @@ async function viewOf(supabase: Supabase, l: Loaded, card: DeckCard, position: n
   const item = l.items.find((i) => i.id === card.itemId)!
   const data = itemData(l, item)
   if (!data) return null
-  const p = pools(l.content)
+  const p = pools(l)
   const base = { position, area: item.area, itemId: item.id, starred: item.area === 'radical' ? null : l.starred.has(item.ref) }
   if (card.kind === 'intro') {
     let intro: IntroView
@@ -463,7 +475,7 @@ export async function answerDeck(input: unknown): Promise<AnswerView> {
     await markIntroSeen(supabase, user.id, item.id, now)
     loaded.items[itemIndex] = { ...item, introSeen: true }
   } else if (card.kind === 'stage' || card.kind === 'star') {
-    const q = buildStageQuestion(card.type, data, pools(loaded.content), Math.random)
+    const q = buildStageQuestion(card.type, data, pools(loaded), Math.random)
     const correct = gradeQuestion(q, v.given as string | string[])
     out = { status: 'graded', correct, answers: [answerOf(q)], speak: q.speak ?? kanaOf }
     if (card.kind === 'star') {
@@ -479,7 +491,7 @@ export async function answerDeck(input: unknown): Promise<AnswerView> {
       out = { ...out, stageDone: r?.stageDone, learned: r?.item.stage === 'review', cardsCreated: r?.cardsCreated.length, retry: r?.retry }
     }
   } else if (card.kind === 'review') {
-    const built = buildReviewCard(card.card, data, pools(loaded.content), Math.random)
+    const built = buildReviewCard(card.card, data, pools(loaded), Math.random)
     const correct = gradeCard(built.parts, Array.isArray(v.given) ? (v.given as string[]) : [])
     const cardIndex = loaded.cards.findIndex((c) => c.id === card.cardId)
     const saved = await saveCardReview(supabase, user.id, { card: loaded.cards[cardIndex], correct, elapsedMs, clientEventId: v.clientEventId }, now)

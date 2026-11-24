@@ -1,5 +1,6 @@
 // V12 §4–6: dựng câu cho từng loại thẻ và Card Review gom chung; chấm. Pure.
 import { isHanVietAnswerCorrect, isKanaAnswerCorrect } from '../exercise/answer-normalize'
+import { kanaSimilarity, lookalikeKanji } from '../exercise/similarity'
 import { REVIEW_CARDS, type CardType, type ReviewCardType, type ReviewPart } from './card-types'
 
 type Rng = () => number
@@ -24,6 +25,8 @@ export interface KanjiItem {
   meaning: string
   /** Chữ gần giống đã duyệt (loại thẻ phân biệt chữ). */
   similar: readonly string[]
+  /** Chữ Kanji thành phần (để tìm chữ chung thành phần làm đáp án nhiễu). */
+  components?: readonly string[]
 }
 export interface WordKanjiItem {
   id: string
@@ -33,12 +36,16 @@ export interface WordKanjiItem {
   meaning: string
 }
 
-/** Kho đáp án nhiễu: các mục cùng loại (cùng cấp, không chỉ mục đã học — kế hoạch §6). */
+/**
+ * Kho đáp án nhiễu: các mục cùng loại (N5–N4). `recent`: id các mục người học vừa mở gần đây, mới nhất trước
+ * (đáp án nhiễu tầng 2, chủ dự án chốt 2026-11-24).
+ */
 export interface Pools {
   kana: readonly KanaWordItem[]
   radical: readonly RadicalItem[]
   kanji: readonly KanjiItem[]
   word_kanji: readonly WordKanjiItem[]
+  recent?: { kana?: readonly string[]; radical?: readonly string[]; kanji?: readonly string[]; word_kanji?: readonly string[] }
 }
 
 export type PromptKind = 'kana' | 'kanji' | 'meaning' | 'hanviet' | 'listen'
@@ -71,6 +78,110 @@ function choices(answer: string, pool: readonly string[], rng: Rng, preferred: r
   return shuffle([answer, ...picked], rng)
 }
 
+/** Số mục gần giống / vừa học xem xét (lấy ngẫu nhiên trong nhóm đầu để câu không lặp y hệt). */
+const SIMILAR_TOP = 6
+const RECENT_TOP = 15
+
+/**
+ * Đáp án nhiễu 3 tầng (chủ dự án chốt 2026-11-24): 1–2 mục **gần giống** (ít nhất 1 nếu có), phần còn lại là mục
+ * **vừa học gần đây**, thiếu thì mục **cùng cấp**. `allowed`: loại các mục cũng đúng (trùng nghĩa / Hán Việt / Kana).
+ * `similar` đã xếp giống nhất trước; `recent` mới nhất trước; `value` lấy giá trị hiện ở lựa chọn.
+ */
+function tiered<T>(answer: string, value: (x: T) => string, allowed: (x: T) => boolean, similar: readonly T[], recent: readonly T[], pool: readonly T[], rng: Rng): string[] {
+  const picked: string[] = []
+  const add = (x: T) => {
+    const v = value(x)
+    if (picked.length < OPTIONS - 1 && v && v !== answer && !picked.includes(v) && allowed(x)) picked.push(v)
+  }
+  const sim = shuffle(similar.filter(allowed).slice(0, SIMILAR_TOP), rng)
+  const nSimilar = sim.length >= 2 ? (rng() < 0.5 ? 1 : 2) : sim.length
+  for (const x of sim) if (picked.length < nSimilar) add(x)
+  for (const x of shuffle(recent.slice(0, RECENT_TOP), rng)) add(x)
+  for (const x of sim) add(x)
+  for (const x of shuffle(pool, rng)) add(x)
+  if (picked.length < OPTIONS - 1) throw new Error(`Không đủ đáp án nhiễu cho "${answer}"`)
+  return shuffle([answer, ...picked], rng)
+}
+
+/** Mục vừa học gần đây trong kho, theo `pools.recent` (mới nhất trước). */
+function recentOf<T extends { id: string }>(pool: readonly T[], ids: readonly string[] | undefined, self: string): T[] {
+  if (!ids?.length) return []
+  const by = new Map(pool.map((x) => [x.id, x]))
+  return ids.filter((id) => id !== self).flatMap((id) => (by.has(id) ? [by.get(id)!] : []))
+}
+
+/** Số mục gần giống giữ lại cho mỗi mục (đủ cho SIMILAR_TOP sau khi lọc mục cũng đúng). */
+const SIMILAR_KEEP = 12
+/**
+ * Bộ nhớ đệm danh sách gần giống theo mục (id → id các mục gần giống): so với cả kho tốn thời gian, nội dung lại ít đổi.
+ * Khóa gồm loại kho và cỡ kho để kho khác (vd. dữ liệu test) không dùng nhầm.
+ */
+const similarCache = new Map<string, string[]>()
+function cachedSimilar<T extends { id: string }>(kind: string, item: T, pool: readonly T[], compute: () => T[]): T[] {
+  const k = `${kind}:${pool.length}:${item.id}`
+  let ids = similarCache.get(k)
+  if (!ids) {
+    ids = compute().slice(0, SIMILAR_KEEP).map((x) => x.id)
+    if (similarCache.size > 20_000) similarCache.clear()
+    similarCache.set(k, ids)
+  }
+  const by = new Map(pool.map((x) => [x.id, x]))
+  return ids.flatMap((id) => (by.has(id) ? [by.get(id)!] : []))
+}
+
+/** Từ Kana gần giống: Kana gần nhau (ít khác chữ, cùng đầu / cuối, chữ dễ nhầm). */
+function similarKanaWords(w: KanaWordItem, pool: readonly KanaWordItem[]): KanaWordItem[] {
+  return cachedSimilar('kana', w, pool, () =>
+    pool
+      .filter((x) => x.id !== w.id)
+      .map((x) => ({ x, s: kanaSimilarity(w.kana, x.kana) }))
+      .filter((r) => r.s >= 4.5)
+      .sort((a, b) => b.s - a.s)
+      .map((r) => r.x),
+  )
+}
+
+/** Chữ gần giống: cặp đã duyệt, chữ trông giống, rồi chữ chung thành phần. */
+function similarKanji(k: KanjiItem, pool: readonly KanjiItem[]): KanjiItem[] {
+  const by = new Map(pool.map((x) => [x.char, x]))
+  const out: KanjiItem[] = []
+  const push = (c: string) => {
+    const x = by.get(c)
+    if (x && x.char !== k.char && !out.includes(x)) out.push(x)
+  }
+  for (const c of k.similar) push(c)
+  for (const c of lookalikeKanji(k.char)) push(c)
+  const own = new Set([k.char, ...(k.components ?? [])])
+  for (const x of pool) if (x.char !== k.char && (x.components ?? []).some((c) => own.has(c))) push(x.char)
+  for (const c of k.components ?? []) push(c)
+  return out
+}
+
+/** Từ có chung chữ Kanji (chung nhiều chữ hơn trước), rồi từ có chữ trông giống. */
+function similarWords(w: WordKanjiItem, pool: readonly WordKanjiItem[]): WordKanjiItem[] {
+  return cachedSimilar('word', w, pool, () => computeSimilarWords(w, pool))
+}
+
+function computeSimilarWords(w: WordKanjiItem, pool: readonly WordKanjiItem[]): WordKanjiItem[] {
+  const chars = new Set(Array.from(w.expression))
+  const looks = new Set([...chars].flatMap((c) => lookalikeKanji(c)))
+  return pool
+    .filter((x) => x.id !== w.id)
+    .map((x) => {
+      const xs = Array.from(x.expression)
+      return { x, s: 3 * xs.filter((c) => chars.has(c) && /[一-鿿]/.test(c)).length + xs.filter((c) => looks.has(c)).length }
+    })
+    .filter((r) => r.s > 0)
+    .sort((a, b) => b.s - a.s)
+    .map((r) => r.x)
+}
+
+/** Bộ thủ trông giống (bảng chữ dễ nhầm). */
+function similarRadicals(r: RadicalItem, pool: readonly RadicalItem[]): RadicalItem[] {
+  const looks = new Set(Array.from(r.char).flatMap((c) => lookalikeKanji(c)))
+  return pool.filter((x) => x.id !== r.id && Array.from(x.char).some((c) => looks.has(c)))
+}
+
 const isKatakana = (s: string) => /^[ァ-ヺー]+$/.test(s)
 const choice = (prompt: string, promptKind: PromptKind, answer: string, options: string[], optionKind: PromptKind, speak?: string): Question => ({ kind: 'choice', prompt, promptKind, options, optionKind, answer, ...(speak ? { speak } : {}) })
 
@@ -80,15 +191,18 @@ export function buildStageQuestion(type: CardType, item: KanaWordItem | RadicalI
     // Từ vựng Kana
     case 'kana_meaning': {
       const w = item as KanaWordItem
-      return choice(w.kana, 'kana', w.meaning, choices(w.meaning, pools.kana.map((x) => x.meaning), rng), 'meaning', w.kana)
+      const opts = tiered(w.meaning, (x: KanaWordItem) => x.meaning, (x) => x.meaning !== w.meaning, similarKanaWords(w, pools.kana), recentOf(pools.kana, pools.recent?.kana, w.id), pools.kana, rng)
+      return choice(w.kana, 'kana', w.meaning, opts, 'meaning', w.kana)
     }
     case 'meaning_kana': {
       const w = item as KanaWordItem
-      return choice(w.meaning, 'meaning', w.kana, choices(w.kana, pools.kana.map((x) => x.kana), rng, pools.kana.filter((x) => Math.abs(x.kana.length - w.kana.length) <= 1).map((x) => x.kana)), 'kana')
+      const opts = tiered(w.kana, (x: KanaWordItem) => x.kana, (x) => x.kana !== w.kana && x.meaning !== w.meaning, similarKanaWords(w, pools.kana), recentOf(pools.kana, pools.recent?.kana, w.id), pools.kana, rng)
+      return choice(w.meaning, 'meaning', w.kana, opts, 'kana')
     }
     case 'listen_kana': {
       const w = item as KanaWordItem
-      return choice('', 'listen', w.kana, choices(w.kana, pools.kana.map((x) => x.kana), rng, pools.kana.filter((x) => x.kana[0] === w.kana[0]).map((x) => x.kana)), 'kana', w.kana)
+      const opts = tiered(w.kana, (x: KanaWordItem) => x.kana, (x) => x.kana !== w.kana, similarKanaWords(w, pools.kana), recentOf(pools.kana, pools.recent?.kana, w.id), pools.kana, rng)
+      return choice('', 'listen', w.kana, opts, 'kana', w.kana)
     }
     case 'meaning_type_kana': {
       const w = item as KanaWordItem
@@ -101,38 +215,45 @@ export function buildStageQuestion(type: CardType, item: KanaWordItem | RadicalI
     // Bộ thủ
     case 'radical_hanviet': {
       const r = item as RadicalItem
-      return choice(r.char, 'kanji', r.name, choices(r.name, pools.radical.map((x) => x.name), rng), 'hanviet')
+      const opts = tiered(r.name, (x: RadicalItem) => x.name, (x) => x.name !== r.name, similarRadicals(r, pools.radical), recentOf(pools.radical, pools.recent?.radical, r.id), pools.radical, rng)
+      return choice(r.char, 'kanji', r.name, opts, 'hanviet')
     }
     case 'radical_meaning': {
       const r = item as RadicalItem
-      return choice(r.char, 'kanji', r.meaning, choices(r.meaning, pools.radical.map((x) => x.meaning), rng), 'meaning')
+      const opts = tiered(r.meaning, (x: RadicalItem) => x.meaning, (x) => x.meaning !== r.meaning, similarRadicals(r, pools.radical), recentOf(pools.radical, pools.recent?.radical, r.id), pools.radical, rng)
+      return choice(r.char, 'kanji', r.meaning, opts, 'meaning')
     }
     case 'hanviet_radical': {
       const r = item as RadicalItem
-      return choice(r.name, 'hanviet', r.char, choices(r.char, pools.radical.map((x) => x.char), rng), 'kanji')
+      const opts = tiered(r.char, (x: RadicalItem) => x.char, (x) => x.name !== r.name, similarRadicals(r, pools.radical), recentOf(pools.radical, pools.recent?.radical, r.id), pools.radical, rng)
+      return choice(r.name, 'hanviet', r.char, opts, 'kanji')
     }
     case 'meaning_radical': {
       const r = item as RadicalItem
-      return choice(r.meaning, 'meaning', r.char, choices(r.char, pools.radical.map((x) => x.char), rng), 'kanji')
+      const opts = tiered(r.char, (x: RadicalItem) => x.char, (x) => x.meaning !== r.meaning, similarRadicals(r, pools.radical), recentOf(pools.radical, pools.recent?.radical, r.id), pools.radical, rng)
+      return choice(r.meaning, 'meaning', r.char, opts, 'kanji')
     }
     // Chữ Kanji
     case 'kanji_hanviet': {
       const k = item as KanjiItem
-      return choice(k.char, 'kanji', k.hanViet, choices(k.hanViet, pools.kanji.map((x) => x.hanViet), rng), 'hanviet')
+      const opts = tiered(k.hanViet, (x: KanjiItem) => x.hanViet, (x) => x.hanViet !== k.hanViet, similarKanji(k, pools.kanji), recentOf(pools.kanji, pools.recent?.kanji, k.id), pools.kanji, rng)
+      return choice(k.char, 'kanji', k.hanViet, opts, 'hanviet')
     }
     case 'kanji_meaning': {
       const k = item as KanjiItem
-      return choice(k.char, 'kanji', k.meaning, choices(k.meaning, pools.kanji.map((x) => x.meaning), rng), 'meaning')
+      const opts = tiered(k.meaning, (x: KanjiItem) => x.meaning, (x) => x.meaning !== k.meaning, similarKanji(k, pools.kanji), recentOf(pools.kanji, pools.recent?.kanji, k.id), pools.kanji, rng)
+      return choice(k.char, 'kanji', k.meaning, opts, 'meaning')
     }
     case 'hanviet_kanji': {
       const k = item as KanjiItem
       // Nhiều chữ cùng âm Hán Việt: hiện thêm nghĩa dưới âm để không chọn nhầm chữ (chủ dự án yêu cầu 2026-11-24)
-      const options = choices(k.char, pools.kanji.filter((x) => x.hanViet !== k.hanViet).map((x) => x.char), rng, k.similar)
+      const options = tiered(k.char, (x: KanjiItem) => x.char, (x) => x.hanViet !== k.hanViet, similarKanji(k, pools.kanji), recentOf(pools.kanji, pools.recent?.kanji, k.id), pools.kanji, rng)
       return { kind: 'choice', prompt: k.hanViet, promptKind: 'hanviet', hint: k.meaning, options, optionKind: 'kanji', answer: k.char }
     }
     case 'meaning_kanji': {
       const k = item as KanjiItem
-      return choice(k.meaning, 'meaning', k.char, choices(k.char, pools.kanji.filter((x) => x.meaning !== k.meaning).map((x) => x.char), rng, k.similar), 'kanji')
+      const opts = tiered(k.char, (x: KanjiItem) => x.char, (x) => x.meaning !== k.meaning, similarKanji(k, pools.kanji), recentOf(pools.kanji, pools.recent?.kanji, k.id), pools.kanji, rng)
+      return choice(k.meaning, 'meaning', k.char, opts, 'kanji')
     }
     case 'kanji_type_hanviet': {
       const k = item as KanjiItem
@@ -146,21 +267,24 @@ export function buildStageQuestion(type: CardType, item: KanaWordItem | RadicalI
     // Từ vựng Kanji
     case 'word_hanviet': {
       const w = item as WordKanjiItem
-      return choice(w.expression, 'kanji', w.hanViet, choices(w.hanViet, pools.word_kanji.map((x) => x.hanViet), rng), 'hanviet', w.kana)
+      const opts = tiered(w.hanViet, (x: WordKanjiItem) => x.hanViet, (x) => x.hanViet !== w.hanViet, similarWords(w, pools.word_kanji), recentOf(pools.word_kanji, pools.recent?.word_kanji, w.id), pools.word_kanji, rng)
+      return choice(w.expression, 'kanji', w.hanViet, opts, 'hanviet', w.kana)
     }
     case 'word_meaning': {
       const w = item as WordKanjiItem
-      return choice(w.expression, 'kanji', w.meaning, choices(w.meaning, pools.word_kanji.map((x) => x.meaning), rng), 'meaning', w.kana)
+      const opts = tiered(w.meaning, (x: WordKanjiItem) => x.meaning, (x) => x.meaning !== w.meaning, similarWords(w, pools.word_kanji), recentOf(pools.word_kanji, pools.recent?.word_kanji, w.id), pools.word_kanji, rng)
+      return choice(w.expression, 'kanji', w.meaning, opts, 'meaning', w.kana)
     }
     case 'hanviet_word': {
       const w = item as WordKanjiItem
       // Hiện thêm nghĩa dưới âm Hán Việt như câu Hán Việt → chọn chữ (chủ dự án yêu cầu 2026-11-24)
-      const options = choices(w.expression, pools.word_kanji.filter((x) => x.hanViet !== w.hanViet).map((x) => x.expression), rng)
+      const options = tiered(w.expression, (x: WordKanjiItem) => x.expression, (x) => x.hanViet !== w.hanViet, similarWords(w, pools.word_kanji), recentOf(pools.word_kanji, pools.recent?.word_kanji, w.id), pools.word_kanji, rng)
       return { kind: 'choice', prompt: w.hanViet, promptKind: 'hanviet', hint: w.meaning, options, optionKind: 'kanji', answer: w.expression }
     }
     case 'meaning_word': {
       const w = item as WordKanjiItem
-      return choice(w.meaning, 'meaning', w.expression, choices(w.expression, pools.word_kanji.filter((x) => x.meaning !== w.meaning).map((x) => x.expression), rng), 'kanji')
+      const opts = tiered(w.expression, (x: WordKanjiItem) => x.expression, (x) => x.meaning !== w.meaning, similarWords(w, pools.word_kanji), recentOf(pools.word_kanji, pools.recent?.word_kanji, w.id), pools.word_kanji, rng)
+      return choice(w.meaning, 'meaning', w.expression, opts, 'kanji')
     }
     case 'word_type_hanviet': {
       const w = item as WordKanjiItem
@@ -171,7 +295,11 @@ export function buildStageQuestion(type: CardType, item: KanaWordItem | RadicalI
       const w = item as WordKanjiItem
       const pieces = Array.from(w.expression)
       const own = new Set(pieces)
-      const distractors = shuffle(pools.kanji.map((k) => k.char).filter((c) => !own.has(c)), rng).slice(0, Math.max(3, 6 - pieces.length))
+      // Chữ nhiễu: chữ trông giống các chữ trong từ trước, rồi chữ vừa học, rồi chữ cùng cấp
+      const n = Math.max(3, 6 - pieces.length)
+      const looks = shuffle([...new Set(pieces.flatMap((c) => lookalikeKanji(c)))].filter((c) => !own.has(c)), rng)
+      const recentChars = shuffle(recentOf(pools.kanji, pools.recent?.kanji, '').slice(0, RECENT_TOP).map((k) => k.char), rng)
+      const distractors = [...new Set([...looks.slice(0, 2), ...recentChars, ...looks, ...shuffle(pools.kanji.map((k) => k.char), rng)])].filter((c) => !own.has(c)).slice(0, n)
       return { kind: 'assembly', prompt: w.meaning, promptKind: 'meaning', speak: w.kana, pieces: shuffle([...pieces, ...distractors], rng), answer: pieces }
     }
   }
