@@ -8,7 +8,7 @@ import { balance, balanceTarget, estimatedSeconds, secondsFromStats, type Remain
 import { reviewCardsFor, typesFor, type CardType } from '../card-types'
 import { applyCap, buildDeck, insertRetry, type DeckCard, type DeckInput } from '../deck'
 import { forecast, overflowDays, simulateItem } from '../forecast'
-import { canOpenKanji, kanjiOrder, queueTriggered, radicalOrder, wordKanjiStatus, type KanjiRow, type Progress } from '../order'
+import { canOpenKanji, kanjiOrder, radicalOrder, wordKanjiStatus, type KanjiRow, type Progress } from '../order'
 import { buildReviewCard, buildStageQuestion, gradeCard, gradeQuestion, type Pools } from '../questions'
 import { pausedZones } from '../plan'
 import { RULES_V12 } from '../rules'
@@ -177,9 +177,11 @@ describe('§5–6 Thứ tự mở', () => {
     expect(order[0]).toBe(30) // 口
   })
 
-  it('chữ: N5 trước N4, phổ biến trước; thành phần học trước chữ chứa nó', () => {
-    const k = (character: string, level: number, freq: number, components: string[] = []): KanjiRow => ({ character, level, freq, strokes: 5, components, radicals: [] })
-    expect(kanjiOrder([k('話', 5, 100, ['言']), k('言', 4, 200), k('日', 5, 1), k('語', 4, 50)])).toEqual(['日', '言', '話', '語'])
+  it('chữ: dễ → khó (2026-11-24) — N5 trước N4, ít nét trước, cùng nét thì phổ biến trước; thành phần học trước chữ chứa nó', () => {
+    const k = (character: string, level: number, strokes: number, freq: number, components: string[] = []): KanjiRow => ({ character, level, freq, strokes, components, radicals: [] })
+    // 国 (8 nét) phổ biến hơn 木 (4 nét) nhưng học sau; 休 cần 人 (thành phần) trước
+    expect(kanjiOrder([k('国', 5, 8, 1), k('木', 5, 4, 50), k('休', 5, 6, 30, ['人']), k('人', 5, 2, 5), k('一', 5, 1, 2), k('二', 5, 2, 9)])).toEqual(['一', '人', '二', '木', '休', '国'])
+    expect(kanjiOrder([k('話', 5, 13, 100, ['言']), k('言', 4, 7, 200), k('日', 5, 4, 1), k('語', 4, 14, 50)])).toEqual(['日', '言', '話', '語'])
   })
 
   it('chữ mở khi các bộ trong phạm vi đã qua Stage 1', () => {
@@ -188,14 +190,13 @@ describe('§5–6 Thứ tự mở', () => {
     expect(canOpenKanji({ radicals: [85, 30] }, new Set([85, 30]), progress)).toBe(false)
   })
 
-  it('Từ vựng Kanji: mở khi Kana và các chữ đã vào Stage 2; từ N5–N4 thiếu chữ vào hàng chờ', () => {
+  it('Từ vựng Kanji (2026-11-24): mở khi Kana đã vào Stage 2 và mọi chữ đã học xong; không còn hàng chờ', () => {
     const word = { id: 'w', level: 5, kanaOnly: false, kanji: ['寝'] }
     expect(wordKanjiStatus(word, 2, new Map([['寝', 'review']]))).toBe('open')
-    expect(wordKanjiStatus(word, 2, new Map())).toBe('queued')
-    expect(wordKanjiStatus({ ...word, level: 3 }, 2, new Map())).toBe('locked')
+    expect(wordKanjiStatus(word, 2, new Map([['寝', 3]]))).toBe('locked')
+    expect(wordKanjiStatus(word, 2, new Map())).toBe('locked')
+    expect(wordKanjiStatus(word, 1, new Map([['寝', 'review']]))).toBe('locked')
     expect(wordKanjiStatus({ ...word, kanaOnly: true }, 'review', new Map())).toBe('none')
-    expect(queueTriggered({ kanaAllOpened: false, kanjiAllOpened: false, otherOpenable: 0 })).toBe(true)
-    expect(queueTriggered({ kanaAllOpened: false, kanjiAllOpened: false, otherOpenable: 3 })).toBe(false)
   })
 })
 
@@ -484,12 +485,16 @@ describe('Chọn mục mới hôm nay (plan)', () => {
     expect(planNewItems({ ...base, openedToday: { kana: 2, radical: 0, kanji: 0, word_kanji: 0 } }).open.kana).toEqual([])
   })
 
-  it('Từ vựng Kanji: mở khi Kana và chữ đã vào Stage 2; thiếu chữ thì vào hàng chờ, mở khi không còn từ khác mở được', async () => {
+  it('Từ vựng Kanji: chỉ mở khi mọi chữ đã học xong; từ N5 có chữ N4 thuộc cấp N4; từ có chữ ngoài N5–N4 thì chưa có', async () => {
     const { planNewItems } = await import('../plan')
-    const ready = new Map<string, Progress>([['kana:w0', 2], ['kanji:k-hi', 2]])
-    expect(planNewItems({ ...base, progress: ready }).open.word_kanji).toEqual(['w0'])
-    // Chữ chưa học: hàng chờ; không có từ nào khác mở được → mở luôn
-    expect(planNewItems({ ...base, progress: new Map<string, Progress>([['kana:w0', 2]]) }).open.word_kanji).toEqual(['w0'])
+    expect(planNewItems({ ...base, progress: new Map<string, Progress>([['kana:w0', 2], ['kanji:k-hi', 'review']]) }).open.word_kanji).toEqual(['w0'])
+    // Chữ mới ở Stage 2: chưa mở (không còn hàng chờ)
+    expect(planNewItems({ ...base, progress: new Map<string, Progress>([['kana:w0', 2], ['kanji:k-hi', 2]]) }).open.word_kanji).toEqual([])
+    // Từ N5 chứa chữ N4 (語): không tính vào cấp N5; từ chứa chữ ngoài danh sách (図): không có thẻ
+    const w4 = { ...words[1], kanji: ['語'] }
+    const wx = { ...words[2], kanji: ['図'] }
+    const withN4 = { ...base, kanji: [...kanji, { id: 'k-go', character: '語', level: 4, freq: 9, strokes: 14, components: [], radicals: [] }], wordKanji: [words[0], w4, wx] }
+    expect(planNewItems(withN4).remaining.word_kanji).toBe(1)
   })
 
   it('cân bằng: chỉ tiêu từ balance, ba khu cùng chia theo số ngày', async () => {

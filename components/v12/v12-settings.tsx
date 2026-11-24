@@ -131,7 +131,7 @@ export function V12SettingsFields({ s, minDate, estimate }: { s: V12Settings; mi
                 <p className="mt-1 text-subtle">
                   About {estimate.minutes} min of study a day once reviews settle in (new items, their intros and first reviews). {estimate.level ? `N${estimate.level}` : 'This level'} finishes around {fmtDate(estimate.finishDate)} ({estimate.days} days).
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">Some days open one more or one less so the average matches. Kanji words wait until their kana and characters reach Intro 2.</p>
+                <p className="mt-1 text-xs text-muted-foreground">Some days open one more or one less so the average matches. Kanji words wait until their kana reaches Intro 2 and all their characters are learned.</p>
               </div>
             )}
           </div>
@@ -139,7 +139,7 @@ export function V12SettingsFields({ s, minDate, estimate }: { s: V12Settings; mi
           <>
             <Field name="v12_new_kana" label="New Kana words a day" hint="Kana vocabulary." initial={s.newPerDay.kana} min={0} max={50} />
             <Field name="v12_new_kanji" label="New Kanji a day" hint="Characters from easy to hard. Radicals are learned separately under Vocab → More." initial={s.newPerDay.kanji} min={0} max={50} />
-            <Field name="v12_new_word_kanji" label="New Kanji words a day" hint="Opens when the word's kana and characters have reached Intro 2." initial={s.newPerDay.word_kanji} min={0} max={50} />
+            <Field name="v12_new_word_kanji" label="New Kanji words a day" hint="Opens when the word's kana has reached Intro 2 and all its characters are learned." initial={s.newPerDay.word_kanji} min={0} max={50} />
           </>
         )}
       </Group>

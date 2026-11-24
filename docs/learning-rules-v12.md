@@ -90,7 +90,7 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 
 ### 5.2 Chữ Kanji
 
-- **Thứ tự:** theo cấp N5 → N4 → N3 →…; trong mỗi cấp, chữ phổ biến hơn học trước, rồi chữ ít nét hơn. Chữ là thành phần của chữ khác thì học trước chữ đó.
+- **Thứ tự: dễ → khó** (chủ dự án chốt 2026-11-24, thay cho "phổ biến trước"): theo cấp N5 → N4 → N3 →…; trong mỗi cấp, chữ **ít nét hơn** học trước, cùng số nét thì chữ phổ biến hơn trước. Chữ là thành phần của chữ khác thì học trước chữ đó. Không xếp theo bài Minna. Ví dụ 40 chữ N5 đầu: 一人十二九入力八七大三上子下小山女川千口土万夕日中月分五内方今手円六午元水少木天.
   - ~~Chữ chỉ mở khi mọi bộ thủ của nó đã qua Stage 1.~~ Bỏ (2026-11-24): bộ thủ học riêng ở More.
   - **Bỏ** luật cũ ưu tiên mở chữ của các từ sắp học (V12 hôm 2026-11-15).
   - **Dữ liệu:** `data/n5/kanji_frequency.csv` có hạng tần suất trên báo chí (1–2500, số nhỏ là phổ biến hơn). 842/844 chữ có hạng, gồm **mọi** chữ N5–N4; 2 chữ không có hạng thì xếp cuối cấp. Nguồn: kanji-data (David Gouveia, MIT), trường `freq` lấy từ KANJIDIC2 (EDRDG, CC BY-SA 4.0); cần ghi nguồn trong app.
@@ -106,13 +106,10 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 
 ## 6. Khu Từ vựng Kanji
 
-- **Mở thẻ (cách thường):** từ vựng Kana của từ đã vào **Stage 2**, **và** mọi chữ Kanji của từ đã vào **Stage 2**. Giữ danh sách chính sách Kanji của từ: từ "chỉ Kana" không có thẻ Từ vựng Kanji.
-- **Hàng chờ:** từ N5 hoặc N4 có chữ chưa học (ví dụ 寝ます) vào hàng chờ. Từ trong hàng chờ được mở khi có **một** trong ba điều sau:
-  - đã học hết từ vựng Kana của cấp đó;
-  - đã học hết Kanji của cấp đó;
-  - hôm đó không còn từ vựng Kanji nào khác mở được.
-
-  Khi mở như vậy, người học học thẳng dạng Kanji của từ, không cần học chữ trước.
+- **Mở thẻ** (chủ dự án chốt 2026-11-24): từ vựng Kana của từ đã vào **Stage 2**, **và mọi chữ Kanji của từ đã học xong ở khu Kanji** (xong Intro, có Card, hoặc đã đánh dấu "đã biết"). Giữ danh sách chính sách Kanji của từ: từ "chỉ Kana" không có thẻ Từ vựng Kanji.
+- **Học từ bằng Kana ở N5 không bắt buộc học dạng Kanji ở N5.** Cấp của thẻ Từ vựng Kanji = cấp khó nhất giữa từ và các chữ của từ: từ N5 có chữ N4 (vd. 日曜日) mở trong lúc học Kanji N4; từ có chữ ngoài danh sách N5–N4 (vd. 辞書, 傘) **chưa có** thẻ Từ vựng Kanji (tới khi khu Kanji có cấp đó).
+- **Bỏ hàng chờ** (trước đây từ thiếu chữ được học thẳng dạng Kanji khi tới lượt).
+- Số từ có dạng Kanji theo luật này (dữ liệu 2026-11-24): từ N5 — 214 mở ở N5, 141 mở ở N4, 271 chưa có; từ N4 — 217 mở ở N4, 499 chưa có.
 - **Thẻ giới thiệu:** Kana, dạng Kanji, Hán Việt, nghĩa.
 
 | | Loại thẻ |
