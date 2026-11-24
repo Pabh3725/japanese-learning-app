@@ -44,7 +44,8 @@ export interface Pools {
 export type PromptKind = 'kana' | 'kanji' | 'meaning' | 'hanviet' | 'listen'
 
 export type Question =
-  | { kind: 'choice'; prompt: string; promptKind: PromptKind; speak?: string; options: string[]; optionKind: PromptKind; answer: string }
+  /** `hint`: dòng gợi ý nhỏ dưới đề (vd. nghĩa dưới âm Hán Việt, vì nhiều chữ cùng âm). */
+  | { kind: 'choice'; prompt: string; promptKind: PromptKind; hint?: string; speak?: string; options: string[]; optionKind: PromptKind; answer: string }
   | { kind: 'typing'; prompt: string; promptKind: PromptKind; speak?: string; input: 'hiragana' | 'katakana' | 'text'; answer: string }
   | { kind: 'assembly'; prompt: string; promptKind: PromptKind; speak?: string; pieces: string[]; answer: string[] }
 
@@ -125,7 +126,9 @@ export function buildStageQuestion(type: CardType, item: KanaWordItem | RadicalI
     }
     case 'hanviet_kanji': {
       const k = item as KanjiItem
-      return choice(k.hanViet, 'hanviet', k.char, choices(k.char, pools.kanji.filter((x) => x.hanViet !== k.hanViet).map((x) => x.char), rng, k.similar), 'kanji')
+      // Nhiều chữ cùng âm Hán Việt: hiện thêm nghĩa dưới âm để không chọn nhầm chữ (chủ dự án yêu cầu 2026-11-24)
+      const options = choices(k.char, pools.kanji.filter((x) => x.hanViet !== k.hanViet).map((x) => x.char), rng, k.similar)
+      return { kind: 'choice', prompt: k.hanViet, promptKind: 'hanviet', hint: k.meaning, options, optionKind: 'kanji', answer: k.char }
     }
     case 'meaning_kanji': {
       const k = item as KanjiItem
