@@ -91,7 +91,7 @@ export function V12SettingsFields({ s, minDate, estimate }: { s: V12Settings; mi
               <Field
                 name="balance_items"
                 label="New items a day (total)"
-                hint="Kana words, radicals and Kanji, and Kanji words together. Split by how many each area has left."
+                hint="Kana words, Kanji and Kanji words together. Split by how many each area has left."
                 initial={s.balanceItems}
                 min={1}
                 max={100}
@@ -126,7 +126,7 @@ export function V12SettingsFields({ s, minDate, estimate }: { s: V12Settings; mi
             {estimate && (
               <div className="rounded-2xl bg-secondary px-4 py-3 text-sm">
                 <p className="font-medium">
-                  Today: {estimate.today.kana + estimate.today.kanji + estimate.today.word_kanji} new items — {estimate.today.kana} Kana words · {estimate.today.kanji} radicals / Kanji · {estimate.today.word_kanji} Kanji words
+                  Today: {estimate.today.kana + estimate.today.kanji + estimate.today.word_kanji} new items — {estimate.today.kana} Kana words · {estimate.today.kanji} Kanji · {estimate.today.word_kanji} Kanji words
                 </p>
                 <p className="mt-1 text-subtle">
                   About {estimate.minutes} min of study a day once reviews settle in (new items, their intros and first reviews). {estimate.level ? `N${estimate.level}` : 'This level'} finishes around {fmtDate(estimate.finishDate)} ({estimate.days} days).
@@ -138,7 +138,7 @@ export function V12SettingsFields({ s, minDate, estimate }: { s: V12Settings; mi
         ) : (
           <>
             <Field name="v12_new_kana" label="New Kana words a day" hint="Kana vocabulary." initial={s.newPerDay.kana} min={0} max={50} />
-            <Field name="v12_new_kanji" label="New radicals and Kanji a day" hint="Radicals come first, then characters." initial={s.newPerDay.kanji} min={0} max={50} />
+            <Field name="v12_new_kanji" label="New Kanji a day" hint="Characters from easy to hard. Radicals are learned separately under Vocab → More." initial={s.newPerDay.kanji} min={0} max={50} />
             <Field name="v12_new_word_kanji" label="New Kanji words a day" hint="Opens when the word's kana and characters have reached Intro 2." initial={s.newPerDay.word_kanji} min={0} max={50} />
           </>
         )}
@@ -147,7 +147,7 @@ export function V12SettingsFields({ s, minDate, estimate }: { s: V12Settings; mi
         {(
           [
             ['v12_pause_kana', 'kana', 'Pause new Kana words'],
-            ['v12_pause_kanji', 'kanji', 'Pause new radicals and Kanji'],
+            ['v12_pause_kanji', 'kanji', 'Pause new Kanji'],
             ['v12_pause_word_kanji', 'word_kanji', 'Pause new Kanji words'],
           ] as const
         ).map(([key, zone, label]) => (
@@ -165,7 +165,7 @@ export function V12SettingsFields({ s, minDate, estimate }: { s: V12Settings; mi
         </summary>
         <div className="mt-2 divide-y divide-border">
           <Field name="v12_kana_cap" label="Kana vocabulary cards a day" hint="Intro questions and review cards." initial={s.caps.kana} min={RULES_V12.caps.min} max={RULES_V12.caps.max} />
-          <Field name="v12_kanji_cap" label="Kanji cards a day" hint="Radicals and characters." initial={s.caps.kanji} min={RULES_V12.caps.min} max={RULES_V12.caps.max} />
+          <Field name="v12_kanji_cap" label="Kanji cards a day" hint="Intro questions and review cards." initial={s.caps.kanji} min={RULES_V12.caps.min} max={RULES_V12.caps.max} />
           <Field name="v12_word_kanji_cap" label="Kanji word cards a day" hint="Intro questions and review cards." initial={s.caps.word_kanji} min={RULES_V12.caps.min} max={RULES_V12.caps.max} />
         </div>
       </details>

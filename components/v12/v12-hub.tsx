@@ -1,22 +1,21 @@
 // V12 §1–2: trang Learn với ba khu, nút "Học tất cả", cân bằng và cảnh báo vượt trần.
 import Link from 'next/link'
-import { AlertTriangle, Play } from 'lucide-react'
+import { AlertTriangle, ArrowRight, Play } from 'lucide-react'
 import { actionButton } from '@/components/action-button'
 import { PageHeader } from '@/components/page-header'
-import { RadicalsKnownButton } from '@/components/v12/radicals-known-button'
 import type { HubView, ZoneSummary } from '@/lib/dal/v12/deck'
 import type { Zone } from '@/lib/v12/card-types'
 import { cn } from '@/lib/utils'
 
 const ZONE_INFO: Record<Zone, { title: string; jp: string; body: string; tone: string }> = {
   kana: { title: 'Kana vocabulary', jp: '語彙', body: 'Every word, learned in kana.', tone: 'text-cyan' },
-  kanji: { title: 'Kanji', jp: '漢字', body: 'Radicals first, then characters from easy to hard.', tone: 'text-yellow' },
+  kanji: { title: 'Kanji', jp: '漢字', body: 'Characters from easy to hard, N5 then N4.', tone: 'text-yellow' },
   word_kanji: { title: 'Kanji words', jp: '熟語', body: 'Words written in Kanji, once you know their kana and characters.', tone: 'text-pink' },
 }
 
 const fmtDate = (d: string) => new Date(`${d}T00:00:00+07:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 
-function ZoneCard({ z, radicals, setSize }: { z: ZoneSummary; radicals: HubView['radicals']; setSize: number }) {
+function ZoneCard({ z, setSize }: { z: ZoneSummary; setSize: number }) {
   const info = ZONE_INFO[z.zone]
   const todo = z.newItems + z.stageQuestions + z.reviews
   const done = z.deck && z.deck.position >= z.deck.total && z.deck.total > 0
@@ -53,7 +52,6 @@ function ZoneCard({ z, radicals, setSize }: { z: ZoneSummary; radicals: HubView[
       {z.paused && (
         <p className="mt-2 text-xs text-yellow">New items paused: catching up. Today&apos;s intro and review cards already reach this area&apos;s daily limit.</p>
       )}
-      {z.zone === 'kanji' && radicals.total > 0 && <RadicalsKnownButton total={radicals.total} known={radicals.known} />}
       <div className="mt-auto pt-4">
         {done ? (
           <p className="text-sm text-success">Done for today</p>
@@ -118,9 +116,27 @@ export function V12Hub({ hub }: { hub: HubView }) {
 
         <div className="grid gap-4 md:grid-cols-3">
           {hub.zones.map((z) => (
-            <ZoneCard key={z.zone} z={z} radicals={hub.radicals} setSize={hub.setSize} />
+            <ZoneCard key={z.zone} z={z} setSize={hub.setSize} />
           ))}
         </div>
+
+        {/* Phần thêm, học tùy chọn: không tính vào cân bằng, trần hay "Learn all" (chủ dự án chốt 2026-11-24) */}
+        <section aria-labelledby="vocab-more">
+          <h2 id="vocab-more" className="mb-3 text-sm font-semibold text-subtle">More</h2>
+          <div className="grid gap-4 md:grid-cols-3">
+            <Link href="/learn/radicals" className="flex flex-col rounded-3xl border border-border bg-card p-5 transition-colors hover:border-[#3b4250]">
+              <span className="flex items-center justify-between">
+                <span lang="ja" className="font-jp text-xs text-muted-foreground">部首</span>
+                <ArrowRight className="size-4 text-muted-foreground" aria-hidden="true" />
+              </span>
+              <span className="mt-1 font-semibold">Radicals</span>
+              <span className="mt-1 text-sm text-subtle">The building blocks of Kanji. Optional, at your own pace.</span>
+              <span className="mt-3 text-xs text-muted-foreground tabular-nums">
+                {hub.radicals.learned} / {hub.radicals.total} learned{hub.radicals.learning > 0 ? ` · ${hub.radicals.learning} learning` : ''}
+              </span>
+            </Link>
+          </div>
+        </section>
 
         <p className="text-sm text-muted-foreground">
           Review cards are part of each area&apos;s daily cards.{' '}

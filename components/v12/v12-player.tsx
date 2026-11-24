@@ -24,7 +24,7 @@ import type { DisplayKind } from '@/lib/types'
 import { CARD_TYPES, REVIEW_CARDS } from '@/lib/v12/card-types'
 import { cn } from '@/lib/utils'
 
-const SCOPE_NAME: Record<string, string> = { kana: 'Kana vocabulary', kanji: 'Kanji', word_kanji: 'Kanji words', all: 'Learn everything' }
+const SCOPE_NAME: Record<string, string> = { kana: 'Kana vocabulary', kanji: 'Kanji', word_kanji: 'Kanji words', all: 'Learn everything', radical: 'Radicals' }
 const SAVE_ERROR = "Couldn't save your answer. Check your connection and try again."
 const optionKind = (k: string): DisplayKind => (k === 'kana' ? 'kana' : k === 'kanji' ? 'kanji' : 'meaning')
 type Given = string | string[]
@@ -564,7 +564,7 @@ function CardTools({ card, onLearned }: { card: CardView; onLearned: () => void 
 }
 
 /** Màn giữa hai set và cuối ngày. Enter / Space bấm nút chính. */
-function Pause({ header, title, body, note, primary, onPrimary }: { header: React.ReactNode; title: string; body: string; note?: string; primary?: string; onPrimary?: () => void }) {
+function Pause({ header, home, title, body, note, primary, onPrimary }: { header: React.ReactNode; home: { href: string; label: string }; title: string; body: string; note?: string; primary?: string; onPrimary?: () => void }) {
   useKeys((e) => {
     if (!onPrimary || !isShortcutEvent(e) || (e.key !== 'Enter' && e.key !== ' ')) return
     if (e.target instanceof HTMLButtonElement || e.target instanceof HTMLAnchorElement) return
@@ -583,7 +583,7 @@ function Pause({ header, title, body, note, primary, onPrimary }: { header: Reac
             {primary}
           </button>
         )}
-        <Link href="/learn" className={cn(actionButton({ size: 'lg', variant: primary ? 'secondary' : 'primary' }), 'w-full')}>Back to Vocab</Link>
+        <Link href={home.href} className={cn(actionButton({ size: 'lg', variant: primary ? 'secondary' : 'primary' }), 'w-full')}>{home.label}</Link>
         {primary && <p className="hidden text-xs text-muted-foreground md:block">Press Enter to continue</p>}
       </main>
     </div>
@@ -661,18 +661,21 @@ export function V12Player({ initial }: { initial: DeckView }) {
     }
   }
 
+  // Bộ thủ học ở phần More: xong thì quay về trang Radicals
+  const home = deck.scope === 'radical' ? { href: '/learn/radicals', label: 'Back to Radicals' } : { href: '/learn', label: 'Back to Vocab' }
   const sets = Math.max(1, Math.ceil(deck.total / deck.setSize))
   const setNo = Math.min(sets, currentSet + 1)
   const setStart = currentSet * deck.setSize
   const setLength = Math.max(1, Math.min(deck.setSize, deck.total - setStart))
   const header = (
-    <SessionHeader backHref="/learn" label={SCOPE_NAME[deck.scope]} sublabel={card ? `Set ${setNo} of ${sets}` : 'Done'} current={Math.min(Math.max(0, deck.position - setStart), setLength)} total={setLength} />
+    <SessionHeader backHref={home.href} label={SCOPE_NAME[deck.scope]} sublabel={card ? `Set ${setNo} of ${sets}` : 'Done'} current={Math.min(Math.max(0, deck.position - setStart), setLength)} total={setLength} />
   )
 
   if (!card)
     return (
       <Pause
         header={header}
+        home={home}
         title="Done for today 🎉"
         body={dayStats.answered > 0 ? `${dayStats.correct} of ${dayStats.answered} correct this time.` : 'Nothing left in this area today.'}
         note={Object.values(deck.deferred).some((n) => n > 0) ? 'Some items went over your daily limit and moved to tomorrow.' : undefined}
@@ -683,6 +686,7 @@ export function V12Player({ initial }: { initial: DeckView }) {
     return (
       <Pause
         header={header}
+        home={home}
         title={`Set ${currentSet + 1} of ${sets} done`}
         body={setStats.answered > 0 ? `${setStats.correct} of ${setStats.answered} correct in this set. Take a break or keep going.` : 'Take a break or keep going.'}
         primary="Next set"

@@ -9,7 +9,7 @@
 | Khu | Gồm | Học xong khi |
 |---|---|---|
 | **Từ vựng Kana** | Mọi từ trong lộ trình, học dạng Kana | Xong Stage 3 → Card FSRS |
-| **Kanji** | **Bộ thủ** (học trước), rồi **chữ Kanji** | Bộ thủ: xong Stage 2. Chữ: xong Stage 3 → Card FSRS |
+| **Kanji** | **Chữ Kanji** (bộ thủ học riêng ở phần More, §5.1) | Xong Stage 3 → Card FSRS |
 | **Từ vựng Kanji** | Từ có Kanji theo chính sách Kanji của từ (§5) | Xong Stage 3 → Card FSRS |
 
 Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) của một khu **nằm chung** trong một bộ thẻ.
@@ -69,7 +69,9 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 
 ## 5. Khu Kanji
 
-### 5.1 Bộ thủ (học trước chữ)
+### 5.1 Bộ thủ (học riêng ở phần More)
+
+- **Chủ dự án chốt 2026-11-24:** bộ thủ là phần thêm, học tùy chọn ở **Vocab → More → Radicals**; **không thuộc khu Kanji**, không tính vào cân bằng, trần hay "Học tất cả"; **chữ Kanji không phải chờ bộ thủ**. Trang Radicals có danh sách bộ kèm trạng thái, nút học (bộ thẻ riêng, phạm vi `radical`), số bộ mới mỗi ngày (0–30, mặc định 5) và nút "đã biết cả nhóm".
 
 - **Phạm vi:** các bộ có trong **từ 2 chữ N5–N4 trở lên** (100 bộ).
 - **Thứ tự:** bộ có mặt trong nhiều chữ hơn thì học trước (cột `n5n4_kanji`).
@@ -89,7 +91,7 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 ### 5.2 Chữ Kanji
 
 - **Thứ tự:** theo cấp N5 → N4 → N3 →…; trong mỗi cấp, chữ phổ biến hơn học trước, rồi chữ ít nét hơn. Chữ là thành phần của chữ khác thì học trước chữ đó.
-  - Chữ chỉ mở khi **mọi bộ thủ** của nó đã qua Stage 1.
+  - ~~Chữ chỉ mở khi mọi bộ thủ của nó đã qua Stage 1.~~ Bỏ (2026-11-24): bộ thủ học riêng ở More.
   - **Bỏ** luật cũ ưu tiên mở chữ của các từ sắp học (V12 hôm 2026-11-15).
   - **Dữ liệu:** `data/n5/kanji_frequency.csv` có hạng tần suất trên báo chí (1–2500, số nhỏ là phổ biến hơn). 842/844 chữ có hạng, gồm **mọi** chữ N5–N4; 2 chữ không có hạng thì xếp cuối cấp. Nguồn: kanji-data (David Gouveia, MIT), trường `freq` lấy từ KANJIDIC2 (EDRDG, CC BY-SA 4.0); cần ghi nguồn trong app.
 - **Thẻ giới thiệu:** chữ, nét viết, Hán Việt, nghĩa và giải thích nghĩa, **âm On/Kun**. Như vậy bỏ luật ngày 2026-11-15 "ẩn On/Kun tới khi học Từ Kanji".
@@ -141,7 +143,7 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 **Đã chốt (chủ dự án, 2026-11-18):**
 - Cân bằng theo **thời gian học**: ba khu Từ vựng Kana, Kanji (gồm bộ thủ) và Từ vựng Kanji **học xong cùng một ngày**.
 - Cân bằng **theo từng cấp**: xong N5 cả ba khu rồi mới sang N4.
-- **Bộ thủ tính vào khu Kanji.** Trong khu Kanji, bộ thủ vẫn học trước chữ (§5.1).
+- ~~Bộ thủ tính vào khu Kanji.~~ Từ 2026-11-24 bộ thủ học riêng ở More, không tính vào cân bằng (§5.1).
 
 ### 8.1 Thời gian của một mục
 
@@ -166,10 +168,10 @@ Mỗi mục được quy ra **thời gian học** theo số câu tối thiểu c
 ### 8.2 Cách chia
 
 - **Cân bằng theo số mục** (chủ dự án chốt 2026-11-20, thay cho số phút). Người học chọn **một** trong hai mục tiêu trong Settings:
-  - **tổng số mục mới mỗi ngày** M (mặc định 10; gồm từ vựng Kana, bộ thủ / chữ Kanji, từ vựng Kanji);
+  - **tổng số mục mới mỗi ngày** M (mặc định 10; gồm từ vựng Kana, chữ Kanji, từ vựng Kanji);
   - hoặc **ngày muốn học xong cấp** D.
 - **Số ngày còn lại:** `N` = `⌈tổng số mục còn lại của cấp / M⌉`, hoặc số ngày tới D.
-- **Mỗi khu mở `số mục còn lại / N` mục mỗi ngày** (chia theo số mục, không theo thời gian). Ba khu cùng hết vào ngày thứ N; khu Kanji dùng phần của mình cho bộ thủ trước rồi tới chữ. Phần lẻ được cộng dồn qua các ngày, nên tổng mỗi ngày trung bình đúng M (có ngày nhiều hoặc ít hơn một mục).
+- **Mỗi khu mở `số mục còn lại / N` mục mỗi ngày** (chia theo số mục, không theo thời gian). Ba khu cùng hết vào ngày thứ N. Phần lẻ được cộng dồn qua các ngày, nên tổng mỗi ngày trung bình đúng M (có ngày nhiều hoặc ít hơn một mục).
 - **Thời gian học ước tính** = số mục mới mỗi ngày của từng loại × thời gian một mục (§8.1, đã gồm Intro và các lần ôn đầu; sau 14 ngày dùng thời gian thật). Đây là thời gian học mỗi ngày khi đã đều đặn.
 - App **tính lại mỗi ngày** theo số còn lại thật. Khu nào chậm (ví dụ Từ vựng Kanji chưa đủ điều kiện mở) thì các ngày sau tự tăng chỉ tiêu cho khu đó.
 - **Ràng buộc của Từ vựng Kanji:** chỉ mở được khi đủ điều kiện ở §6. Ngày nào không đạt chỉ tiêu thì phần thiếu không chuyển sang khu khác (để ba khu vẫn kết thúc cùng lúc), mà dồn sang các ngày sau. Hàng chờ ở §6 bù vào cuối cấp.
