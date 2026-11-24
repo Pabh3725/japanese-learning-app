@@ -24,8 +24,8 @@ export interface RetentionStats {
   byArea: Record<RetentionArea, RetentionRate>
 }
 
-/** Mục tiêu nhớ của FSRS (request_retention mặc định của ts-fsrs). */
-export const TARGET_RETENTION = 0.9
+/** Mục tiêu nhớ của FSRS cho Card Vocab V12 (RULES_V12.retention, chủ dự án chốt 2026-11-24). */
+export const TARGET_RETENTION = 0.85
 
 const rateOf = (items: readonly RetentionEntry[]): RetentionRate => ({ rate: items.length > 0 ? items.filter((e) => e.recalled).length / items.length : null, count: items.length })
 

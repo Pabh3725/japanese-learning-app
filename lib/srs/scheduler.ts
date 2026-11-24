@@ -63,6 +63,8 @@ export interface ReviewResult {
 export interface SchedulerOptions {
   /** Lệch ngẫu nhiên nhỏ để card không dồn cùng một ngày. Production: true. Test: false. */
   enableFuzz?: boolean
+  /** Tỷ lệ nhớ mục tiêu của FSRS (request_retention). Mặc định của ts-fsrs: 0,9. */
+  requestRetention?: number
 }
 
 export const RATING_TO_FSRS: Record<Rating, Grade> = {
@@ -89,9 +91,9 @@ export function alignToStudyDay(schedule: Schedule): Schedule {
   return { ...schedule, due: startOfStudyDay(schedule.due) }
 }
 
-export function createScheduler({ enableFuzz = true }: SchedulerOptions = {}) {
+export function createScheduler({ enableFuzz = true, requestRetention }: SchedulerOptions = {}) {
   const maxDays = RULES_V9.reviewSchedule.maximumIntervalDays
-  const f = fsrs(generatorParameters({ enable_fuzz: enableFuzz, maximum_interval: maxDays }))
+  const f = fsrs(generatorParameters({ enable_fuzz: enableFuzz, maximum_interval: maxDays, ...(requestRetention ? { request_retention: requestRetention } : {}) }))
 
   /** R5 — Card mới khi một từ vừa qua `stage`. Hạn đầu tiên: 00:00 (giờ VN) ngày học hôm sau. */
   function createCardsForStage(stage: Stage, now: Date): ReviewCard[] {

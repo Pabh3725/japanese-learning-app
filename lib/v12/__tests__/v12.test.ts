@@ -58,7 +58,7 @@ describe('§3 Điểm theo loại thẻ', () => {
   it('Stage 3: cũng 2 điểm mỗi loại (2026-11-20) — đúng hết thì có Card từ hôm sau', () => {
     const item: ItemState = { area: 'kana', stage: 3, stageFrom: D0, types: Object.fromEntries(typesFor('kana', 3).map((t) => [t, { points: 0, seenDate: null, seenToday: 0, wrongToday: 0 }])) }
     const day1 = playDay(item, D0)
-    expect(day1.asked).toBe(4)
+    expect(day1.asked).toBe(2)
     expect(day1.state.stage).toBe('review')
     expect(day1.state.stageFrom).toBe(D1)
   })
@@ -202,7 +202,7 @@ describe('§5–6 Thứ tự mở', () => {
 
 describe('§8 Cân bằng theo thời gian', () => {
   it('thời gian ước tính khớp bảng §8.1', () => {
-    expect(estimatedSeconds('kana')).toBe(159)
+    expect(estimatedSeconds('kana')).toBe(135)
     expect(estimatedSeconds('radical')).toBe(51)
     expect(estimatedSeconds('kanji')).toBe(135)
     expect(estimatedSeconds('word_kanji')).toBe(147)
@@ -338,9 +338,9 @@ describe('§8 Cân bằng theo thời gian', () => {
 })
 
 describe('§2 Dự báo vượt trần', () => {
-  it('một từ Kana mới (đúng hết): 2, 4, 4 câu rồi Card từ ngày thứ 4', () => {
+  it('một từ Kana mới (đúng hết): 2, 4, 2 câu rồi Card từ ngày thứ 4', () => {
     const sim = simulateItem(newItem('kana', D0), D0, 7)
-    expect(sim.counts).toEqual([2, 4, 4, 0, 0, 0, 0])
+    expect(sim.counts).toEqual([2, 4, 2, 0, 0, 0, 0])
     expect(sim.cardsFrom).toBe(3)
   })
 

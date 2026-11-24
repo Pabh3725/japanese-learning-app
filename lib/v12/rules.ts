@@ -11,6 +11,8 @@ export const RULES_V12 = {
   retryAfter: 5,
   /** §3.2: Stage 1 — loại thứ nhất ngay sau thẻ giới thiệu, loại thứ hai sau 5 thẻ, các loại sau cách nhau 10 thẻ. */
   stage1Gaps: { first: 0, second: 5, rest: 10 },
+  /** §3.3: tỷ lệ nhớ mục tiêu của FSRS cho Card V12 (chủ dự án chốt 2026-11-24: 0,85, trước là 0,9 mặc định). */
+  retention: 0.85,
   /** §3.3: Card sai được hỏi lại trong phiên sau 3–5 thẻ, tối đa 3 lần. */
   reviewRetry: { min: 3, max: 5, maxTimes: 3 },
   /** §2: số thẻ mỗi set. */

@@ -52,7 +52,8 @@ export const STAGE_TYPES: Record<Area, Record<Stage, readonly CardType[]>> = {
   kana: {
     1: ['kana_meaning', 'meaning_kana'],
     2: ['listen_kana', 'meaning_kana'],
-    3: ['meaning_type_kana', 'listen_type_kana'],
+    // Chủ dự án chốt 2026-11-24: bớt câu nghe — bỏ "nghe → gõ Kana", câu nghe chỉ còn ở Stage 2
+    3: ['meaning_type_kana'],
   },
   radical: {
     1: ['radical_hanviet', 'radical_meaning'],
