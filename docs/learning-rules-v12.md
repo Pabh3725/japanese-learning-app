@@ -115,7 +115,7 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 | | Loại thẻ |
 |---|---|
 | Stage 1 | từ Kanji → Hán Việt · từ Kanji → nghĩa (trắc nghiệm) (rút gọn, chủ dự án chốt 2026-11-22) |
-| Stage 2 | Hán Việt → từ Kanji · nghĩa → từ Kanji (trắc nghiệm) · **ghép chữ**: nghĩa (kèm Hán Việt) → chọn từng chữ theo thứ tự để viết từ, có chữ Kanji nhiễu (2026-11-19) (rút gọn, chủ dự án chốt 2026-11-22) |
+| Stage 2 | Hán Việt → từ Kanji (đề hiện thêm nghĩa dưới âm Hán Việt, 2026-11-24) · nghĩa → từ Kanji (trắc nghiệm) · **ghép chữ**: nghĩa (kèm Hán Việt) → chọn từng chữ theo thứ tự để viết từ, có chữ Kanji nhiễu (2026-11-19) (rút gọn, chủ dự án chốt 2026-11-22) |
 | Stage 3 | từ Kanji → **gõ** Hán Việt (rút gọn, chủ dự án chốt 2026-11-22) |
 | **Review: 1 Card** | nhìn từ → **gõ** Hán Việt + **chọn** nghĩa (bỏ gõ Kana, chủ dự án chốt 2026-11-19; cách đọc hiện và đọc to sau khi chấm) |
 

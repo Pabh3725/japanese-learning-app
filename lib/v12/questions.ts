@@ -154,7 +154,9 @@ export function buildStageQuestion(type: CardType, item: KanaWordItem | RadicalI
     }
     case 'hanviet_word': {
       const w = item as WordKanjiItem
-      return choice(w.hanViet, 'hanviet', w.expression, choices(w.expression, pools.word_kanji.filter((x) => x.hanViet !== w.hanViet).map((x) => x.expression), rng), 'kanji')
+      // Hiện thêm nghĩa dưới âm Hán Việt như câu Hán Việt → chọn chữ (chủ dự án yêu cầu 2026-11-24)
+      const options = choices(w.expression, pools.word_kanji.filter((x) => x.hanViet !== w.hanViet).map((x) => x.expression), rng)
+      return { kind: 'choice', prompt: w.hanViet, promptKind: 'hanviet', hint: w.meaning, options, optionKind: 'kanji', answer: w.expression }
     }
     case 'meaning_word': {
       const w = item as WordKanjiItem
