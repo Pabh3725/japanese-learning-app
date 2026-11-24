@@ -65,7 +65,7 @@ function useKeys(onKey: (e: KeyboardEvent) => void) {
 }
 
 /** Đề: chữ Nhật cỡ lớn theo độ dài, nghĩa, Hán Việt, hoặc nút loa của câu nghe (tự đọc, phím P nghe lại). */
-function Prompt({ text, kind, speakText, hanViet, word }: { text: string; kind: string; speakText?: string; hanViet?: string; word?: WordInfo }) {
+function Prompt({ text, kind, speakText, hanViet, hint, word }: { text: string; kind: string; speakText?: string; hanViet?: string; hint?: string; word?: WordInfo }) {
   if (kind === 'listen' && speakText)
     return (
       <div className="flex flex-col items-center gap-4">
@@ -81,7 +81,10 @@ function Prompt({ text, kind, speakText, hanViet, word }: { text: string; kind: 
           {text}
         </p>
       ) : kind === 'hanviet' ? (
-        <p className="text-4xl font-semibold tracking-wide text-yellow md:text-5xl">{text}</p>
+        <>
+          <p className="text-4xl font-semibold tracking-wide text-yellow md:text-5xl">{text}</p>
+          {hint && <p className="text-lg text-subtle">{hint}</p>}
+        </>
       ) : (
         <p className="text-balance text-3xl font-semibold md:text-4xl">{text}</p>
       )}
@@ -285,7 +288,7 @@ function QuestionScreen({ label, q, hanViet, word, afterSpeak, onGrade, onContin
         />
       }
     >
-      <Prompt text={q.prompt} kind={q.promptKind} speakText={q.speak} hanViet={hanViet} word={result?.word} />
+      <Prompt text={q.prompt} kind={q.promptKind} speakText={q.speak} hanViet={hanViet} hint={q.kind === 'choice' ? q.hint : undefined} word={result?.word} />
     </ExercisePanel>
   )
 }
