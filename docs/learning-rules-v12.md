@@ -53,7 +53,7 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 
 ### 3.3 Review (FSRS, giữ như hiện nay)
 
-- Sai là **Again**, đúng là **Good**. Khoảng tối đa 90 ngày. Hạn ôn rơi vào 00:00 giờ Việt Nam. Thẻ sai được hỏi lại trong phiên sau 3–5 thẻ, tối đa 3 lần.
+- Sai là **Again**, đúng là **Good**. **Tỷ lệ nhớ mục tiêu 85%** (chủ dự án chốt 2026-11-24, trước là 90% mặc định của FSRS): Card giãn thưa hơn, ít lần ôn hơn. Khoảng tối đa 90 ngày. Hạn ôn rơi vào 00:00 giờ Việt Nam. Thẻ sai được hỏi lại trong phiên sau 3–5 thẻ, tối đa 3 lần.
 - **Card gom chung:** mỗi Card có thể có nhiều phần trên cùng một thẻ. **Sai một phần là sai cả Card** (Again).
 - Card đến hạn lần đầu vào ngày học sau ngày xong Stage cuối của mục đó.
 
@@ -64,7 +64,7 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 | Thẻ giới thiệu | Kana, nghĩa, âm thanh, Hán Việt (nếu có, hiện nhỏ) |
 | Stage 1 | Kana → nghĩa (trắc nghiệm) · nghĩa → Kana (trắc nghiệm) |
 | Stage 2 | nghe → chọn Kana · nghĩa → chọn Kana (trắc nghiệm) (rút gọn, chủ dự án chốt 2026-11-22) |
-| Stage 3 | nghĩa → **gõ** Kana · nghe → **gõ** Kana (rút gọn, chủ dự án chốt 2026-11-22) |
+| Stage 3 | nghĩa → **gõ** Kana (bỏ "nghe → gõ Kana" để bớt câu nghe, chủ dự án chốt 2026-11-24) |
 | **Review: 1 Card** | nghĩa → **gõ** Kana; đúng hay sai đều phát âm thanh và hiện chữ, cách đọc, Hán Việt, nghĩa (bỏ Card "Kana → chọn nghĩa", chủ dự án chốt 2026-11-22) |
 
 ## 5. Khu Kanji
@@ -155,7 +155,7 @@ Mỗi mục được quy ra **thời gian học** theo số câu tối thiểu c
 
 | Mục | Câu học (tối thiểu; Stage 2–3 tính 2 điểm mỗi loại từ 2026-11-20) | Card Review | Thời gian ước tính |
 |---|---|---|---|
-| Từ vựng Kana | thẻ giới thiệu + Stage 1: 2 trắc nghiệm + Stage 2: 4 trắc nghiệm + Stage 3: 4 gõ | 1 Card × 4 lần | 15 + 36 + 48 + 60 ≈ **2,7 phút** |
+| Từ vựng Kana | thẻ giới thiệu + Stage 1: 2 trắc nghiệm + Stage 2: 4 trắc nghiệm + Stage 3: 2 gõ | 1 Card × 4 lần | 15 + 36 + 24 + 60 ≈ **2,3 phút** |
 | Bộ thủ | thẻ giới thiệu + Stage 1: 2 + Stage 2: 4 trắc nghiệm | không có Card | 15 + 36 ≈ **0,9 phút** |
 | Chữ Kanji | thẻ giới thiệu + Stage 1: 2 + Stage 2: 4 trắc nghiệm + Stage 3: 2 gõ (+ 2 phân biệt chữ giống nếu có) | 1 Card × 4 lần | 15 + 36 + 24 + 60 ≈ **2,3 phút** |
 | Từ vựng Kanji | thẻ giới thiệu + Stage 1: 2 + Stage 2: 4 trắc nghiệm + 2 ghép chữ + Stage 3: 2 gõ | 1 Card × 4 lần | 15 + 48 + 24 + 60 ≈ **2,5 phút** |

@@ -6,6 +6,7 @@ import { firstDueAt } from '@/lib/learning/cards'
 import { addStudyDays, studyDate } from '@/lib/learning/time'
 import { createScheduler, type ReviewCard, type Schedule } from '@/lib/srs/scheduler'
 import { reviewCardsFor, typesFor, type Area, type CardType, type ReviewCardType } from '@/lib/v12/card-types'
+import { RULES_V12 } from '@/lib/v12/rules'
 import { applyAnswer, canShow, type AnswerResult } from '@/lib/v12/stage'
 import type { CardRow, ItemRow } from './state'
 
@@ -111,7 +112,7 @@ export async function saveCardReview(
 ): Promise<{ status: WriteStatus; schedule?: Schedule; card?: ReviewCardType }> {
   const card = input.card
   if (card.archived) return { status: 'not_active' }
-  const scheduler = createScheduler()
+  const scheduler = createScheduler({ requestRetention: RULES_V12.retention })
   const reviewed = scheduler.reviewCard({ type: 'vocab.kana', status: 'active', schedule: card.schedule } as ReviewCard, { outcome: input.correct ? 'correct' : 'wrong', exercise: card.type, responseMs: input.elapsedMs }, now)
   const s = reviewed.card.schedule
   const { data, error } = await supabase.rpc('v12_save_card', {
