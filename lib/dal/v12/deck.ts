@@ -41,21 +41,22 @@ interface Loaded {
   knownWords: Set<string>
   knownKanji: Set<string>
   starred: Set<string>
+  /** Id mục Từ vựng Kanji đang chờ chữ. */
+  waiting: Set<string>
   settings: V12Settings
 }
 
 async function load(supabase: Supabase, userId: string): Promise<Loaded> {
   const [content, state, settings] = await Promise.all([readV12Content(supabase), readV12State(supabase, userId), readV12Settings(supabase, userId)])
-  return { content, ...state, cards: activeCards(content, state), settings }
+  return { content, ...state, waiting: waitingItems(content, state), settings }
 }
 
-/** Bỏ Card Từ vựng Kanji đang chờ chữ (wordKanjiWaiting): không vào bộ thẻ, số đếm hay dự báo cho tới khi chữ học xong. */
-function activeCards(content: V12Content, state: Pick<Loaded, 'items' | 'cards' | 'knownWords' | 'knownKanji'>): CardRow[] {
+/** Mục Từ vựng Kanji đang chờ chữ (wordKanjiWaiting): không vào bộ thẻ, số đếm hay dự báo cho tới khi mọi chữ học xong. */
+function waitingItems(content: V12Content, state: Pick<Loaded, 'items' | 'knownWords' | 'knownKanji'>): Set<string> {
   const p = progressOf(state)
   const kanjiProgress = new Map(content.kanji.filter((k) => k.level === 5 || k.level === 4).map((k) => [k.char, p.get(key('kanji', k.id)) ?? ('none' as Progress)]))
-  const charsOf = new Map(content.wordKanji.map((w) => [w.id, w.kanji]))
-  const waiting = new Set(state.items.filter((i) => i.area === 'word_kanji' && wordKanjiWaiting(charsOf.get(i.ref) ?? [], kanjiProgress)).map((i) => i.id))
-  return state.cards.filter((c) => !waiting.has(c.itemId))
+  const charsOf = new Map(content.words.map((w) => [w.id, w.kanji]))
+  return new Set(state.items.filter((i) => i.area === 'word_kanji' && wordKanjiWaiting(charsOf.get(i.ref) ?? [], kanjiProgress)).map((i) => i.id))
 }
 
 /** §8.1: thời gian một mục theo thời gian trả lời thật (đủ 14 ngày học), chỉ đọc khi cần cân bằng. */
@@ -168,7 +169,7 @@ async function openNewItems(supabase: Supabase, userId: string, l: Loaded, scope
 function deckInput(l: Loaded, scope: Scope, now: Date): DeckInput {
   const today = studyDate(now)
   const dueBefore = nextStudyDayStart(now).getTime()
-  const live = l.items.filter((i) => !i.known && inScope(scope, i.area))
+  const live = l.items.filter((i) => !i.known && !l.waiting.has(i.id) && inScope(scope, i.area))
   const newItems = live
     .filter((i) => i.stage === 1 && !i.introSeen && isActive(i.state, today))
     .map((i) => ({ area: i.area, itemId: i.id, stage1Types: typesFor(i.area, 1, { hasSimilar: i.state.hasSimilar }).filter((t) => remainingTypes(i.state).includes(t)) }))
@@ -273,7 +274,7 @@ function itemData(l: Loaded, item: ItemRow) {
 /** Thẻ còn hợp lệ không (đã trả lời ở bộ thẻ khác, đủ điểm, Card đã ôn hôm nay…). */
 function isValid(l: Loaded, card: DeckCard, now: Date): boolean {
   const item = l.items.find((i) => i.id === card.itemId)
-  if (!item || item.known) return false
+  if (!item || item.known || l.waiting.has(item.id)) return false
   if (card.kind === 'intro') return item.stage === 1 && !item.introSeen
   if (card.kind === 'stage') return item.stage === card.stage && canShow(item.state, card.type, studyDate(now))
   if (card.kind === 'review') {
@@ -598,13 +599,13 @@ export async function getHub(): Promise<HubView> {
   const dayStart = nextStudyDayStart(now).getTime()
   for (const c of l.cards) {
     const it = itemById.get(c.itemId)
-    if (!it || it.known || c.archived || it.area === 'radical') continue
+    if (!it || it.known || l.waiting.has(it.id) || c.archived || it.area === 'radical') continue
     const d = Math.max(0, Math.floor((c.schedule.due.getTime() - dayStart) / 86_400_000) + 1)
     if (d < 7) reviewsByDay[zoneOf(it.area)][d]++
   }
   const days = forecast({
     today,
-    items: l.items.filter((i) => !i.known && i.stage !== 'review' && i.area !== 'radical').map((i) => i.state),
+    items: l.items.filter((i) => !i.known && !l.waiting.has(i.id) && i.stage !== 'review' && i.area !== 'radical').map((i) => i.state),
     reviewsByDay,
     newPerDay: p.balance ? p.balance.today : { kana: l.settings.newPerDay.kana, kanji: l.settings.newPerDay.kanji, word_kanji: l.settings.newPerDay.word_kanji },
     caps: l.settings.caps,

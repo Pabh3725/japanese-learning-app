@@ -547,11 +547,11 @@ describe('Nhịp học tự nhập (2026-11-24)', () => {
   })
 })
 
-describe('Card Từ vựng Kanji chờ chữ (2026-11-24)', () => {
-  it('chờ khi còn chữ N5–N4 chưa học xong; chữ ngoài phạm vi không chặn', () => {
+describe('Từ vựng Kanji chờ chữ (2026-11-25)', () => {
+  it('chờ khi còn chữ chưa học xong; chữ ngoài N5–N4 cũng chặn', () => {
     const p = new Map<string, Progress>([['会', 'review'], ['社', 2], ['国', 'review']])
     expect(wordKanjiWaiting(['会', '社'], p)).toBe(true)
     expect(wordKanjiWaiting(['会'], p)).toBe(false)
-    expect(wordKanjiWaiting(['韓', '国'], p)).toBe(false)
+    expect(wordKanjiWaiting(['韓', '国'], p)).toBe(true)
   })
 })

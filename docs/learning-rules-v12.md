@@ -107,6 +107,7 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 ## 6. Khu Từ vựng Kanji
 
 - **Mở thẻ** (chủ dự án chốt 2026-11-24): từ vựng Kana của từ đã vào **Stage 2**, **và mọi chữ Kanji của từ đã học xong ở khu Kanji** (xong Intro, có Card, hoặc đã đánh dấu "đã biết"). Giữ danh sách chính sách Kanji của từ: từ "chỉ Kana" không có thẻ Từ vựng Kanji.
+- **Thẻ đã có mà còn chữ chưa học xong** (chủ dự án duyệt 2026-11-25): mục mở theo luật cũ, chuyển từ V11 hoặc tạo bằng "Mark as learned" thì tạm ẩn (câu Intro, Card, câu sao, số đếm, dự báo, cả bộ thẻ đã dựng hôm nay), giữ nguyên điểm và lịch FSRS; tự hiện lại khi mọi chữ học xong. Chữ ngoài N5–N4 cũng chặn. — CONFIRMED
 - **Học từ bằng Kana ở N5 không bắt buộc học dạng Kanji ở N5.** Cấp của thẻ Từ vựng Kanji = cấp khó nhất giữa từ và các chữ của từ: từ N5 có chữ N4 (vd. 日曜日) mở trong lúc học Kanji N4; từ có chữ ngoài danh sách N5–N4 (vd. 辞書, 傘) **chưa có** thẻ Từ vựng Kanji (tới khi khu Kanji có cấp đó).
 - **Bỏ hàng chờ** (trước đây từ thiếu chữ được học thẳng dạng Kanji khi tới lượt).
 - Số từ có dạng Kanji theo luật này (dữ liệu 2026-11-24): từ N5 — 214 mở ở N5, 141 mở ở N4, 271 chưa có; từ N4 — 217 mở ở N4, 499 chưa có.
