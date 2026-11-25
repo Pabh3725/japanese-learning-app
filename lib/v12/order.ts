@@ -109,10 +109,9 @@ export function wordKanjiStatus(word: WordRow, kanaProgress: Progress | undefine
 }
 
 /**
- * Card Từ vựng Kanji đang chờ chữ (chủ dự án chốt 2026-11-24, phương án b): Card chuyển từ bản cũ hoặc mở trước luật trên
- * có chữ chưa học xong thì tạm không vào lượt ôn (giữ nguyên lịch FSRS) cho tới khi mọi chữ của từ học xong.
- * `kanjiProgress` chỉ gồm chữ học được ở khu Kanji (N5–N4); chữ ngoài phạm vi không chặn.
+ * Từ vựng Kanji đang chờ chữ (chủ dự án duyệt 2026-11-25): mục mở trước luật trên hoặc tạo bằng "Mark as learned" mà còn chữ
+ * chưa học xong thì tạm không học (Intro, Card, câu sao), giữ nguyên điểm và lịch FSRS. Chữ ngoài N5–N4 cũng chặn (§6).
  */
 export function wordKanjiWaiting(kanji: readonly string[], kanjiProgress: ReadonlyMap<string, Progress>): boolean {
-  return kanji.some((c) => kanjiProgress.has(c) && kanjiProgress.get(c) !== 'review')
+  return !kanji.every((c) => kanjiProgress.get(c) === 'review')
 }
