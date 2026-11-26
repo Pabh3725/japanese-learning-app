@@ -5,7 +5,7 @@ import { requireUser } from '@/lib/dal/auth'
 import { readAllKanjiCached, readKanjiVisuals } from '@/lib/dal/kanji-content'
 import { revealOf, type KanjiReveal } from '@/lib/kanji/questions'
 import { nextStudyDayStart, studyDate } from '@/lib/learning/time'
-import { STAGE_TYPES, typesFor, ZONES, zoneOf, type Area, type CardType, type ReviewCardType, type Zone } from '@/lib/v12/card-types'
+import { passFor, stage2SameDay, STAGE_TYPES, typesFor, ZONES, zoneOf, type Area, type CardType, type ReviewCardType, type Zone } from '@/lib/v12/card-types'
 import { applyCap, buildDeck, countQuestions, insertRetry, insertStageCards, reviewRetryGap, splitByZone, type DeckCard, type DeckInput } from '@/lib/v12/deck'
 import { balanceTarget, secondsFromStats } from '@/lib/v12/balance'
 import { forecast, overflowDays, type ForecastDay } from '@/lib/v12/forecast'
@@ -14,7 +14,7 @@ import { RULES_V12 } from '@/lib/v12/rules'
 import { wordKanjiWaiting, type Progress } from '@/lib/v12/order'
 import { key, pausedZones, planNewItems, wordKanjiPaceRows, type PlanResult } from '@/lib/v12/plan'
 import { buildReviewCard, buildStageQuestion, romajiOf, gradeCard, gradeQuestion, type CardPart, type Pools, type Question } from '@/lib/v12/questions'
-import { canShow, isActive, plannedShows, remainingTypes } from '@/lib/v12/stage'
+import { canShow, isActive, plannedShows } from '@/lib/v12/stage'
 import { readV12Content, type V12Content } from './content'
 import { readV12Settings, type V12Settings } from './settings'
 import { readV12State, type CardRow, type ItemRow } from './state'
@@ -177,8 +177,16 @@ async function openNewItems(supabase: Supabase, userId: string, l: Loaded, scope
   return jobs.length > 0
 }
 
-/** Số câu Stage 2 học ngay trong ngày xong Stage 1 (2026-11-26), khi trả lời đúng hết. */
-const stage2SameDay = (area: Area) => typesFor(area, 2).length * Math.min(RULES_V12.perDay.shows, RULES_V12.points.pass)
+/** Số câu Stage 2 học ngay trong ngày xong Stage 1 (chỉ bộ thủ, stage2SameDay), khi trả lời đúng hết. */
+const laterToday = (area: Area) => (stage2SameDay(area) ? typesFor(area, 2).reduce((n, t) => n + Math.min(RULES_V12.perDay.shows, passFor(area, 2, t)), 0) : 0)
+
+/** Loại thẻ Stage 1 theo thứ tự hỏi, mỗi lần gặp dự kiến hôm nay một phần tử (lượt 1 của mọi loại rồi lượt 2). */
+function stage1Order(item: ItemRow, today: string): CardType[] {
+  const shows = typesFor(item.area, 1, { hasSimilar: item.state.hasSimilar }).map((t) => ({ t, n: plannedShows(item.state, t, today) }))
+  const out: CardType[] = []
+  for (let round = 0; shows.some((s) => s.n > round); round++) for (const s of shows) if (s.n > round) out.push(s.t)
+  return out
+}
 
 /** Đầu vào bộ thẻ hôm nay của các khu (§2): mục mới (thẻ giới thiệu + Stage 1), câu Stage đến lượt, Card đến hạn. */
 function deckInput(l: Loaded, scope: Scope, now: Date): DeckInput {
@@ -187,7 +195,7 @@ function deckInput(l: Loaded, scope: Scope, now: Date): DeckInput {
   const live = l.items.filter((i) => !i.known && !l.waiting.has(i.id) && inScope(scope, i.area))
   const newItems = live
     .filter((i) => i.stage === 1 && !i.introSeen && isActive(i.state, today))
-    .map((i) => ({ area: i.area, itemId: i.id, stage1Types: typesFor(i.area, 1, { hasSimilar: i.state.hasSimilar }).filter((t) => remainingTypes(i.state).includes(t)), later: stage2SameDay(i.area) }))
+    .map((i) => ({ area: i.area, itemId: i.id, stage1Types: stage1Order(i, today), later: laterToday(i.area) }))
   const stageItems = live
     .filter((i) => i.stage !== 'review' && isActive(i.state, today) && (i.stage !== 1 || i.introSeen))
     .map((i) => ({
@@ -195,7 +203,7 @@ function deckInput(l: Loaded, scope: Scope, now: Date): DeckInput {
       itemId: i.id,
       stage: i.stage as 1 | 2 | 3,
       types: (Object.keys(i.state.types) as CardType[]).map((type) => ({ type, shows: plannedShows(i.state, type, today) })).filter((t) => t.shows > 0),
-      later: i.stage === 1 ? stage2SameDay(i.area) : 0,
+      later: i.stage === 1 ? laterToday(i.area) : 0,
     }))
     .filter((i) => i.types.length > 0)
   const byId = new Map(live.map((i) => [i.id, i]))
@@ -524,13 +532,13 @@ export async function answerDeck(input: unknown): Promise<AnswerView> {
       if (r) {
         loaded.items[itemIndex] = { ...item, stage: r.item.stage, stageFrom: r.item.stageFrom, version: item.version + 1, state: r.item }
         if (r.retry) cards = insertRetry(cards, deck.position, card)
-        // Xong Stage 1: Stage 2 học luôn trong ngày (2026-11-26) — chèn câu Stage 2 vào phần còn lại của bộ thẻ
+        // Bộ thủ xong Stage 1: Stage 2 học luôn trong ngày (stage2SameDay) — chèn câu Stage 2 vào phần còn lại của bộ thẻ
         if (r.stageDone && r.item.stage === 2 && r.item.stageFrom <= studyDate(now)) {
           const types = (Object.keys(r.item.types) as CardType[]).map((type) => ({ type, shows: plannedShows(r.item, type, studyDate(now)) })).filter((t) => t.shows > 0)
           cards = insertStageCards(cards, deck.position, { area: item.area, itemId: item.id, stage: 2 }, types)
         }
       }
-      out = { ...out, stageDone: r?.stageDone, nextNow: r?.stageDone === true && r.item.stage === 2, learned: r?.item.stage === 'review', cardsCreated: r?.cardsCreated.length, retry: r?.retry }
+      out = { ...out, stageDone: r?.stageDone, nextNow: r?.stageDone === true && r.item.stage === 2 && r.item.stageFrom <= studyDate(now), learned: r?.item.stage === 'review', cardsCreated: r?.cardsCreated.length, retry: r?.retry }
     }
   } else if (card.kind === 'review') {
     const built = buildReviewCard(card.card, data, pools(loaded), Math.random)

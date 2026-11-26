@@ -53,9 +53,9 @@ export const kindOf = (type: CardType): AnswerKind => CARD_TYPES[type].kind
  */
 export const STAGE_TYPES: Record<Area, Record<Stage, readonly CardType[]>> = {
   kana: {
-    // Chủ dự án chốt 2026-11-26 (lần 2): khôi phục Intro 1 (Kana → nghĩa · nghĩa → Kana); Intro 2 học luôn trong ngày đầu
-    1: ['kana_meaning', 'meaning_kana'],
-    2: ['listen_kana', 'meaning_kana'],
+    // Chủ dự án chốt 2026-11-26 (lần 3): Intro 1 Kana → nghĩa (2 điểm); Intro 2 nghĩa → Kana (2 điểm) · nghe → Kana (1 điểm)
+    1: ['kana_meaning'],
+    2: ['meaning_kana', 'listen_kana'],
     // Chủ dự án chốt 2026-11-24: bớt câu nghe — bỏ "nghe → gõ Kana", câu nghe chỉ còn ở Stage 2
     3: ['meaning_type_kana'],
   },
@@ -64,10 +64,12 @@ export const STAGE_TYPES: Record<Area, Record<Stage, readonly CardType[]>> = {
     2: ['hanviet_radical', 'meaning_radical'],
     3: [],
   },
+  // Chủ dự án chốt 2026-11-26 (lần 3): Intro 1 mỗi loại 2 điểm; Intro 2 bỏ "nghĩa → chọn chữ", phân biệt chữ giống chuyển
+  // từ Intro 3 lên Intro 2; Intro 3 chỉ còn gõ Hán Việt
   kanji: {
     1: ['kanji_hanviet', 'kanji_meaning'],
-    2: ['hanviet_kanji', 'meaning_kanji'],
-    3: ['kanji_type_hanviet', 'kanji_similar'],
+    2: ['hanviet_kanji', 'kanji_similar'],
+    3: ['kanji_type_hanviet'],
   },
   // Chủ dự án chốt 2026-11-26: trọng tâm Hán Việt, bỏ ghép chữ. Intro 1 từ → Hán Việt · từ → nghĩa; Intro 2 nghĩa → Hán Việt ·
   // Hán Việt → từ; Intro 3 nghĩa (kèm cách đọc) → gõ Hán Việt. Không hỏi cách đọc (đã học ở khu Kana), chỉ hiện để nhắc lại
@@ -77,6 +79,22 @@ export const STAGE_TYPES: Record<Area, Record<Stage, readonly CardType[]>> = {
     3: ['meaning_type_hanviet'],
   },
 }
+
+/**
+ * Điểm cần của một loại thẻ (§3.1): Stage 1 cần 2 điểm (chủ dự án chốt 2026-11-26, lần 3), riêng bộ thủ vẫn đúng 1 lần;
+ * Stage 2–3 cần 2 điểm, riêng "nghe → chọn Kana" 1 điểm.
+ */
+export function passFor(area: Area, stage: Stage, type: CardType): number {
+  if (type === 'listen_kana') return 1
+  if (stage === 1 && area === 'radical') return 1
+  return 2
+}
+
+/**
+ * Xong Stage 1 thì Stage 2 bắt đầu ngay trong ngày (2026-11-26): chỉ còn bộ thủ. Các khu khác Stage 2 từ ngày học kế tiếp
+ * (chủ dự án chốt 2026-11-26, lần 3).
+ */
+export const stage2SameDay = (area: Area) => area === 'radical'
 
 /** Stage cuối của loại mục: xong Stage này thì tạo Card. */
 export const lastStage = (area: Area): Stage => (area === 'radical' ? 2 : 3)

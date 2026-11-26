@@ -2,8 +2,8 @@
 // để xong cùng lúc với từ vựng Kana, và ước tính bao lâu nữa xong từ vựng của cấp. Pure (dùng được ở trình duyệt).
 import type { Zone } from './card-types'
 
-/** Số ngày để mục mới cuối cùng xong Intro: Intro 1 + 2 ngày đầu, Intro 3 ngày sau (2026-11-26). */
-export const INTRO_DAYS = 2
+/** Số ngày để mục mới cuối cùng xong Intro: Intro 1 → 2 → 3 mỗi Intro một ngày (2026-11-26, lần 3). */
+export const INTRO_DAYS = 3
 
 /**
  * Một từ Kanji chưa mở của cấp đang học, để ước tính ngày sớm nhất mở được (2026-11-26):
@@ -48,8 +48,10 @@ export interface PaceEstimate {
 
 const daysFor = (remaining: number, perDay: number): number | null => (remaining <= 0 ? 0 : perDay > 0 ? Math.ceil(remaining / perDay) : null)
 
-/** Chữ mở ngày d thì học xong (có Card) vào ngày d + 2: Intro 1 + 2 ngày đầu, Intro 3 ngày sau. */
-const KANJI_LEARNED_AFTER = 2
+/** Chữ mở ngày d thì học xong (có Card) vào ngày d + 3: Intro 1, 2, 3 mỗi Intro một ngày. */
+const KANJI_LEARNED_AFTER = 3
+/** Từ Kana mở ngày d thì qua Intro 1 (vào Intro 2) vào ngày d + 1. */
+const KANA_PAST_INTRO1_AFTER = 1
 
 /**
  * Số ngày tới khi mở hết từ Kanji của cấp đang học: mỗi ngày mở tối đa `perDay` từ trong số từ đã đủ điều kiện
@@ -61,7 +63,7 @@ export function wordKanjiDays(words: readonly WordKanjiPace[], perDay: Record<Zo
   if (perDay.word_kanji <= 0) return null
   // Ngày sớm nhất mở được: kế hoạch mở mục mới chạy đầu ngày, nên từ đủ điều kiện hôm nay thì mở từ ngày hôm sau
   const ready = words.map((w) => {
-    const kana = w.kanaRank === null ? w.kanaDays : perDay.kana > 0 ? Math.floor(w.kanaRank / perDay.kana) : Infinity
+    const kana = w.kanaRank === null ? w.kanaDays : perDay.kana > 0 ? Math.floor(w.kanaRank / perDay.kana) + KANA_PAST_INTRO1_AFTER : Infinity
     const kanji = Math.max(w.kanjiDays, w.kanjiRank === null ? 0 : perDay.kanji > 0 ? Math.floor(w.kanjiRank / perDay.kanji) + KANJI_LEARNED_AFTER : Infinity)
     return { w, day: Math.max(kana, kanji) + 1 }
   })

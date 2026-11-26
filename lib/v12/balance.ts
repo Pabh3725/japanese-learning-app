@@ -1,8 +1,7 @@
 // V12 §8: tự cân bằng số mục mới mỗi ngày theo thời gian học — ba khu xong cùng ngày, theo từng cấp. Pure.
 import { addStudyDays } from '../learning/time'
 import type { StudyDate } from '../learning/types'
-import { CARD_TYPES, kindOf, lastStage, reviewCardsFor, typesFor, type Area, type CardType, type Stage, type Zone } from './card-types'
-import { passPoints } from './stage'
+import { CARD_TYPES, kindOf, lastStage, passFor, reviewCardsFor, typesFor, type Area, type CardType, type Stage, type Zone } from './card-types'
 import { RULES_V12 } from './rules'
 
 /**
@@ -13,7 +12,7 @@ export function estimatedSeconds(area: Area): number {
   const { intro, choice, typing, card } = RULES_V12.seconds
   let total = intro
   for (let s = 1 as Stage; s <= lastStage(area); s = (s + 1) as Stage) {
-    for (const t of typesFor(area, s)) total += passPoints(s) * (kindOf(t) === 'typing' ? typing : choice)
+    for (const t of typesFor(area, s)) total += passFor(area, s, t) * (kindOf(t) === 'typing' ? typing : choice)
   }
   return total + reviewCardsFor(area).length * RULES_V12.reviewsPerCard * card
 }

@@ -14,7 +14,7 @@ export type DeckCard =
 export interface NewItemInput {
   area: Area
   itemId: string
-  /** Loại thẻ Stage 1, theo thứ tự hỏi. */
+  /** Loại thẻ Stage 1 theo thứ tự hỏi, mỗi lần gặp một phần tử (loại cần 2 điểm có thể lặp lại). */
   stage1Types: readonly CardType[]
   /** Số câu Stage 2 dự kiến ngay trong ngày sau khi xong Stage 1 (2026-11-26) — chỉ để tính trần, chèn khi xong Stage 1. */
   later?: number
@@ -130,7 +130,8 @@ export function buildDeck(input: DeckInput, rng: Rng, setSize: number = RULES_V1
     free.push({ card: { kind: 'intro', key: `intro:${k}`, area: it.area, itemId: it.itemId }, notBefore: 0 })
     chains.set(
       `intro:${k}`,
-      it.stage1Types.map((type) => ({ kind: 'stage', key: `s1:${k}:${type}`, area: it.area, itemId: it.itemId, type, stage: 1 })),
+      // Một loại có thể gặp 2 lần (Stage 1 cần 2 điểm, 2026-11-26): khóa kèm số thứ tự lần gặp của loại đó
+      it.stage1Types.map((type, i) => ({ kind: 'stage', key: `s1:${k}:${type}:${it.stage1Types.slice(0, i).filter((t) => t === type).length}`, area: it.area, itemId: it.itemId, type, stage: 1 })),
     )
   }
   for (const it of input.stageItems) {
