@@ -26,6 +26,7 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 - **Cảnh báo sắp vượt trần:** app tính trước số thẻ đến hạn của 7 ngày tới. Nếu có ngày vượt trần, trang Learn và Settings hiện cảnh báo: ngày nào, vượt bao nhiêu, kèm hai nút "Giảm số mục mới mỗi ngày" và "Tăng trần".
 - Settings còn lại các mục:
   - số mục mới mỗi ngày của từng khu (tự nhập, có đề xuất và ước tính, §8);
+- **Mỗi khu có cấp riêng** (chủ dự án chốt 2026-11-26): khu Kana / Kanji mở hết mục N5 thì sang N4 luôn, không chờ khu khác. Khu Từ vựng Kanji mở mọi từ đủ điều kiện (§6), từ N5 trước rồi tới N4. Trang Learn và Settings hiện cấp của từng khu. — CONFIRMED
   - số thẻ mỗi set;
   - trần của từng khu;
   - các cài đặt của Grammar và Luyện nghe, giữ như cũ.
@@ -36,10 +37,10 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 
 - Mỗi Stage có một số **loại thẻ** (ví dụ: Kana → nghĩa, nghe → chọn Kana…). **Mỗi loại thẻ có điểm riêng.**
 - Đúng **+1**, sai **−1**. Điểm không xuống dưới **0**. Không có gợi ý: mỗi câu chỉ có đúng hoặc sai.
-- **Stage 2 và 3:** mỗi loại thẻ cần **2 điểm** (chủ dự án chốt 2026-11-20, trước là 3); số loại thẻ giữ nguyên. Trả lời đúng hết thì xong mỗi Stage ngay trong ngày đầu của Stage đó. Loại thẻ đã đủ điểm thì không xuất hiện nữa. Stage xong khi **mọi loại thẻ** đều đủ điểm. Stage tiếp theo (hoặc Card Review) bắt đầu từ **ngày học kế tiếp**. Loại thẻ đã đủ điểm thì không xuất hiện nữa. Stage xong khi **mọi loại thẻ** đều đủ điểm. Stage tiếp theo (hoặc Card Review) bắt đầu từ **ngày học kế tiếp**.
+- **Stage 2 và 3:** mỗi loại thẻ cần **2 điểm** (chủ dự án chốt 2026-11-20, trước là 3); số loại thẻ giữ nguyên. Trả lời đúng hết thì xong mỗi Stage ngay trong ngày đầu của Stage đó. Loại thẻ đã đủ điểm thì không xuất hiện nữa. Stage xong khi **mọi loại thẻ** đều đủ điểm. Stage 3 (hoặc Card Review) bắt đầu từ **ngày học kế tiếp**; riêng **Stage 2 bắt đầu ngay trong ngày xong Stage 1** (chủ dự án chốt 2026-11-26, §3.2).
 - **Số lần gặp mỗi ngày của một loại thẻ:**
   - Trả lời đúng: gặp **2 lần**, vừa đủ 2 điểm.
-  - Trả lời sai: thẻ được **hỏi lại sau 5 thẻ**. Lần hỏi lại cũng tính điểm (đúng +1, sai −1). Tính cả lần hỏi lại, một loại thẻ gặp **nhiều nhất 3 lần mỗi ngày**.
+  - Trả lời sai: thẻ được **hỏi lại sau 5 thẻ**. Lần hỏi lại cũng tính điểm (đúng +1, sai −1). **Hỏi lại tới khi đủ điểm trong ngày** (chủ dự án chốt 2026-11-26; bỏ trần "nhiều nhất 3 lần mỗi ngày"). Card Review vẫn hỏi lại tối đa 3 lần (§3.3).
 
 ### 3.2 Stage 1 (ngày đầu tiên)
 
@@ -48,8 +49,8 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
   - loại thứ hai hỏi **sau 5 thẻ**;
   - các loại còn lại, mỗi loại cách nhau **10 thẻ**.
 - Mỗi loại thẻ chỉ cần **đúng 1 lần**. Sai thì hỏi lại sau 5 thẻ, cho tới khi đúng trong ngày.
-- Đúng hết các loại → Stage 2 bắt đầu từ **ngày học kế tiếp**. Hôm sau không học thì chờ tới ngày học kế tiếp, không bị phạt.
-- Nếu hết ngày mà chưa đúng hết: ngày học sau tiếp tục Stage 1 với các loại còn thiếu, không hiện lại thẻ giới thiệu .
+- Đúng hết các loại → **Stage 2 bắt đầu ngay trong ngày** (chủ dự án chốt 2026-11-26, áp dụng Kana, Kanji, Từ vựng Kanji và bộ thủ): các câu Stage 2 được chèn vào phần còn lại của bộ thẻ đang học, mỗi câu cách nhau 3 thẻ (lượt 1 của mọi loại rồi lượt 2), để hai lần gặp cùng loại cách ít nhất 5 thẻ. Stage 3 (bộ thủ: học xong) từ ngày học kế tiếp. Trần và dự báo tính cả câu Stage 2 của ngày đầu.
+- Nếu hết ngày mà chưa đúng hết: ngày học sau tiếp tục Stage 1 với các loại còn thiếu, không hiện lại thẻ giới thiệu; xong lúc nào thì Stage 2 bắt đầu luôn lúc đó.
 
 ### 3.3 Review (FSRS, giữ như hiện nay)
 
@@ -61,8 +62,8 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 
 | | Loại thẻ |
 |---|---|
-| Thẻ giới thiệu | Kana, nghĩa, âm thanh, Hán Việt (nếu có, hiện nhỏ) |
-| Stage 1 | **Chỉ thẻ giới thiệu, không có câu hỏi** (chủ dự án chốt 2026-11-26; trước là Kana → nghĩa · nghĩa → Kana). Xem xong thẻ giới thiệu là xong Stage 1; Stage 2 bắt đầu từ ngày học kế tiếp. Migration `20261212000001` chuyển từ đang ở Stage 1 đã xem thẻ giới thiệu sang Stage 2 |
+| Thẻ giới thiệu | Kana, **romaji** (chủ dự án yêu cầu 2026-11-26), nghĩa, âm thanh, Hán Việt (nếu có, hiện nhỏ) |
+| Stage 1 | Kana → nghĩa (trắc nghiệm) · nghĩa → Kana (trắc nghiệm). ~~Chỉ thẻ giới thiệu (sáng 2026-11-26)~~ — khôi phục cùng ngày (chủ dự án chốt 2026-11-26, lần 2). Câu Kana → nghĩa hiện romaji dưới đề; câu nghĩa → Kana không hiện (để không lộ đáp án). Migration `20261213000001` trả các từ đã bị chuyển thẳng sang Stage 2 mà chưa đúng đủ hai câu Intro 1 về Stage 1 |
 | Stage 2 | nghe → chọn Kana · nghĩa → chọn Kana (trắc nghiệm) (rút gọn, chủ dự án chốt 2026-11-22) |
 | Stage 3 | nghĩa → **gõ** Kana (bỏ "nghe → gõ Kana" để bớt câu nghe, chủ dự án chốt 2026-11-24) |
 | **Review: 1 Card** | nghĩa → **gõ** Kana; đúng hay sai đều phát âm thanh và hiện chữ, cách đọc, Hán Việt, nghĩa (bỏ Card "Kana → chọn nghĩa", chủ dự án chốt 2026-11-22) |
@@ -109,16 +110,19 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 - **Mở thẻ** (chủ dự án chốt 2026-11-24): từ vựng Kana của từ đã vào **Stage 2**, **và mọi chữ Kanji của từ đã học xong ở khu Kanji** (xong Intro, có Card, hoặc đã đánh dấu "đã biết"). Giữ danh sách chính sách Kanji của từ: từ "chỉ Kana" không có thẻ Từ vựng Kanji.
 - **Thẻ đã có mà còn chữ chưa học xong** (chủ dự án duyệt 2026-11-25): mục mở theo luật cũ, chuyển từ V11 hoặc tạo bằng "Mark as learned" thì tạm ẩn (câu Intro, Card, câu sao, số đếm, dự báo, cả bộ thẻ đã dựng hôm nay), giữ nguyên điểm và lịch FSRS; tự hiện lại khi mọi chữ học xong. Chữ ngoài N5–N4 cũng chặn. — CONFIRMED
 - **Học từ bằng Kana ở N5 không bắt buộc học dạng Kanji ở N5.** Cấp của thẻ Từ vựng Kanji = cấp khó nhất giữa từ và các chữ của từ: từ N5 có chữ N4 (vd. 日曜日) mở trong lúc học Kanji N4; từ có chữ ngoài danh sách N5–N4 (vd. 辞書, 傘) **chưa có** thẻ Từ vựng Kanji (tới khi khu Kanji có cấp đó).
+- **Bỏ từ chỉ gồm đúng 1 chữ Kanji** (chủ dự án chốt 2026-11-26; vd. 前, 北, 石 — 105 từ N5–N4): Hán Việt của từ trùng với chữ, đã học ở khu Kanji. Từ 1 chữ kèm Kana (vd. 作ります, 楽しい) vẫn học. Thẻ đã mở của các từ này tạm ẩn, không đổi dữ liệu. — CONFIRMED
 - **Bỏ hàng chờ** (trước đây từ thiếu chữ được học thẳng dạng Kanji khi tới lượt).
 - Số từ có dạng Kanji theo luật này (dữ liệu 2026-11-24): từ N5 — 214 mở ở N5, 141 mở ở N4, 271 chưa có; từ N4 — 217 mở ở N4, 499 chưa có.
 - **Thẻ giới thiệu:** Kana, dạng Kanji, Hán Việt, nghĩa, và **tách từng chữ** của từ (mỗi chữ kèm Hán Việt và nghĩa, vd. 学校 → 学 HỌC · học, 校 HIỆU · trường; chủ dự án yêu cầu 2026-11-24).
 
 | | Loại thẻ |
 |---|---|
-| Stage 1 | từ Kanji → Hán Việt · từ Kanji → nghĩa (trắc nghiệm) (rút gọn, chủ dự án chốt 2026-11-22) |
-| Stage 2 | Hán Việt → từ Kanji (đề hiện thêm nghĩa dưới âm Hán Việt, 2026-11-24) · nghĩa → từ Kanji (trắc nghiệm) · **ghép chữ**: nghĩa (kèm Hán Việt) → chọn từng chữ theo thứ tự để viết từ, có chữ Kanji nhiễu (2026-11-19) (rút gọn, chủ dự án chốt 2026-11-22) |
-| Stage 3 | từ Kanji → **gõ** Hán Việt (rút gọn, chủ dự án chốt 2026-11-22) |
+| Stage 1 | từ Kanji → Hán Việt · từ Kanji → nghĩa (trắc nghiệm) (chủ dự án chốt 2026-11-26) |
+| Stage 2 | nghĩa → chọn Hán Việt (đáp án nhiễu không trùng nghĩa) · Hán Việt → chọn từ Kanji (đề hiện thêm nghĩa); mỗi dạng 2 điểm (chủ dự án chốt 2026-11-26; bỏ ghép chữ và "từ → nghĩa" vì đã có ở Stage 1) |
+| Stage 3 | nghĩa (kèm cách đọc Kana, để câu chỉ có một đáp án khi nhiều từ trùng nghĩa) → **gõ** Hán Việt (chủ dự án chốt 2026-11-26) |
 | **Review: 1 Card** | nhìn từ → **gõ** Hán Việt + **chọn** nghĩa (bỏ gõ Kana, chủ dự án chốt 2026-11-19; cách đọc hiện và đọc to sau khi chấm) |
+
+- **Cách đọc chỉ để nhắc lại, không hỏi** (chủ dự án chốt 2026-11-26): cách đọc đã học ở khu Kana, nên khu Từ vựng Kanji không có câu hỏi về cách đọc. Cách đọc Kana hiện nhỏ ngay dưới đề của mọi câu có từ Kanji ở đề (từ → Hán Việt, từ → nghĩa, Card) và dưới nghĩa ở câu nghĩa → Hán Việt / nghĩa → gõ Hán Việt; không hiện ở câu Hán Việt → chọn từ. — CONFIRMED
 
 ## 7. Chuyển dữ liệu người học (từ V11)
 
@@ -138,7 +142,7 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 
 ## 8. Tự cân bằng số mục mới mỗi ngày
 
-> **Thay thế 2026-11-24 (chủ dự án chốt):** bỏ chế độ cân bằng. Người học **tự nhập số mục mới mỗi ngày của từng khu** (Kana, Kanji, Từ Kanji; 0 = dừng khu, bỏ công tắc "Pause an area"). Cạnh ô Kanji và Từ Kanji, Settings ghi **đề xuất** số mỗi ngày để xong cùng lúc với Kana (= số còn lại ÷ số ngày Kana cần). Settings và trang Learn hiện **ước tính bao lâu nữa xong từ vựng của cấp** (ngày của khu lâu nhất + 3 ngày giới thiệu) và số phút học mỗi ngày (thời gian một mục ở §8.1). Grammar cũng tự nhập số mẫu mỗi ngày kèm ước tính ngày xong (bỏ §3a cân bằng Grammar). Migration `20261210000001` đổi người đang cân bằng sang số riêng từng khu (~75% / 10% / 15% của `balance_items`) và tắt cân bằng; mặc định mới 10 / 2 / 2. Phần dưới đây giữ làm lịch sử; §8.1 vẫn dùng cho ước tính.
+> **Thay thế 2026-11-24 (chủ dự án chốt):** bỏ chế độ cân bằng. Người học **tự nhập số mục mới mỗi ngày của từng khu** (Kana, Kanji, Từ Kanji; 0 = dừng khu, bỏ công tắc "Pause an area"). Cạnh ô Kanji và Từ Kanji, Settings ghi **đề xuất** số mỗi ngày để xong cùng lúc với Kana (= số còn lại ÷ số ngày Kana cần). Settings và trang Learn hiện **ước tính bao lâu nữa xong từ vựng của cấp** (ngày của khu lâu nhất + 3 ngày giới thiệu; từ 2026-11-26 là cấp đang học của từng khu + 2 ngày, vì Intro 1 + 2 học trong ngày đầu) và số phút học mỗi ngày (thời gian một mục ở §8.1). **Từ 2026-11-26 (chủ dự án chốt):** số ngày của khu Từ vựng Kanji tính theo ngày sớm nhất mở được của từng từ (Kana của từ qua Intro 1, mọi chữ học xong — theo thứ tự hàng chờ và số mỗi ngày của khu Kana / Kanji); ngày không đủ từ thì mở ít hơn, không bù sang ngày sau. Đề xuất số Từ Kanji mỗi ngày = số nhỏ nhất để xong không muộn hơn Kana. Grammar cũng tự nhập số mẫu mỗi ngày kèm ước tính ngày xong (bỏ §3a cân bằng Grammar). Migration `20261210000001` đổi người đang cân bằng sang số riêng từng khu (~75% / 10% / 15% của `balance_items`) và tắt cân bằng; mặc định mới 10 / 2 / 2. Phần dưới đây giữ làm lịch sử; §8.1 vẫn dùng cho ước tính.
 
 **Đã chốt (chủ dự án, 2026-11-18):**
 - Cân bằng theo **thời gian học**: ba khu Từ vựng Kana, Kanji (gồm bộ thủ) và Từ vựng Kanji **học xong cùng một ngày**.
@@ -158,10 +162,10 @@ Mỗi mục được quy ra **thời gian học** theo số câu tối thiểu c
 
 | Mục | Câu học (tối thiểu; Stage 2–3 tính 2 điểm mỗi loại từ 2026-11-20) | Card Review | Thời gian ước tính |
 |---|---|---|---|
-| Từ vựng Kana | thẻ giới thiệu + Stage 2: 4 trắc nghiệm + Stage 3: 2 gõ (Stage 1 chỉ thẻ giới thiệu từ 2026-11-26) | 1 Card × 4 lần | 15 + 24 + 24 + 60 ≈ **2,1 phút** |
+| Từ vựng Kana | thẻ giới thiệu + Stage 1: 2 trắc nghiệm + Stage 2: 4 trắc nghiệm + Stage 3: 2 gõ | 1 Card × 4 lần | 15 + 36 + 24 + 60 ≈ **2,3 phút** |
 | Bộ thủ | thẻ giới thiệu + Stage 1: 2 + Stage 2: 4 trắc nghiệm | không có Card | 15 + 36 ≈ **0,9 phút** |
 | Chữ Kanji | thẻ giới thiệu + Stage 1: 2 + Stage 2: 4 trắc nghiệm + Stage 3: 2 gõ (+ 2 phân biệt chữ giống nếu có) | 1 Card × 4 lần | 15 + 36 + 24 + 60 ≈ **2,3 phút** |
-| Từ vựng Kanji | thẻ giới thiệu + Stage 1: 2 + Stage 2: 4 trắc nghiệm + 2 ghép chữ + Stage 3: 2 gõ | 1 Card × 4 lần | 15 + 48 + 24 + 60 ≈ **2,5 phút** |
+| Từ vựng Kanji | thẻ giới thiệu + Stage 1: 2 + Stage 2: 4 trắc nghiệm + Stage 3: 2 gõ (từ 2026-11-26) | 1 Card × 4 lần | 15 + 36 + 24 + 60 ≈ **2,3 phút** |
 
 - Sai thì có thêm câu hỏi lại, nên thời gian thật dài hơn. App ghi thời gian trả lời thật và **sau 14 ngày** thay các con số ước tính bằng trung bình thật của người học .
 

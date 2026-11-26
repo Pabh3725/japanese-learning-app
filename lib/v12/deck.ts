@@ -16,6 +16,8 @@ export interface NewItemInput {
   itemId: string
   /** Loại thẻ Stage 1, theo thứ tự hỏi. */
   stage1Types: readonly CardType[]
+  /** Số câu Stage 2 dự kiến ngay trong ngày sau khi xong Stage 1 (2026-11-26) — chỉ để tính trần, chèn khi xong Stage 1. */
+  later?: number
 }
 
 export interface StageItemInput {
@@ -24,6 +26,8 @@ export interface StageItemInput {
   stage: Stage
   /** Số lần dự kiến gặp hôm nay của từng loại thẻ (plannedShows). Stage 1 dở dang từ hôm trước cũng nằm ở đây. */
   types: readonly { type: CardType; shows: number }[]
+  /** Stage 1: số câu Stage 2 dự kiến ngay trong ngày sau khi xong (chỉ để tính trần). */
+  later?: number
 }
 
 export interface ReviewInput {
@@ -52,8 +56,8 @@ const itemKey = (c: { area: Area; itemId: string }) => `${c.area}:${c.itemId}`
 /** Số câu (không tính thẻ giới thiệu, câu sao) của phần đầu vào — đơn vị của trần (§2). */
 export function countQuestions(input: DeckInput): number {
   return (
-    input.newItems.reduce((n, i) => n + i.stage1Types.length, 0) +
-    input.stageItems.reduce((n, i) => n + i.types.reduce((m, t) => m + t.shows, 0), 0) +
+    input.newItems.reduce((n, i) => n + i.stage1Types.length + (i.later ?? 0), 0) +
+    input.stageItems.reduce((n, i) => n + i.types.reduce((m, t) => m + t.shows, 0) + (i.later ?? 0), 0) +
     input.reviews.length
   )
 }
@@ -82,9 +86,9 @@ export function applyCap(input: DeckInput, cap: number): CappedInput {
     }
     return [kept, dropped]
   }
-  const [stageItems, ds] = take(input.stageItems, (i) => i.types.reduce((m, t) => m + t.shows, 0))
+  const [stageItems, ds] = take(input.stageItems, (i) => i.types.reduce((m, t) => m + t.shows, 0) + (i.later ?? 0))
   const [reviews, dr] = take([...input.reviews].sort((a, b) => a.due.getTime() - b.due.getTime()), () => 1)
-  const [newItems, dn] = take(input.newItems, (i) => i.stage1Types.length)
+  const [newItems, dn] = take(input.newItems, (i) => i.stage1Types.length + (i.later ?? 0))
   return { input: { ...input, newItems, stageItems, reviews }, deferred: { newItems: dn, stageItems: ds, reviews: dr } }
 }
 
@@ -230,6 +234,27 @@ export function insertRetry(deck: readonly DeckCard[], answeredAt: number, card:
   const at = Math.min(deck.length, answeredAt + 1 + after)
   const retry = { ...card, key: `${card.key}:r${answeredAt}`, retry: true } as DeckCard
   return [...deck.slice(0, at), retry, ...deck.slice(at)]
+}
+
+/**
+ * Xong Stage 1 giữa phiên (2026-11-26): chèn các câu Stage 2 của mục vào phần còn lại của bộ thẻ, cách nhau 3 thẻ
+ * (lượt 1 của mọi loại rồi lượt 2), để hai lần gặp cùng loại thẻ cách ít nhất `retryAfter` thẻ; hết bộ thì đặt cuối.
+ */
+export function insertStageCards(
+  deck: readonly DeckCard[],
+  answeredAt: number,
+  item: { area: Area; itemId: string; stage: Stage },
+  types: readonly { type: CardType; shows: number }[],
+): DeckCard[] {
+  const k = itemKey(item)
+  const rounds = Math.max(0, ...types.map((t) => t.shows))
+  const cards: DeckCard[] = []
+  for (let n = 0; n < rounds; n++)
+    for (const t of types) if (n < t.shows) cards.push({ kind: 'stage', key: `s${item.stage}:${k}:${t.type}:${n}`, area: item.area, itemId: item.itemId, type: t.type, stage: item.stage })
+  const step = types.length >= 2 ? 3 : RULES_V12.retryAfter + 1
+  const out = [...deck]
+  cards.forEach((card, i) => out.splice(Math.min(out.length, answeredAt + 1 + step * (i + 1)), 0, card))
+  return out
 }
 
 /** Khoảng hỏi lại Card sai: 3–5 thẻ (§3.3). */

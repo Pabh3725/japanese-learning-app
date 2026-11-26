@@ -12,7 +12,7 @@ import { canOpenKanji, kanjiOrder, radicalOrder, wordKanjiStatus, wordKanjiWaiti
 import { buildReviewCard, buildStageQuestion, gradeCard, gradeQuestion, type Pools } from '../questions'
 import { pausedZones } from '../plan'
 import { RULES_V12 } from '../rules'
-import { applyAnswer, canShow, finishIntro, newItem, plannedShows, type ItemState } from '../stage'
+import { applyAnswer, canShow, newItem, plannedShows, type ItemState } from '../stage'
 
 const seeded = (seed: number) => () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296)
 const D0 = '2026-11-20'
@@ -32,7 +32,7 @@ function playDay(item: ItemState, date: string) {
 }
 
 describe('§3 Điểm theo loại thẻ', () => {
-  it('Stage 1: mỗi loại đúng 1 lần là qua; Stage 2 chạy từ ngày học kế tiếp', () => {
+  it('Stage 1: mỗi loại đúng 1 lần là qua; Stage 2 chạy luôn trong ngày (2026-11-26)', () => {
     let item = newItem('kanji', D0)
     expect(Object.keys(item.types)).toEqual(['kanji_hanviet', 'kanji_meaning'])
     const wrong = applyAnswer(item, 'kanji_hanviet', false, D0)
@@ -42,21 +42,34 @@ describe('§3 Điểm theo loại thẻ', () => {
     const r = applyAnswer(item, 'kanji_meaning', true, D0)
     expect(r.stageDone).toBe(true)
     expect(r.item.stage).toBe(2)
-    expect(r.item.stageFrom).toBe(D1)
-    expect(canShow(r.item, 'meaning_kanji', D0)).toBe(false)
-    expect(canShow(r.item, 'meaning_kanji', D1)).toBe(true)
+    expect(r.item.stageFrom).toBe(D0)
+    expect(canShow(r.item, 'meaning_kanji', D0)).toBe(true)
+    // Xong Stage 2 thì Stage 3 vẫn từ ngày học kế tiếp
+    let s2 = r.item
+    for (const t of typesFor('kanji', 2)) for (let n = 0; n < 2; n++) s2 = applyAnswer(s2, t, true, D0).item
+    expect(s2.stage).toBe(3)
+    expect(s2.stageFrom).toBe(D1)
   })
 
-  it('Từ vựng Kana (2026-11-26): Intro 1 chỉ có thẻ giới thiệu; xem xong thì Stage 2 từ ngày học kế tiếp', () => {
-    const item = newItem('kana', D0)
-    expect(Object.keys(item.types)).toEqual([])
-    const next = finishIntro(item, D0)!
-    expect(next.stage).toBe(2)
-    expect(next.stageFrom).toBe(D1)
-    expect(Object.keys(next.types)).toEqual(['listen_kana', 'meaning_kana'])
-    expect(canShow(next, 'meaning_kana', D0)).toBe(false)
-    expect(canShow(next, 'meaning_kana', D1)).toBe(true)
-    expect(finishIntro(newItem('kanji', D0), D0)).toBeNull()
+  it('Từ vựng Kana khôi phục Intro 1 (2026-11-26, lần 2): xong Intro 1 thì Intro 2 ngay trong ngày', () => {
+    let item = newItem('kana', D0)
+    expect(Object.keys(item.types)).toEqual(['kana_meaning', 'meaning_kana'])
+    item = applyAnswer(item, 'kana_meaning', true, D0).item
+    const r = applyAnswer(item, 'meaning_kana', true, D0)
+    expect(r.item.stage).toBe(2)
+    expect(r.item.stageFrom).toBe(D0)
+    expect(Object.keys(r.item.types)).toEqual(['listen_kana', 'meaning_kana'])
+    expect(plannedShows(r.item, 'listen_kana', D0)).toBe(2)
+  })
+
+  it('bộ thủ: Intro 1 + 2 trong ngày đầu là học xong', () => {
+    let item = newItem('radical', D0)
+    for (const t of typesFor('radical', 1)) item = applyAnswer(item, t, true, D0).item
+    expect(item.stage).toBe(2)
+    let last
+    for (const t of typesFor('radical', 2)) for (let n = 0; n < 2; n++) item = (last = applyAnswer(item, t, true, D0)).item
+    expect(item.stage).toBe('review')
+    expect(last!.cardsCreated).toEqual([])
   })
 
   it('Stage 2: mỗi loại 2 điểm (2026-11-20) — đúng hết thì xong trong ngày đầu, Stage 3 từ hôm sau', () => {
@@ -75,7 +88,7 @@ describe('§3 Điểm theo loại thẻ', () => {
     expect(day1.state.stageFrom).toBe(D1)
   })
 
-  it('sai: −1 (sàn 0), hỏi lại, tối đa 3 lần/ngày; lần hỏi lại đúng cũng +1', () => {
+  it('sai: −1 (sàn 0), hỏi lại tới khi đủ điểm trong ngày (2026-11-26, bỏ trần 3 lần); lần hỏi lại đúng cũng +1', () => {
     let item: ItemState = { area: 'kana', stage: 2, stageFrom: D0, types: { kana_meaning: { points: 1, seenDate: null, seenToday: 0, wrongToday: 0 } } }
     let r = applyAnswer(item, 'kana_meaning', false, D0)
     expect(r.delta).toBe(-1)
@@ -85,8 +98,17 @@ describe('§3 Điểm theo loại thẻ', () => {
     expect(r.delta).toBe(0)
     r = applyAnswer(r.item, 'kana_meaning', true, D0)
     expect(r.item.types.kana_meaning!.points).toBe(1)
+    // Đã gặp 3 lần: vẫn hỏi tiếp vì chưa đủ điểm
+    expect(canShow(r.item, 'kana_meaning', D0)).toBe(true)
+    for (let n = 0; n < 5; n++) r = applyAnswer(r.item, 'kana_meaning', false, D0)
+    expect(r.retry).toBe(true)
+    r = applyAnswer(r.item, 'kana_meaning', true, D0)
+    r = applyAnswer(r.item, 'kana_meaning', true, D0)
+    expect(r.typeDone).toBe(true)
     expect(canShow(r.item, 'kana_meaning', D0)).toBe(false)
-    item = r.item
+    item = { ...r.item, types: { kana_meaning: { points: 1, seenDate: D0, seenToday: 2, wrongToday: 0 } } }
+    // Đúng hết thì vẫn 2 lần/ngày
+    expect(canShow(item, 'kana_meaning', D0)).toBe(false)
     expect(canShow(item, 'kana_meaning', D1)).toBe(true)
   })
 
@@ -214,10 +236,10 @@ describe('§5–6 Thứ tự mở', () => {
 
 describe('§8 Cân bằng theo thời gian', () => {
   it('thời gian ước tính khớp bảng §8.1', () => {
-    expect(estimatedSeconds('kana')).toBe(123)
+    expect(estimatedSeconds('kana')).toBe(135)
     expect(estimatedSeconds('radical')).toBe(51)
     expect(estimatedSeconds('kanji')).toBe(135)
-    expect(estimatedSeconds('word_kanji')).toBe(147)
+    expect(estimatedSeconds('word_kanji')).toBe(135)
   })
 
   it('ba khu hết cùng ngày (tính lại mỗi ngày, cộng dồn phần lẻ); bộ thủ học trước chữ', () => {
@@ -350,18 +372,18 @@ describe('§8 Cân bằng theo thời gian', () => {
 })
 
 describe('§2 Dự báo vượt trần', () => {
-  it('một từ Kana mới (đúng hết): thẻ giới thiệu, 4, 2 câu rồi Card từ ngày thứ 4', () => {
+  it('một từ Kana mới (đúng hết): ngày đầu 2 + 4 câu, hôm sau 2 câu gõ, Card từ ngày thứ 3', () => {
     const sim = simulateItem(newItem('kana', D0), D0, 7)
-    expect(sim.counts).toEqual([0, 4, 2, 0, 0, 0, 0])
-    expect(sim.cardsFrom).toBe(3)
+    expect(sim.counts).toEqual([6, 2, 0, 0, 0, 0, 0])
+    expect(sim.cardsFrom).toBe(2)
   })
 
   it('báo ngày vượt trần', () => {
     const days = forecast({ today: D0, items: [], reviewsByDay: { kana: [5, 200], kanji: [], word_kanji: [] }, newPerDay: { kana: 3 }, caps: { kana: 100, kanji: 100, word_kanji: 100 } })
     expect(days).toHaveLength(7)
-    expect(days[0].counts.kana).toBe(5)
+    expect(days[0].counts.kana).toBe(5 + 3 * 6)
     expect(overflowDays(days).map((d) => d.date)).toEqual([D1])
-    expect(days[1].over.kana).toBe(200 + 3 * 4 - 100)
+    expect(days[1].over.kana).toBe(200 + 3 * 2 + 3 * 6 - 100)
   })
 })
 
@@ -552,7 +574,7 @@ describe('Nhịp học tự nhập (2026-11-24)', () => {
     const r = paceEstimate({ remaining: { kana: 580, kanji: 80, word_kanji: 120 }, perDay: { kana: 10, kanji: 2, word_kanji: 1 }, seconds: { kana: 135, kanji: 135, word_kanji: 147 } })
     expect(r.days).toEqual({ kana: 58, kanji: 40, word_kanji: 120 })
     expect(r.suggest).toEqual({ kanji: 2, word_kanji: 3 })
-    expect(r.total).toBe(123)
+    expect(r.total).toBe(122)
     expect(r.minutes).toBe(Math.round((10 * 135 + 2 * 135 + 147) / 60))
     // Khu đặt 0 mà còn mục: chưa có ngày xong
     expect(paceEstimate({ remaining: { kana: 10, kanji: 5, word_kanji: 0 }, perDay: { kana: 5, kanji: 0, word_kanji: 0 }, seconds: { kana: 1, kanji: 1, word_kanji: 1 } }).total).toBeNull()
@@ -565,5 +587,168 @@ describe('Từ vựng Kanji chờ chữ (2026-11-25)', () => {
     expect(wordKanjiWaiting(['会', '社'], p)).toBe(true)
     expect(wordKanjiWaiting(['会'], p)).toBe(false)
     expect(wordKanjiWaiting(['韓', '国'], p)).toBe(true)
+  })
+})
+
+describe('Từ vựng Kanji trọng tâm Hán Việt (2026-11-26)', () => {
+  const pools: Pools = {
+    kana: [],
+    radical: [],
+    kanji: [],
+    word_kanji: [
+      { id: 'a', expression: '会社', kana: 'かいしゃ', hanViet: 'HỘI XÃ', meaning: 'công ty' },
+      { id: 'b', expression: '社員', kana: 'しゃいん', hanViet: 'XÃ VIÊN', meaning: 'nhân viên công ty' },
+      { id: 'c', expression: '会社員', kana: 'かいしゃいん', hanViet: 'HỘI XÃ VIÊN', meaning: 'nhân viên công ty' },
+      { id: 'd', expression: '社長', kana: 'しゃちょう', hanViet: 'XÃ TRƯỞNG', meaning: 'giám đốc' },
+      { id: 'e', expression: '電話', kana: 'でんわ', hanViet: 'ĐIỆN THOẠI', meaning: 'điện thoại' },
+    ],
+  }
+  it('Intro 1 từ → Hán Việt · từ → nghĩa; Intro 2 nghĩa → Hán Việt · Hán Việt → từ; Intro 3 nghĩa → gõ Hán Việt', () => {
+    expect(typesFor('word_kanji', 1)).toEqual(['word_hanviet', 'word_meaning'])
+    expect(typesFor('word_kanji', 2)).toEqual(['meaning_hanviet', 'hanviet_word'])
+    expect(typesFor('word_kanji', 3)).toEqual(['meaning_type_hanviet'])
+  })
+  it('nghĩa → Hán Việt không lấy từ trùng nghĩa làm đáp án nhiễu', () => {
+    for (let i = 0; i < 20; i++) {
+      const q = buildStageQuestion('meaning_hanviet', pools.word_kanji[1], pools, Math.random)
+      expect(q.kind === 'choice' && q.options).not.toContain('HỘI XÃ VIÊN')
+      expect(q.kind === 'choice' && q.answer).toBe('XÃ VIÊN')
+    }
+  })
+  it('nghĩa → gõ Hán Việt hiện cách đọc dưới nghĩa', () => {
+    const q = buildStageQuestion('meaning_type_hanviet', pools.word_kanji[2], pools, Math.random)
+    expect(q).toMatchObject({ kind: 'typing', prompt: 'nhân viên công ty', reading: 'かいしゃいん', answer: 'HỘI XÃ VIÊN' })
+  })
+  it('cách đọc hiện trên đề có từ Kanji (chỉ nhắc lại, không hỏi)', () => {
+    const w = pools.word_kanji[0]
+    for (const t of ['word_hanviet', 'word_meaning', 'meaning_hanviet'] as const) expect(buildStageQuestion(t, w, { ...pools, word_kanji: [...pools.word_kanji] }, Math.random)).toMatchObject({ reading: 'かいしゃ' })
+    expect(buildReviewCard('word_kanji', w, pools, Math.random).reading).toBe('かいしゃ')
+    expect(buildStageQuestion('hanviet_word', w, pools, Math.random)).not.toHaveProperty('reading')
+  })
+})
+
+describe('Ngày đầu học Intro 1 + 2, cấp riêng từng khu, ước tính Từ Kanji (2026-11-26)', () => {
+  const posOf = (deck: DeckCard[], key: string) => deck.findIndex((c) => c.key === key)
+  it('xong Stage 1 giữa phiên: chèn câu Stage 2 vào phần còn lại, hai lần cùng loại cách ít nhất 5 thẻ', async () => {
+    const { insertStageCards } = await import('../deck')
+    const deck: DeckCard[] = Array.from({ length: 30 }, (_, i) => ({ kind: 'review', key: `rv:c${i}`, area: 'kana', itemId: `r${i}`, card: 'kana_type', cardId: `c${i}` }))
+    const out = insertStageCards(deck, 4, { area: 'kana', itemId: 'n1', stage: 2 }, typesFor('kana', 2).map((type) => ({ type, shows: 2 })))
+    expect(out).toHaveLength(34)
+    for (const t of typesFor('kana', 2)) {
+      const a = posOf(out, `s2:kana:n1:${t}:0`)
+      const b = posOf(out, `s2:kana:n1:${t}:1`)
+      expect(a).toBeGreaterThan(4)
+      expect(b - a).toBeGreaterThan(RULES_V12.retryAfter)
+    }
+    // Gần cuối bộ: đặt cuối, không mất câu
+    expect(insertStageCards(deck.slice(0, 3), 2, { area: 'kana', itemId: 'n1', stage: 2 }, [{ type: 'listen_kana', shows: 2 }])).toHaveLength(5)
+  })
+
+  it('trần tính cả câu Stage 2 của ngày đầu', () => {
+    const input: DeckInput = { newItems: Array.from({ length: 5 }, (_, i) => ({ area: 'kana' as const, itemId: `n${i}`, stage1Types: typesFor('kana', 1), later: 4 })), stageItems: [], reviews: [] }
+    const r = applyCap(input, 13)
+    expect(r.input.newItems).toHaveLength(2)
+    expect(r.deferred.newItems).toBe(3)
+  })
+
+  it('mỗi khu tự sang cấp sau khi mở hết cấp của mình', async () => {
+    const { planNewItems } = await import('../plan')
+    const words = [
+      { id: 'a', level: 5, sortOrder: 1, kanaOnly: false, kanji: [] },
+      { id: 'b', level: 4, sortOrder: 2, kanaOnly: false, kanji: [] },
+      { id: 'c', level: 4, sortOrder: 3, kanaOnly: false, kanji: [] },
+    ]
+    const kanji = [
+      { id: 'k5', character: '日', level: 5, freq: 1, strokes: 4, components: [], radicals: [] },
+      { id: 'k4', character: '朝', level: 4, freq: 1, strokes: 12, components: [], radicals: [] },
+    ]
+    const r = planNewItems({
+      today: D0,
+      words,
+      radicals: [],
+      kanji,
+      wordKanji: [],
+      progress: new Map<string, Progress>([['kana:a', 2]]),
+      openedToday: { kana: 0, radical: 0, kanji: 0, word_kanji: 0 },
+      balanceOn: false,
+      target: { kind: 'minutes', minutes: 20 },
+      manual: { kana: 5, kanji: 5, word_kanji: 5 },
+    })
+    // Kana đã mở hết N5 → mở N4 ngay, dù khu Kanji còn chữ N5
+    expect(r.levels).toEqual({ kana: 4, kanji: 5, word_kanji: null })
+    expect(r.open.kana).toEqual(['b', 'c'])
+    expect(r.open.kanji).toEqual(['k5'])
+    expect(r.remaining.kana).toBe(2)
+    expect(r.level).toBe(5)
+  })
+
+  it('Từ Kanji mở mọi từ đủ điều kiện, từ N5 trước từ N4', async () => {
+    const { planNewItems } = await import('../plan')
+    const words = [
+      { id: 'x4', level: 4, sortOrder: 1, kanaOnly: false, kanji: ['日'] },
+      { id: 'x5', level: 5, sortOrder: 2, kanaOnly: false, kanji: ['日'] },
+    ]
+    const r = planNewItems({
+      today: D0,
+      words,
+      radicals: [],
+      kanji: [{ id: 'k5', character: '日', level: 5, freq: 1, strokes: 4, components: [], radicals: [] }],
+      wordKanji: words,
+      progress: new Map<string, Progress>([['kana:x4', 2], ['kana:x5', 2], ['kanji:k5', 'review']]),
+      openedToday: { kana: 0, radical: 0, kanji: 0, word_kanji: 0 },
+      balanceOn: false,
+      target: { kind: 'minutes', minutes: 20 },
+      manual: { kana: 0, kanji: 0, word_kanji: 1 },
+    })
+    expect(r.open.word_kanji).toEqual(['x5'])
+  })
+
+  it('ước tính Từ Kanji theo ngày sớm nhất mở được của từng từ; ngày thiếu không bù', async () => {
+    const { wordKanjiDays, paceEstimate } = await import('../pace')
+    const row = (kanjiRank: number | null, kanaRank: number | null = null) => ({ level: 5, current: true, kanaRank, kanaDays: 0, kanjiRank, kanjiDays: 0 })
+    // 4 từ cần chữ thứ 0, 1, 2, 3 trong hàng chờ; 1 chữ/ngày → chữ thứ k học xong ngày k + 2, từ mở từ ngày k + 3
+    const words = [row(0), row(1), row(2), row(3)]
+    expect(wordKanjiDays(words, { kana: 10, kanji: 1, word_kanji: 5 })).toBe(7)
+    // Không có ràng buộc: mở từ ngày 1 (kế hoạch chạy đầu ngày), 2 từ mỗi ngày → xong sau ngày 2
+    expect(wordKanjiDays([row(null), row(null), row(null), row(null)], { kana: 10, kanji: 1, word_kanji: 2 })).toBe(3)
+    // Khu Kanji đặt 0 mà từ còn chữ chưa mở: không có ngày xong
+    expect(wordKanjiDays(words, { kana: 10, kanji: 0, word_kanji: 5 })).toBeNull()
+    // Đề xuất: số nhỏ nhất để xong không muộn hơn Kana
+    const p = paceEstimate({ remaining: { kana: 100, kanji: 4, word_kanji: 4 }, perDay: { kana: 10, kanji: 1, word_kanji: 1 }, seconds: { kana: 1, kanji: 1, word_kanji: 1 }, wordKanji: words })
+    expect(p.days.word_kanji).toBe(7)
+    expect(p.suggest.word_kanji).toBe(1)
+  })
+
+  it('dữ liệu ước tính: vị trí trong hàng chờ Kana / Kanji, số ngày của chữ đang học', async () => {
+    const { wordKanjiPaceRows } = await import('../plan')
+    const words = [
+      { id: 'w1', level: 5, sortOrder: 1, kanaOnly: false, kanji: ['日', '本'] },
+      { id: 'w2', level: 5, sortOrder: 2, kanaOnly: false, kanji: ['日'] },
+    ]
+    const kanji = [
+      { id: 'k1', character: '日', level: 5, freq: 1, strokes: 4, components: [], radicals: [] },
+      { id: 'k2', character: '本', level: 5, freq: 2, strokes: 5, components: [], radicals: [] },
+    ]
+    const rows = wordKanjiPaceRows({ words, kanji, wordKanji: words, progress: new Map<string, Progress>([['kana:w1', 1], ['kanji:k1', 3]]) }, 5)
+    expect(rows).toEqual([
+      { level: 5, current: true, kanaRank: null, kanaDays: 0, kanjiRank: 0, kanjiDays: 1 },
+      { level: 5, current: true, kanaRank: 0, kanaDays: 0, kanjiRank: null, kanjiDays: 1 },
+    ])
+  })
+})
+
+describe('Romaji ở Intro 1 Kana (2026-11-26)', () => {
+  const pools: Pools = {
+    kana: ['ねこ', 'いぬ', 'とり', 'さかな', 'コーヒー'].map((k, i) => ({ id: `w${i}`, kana: k, meaning: `nghĩa ${i}`, hanViet: null })),
+    radical: [],
+    kanji: [],
+    word_kanji: [],
+  }
+  it('Kana → nghĩa có romaji; nghĩa → Kana không có (không lộ đáp án)', async () => {
+    const { romajiOf } = await import('../questions')
+    expect(romajiOf('コーヒー')).toBe('koohii')
+    expect(romajiOf('きって')).toBe('kitte')
+    expect(buildStageQuestion('kana_meaning', pools.kana[4], pools, Math.random)).toMatchObject({ romaji: 'koohii' })
+    expect(buildStageQuestion('meaning_kana', pools.kana[4], pools, Math.random)).not.toHaveProperty('romaji')
   })
 })

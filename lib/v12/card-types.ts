@@ -36,6 +36,9 @@ export const CARD_TYPES = {
   hanviet_word: { kind: 'choice', label: 'Sino-Vietnamese → word' },
   meaning_word: { kind: 'choice', label: 'Meaning → word' },
   word_type_hanviet: { kind: 'typing', label: 'Word → type Sino-Vietnamese' },
+  // Chủ dự án chốt 2026-11-26: Từ vựng Kanji trọng tâm Hán Việt
+  meaning_hanviet: { kind: 'choice', label: 'Meaning → Sino-Vietnamese' },
+  meaning_type_hanviet: { kind: 'typing', label: 'Meaning → type Sino-Vietnamese' },
   // Chủ dự án chốt 2026-11-19: ghép chữ chỉ còn ở Từ vựng Kanji (Intro 2), bỏ ghép Kana
   word_assembly: { kind: 'assembly', label: 'Build the word in Kanji' },
 } as const satisfies Record<string, { kind: AnswerKind; label: string }>
@@ -50,8 +53,8 @@ export const kindOf = (type: CardType): AnswerKind => CARD_TYPES[type].kind
  */
 export const STAGE_TYPES: Record<Area, Record<Stage, readonly CardType[]>> = {
   kana: {
-    // Chủ dự án chốt 2026-11-26: Intro 1 của Từ vựng Kana chỉ còn thẻ giới thiệu (không có câu hỏi); xem xong là sang Stage 2
-    1: [],
+    // Chủ dự án chốt 2026-11-26 (lần 2): khôi phục Intro 1 (Kana → nghĩa · nghĩa → Kana); Intro 2 học luôn trong ngày đầu
+    1: ['kana_meaning', 'meaning_kana'],
     2: ['listen_kana', 'meaning_kana'],
     // Chủ dự án chốt 2026-11-24: bớt câu nghe — bỏ "nghe → gõ Kana", câu nghe chỉ còn ở Stage 2
     3: ['meaning_type_kana'],
@@ -66,10 +69,12 @@ export const STAGE_TYPES: Record<Area, Record<Stage, readonly CardType[]>> = {
     2: ['hanviet_kanji', 'meaning_kanji'],
     3: ['kanji_type_hanviet', 'kanji_similar'],
   },
+  // Chủ dự án chốt 2026-11-26: trọng tâm Hán Việt, bỏ ghép chữ. Intro 1 từ → Hán Việt · từ → nghĩa; Intro 2 nghĩa → Hán Việt ·
+  // Hán Việt → từ; Intro 3 nghĩa (kèm cách đọc) → gõ Hán Việt. Không hỏi cách đọc (đã học ở khu Kana), chỉ hiện để nhắc lại
   word_kanji: {
     1: ['word_hanviet', 'word_meaning'],
-    2: ['hanviet_word', 'meaning_word', 'word_assembly'],
-    3: ['word_type_hanviet'],
+    2: ['meaning_hanviet', 'hanviet_word'],
+    3: ['meaning_type_hanviet'],
   },
 }
 

@@ -8,7 +8,7 @@ import { saveV12SettingAction } from '@/app/learn/v12/actions'
 import { Group, NumberBox, useNumberField } from '@/components/settings/settings-form'
 import type { V12Settings } from '@/lib/dal/v12/settings'
 import type { Zone } from '@/lib/v12/card-types'
-import { paceEstimate } from '@/lib/v12/pace'
+import { paceEstimate, type WordKanjiPace } from '@/lib/v12/pace'
 import { RULES_V12 } from '@/lib/v12/rules'
 import { addStudyDays, studyDate } from '@/lib/learning/time'
 
@@ -27,11 +27,12 @@ function Field({ name, label, hint, initial, min, max }: { name: string; label: 
   )
 }
 
-/** Dữ liệu cho phần xem trước: cấp đang học, số mục chưa mở của cấp, thời gian một mục (giây). */
+/** Dữ liệu cho phần xem trước: cấp đang học và số mục chưa mở của cấp đó (từng khu), thời gian một mục (giây), từ Kanji chưa mở. */
 export interface VocabPlan {
-  level: number | null
+  levels: Record<Zone, number | null>
   remaining: Record<Zone, number>
   seconds: Record<Zone, number>
+  wordKanji: WordKanjiPace[]
 }
 
 const fmtDays = (days: number) => {
@@ -69,19 +70,22 @@ export function V12SettingsFields({ s, plan, radicalsPerDay }: { s: V12Settings;
   // Xem trước theo số đang gõ (chưa cần lưu)
   const num = (f: ReturnType<typeof useNumberField>) => Math.max(0, Number(f.text) || 0)
   const perDay = { kana: num(kana), kanji: num(kanji), word_kanji: num(word) }
-  const pace = paceEstimate({ remaining: plan.remaining, perDay, seconds: plan.seconds })
-  const level = plan.level ? `N${plan.level}` : 'this level'
+  const pace = paceEstimate({ remaining: plan.remaining, perDay, seconds: plan.seconds, wordKanji: plan.wordKanji })
+  // Mỗi khu có cấp riêng (2026-11-26): khu mở hết cấp thì sang cấp sau
+  const levelOf = (z: Zone) => (plan.levels[z] ? `N${plan.levels[z]}` : 'N5–N4')
   const suggestion = (z: 'kanji' | 'word_kanji', unit: string) => {
     const v = pace.suggest[z]
-    if (plan.remaining[z] === 0) return `All ${level} ${unit} are already open.`
-    if (v === null) return null
+    if (plan.remaining[z] === 0) return `All ${levelOf(z)} ${unit} are already open.`
+    if (v === null) return z === 'word_kanji' && pace.days.kana ? 'Kanji words wait for their characters, so they finish after Kana even at 50 a day.' : null
     return v === perDay[z] ? `✓ Finishes together with Kana (${v} a day).` : `Suggested: ${v} a day to finish together with Kana.`
   }
   const areaLine = (z: Zone, label: string) => {
     const d = pace.days[z]
     return (
       <li key={z} className="flex justify-between gap-3">
-        <span className="text-subtle">{label}</span>
+        <span className="text-subtle">
+          {label} {levelOf(z)}
+        </span>
         <span className="tabular-nums">{plan.remaining[z] === 0 ? 'all open' : d === null ? 'paused (0 a day)' : `${plan.remaining[z]} left · ${fmtDays(d)}`}</span>
       </li>
     )
@@ -90,12 +94,12 @@ export function V12SettingsFields({ s, plan, radicalsPerDay }: { s: V12Settings;
   return (
     <>
       <Group id="pace" title="Vocab · New items a day" description="How many new items open each day in each area. 0 pauses that area. Changes apply from tomorrow (or today in areas you haven't started).">
-        <PaceRow id={ids.kana} label="New Kana words a day" hint="Words in Minna lesson order, learned in kana." field={kana} />
+        <PaceRow id={ids.kana} label="New Kana words a day" hint="Words in Minna lesson order, learned in kana. Each area moves on to the next level as soon as it has started every item of its level." field={kana} />
         <PaceRow id={ids.kanji} label="New Kanji a day" hint="Characters from easy to hard." field={kanji} suggest={suggestion('kanji', 'Kanji')} />
-        <PaceRow id={ids.word_kanji} label="New Kanji words a day" hint="Opens when the word's kana has reached Intro 2 and all its characters are learned." field={word} suggest={suggestion('word_kanji', 'Kanji words')} />
+        <PaceRow id={ids.word_kanji} label="New Kanji words a day" hint="Opens when the word's kana has reached Intro 2 and all its characters are learned. Days with too few ready words open fewer." field={word} suggest={suggestion('word_kanji', 'Kanji words')} />
         <div className="flex flex-col gap-3 py-4">
           <p className="text-sm font-medium">
-            {pace.total === null ? `${level} vocabulary: an area is paused, so it won't finish yet.` : `${level} vocabulary finishes in about ${fmtDays(pace.total)}.`}
+            {pace.total === null ? "An area is paused, so its current level won't finish yet." : `Current levels finish in about ${fmtDays(pace.total)}.`}
           </p>
           <ul className="flex flex-col gap-1 text-sm">
             {areaLine('kana', 'Kana words')}

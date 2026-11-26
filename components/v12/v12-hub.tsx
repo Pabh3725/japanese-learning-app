@@ -42,7 +42,7 @@ function ZoneCard({ z, setSize }: { z: ZoneSummary; setSize: number }) {
           Today: {Math.min(z.deck.position, z.deck.total)} / {z.deck.total} cards · {Math.max(1, Math.ceil(z.deck.total / setSize))} sets of {setSize}
         </p>
       )}
-      <p className="mt-1 text-xs text-muted-foreground tabular-nums">{z.remaining} not started in this level</p>
+      <p className="mt-1 text-xs text-muted-foreground tabular-nums">{z.level ? `N${z.level} · ${z.remaining} not started` : 'All N5–N4 items started'}</p>
       {z.userPaused && (
         <p className="mt-2 text-xs text-yellow">
           New items paused in{' '}
@@ -76,13 +76,13 @@ export function V12Hub({ hub }: { hub: HubView }) {
           <div>
             <p className="font-semibold">Learn everything</p>
             <p className="text-sm text-subtle">
-              {total} cards today across all three areas, shuffled together{hub.level ? ` · N${hub.level}` : ''}.
+              {total} cards today across all three areas, shuffled together.
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
               {hub.newPerDay.kana} Kana words · {hub.newPerDay.kanji} Kanji · {hub.newPerDay.word_kanji} Kanji words a day · about {hub.pace.minutes} min a day ·{' '}
               {hub.pace.total === null
-                ? 'an area is set to 0, so this level will not finish yet'
-                : `${hub.level ? `N${hub.level}` : 'this level'} vocabulary finishes in about ${hub.pace.total} days`}{' '}
+                ? 'an area is set to 0, so its level will not finish yet'
+                : `current levels finish in about ${hub.pace.total} days`}{' '}
               · <Link href="/settings#pace" className="underline underline-offset-2 hover:text-foreground">Change</Link>
             </p>
           </div>

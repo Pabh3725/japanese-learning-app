@@ -35,7 +35,6 @@ export default async function SettingsPage() {
   const grammarPerDay = limits.grammar_new_per_day
   const grammarDays = grammarPlan.remaining > 0 ? Math.ceil(grammarPlan.remaining / grammarPerDay) + GRAMMAR_LEARNING_DAYS : 0
   const grammarMinutes = Math.round((grammarPerDay * secondsPerPattern()) / 60)
-  const level = hub.level ? `N${hub.level}` : 'This level'
 
   return (
     <>
@@ -48,7 +47,7 @@ export default async function SettingsPage() {
             <span className="text-subtle">
               Vocab: {hub.newPerDay.kana} Kana words · {hub.newPerDay.kanji} Kanji · {hub.newPerDay.word_kanji} Kanji words a day
             </span>
-            <span className="shrink-0 tabular-nums">{hub.pace.total === null ? 'an area is paused' : hub.pace.total === 0 ? 'done' : `${level} in ~${hub.pace.total} days · ${around(hub.pace.total)}`}</span>
+            <span className="shrink-0 tabular-nums">{hub.pace.total === null ? 'an area is paused' : hub.pace.total === 0 ? 'done' : `current levels in ~${hub.pace.total} days · ${around(hub.pace.total)}`}</span>
           </li>
           <li className="flex justify-between gap-3">
             <span className="text-subtle">Grammar: {grammarPerDay} new {grammarPerDay === 1 ? 'pattern' : 'patterns'} a day</span>
@@ -60,7 +59,7 @@ export default async function SettingsPage() {
         limits={limits}
         furigana={furigana}
         grammar={grammarPlan}
-        v12Slot={<V12SettingsFields s={v12} plan={{ level: hub.level, remaining, seconds: hub.seconds }} radicalsPerDay={radicals.newPerDay} />}
+        v12Slot={<V12SettingsFields s={v12} plan={{ levels: hub.levels, remaining, seconds: hub.seconds, wordKanji: hub.wordKanjiPace }} radicalsPerDay={radicals.newPerDay} />}
       />
 
       <section aria-labelledby="account-title" className="mt-6 max-w-2xl rounded-3xl border border-border bg-card p-6">

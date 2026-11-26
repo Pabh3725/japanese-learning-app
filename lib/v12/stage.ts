@@ -50,7 +50,7 @@ export const isActive = (item: ItemState, date: StudyDate) => item.stage !== 're
 /**
  * Loại thẻ còn được hỏi hôm nay không (§3.1):
  * Stage 1 — hỏi tới khi đúng (không giới hạn lần trong ngày).
- * Stage 2–3 — đúng thì 2 lần/ngày; đã có lần sai thì tối đa 3 lần/ngày; đủ điểm thì thôi.
+ * Stage 2–3 — đúng thì 2 lần/ngày; đã có lần sai thì hỏi lại tới khi đủ điểm trong ngày (chủ dự án chốt 2026-11-26, bỏ trần 3 lần).
  */
 export function canShow(item: ItemState, type: CardType, date: StudyDate): boolean {
   if (!isActive(item, date) || item.stage === 'review') return false
@@ -58,8 +58,7 @@ export function canShow(item: ItemState, type: CardType, date: StudyDate): boole
   if (!raw || isTypeDone(item, type)) return false
   if (item.stage === 1) return true
   const t = today(raw, date)
-  const limit = t.wrongToday > 0 ? RULES_V12.perDay.maxShows : RULES_V12.perDay.shows
-  return t.seenToday < limit
+  return t.wrongToday > 0 || t.seenToday < RULES_V12.perDay.shows
 }
 
 /**
@@ -106,20 +105,12 @@ export function applyAnswer(item: ItemState, type: CardType, correct: boolean, d
       next = { ...next, stage: 'review', stageFrom: from, types: {} }
       cardsCreated = reviewCardsFor(item.area)
     } else {
+      // Chủ dự án chốt 2026-11-26: xong Stage 1 thì Stage 2 bắt đầu ngay trong ngày; Stage 3 từ ngày học kế tiếp
       const s = (stage + 1) as Stage
-      next = { ...next, stage: s, stageFrom: from, types: startTypes(item.area, s, item.hasSimilar === true) }
+      next = { ...next, stage: s, stageFrom: stage === 1 ? date : from, types: startTypes(item.area, s, item.hasSimilar === true) }
     }
   }
   return { item: next, typeState: t, delta: points - before.points, typeDone, stageDone, cardsCreated, retry: !correct && !stageDone && canShow(next, type, date) }
-}
-
-/**
- * Xem xong thẻ giới thiệu. Stage 1 không có loại thẻ nào (Từ vựng Kana, 2026-11-26) thì xong Stage 1 luôn:
- * Stage 2 bắt đầu từ ngày học kế tiếp. Trả null khi Stage 1 còn câu hỏi.
- */
-export function finishIntro(item: ItemState, date: StudyDate): ItemState | null {
-  if (item.stage !== 1 || typesFor(item.area, 1, { hasSimilar: item.hasSimilar === true }).length > 0) return null
-  return { ...item, stage: 2, stageFrom: addStudyDays(date, 1), types: startTypes(item.area, 2, item.hasSimilar === true) }
 }
 
 /** Loại thẻ còn thiếu điểm của Stage hiện tại (để hiện tiến độ). */
