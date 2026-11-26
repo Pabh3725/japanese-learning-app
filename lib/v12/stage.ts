@@ -113,6 +113,15 @@ export function applyAnswer(item: ItemState, type: CardType, correct: boolean, d
   return { item: next, typeState: t, delta: points - before.points, typeDone, stageDone, cardsCreated, retry: !correct && !stageDone && canShow(next, type, date) }
 }
 
+/**
+ * Xem xong thẻ giới thiệu. Stage 1 không có loại thẻ nào (Từ vựng Kana, 2026-11-26) thì xong Stage 1 luôn:
+ * Stage 2 bắt đầu từ ngày học kế tiếp. Trả null khi Stage 1 còn câu hỏi.
+ */
+export function finishIntro(item: ItemState, date: StudyDate): ItemState | null {
+  if (item.stage !== 1 || typesFor(item.area, 1, { hasSimilar: item.hasSimilar === true }).length > 0) return null
+  return { ...item, stage: 2, stageFrom: addStudyDays(date, 1), types: startTypes(item.area, 2, item.hasSimilar === true) }
+}
+
 /** Loại thẻ còn thiếu điểm của Stage hiện tại (để hiện tiến độ). */
 export function remainingTypes(item: ItemState): CardType[] {
   if (item.stage === 'review') return []

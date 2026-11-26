@@ -50,7 +50,8 @@ export const kindOf = (type: CardType): AnswerKind => CARD_TYPES[type].kind
  */
 export const STAGE_TYPES: Record<Area, Record<Stage, readonly CardType[]>> = {
   kana: {
-    1: ['kana_meaning', 'meaning_kana'],
+    // Chủ dự án chốt 2026-11-26: Intro 1 của Từ vựng Kana chỉ còn thẻ giới thiệu (không có câu hỏi); xem xong là sang Stage 2
+    1: [],
     2: ['listen_kana', 'meaning_kana'],
     // Chủ dự án chốt 2026-11-24: bớt câu nghe — bỏ "nghe → gõ Kana", câu nghe chỉ còn ở Stage 2
     3: ['meaning_type_kana'],

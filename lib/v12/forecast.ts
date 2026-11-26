@@ -2,7 +2,7 @@
 import { addStudyDays } from '../learning/time'
 import type { StudyDate } from '../learning/types'
 import { reviewCardsFor, zoneOf, type Area, type Zone } from './card-types'
-import { applyAnswer, canShow, newItem, plannedShows, type ItemState } from './stage'
+import { applyAnswer, canShow, finishIntro, newItem, plannedShows, type ItemState } from './stage'
 import { RULES_V12 } from './rules'
 
 /** Số câu mỗi ngày của một mục từ `from` tới hết `days` ngày, khi trả lời đúng hết. */
@@ -12,6 +12,8 @@ export function simulateItem(item: ItemState, from: StudyDate, days: number): { 
   let cardsFrom: number | null = null
   for (let d = 0; d < days && state.stage !== 'review'; d++) {
     const date = addStudyDays(from, d)
+    // Stage 1 không có câu hỏi (Từ vựng Kana): thẻ giới thiệu hôm nay, Stage 2 từ ngày học kế tiếp
+    state = finishIntro(state, date) ?? state
     for (const type of Object.keys(state.types) as (keyof ItemState['types'])[]) {
       const shows = plannedShows(state, type, date)
       for (let n = 0; n < shows && canShow(state, type, date); n++) {

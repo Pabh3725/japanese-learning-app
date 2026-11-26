@@ -12,7 +12,7 @@ import { canOpenKanji, kanjiOrder, radicalOrder, wordKanjiStatus, wordKanjiWaiti
 import { buildReviewCard, buildStageQuestion, gradeCard, gradeQuestion, type Pools } from '../questions'
 import { pausedZones } from '../plan'
 import { RULES_V12 } from '../rules'
-import { applyAnswer, canShow, newItem, plannedShows, type ItemState } from '../stage'
+import { applyAnswer, canShow, finishIntro, newItem, plannedShows, type ItemState } from '../stage'
 
 const seeded = (seed: number) => () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296)
 const D0 = '2026-11-20'
@@ -33,18 +33,30 @@ function playDay(item: ItemState, date: string) {
 
 describe('§3 Điểm theo loại thẻ', () => {
   it('Stage 1: mỗi loại đúng 1 lần là qua; Stage 2 chạy từ ngày học kế tiếp', () => {
-    let item = newItem('kana', D0)
-    expect(Object.keys(item.types)).toEqual(['kana_meaning', 'meaning_kana'])
-    const wrong = applyAnswer(item, 'kana_meaning', false, D0)
+    let item = newItem('kanji', D0)
+    expect(Object.keys(item.types)).toEqual(['kanji_hanviet', 'kanji_meaning'])
+    const wrong = applyAnswer(item, 'kanji_hanviet', false, D0)
     expect(wrong.retry).toBe(true)
-    expect(wrong.item.types.kana_meaning!.points).toBe(0)
-    item = applyAnswer(wrong.item, 'kana_meaning', true, D0).item
-    const r = applyAnswer(item, 'meaning_kana', true, D0)
+    expect(wrong.item.types.kanji_hanviet!.points).toBe(0)
+    item = applyAnswer(wrong.item, 'kanji_hanviet', true, D0).item
+    const r = applyAnswer(item, 'kanji_meaning', true, D0)
     expect(r.stageDone).toBe(true)
     expect(r.item.stage).toBe(2)
     expect(r.item.stageFrom).toBe(D1)
-    expect(canShow(r.item, 'meaning_kana', D0)).toBe(false)
-    expect(canShow(r.item, 'meaning_kana', D1)).toBe(true)
+    expect(canShow(r.item, 'meaning_kanji', D0)).toBe(false)
+    expect(canShow(r.item, 'meaning_kanji', D1)).toBe(true)
+  })
+
+  it('Từ vựng Kana (2026-11-26): Intro 1 chỉ có thẻ giới thiệu; xem xong thì Stage 2 từ ngày học kế tiếp', () => {
+    const item = newItem('kana', D0)
+    expect(Object.keys(item.types)).toEqual([])
+    const next = finishIntro(item, D0)!
+    expect(next.stage).toBe(2)
+    expect(next.stageFrom).toBe(D1)
+    expect(Object.keys(next.types)).toEqual(['listen_kana', 'meaning_kana'])
+    expect(canShow(next, 'meaning_kana', D0)).toBe(false)
+    expect(canShow(next, 'meaning_kana', D1)).toBe(true)
+    expect(finishIntro(newItem('kanji', D0), D0)).toBeNull()
   })
 
   it('Stage 2: mỗi loại 2 điểm (2026-11-20) — đúng hết thì xong trong ngày đầu, Stage 3 từ hôm sau', () => {
@@ -121,7 +133,7 @@ describe('§2 Bộ thẻ trong ngày', () => {
 
   it('nhiều mục mới cùng lúc: chuỗi Stage 1 đan nhau, khoảng cách ít nhất 0 / 5 / 10; thẻ giới thiệu luôn trước', () => {
     const input: DeckInput = {
-      newItems: Array.from({ length: 5 }, (_, i) => ({ area: 'kana' as const, itemId: `n${i}`, stage1Types: typesFor('kana', 1) })),
+      newItems: Array.from({ length: 5 }, (_, i) => ({ area: 'kanji' as const, itemId: `n${i}`, stage1Types: typesFor('kanji', 1) })),
       stageItems: Array.from({ length: 15 }, (_, i) => ({ area: 'kana' as const, itemId: `w${i}`, stage: 2 as const, types: typesFor('kana', 2).map((type) => ({ type, shows: 2 })) })),
       reviews: Array.from({ length: 30 }, (_, i) => ({ area: 'kana' as const, itemId: `r${i}`, card: 'kana_type' as const, cardId: `c${i}`, due: new Date() })),
     }
@@ -130,8 +142,8 @@ describe('§2 Bộ thẻ trong ngày', () => {
       expect(deck).toHaveLength(5 * 3 + 15 * 4 + 30)
       expect(new Set(deck.map((c) => c.key)).size).toBe(deck.length)
       for (let i = 0; i < 5; i++) {
-        const intro = posOf(deck, `intro:kana:n${i}`)
-        const [a, b] = typesFor('kana', 1).map((t) => posOf(deck, `s1:kana:n${i}:${t}`))
+        const intro = posOf(deck, `intro:kanji:n${i}`)
+        const [a, b] = typesFor('kanji', 1).map((t) => posOf(deck, `s1:kanji:n${i}:${t}`))
         expect(a).toBeGreaterThan(intro)
         expect(b - a).toBeGreaterThanOrEqual(6)
       }
@@ -202,7 +214,7 @@ describe('§5–6 Thứ tự mở', () => {
 
 describe('§8 Cân bằng theo thời gian', () => {
   it('thời gian ước tính khớp bảng §8.1', () => {
-    expect(estimatedSeconds('kana')).toBe(135)
+    expect(estimatedSeconds('kana')).toBe(123)
     expect(estimatedSeconds('radical')).toBe(51)
     expect(estimatedSeconds('kanji')).toBe(135)
     expect(estimatedSeconds('word_kanji')).toBe(147)
@@ -338,18 +350,18 @@ describe('§8 Cân bằng theo thời gian', () => {
 })
 
 describe('§2 Dự báo vượt trần', () => {
-  it('một từ Kana mới (đúng hết): 2, 4, 2 câu rồi Card từ ngày thứ 4', () => {
+  it('một từ Kana mới (đúng hết): thẻ giới thiệu, 4, 2 câu rồi Card từ ngày thứ 4', () => {
     const sim = simulateItem(newItem('kana', D0), D0, 7)
-    expect(sim.counts).toEqual([2, 4, 2, 0, 0, 0, 0])
+    expect(sim.counts).toEqual([0, 4, 2, 0, 0, 0, 0])
     expect(sim.cardsFrom).toBe(3)
   })
 
   it('báo ngày vượt trần', () => {
     const days = forecast({ today: D0, items: [], reviewsByDay: { kana: [5, 200], kanji: [], word_kanji: [] }, newPerDay: { kana: 3 }, caps: { kana: 100, kanji: 100, word_kanji: 100 } })
     expect(days).toHaveLength(7)
-    expect(days[0].counts.kana).toBe(5 + 6)
+    expect(days[0].counts.kana).toBe(5)
     expect(overflowDays(days).map((d) => d.date)).toEqual([D1])
-    expect(days[1].over.kana).toBe(200 + 3 * 4 + 6 - 100)
+    expect(days[1].over.kana).toBe(200 + 3 * 4 - 100)
   })
 })
 

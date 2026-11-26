@@ -13,11 +13,11 @@ import { paceEstimate, type PaceEstimate } from '@/lib/v12/pace'
 import { wordKanjiWaiting, type Progress } from '@/lib/v12/order'
 import { key, pausedZones, planNewItems, type PlanResult } from '@/lib/v12/plan'
 import { buildReviewCard, buildStageQuestion, gradeCard, gradeQuestion, type CardPart, type Pools, type Question } from '@/lib/v12/questions'
-import { canShow, isActive, plannedShows, remainingTypes } from '@/lib/v12/stage'
+import { canShow, finishIntro, isActive, plannedShows, remainingTypes } from '@/lib/v12/stage'
 import { readV12Content, type V12Content } from './content'
 import { readV12Settings, type V12Settings } from './settings'
 import { readV12State, type CardRow, type ItemRow } from './state'
-import { markIntroSeen, markItemLearned, openItem, saveCardReview, saveStageAnswer, saveStarAnswer, setRadicalsKnown } from './write'
+import { finishIntroStage, markIntroSeen, markItemLearned, openItem, saveCardReview, saveStageAnswer, saveStarAnswer, setRadicalsKnown } from './write'
 import { setKanjiKnown } from '@/lib/dal/kanji'
 import { setKanjiStarred } from '@/lib/dal/kanji-stars'
 import { markWordsKnown } from '@/lib/dal/known-words'
@@ -483,8 +483,14 @@ export async function answerDeck(input: unknown): Promise<AnswerView> {
   let out: AnswerView = { status: 'graded' }
 
   if (card.kind === 'intro') {
-    await markIntroSeen(supabase, user.id, item.id, now)
-    loaded.items[itemIndex] = { ...item, introSeen: true }
+    const next = finishIntro(item.state, studyDate(now))
+    if (next) {
+      await finishIntroStage(supabase, item, next, now)
+      loaded.items[itemIndex] = { ...item, introSeen: true, stage: next.stage, stageFrom: next.stageFrom, version: item.version + 1, state: next }
+    } else {
+      await markIntroSeen(supabase, user.id, item.id, now)
+      loaded.items[itemIndex] = { ...item, introSeen: true }
+    }
   } else if (card.kind === 'stage' || card.kind === 'star') {
     const q = buildStageQuestion(card.type, data, pools(loaded), Math.random)
     const correct = gradeQuestion(q, v.given as string | string[])
