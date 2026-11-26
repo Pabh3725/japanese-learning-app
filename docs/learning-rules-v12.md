@@ -62,7 +62,7 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 | | Loại thẻ |
 |---|---|
 | Thẻ giới thiệu | Kana, nghĩa, âm thanh, Hán Việt (nếu có, hiện nhỏ) |
-| Stage 1 | Kana → nghĩa (trắc nghiệm) · nghĩa → Kana (trắc nghiệm) |
+| Stage 1 | **Chỉ thẻ giới thiệu, không có câu hỏi** (chủ dự án chốt 2026-11-26; trước là Kana → nghĩa · nghĩa → Kana). Xem xong thẻ giới thiệu là xong Stage 1; Stage 2 bắt đầu từ ngày học kế tiếp. Migration `20261212000001` chuyển từ đang ở Stage 1 đã xem thẻ giới thiệu sang Stage 2 |
 | Stage 2 | nghe → chọn Kana · nghĩa → chọn Kana (trắc nghiệm) (rút gọn, chủ dự án chốt 2026-11-22) |
 | Stage 3 | nghĩa → **gõ** Kana (bỏ "nghe → gõ Kana" để bớt câu nghe, chủ dự án chốt 2026-11-24) |
 | **Review: 1 Card** | nghĩa → **gõ** Kana; đúng hay sai đều phát âm thanh và hiện chữ, cách đọc, Hán Việt, nghĩa (bỏ Card "Kana → chọn nghĩa", chủ dự án chốt 2026-11-22) |
@@ -158,7 +158,7 @@ Mỗi mục được quy ra **thời gian học** theo số câu tối thiểu c
 
 | Mục | Câu học (tối thiểu; Stage 2–3 tính 2 điểm mỗi loại từ 2026-11-20) | Card Review | Thời gian ước tính |
 |---|---|---|---|
-| Từ vựng Kana | thẻ giới thiệu + Stage 1: 2 trắc nghiệm + Stage 2: 4 trắc nghiệm + Stage 3: 2 gõ | 1 Card × 4 lần | 15 + 36 + 24 + 60 ≈ **2,3 phút** |
+| Từ vựng Kana | thẻ giới thiệu + Stage 2: 4 trắc nghiệm + Stage 3: 2 gõ (Stage 1 chỉ thẻ giới thiệu từ 2026-11-26) | 1 Card × 4 lần | 15 + 24 + 24 + 60 ≈ **2,1 phút** |
 | Bộ thủ | thẻ giới thiệu + Stage 1: 2 + Stage 2: 4 trắc nghiệm | không có Card | 15 + 36 ≈ **0,9 phút** |
 | Chữ Kanji | thẻ giới thiệu + Stage 1: 2 + Stage 2: 4 trắc nghiệm + Stage 3: 2 gõ (+ 2 phân biệt chữ giống nếu có) | 1 Card × 4 lần | 15 + 36 + 24 + 60 ≈ **2,3 phút** |
 | Từ vựng Kanji | thẻ giới thiệu + Stage 1: 2 + Stage 2: 4 trắc nghiệm + 2 ghép chữ + Stage 3: 2 gõ | 1 Card × 4 lần | 15 + 48 + 24 + 60 ≈ **2,5 phút** |
