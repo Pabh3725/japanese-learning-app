@@ -165,10 +165,10 @@ export function wordKanjiPaceRows(input: Pick<PlanInput, 'words' | 'kanji' | 'wo
   const kanjiQueue = LEVELS.flatMap((lv) => kanjiOrder(input.kanji.filter((k) => k.level === lv && !opened('kanji', k.id))))
   const kanjiRank = new Map(kanjiQueue.map((c, i) => [c, i]))
   const kanjiLevel = new Map(input.kanji.map((k) => [k.character, k.level]))
-  // Chữ đã mở mà chưa học xong: Stage 1–2 còn 2 ngày (Intro 3 hôm sau, có Card ngày kế), Stage 3 còn 1 ngày
+  // Chữ đã mở mà chưa học xong: Stage 1 còn 3 ngày, Stage 2 còn 2, Stage 3 còn 1 (mỗi Intro một ngày, có Card ngày kế)
   const charDays = (c: string) => {
     const s = p.get(key('kanji', byChar.get(c)!.id)) ?? 'none'
-    return s === 'none' || s === 'review' ? 0 : s === 3 ? 1 : 2
+    return s === 'none' || s === 'review' ? 0 : 4 - s
   }
   return input.wordKanji.flatMap((w) => {
     const level = wordKanjiLevelOf(w, kanjiLevel)
@@ -179,7 +179,8 @@ export function wordKanjiPaceRows(input: Pick<PlanInput, 'words' | 'kanji' | 'wo
         level,
         current: level === currentLevel,
         kanaRank: kanaRank.get(w.id) ?? null,
-        kanaDays: 0,
+        // Kana của từ đang ở Intro 1: sang Intro 2 từ ngày học kế tiếp
+        kanaDays: p.get(key('kana', w.id)) === 1 ? 1 : 0,
         kanjiRank: ranks.length > 0 ? Math.max(...ranks) : null,
         kanjiDays: Math.max(0, ...w.kanji.map(charDays)),
       },

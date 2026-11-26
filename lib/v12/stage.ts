@@ -1,7 +1,7 @@
 // V12 §3: điểm theo loại thẻ, số lần gặp mỗi ngày, chuyển Stage. Pure.
 import { addStudyDays } from '../learning/time'
 import type { StudyDate } from '../learning/types'
-import { lastStage, reviewCardsFor, typesFor, type Area, type CardType, type ReviewCardType, type Stage } from './card-types'
+import { lastStage, passFor, reviewCardsFor, stage2SameDay, typesFor, type Area, type CardType, type ReviewCardType, type Stage } from './card-types'
 import { RULES_V12 } from './rules'
 
 export interface TypeState {
@@ -35,41 +35,39 @@ function startTypes(area: Area, stage: Stage, hasSimilar: boolean): Partial<Reco
   return Object.fromEntries(typesFor(area, stage, { hasSimilar }).map((t) => [t, emptyType()]))
 }
 
-export const passPoints = (stage: Stage) => (stage === 1 ? RULES_V12.points.passStage1 : RULES_V12.points.pass)
+/** Điểm cần của loại thẻ ở Stage hiện tại của mục. */
+export const passPoints = (item: Pick<ItemState, 'area'>, stage: Stage, type: CardType) => passFor(item.area, stage, type)
 
 /** Bộ đếm trong ngày của loại thẻ, tính theo hôm nay. */
 function today(t: TypeState, date: StudyDate): TypeState {
   return t.seenDate === date ? t : { ...t, seenDate: date, seenToday: 0, wrongToday: 0 }
 }
 
-export const isTypeDone = (item: ItemState, type: CardType) => item.stage !== 'review' && (item.types[type]?.points ?? 0) >= passPoints(item.stage)
+export const isTypeDone = (item: ItemState, type: CardType) => item.stage !== 'review' && (item.types[type]?.points ?? 0) >= passPoints(item, item.stage, type)
 
 /** Stage đang chạy hôm nay (Stage mới chỉ chạy từ `stageFrom`). */
 export const isActive = (item: ItemState, date: StudyDate) => item.stage !== 'review' && item.stageFrom <= date
 
 /**
- * Loại thẻ còn được hỏi hôm nay không (§3.1):
- * Stage 1 — hỏi tới khi đúng (không giới hạn lần trong ngày).
- * Stage 2–3 — đúng thì 2 lần/ngày; đã có lần sai thì hỏi lại tới khi đủ điểm trong ngày (chủ dự án chốt 2026-11-26, bỏ trần 3 lần).
+ * Loại thẻ còn được hỏi hôm nay không (§3.1): đúng thì tối đa 2 lần/ngày (không quá số điểm cần); đã có lần sai thì hỏi lại
+ * tới khi đủ điểm trong ngày (chủ dự án chốt 2026-11-26, bỏ trần 3 lần); đủ điểm thì thôi.
  */
 export function canShow(item: ItemState, type: CardType, date: StudyDate): boolean {
   if (!isActive(item, date) || item.stage === 'review') return false
   const raw = item.types[type]
   if (!raw || isTypeDone(item, type)) return false
-  if (item.stage === 1) return true
   const t = today(raw, date)
   return t.wrongToday > 0 || t.seenToday < RULES_V12.perDay.shows
 }
 
 /**
  * Số lần dự kiến gặp loại thẻ hôm nay khi trả lời đúng hết (để dựng bộ thẻ): không quá số điểm còn thiếu.
- * Stage 1: 1 lần. Lượt hỏi lại sau khi sai được chèn khi trả lời.
+ * Lượt hỏi lại sau khi sai được chèn khi trả lời.
  */
 export function plannedShows(item: ItemState, type: CardType, date: StudyDate): number {
   if (!canShow(item, type, date) || item.stage === 'review') return 0
-  if (item.stage === 1) return 1
   const t = today(item.types[type]!, date)
-  return Math.max(0, Math.min(RULES_V12.perDay.shows - t.seenToday, passPoints(item.stage) - t.points))
+  return Math.max(0, Math.min(RULES_V12.perDay.shows - t.seenToday, passPoints(item, item.stage, type) - t.points))
 }
 
 export interface AnswerResult {
@@ -93,10 +91,10 @@ export function applyAnswer(item: ItemState, type: CardType, correct: boolean, d
   const stage = item.stage
   const before = today(item.types[type]!, date)
   const { correct: plus, wrong: minus, floor } = RULES_V12.points
-  const points = Math.min(passPoints(stage), Math.max(floor, before.points + (correct ? plus : minus)))
+  const points = Math.min(passPoints(item, stage, type), Math.max(floor, before.points + (correct ? plus : minus)))
   const t: TypeState = { points, seenDate: date, seenToday: before.seenToday + 1, wrongToday: before.wrongToday + (correct ? 0 : 1) }
   let next: ItemState = { ...item, types: { ...item.types, [type]: t } }
-  const typeDone = points >= passPoints(stage)
+  const typeDone = points >= passPoints(item, stage, type)
   const stageDone = Object.keys(next.types).every((k) => isTypeDone(next, k as CardType))
   let cardsCreated: ReviewCardType[] = []
   if (stageDone) {
@@ -105,9 +103,9 @@ export function applyAnswer(item: ItemState, type: CardType, correct: boolean, d
       next = { ...next, stage: 'review', stageFrom: from, types: {} }
       cardsCreated = reviewCardsFor(item.area)
     } else {
-      // Chủ dự án chốt 2026-11-26: xong Stage 1 thì Stage 2 bắt đầu ngay trong ngày; Stage 3 từ ngày học kế tiếp
+      // Stage sau từ ngày học kế tiếp; riêng bộ thủ xong Stage 1 thì Stage 2 ngay trong ngày (stage2SameDay)
       const s = (stage + 1) as Stage
-      next = { ...next, stage: s, stageFrom: stage === 1 ? date : from, types: startTypes(item.area, s, item.hasSimilar === true) }
+      next = { ...next, stage: s, stageFrom: stage === 1 && stage2SameDay(item.area) ? date : from, types: startTypes(item.area, s, item.hasSimilar === true) }
     }
   }
   return { item: next, typeState: t, delta: points - before.points, typeDone, stageDone, cardsCreated, retry: !correct && !stageDone && canShow(next, type, date) }
