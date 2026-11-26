@@ -6,18 +6,19 @@ import { readAllKanjiCached, readKanjiVisuals } from '@/lib/dal/kanji-content'
 import { revealOf, type KanjiReveal } from '@/lib/kanji/questions'
 import { nextStudyDayStart, studyDate } from '@/lib/learning/time'
 import { STAGE_TYPES, typesFor, ZONES, zoneOf, type Area, type CardType, type ReviewCardType, type Zone } from '@/lib/v12/card-types'
-import { applyCap, buildDeck, countQuestions, insertRetry, reviewRetryGap, splitByZone, type DeckCard, type DeckInput } from '@/lib/v12/deck'
+import { applyCap, buildDeck, countQuestions, insertRetry, insertStageCards, reviewRetryGap, splitByZone, type DeckCard, type DeckInput } from '@/lib/v12/deck'
 import { balanceTarget, secondsFromStats } from '@/lib/v12/balance'
 import { forecast, overflowDays, type ForecastDay } from '@/lib/v12/forecast'
-import { paceEstimate, type PaceEstimate } from '@/lib/v12/pace'
+import { paceEstimate, type PaceEstimate, type WordKanjiPace } from '@/lib/v12/pace'
+import { RULES_V12 } from '@/lib/v12/rules'
 import { wordKanjiWaiting, type Progress } from '@/lib/v12/order'
-import { key, pausedZones, planNewItems, type PlanResult } from '@/lib/v12/plan'
-import { buildReviewCard, buildStageQuestion, gradeCard, gradeQuestion, type CardPart, type Pools, type Question } from '@/lib/v12/questions'
-import { canShow, finishIntro, isActive, plannedShows, remainingTypes } from '@/lib/v12/stage'
+import { key, pausedZones, planNewItems, wordKanjiPaceRows, type PlanResult } from '@/lib/v12/plan'
+import { buildReviewCard, buildStageQuestion, romajiOf, gradeCard, gradeQuestion, type CardPart, type Pools, type Question } from '@/lib/v12/questions'
+import { canShow, isActive, plannedShows, remainingTypes } from '@/lib/v12/stage'
 import { readV12Content, type V12Content } from './content'
 import { readV12Settings, type V12Settings } from './settings'
 import { readV12State, type CardRow, type ItemRow } from './state'
-import { finishIntroStage, markIntroSeen, markItemLearned, openItem, saveCardReview, saveStageAnswer, saveStarAnswer, setRadicalsKnown } from './write'
+import { markIntroSeen, markItemLearned, openItem, saveCardReview, saveStageAnswer, saveStarAnswer, setRadicalsKnown } from './write'
 import { setKanjiKnown } from '@/lib/dal/kanji'
 import { setKanjiStarred } from '@/lib/dal/kanji-stars'
 import { markWordsKnown } from '@/lib/dal/known-words'
@@ -51,12 +52,15 @@ async function load(supabase: Supabase, userId: string): Promise<Loaded> {
   return { content, ...state, waiting: waitingItems(content, state), settings }
 }
 
-/** Mục Từ vựng Kanji đang chờ chữ (wordKanjiWaiting): không vào bộ thẻ, số đếm hay dự báo cho tới khi mọi chữ học xong. */
+/**
+ * Mục Từ vựng Kanji không học: đang chờ chữ (wordKanjiWaiting, tới khi mọi chữ học xong) hoặc từ không còn thẻ Từ vựng Kanji
+ * (vd. từ đúng 1 chữ, bỏ từ 2026-11-26). Không vào bộ thẻ, số đếm hay dự báo; dữ liệu giữ nguyên.
+ */
 function waitingItems(content: V12Content, state: Pick<Loaded, 'items' | 'knownWords' | 'knownKanji'>): Set<string> {
   const p = progressOf(state)
   const kanjiProgress = new Map(content.kanji.filter((k) => k.level === 5 || k.level === 4).map((k) => [k.char, p.get(key('kanji', k.id)) ?? ('none' as Progress)]))
-  const charsOf = new Map(content.words.map((w) => [w.id, w.kanji]))
-  return new Set(state.items.filter((i) => i.area === 'word_kanji' && wordKanjiWaiting(charsOf.get(i.ref) ?? [], kanjiProgress)).map((i) => i.id))
+  const charsOf = new Map(content.wordKanji.map((w) => [w.id, w.kanji]))
+  return new Set(state.items.filter((i) => i.area === 'word_kanji' && (!charsOf.has(i.ref) || wordKanjiWaiting(charsOf.get(i.ref)!, kanjiProgress))).map((i) => i.id))
 }
 
 /** §8.1: thời gian một mục theo thời gian trả lời thật (đủ 14 ngày học), chỉ đọc khi cần cân bằng. */
@@ -93,6 +97,17 @@ function zoneLoad(l: Loaded, now: Date): Record<Zone, number> {
   return { kana: countQuestions({ ...split.kana, newItems: [] }), kanji: countQuestions({ ...split.kanji, newItems: [] }), word_kanji: countQuestions({ ...split.word_kanji, newItems: [] }) }
 }
 
+/** Từ, chữ, Từ vựng Kanji và tiến độ ở dạng đầu vào của kế hoạch mở mục mới. */
+function planContent(l: Loaded) {
+  const sortOf = new Map(l.content.words.map((w) => [w.id, w.sortOrder]))
+  return {
+    words: l.content.words,
+    kanji: l.content.kanji.map((k) => ({ ...k, character: k.char })),
+    wordKanji: l.content.wordKanji.map((w) => ({ id: w.id, level: w.level, sortOrder: sortOf.get(w.id) ?? 0, kanaOnly: false, kanji: w.kanji })),
+    progress: progressOf(l),
+  }
+}
+
 function plan(l: Loaded, now: Date, seconds?: Record<Area, number>): PlanResult & { paused: Record<Zone, boolean>; userPaused: Record<Zone, boolean> } {
   const today = studyDate(now)
   const paused = pausedZones(zoneLoad(l, now), l.settings.caps)
@@ -101,12 +116,9 @@ function plan(l: Loaded, now: Date, seconds?: Record<Area, number>): PlanResult 
   const carry = (l.settings.balanceCarry as { date?: string; in?: Record<string, number> }).date === today ? (l.settings.balanceCarry as { in?: Record<string, number> }).in : (l.settings.balanceCarry as { out?: Record<string, number> }).out
   const result = planNewItems({
     today,
-    words: l.content.words,
+    ...planContent(l),
     // Bộ thủ học riêng ở More (2026-11-24): không vào cân bằng, chữ không phải chờ bộ thủ
     radicals: [],
-    kanji: l.content.kanji.map((k) => ({ ...k, character: k.char })),
-    wordKanji: l.content.wordKanji.map((w) => ({ id: w.id, level: w.level, sortOrder: l.content.words.find((x) => x.id === w.id)?.sortOrder ?? 0, kanaOnly: false, kanji: w.kanji })),
-    progress: progressOf(l),
     openedToday,
     balanceOn: l.settings.balanceOn,
     target: balanceTarget(l.settings.balanceTarget, l.settings.balanceDate, l.settings.balanceItems, today),
@@ -165,6 +177,9 @@ async function openNewItems(supabase: Supabase, userId: string, l: Loaded, scope
   return jobs.length > 0
 }
 
+/** Số câu Stage 2 học ngay trong ngày xong Stage 1 (2026-11-26), khi trả lời đúng hết. */
+const stage2SameDay = (area: Area) => typesFor(area, 2).length * Math.min(RULES_V12.perDay.shows, RULES_V12.points.pass)
+
 /** Đầu vào bộ thẻ hôm nay của các khu (§2): mục mới (thẻ giới thiệu + Stage 1), câu Stage đến lượt, Card đến hạn. */
 function deckInput(l: Loaded, scope: Scope, now: Date): DeckInput {
   const today = studyDate(now)
@@ -172,10 +187,16 @@ function deckInput(l: Loaded, scope: Scope, now: Date): DeckInput {
   const live = l.items.filter((i) => !i.known && !l.waiting.has(i.id) && inScope(scope, i.area))
   const newItems = live
     .filter((i) => i.stage === 1 && !i.introSeen && isActive(i.state, today))
-    .map((i) => ({ area: i.area, itemId: i.id, stage1Types: typesFor(i.area, 1, { hasSimilar: i.state.hasSimilar }).filter((t) => remainingTypes(i.state).includes(t)) }))
+    .map((i) => ({ area: i.area, itemId: i.id, stage1Types: typesFor(i.area, 1, { hasSimilar: i.state.hasSimilar }).filter((t) => remainingTypes(i.state).includes(t)), later: stage2SameDay(i.area) }))
   const stageItems = live
     .filter((i) => i.stage !== 'review' && isActive(i.state, today) && (i.stage !== 1 || i.introSeen))
-    .map((i) => ({ area: i.area, itemId: i.id, stage: i.stage as 1 | 2 | 3, types: (Object.keys(i.state.types) as CardType[]).map((type) => ({ type, shows: plannedShows(i.state, type, today) })).filter((t) => t.shows > 0) }))
+    .map((i) => ({
+      area: i.area,
+      itemId: i.id,
+      stage: i.stage as 1 | 2 | 3,
+      types: (Object.keys(i.state.types) as CardType[]).map((type) => ({ type, shows: plannedShows(i.state, type, today) })).filter((t) => t.shows > 0),
+      later: i.stage === 1 ? stage2SameDay(i.area) : 0,
+    }))
     .filter((i) => i.types.length > 0)
   const byId = new Map(live.map((i) => [i.id, i]))
   const reviews = l.cards
@@ -275,6 +296,8 @@ function itemData(l: Loaded, item: ItemRow) {
 function isValid(l: Loaded, card: DeckCard, now: Date): boolean {
   const item = l.items.find((i) => i.id === card.itemId)
   if (!item || item.known || l.waiting.has(item.id)) return false
+  // Nội dung của mục không còn (vd. từ chuyển sang "chỉ Kana"): bỏ qua thẻ, học tiếp thẻ sau thay vì dừng bộ thẻ
+  if (!itemData(l, item)) return false
   if (card.kind === 'intro') return item.stage === 1 && !item.introSeen
   if (card.kind === 'stage') return item.stage === card.stage && canShow(item.state, card.type, studyDate(now))
   if (card.kind === 'review') {
@@ -290,7 +313,7 @@ function isValid(l: Loaded, card: DeckCard, now: Date): boolean {
 export type { Question }
 
 export type IntroView =
-  | { area: 'kana'; kana: string; meaning: string; hanViet: string | null }
+  | { area: 'kana'; kana: string; romaji: string; meaning: string; hanViet: string | null }
   | { area: 'radical'; char: string; name: string; meaning: string; examples: string }
   | { area: 'kanji'; reveal: KanjiReveal }
   /** `chars`: tách từng chữ của từ theo thứ tự, mỗi chữ kèm Hán Việt và nghĩa (chủ dự án yêu cầu 2026-11-24). */
@@ -315,7 +338,7 @@ export type CardView = CardBase &
     | { kind: 'intro'; intro: IntroView }
     | { kind: 'stage'; type: CardType; stage: 1 | 2 | 3; retry: boolean; question: Question }
     | { kind: 'star'; type: CardType; question: Question }
-    | { kind: 'review'; card: ReviewCardType; cardId: string; retry: boolean; prompt: string; promptKind: string; speak?: string; parts: CardPart[] }
+    | { kind: 'review'; card: ReviewCardType; cardId: string; retry: boolean; prompt: string; promptKind: string; reading?: string; speak?: string; parts: CardPart[] }
   )
 
 /** Từ / chữ vừa học, hiện sau khi chấm để đọc lại (shadowing): chữ, cách đọc, Hán Việt, nghĩa. */
@@ -369,7 +392,7 @@ async function viewOf(supabase: Supabase, l: Loaded, card: DeckCard, position: n
     let intro: IntroView
     if (item.area === 'kana') {
       const w = data as V12Content['words'][number]
-      intro = { area: 'kana', kana: w.kana, meaning: w.meaning, hanViet: w.hanViet }
+      intro = { area: 'kana', kana: w.kana, romaji: romajiOf(w.kana), meaning: w.meaning, hanViet: w.hanViet }
     } else if (item.area === 'radical') {
       const r = data as V12Content['radicals'][number]
       const examples = l.content.kanji.filter((k) => k.radicals.includes(r.number) && (k.level === 5 || k.level === 4)).slice(0, 3).map((k) => k.char).join('')
@@ -410,6 +433,7 @@ async function viewOf(supabase: Supabase, l: Loaded, card: DeckCard, position: n
       retry: card.retry === true,
       prompt: built.prompt,
       promptKind: built.promptKind,
+      ...(built.reading ? { reading: built.reading } : {}),
       speak: built.speak,
       parts: built.parts,
       promptHanViet: hanViet(built.promptKind, parts),
@@ -448,6 +472,8 @@ export interface AnswerView {
   /** Kana để đọc lại sau khi chấm. */
   speak?: string
   stageDone?: boolean
+  /** Vừa xong Stage 1: Stage 2 học luôn trong ngày (2026-11-26). */
+  nextNow?: boolean
   /** Xong Stage cuối (có Card ôn, hoặc bộ thủ: học xong không có Card). */
   learned?: boolean
   cardsCreated?: number
@@ -483,14 +509,8 @@ export async function answerDeck(input: unknown): Promise<AnswerView> {
   let out: AnswerView = { status: 'graded' }
 
   if (card.kind === 'intro') {
-    const next = finishIntro(item.state, studyDate(now))
-    if (next) {
-      await finishIntroStage(supabase, item, next, now)
-      loaded.items[itemIndex] = { ...item, introSeen: true, stage: next.stage, stageFrom: next.stageFrom, version: item.version + 1, state: next }
-    } else {
-      await markIntroSeen(supabase, user.id, item.id, now)
-      loaded.items[itemIndex] = { ...item, introSeen: true }
-    }
+    await markIntroSeen(supabase, user.id, item.id, now)
+    loaded.items[itemIndex] = { ...item, introSeen: true }
   } else if (card.kind === 'stage' || card.kind === 'star') {
     const q = buildStageQuestion(card.type, data, pools(loaded), Math.random)
     const correct = gradeQuestion(q, v.given as string | string[])
@@ -504,8 +524,13 @@ export async function answerDeck(input: unknown): Promise<AnswerView> {
       if (r) {
         loaded.items[itemIndex] = { ...item, stage: r.item.stage, stageFrom: r.item.stageFrom, version: item.version + 1, state: r.item }
         if (r.retry) cards = insertRetry(cards, deck.position, card)
+        // Xong Stage 1: Stage 2 học luôn trong ngày (2026-11-26) — chèn câu Stage 2 vào phần còn lại của bộ thẻ
+        if (r.stageDone && r.item.stage === 2 && r.item.stageFrom <= studyDate(now)) {
+          const types = (Object.keys(r.item.types) as CardType[]).map((type) => ({ type, shows: plannedShows(r.item, type, studyDate(now)) })).filter((t) => t.shows > 0)
+          cards = insertStageCards(cards, deck.position, { area: item.area, itemId: item.id, stage: 2 }, types)
+        }
       }
-      out = { ...out, stageDone: r?.stageDone, learned: r?.item.stage === 'review', cardsCreated: r?.cardsCreated.length, retry: r?.retry }
+      out = { ...out, stageDone: r?.stageDone, nextNow: r?.stageDone === true && r.item.stage === 2, learned: r?.item.stage === 'review', cardsCreated: r?.cardsCreated.length, retry: r?.retry }
     }
   } else if (card.kind === 'review') {
     const built = buildReviewCard(card.card, data, pools(loaded), Math.random)
@@ -543,6 +568,8 @@ export interface ZoneSummary {
   /** Bộ thẻ đã dựng: đã làm / tổng. */
   deck: { position: number; total: number } | null
   remaining: number
+  /** Cấp đang học của khu (null khi đã mở hết N5–N4). */
+  level: number | null
   /** Tồn quá trần: hôm nay không mở mục mới (luật dừng mục mới). */
   paused: boolean
   /** Người học tự dừng mục mới của khu trong Settings. */
@@ -552,6 +579,10 @@ export interface ZoneSummary {
 export interface HubView {
   /** Nhịp học tự nhập: đề xuất, số ngày tới khi xong từ vựng của cấp, phút mỗi ngày. */
   pace: PaceEstimate
+  /** Từ Kanji chưa mở, để Settings ước tính lại ngày xong khi người học gõ số mới. */
+  wordKanjiPace: WordKanjiPace[]
+  /** Cấp đang học của từng khu (2026-11-26: mỗi khu tự sang cấp sau). */
+  levels: Record<Zone, number | null>
   /** Thời gian học ước tính của một mục theo khu (giây), cho phần xem trước ở Settings. */
   seconds: Record<Zone, number>
   /** Số mục mới mỗi ngày đang đặt, theo khu. */
@@ -595,6 +626,7 @@ export async function getHub(): Promise<HubView> {
       waiting: stageAll - stageQuestions + split[zone].reviews.length - capped.reviews.length,
       deck: decks[i] ? { position: decks[i]!.position, total: decks[i]!.cards.length } : null,
       remaining: zone === 'kanji' ? p.remaining.kanji : p.remaining[zone],
+      level: p.levels[zone],
       paused: p.paused[zone] && !p.userPaused[zone],
       userPaused: p.userPaused[zone],
     }
@@ -617,8 +649,11 @@ export async function getHub(): Promise<HubView> {
     caps: l.settings.caps,
   })
   const remaining: Record<Zone, number> = { kana: p.remaining.kana, kanji: p.remaining.kanji, word_kanji: p.remaining.word_kanji }
+  const wordKanjiPace = wordKanjiPaceRows(planContent(l), p.levels.word_kanji)
   return {
-    pace: paceEstimate({ remaining, perDay: l.settings.newPerDay, seconds }),
+    pace: paceEstimate({ remaining, perDay: l.settings.newPerDay, seconds, wordKanji: wordKanjiPace }),
+    wordKanjiPace,
+    levels: p.levels,
     seconds,
     newPerDay: l.settings.newPerDay,
     setSize: l.settings.setSize,

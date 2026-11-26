@@ -65,7 +65,8 @@ function useKeys(onKey: (e: KeyboardEvent) => void) {
 }
 
 /** Đề: chữ Nhật cỡ lớn theo độ dài, nghĩa, Hán Việt, hoặc nút loa của câu nghe (tự đọc, phím P nghe lại). */
-function Prompt({ text, kind, speakText, hanViet, hint, word }: { text: string; kind: string; speakText?: string; hanViet?: string; hint?: string; word?: WordInfo }) {
+/** `reading`: cách đọc Kana của Từ vựng Kanji, hiện dưới đề để nhắc lại (2026-11-26). */
+function Prompt({ text, kind, speakText, hanViet, hint, reading, romaji, word }: { text: string; kind: string; speakText?: string; hanViet?: string; hint?: string; reading?: string; romaji?: string; word?: WordInfo }) {
   if (kind === 'listen' && speakText)
     return (
       <div className="flex flex-col items-center gap-4">
@@ -86,7 +87,16 @@ function Prompt({ text, kind, speakText, hanViet, hint, word }: { text: string; 
           {hint && <p className="text-lg text-subtle">{hint}</p>}
         </>
       ) : (
-        <p className="text-balance text-3xl font-semibold md:text-4xl">{text}</p>
+        <>
+          <p className="text-balance text-3xl font-semibold md:text-4xl">{text}</p>
+          {hint && <p className="text-lg text-subtle">{hint}</p>}
+        </>
+      )}
+      {romaji && <p className="text-base tracking-wide text-subtle">{romaji}</p>}
+      {reading && (
+        <p lang="ja" className="font-jp text-lg text-subtle">
+          {reading}
+        </p>
       )}
       {hanViet && <p className="text-sm font-semibold tracking-wider text-yellow">{hanViet}</p>}
       {japanese && speakText && <SpeakerButton kana={speakText} />}
@@ -124,7 +134,7 @@ function noteOf(r: AnswerView | null): string | undefined {
   if (!r) return undefined
   const notes = []
   if (!r.correct && r.retry) notes.push("You'll see it again in a moment.")
-  if (r.stageDone) notes.push(r.learned ? (r.cardsCreated ? 'Learned! Review cards start tomorrow.' : 'Learned!') : 'Intro done! The next intro starts tomorrow.')
+  if (r.stageDone) notes.push(r.learned ? (r.cardsCreated ? 'Learned! Review cards start tomorrow.' : 'Learned!') : r.nextNow ? 'Intro 1 done! Intro 2 starts now.' : 'Intro done! The next intro starts tomorrow.')
   return notes.join('\n') || undefined
 }
 
@@ -288,7 +298,7 @@ function QuestionScreen({ label, q, hanViet, word, afterSpeak, onGrade, onContin
         />
       }
     >
-      <Prompt text={q.prompt} kind={q.promptKind} speakText={q.speak} hanViet={hanViet} hint={q.kind === 'choice' ? q.hint : undefined} word={result?.word} />
+      <Prompt text={q.prompt} kind={q.promptKind} speakText={q.speak} hanViet={hanViet} hint={q.kind === 'assembly' ? undefined : q.hint} reading={q.kind === 'assembly' ? undefined : q.reading} romaji={q.kind === 'choice' ? q.romaji : undefined} word={result?.word} />
     </ExercisePanel>
   )
 }
@@ -389,7 +399,7 @@ function ReviewScreen({ label, card, onGrade, onContinue }: { label: string; car
         />
       }
     >
-      <Prompt text={card.prompt} kind={card.promptKind} speakText={card.promptKind === 'kana' ? card.speak : undefined} hanViet={card.promptHanViet} word={result?.word} />
+      <Prompt text={card.prompt} kind={card.promptKind} speakText={card.promptKind === 'kana' ? card.speak : undefined} hanViet={card.promptHanViet} reading={card.reading} word={result?.word} />
     </ExercisePanel>
   )
 }
@@ -434,6 +444,7 @@ function Intro({ intro }: { intro: IntroView }) {
       {intro.area === 'kana' && (
         <>
           <p lang="ja" className="font-jp text-6xl font-medium">{intro.kana}</p>
+          <p className="text-base tracking-wide text-subtle">{intro.romaji}</p>
           <p className="text-xl font-medium">{intro.meaning}</p>
           {intro.hanViet && <p className="text-xs tracking-wide text-muted-foreground">Hán Việt: {intro.hanViet}</p>}
         </>

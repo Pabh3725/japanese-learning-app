@@ -43,6 +43,9 @@ export interface V12Content {
   wordKanji: (WordKanjiItem & { level: number | null; kanji: string[] })[]
 }
 
+/** Từ chỉ gồm đúng 1 chữ Kanji (không kèm Kana). */
+export const isSingleKanji = (expression: string) => /^\p{Script=Han}$/u.test(expression)
+
 let cache: { at: number; value: V12Content } | null = null
 
 type Part = { c?: string; original?: string; parts?: Part[] }
@@ -127,7 +130,8 @@ export async function readV12Content(supabase: Supabase): Promise<V12Content> {
   })
 
   const wordKanji = words
-    .filter((w) => !w.kanaOnly && w.hanViet && w.kanji.length > 0 && w.expression !== w.kana)
+    // Chủ dự án chốt 2026-11-26: bỏ từ chỉ gồm đúng 1 chữ Kanji (vd. 前, 北): Hán Việt trùng với chữ, đã học ở khu Kanji
+    .filter((w) => !w.kanaOnly && w.hanViet && w.kanji.length > 0 && w.expression !== w.kana && !isSingleKanji(w.expression))
     .map((w) => ({ id: w.id, expression: w.expression, kana: w.kana, hanViet: w.hanViet!, meaning: w.meaning, level: w.level, kanji: w.kanji }))
 
   const value = { words, radicals, kanji, wordKanji }

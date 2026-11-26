@@ -1,4 +1,5 @@
 // V12 §4–6: dựng câu cho từng loại thẻ và Card Review gom chung; chấm. Pure.
+import { toRomaji } from 'wanakana'
 import { isHanVietAnswerCorrect, isKanaAnswerCorrect } from '../exercise/answer-normalize'
 import { kanaSimilarity, lookalikeKanji } from '../exercise/similarity'
 import { REVIEW_CARDS, type CardType, type ReviewCardType, type ReviewPart } from './card-types'
@@ -51,9 +52,13 @@ export interface Pools {
 export type PromptKind = 'kana' | 'kanji' | 'meaning' | 'hanviet' | 'listen'
 
 export type Question =
-  /** `hint`: dòng gợi ý nhỏ dưới đề (vd. nghĩa dưới âm Hán Việt, vì nhiều chữ cùng âm). */
-  | { kind: 'choice'; prompt: string; promptKind: PromptKind; hint?: string; speak?: string; options: string[]; optionKind: PromptKind; answer: string }
-  | { kind: 'typing'; prompt: string; promptKind: PromptKind; speak?: string; input: 'hiragana' | 'katakana' | 'text'; answer: string }
+  /**
+   * `hint`: dòng gợi ý nhỏ dưới đề (vd. nghĩa dưới âm Hán Việt, vì nhiều chữ cùng âm).
+   * `reading`: cách đọc Kana hiện dưới đề của Từ vựng Kanji — chỉ để nhắc lại, không hỏi (chủ dự án chốt 2026-11-26).
+   * `romaji`: phiên âm romaji dưới đề Kana ở Intro 1 (chủ dự án yêu cầu 2026-11-26).
+   */
+  | { kind: 'choice'; prompt: string; promptKind: PromptKind; hint?: string; reading?: string; romaji?: string; speak?: string; options: string[]; optionKind: PromptKind; answer: string }
+  | { kind: 'typing'; prompt: string; promptKind: PromptKind; hint?: string; reading?: string; speak?: string; input: 'hiragana' | 'katakana' | 'text'; answer: string }
   | { kind: 'assembly'; prompt: string; promptKind: PromptKind; speak?: string; pieces: string[]; answer: string[] }
 
 const OPTIONS = 4
@@ -185,6 +190,9 @@ function similarRadicals(r: RadicalItem, pool: readonly RadicalItem[]): RadicalI
 const isKatakana = (s: string) => /^[ァ-ヺー]+$/.test(s)
 const choice = (prompt: string, promptKind: PromptKind, answer: string, options: string[], optionKind: PromptKind, speak?: string): Question => ({ kind: 'choice', prompt, promptKind, options, optionKind, answer, ...(speak ? { speak } : {}) })
 
+/** Phiên âm romaji của Kana (vd. コーヒー → koohii), hiện ở thẻ giới thiệu và câu Kana → nghĩa của Intro 1. */
+export const romajiOf = (kana: string) => toRomaji(kana)
+
 /** Câu của một loại thẻ Stage (§4–6). */
 export function buildStageQuestion(type: CardType, item: KanaWordItem | RadicalItem | KanjiItem | WordKanjiItem, pools: Pools, rng: Rng): Question {
   switch (type) {
@@ -192,7 +200,7 @@ export function buildStageQuestion(type: CardType, item: KanaWordItem | RadicalI
     case 'kana_meaning': {
       const w = item as KanaWordItem
       const opts = tiered(w.meaning, (x: KanaWordItem) => x.meaning, (x) => x.meaning !== w.meaning, similarKanaWords(w, pools.kana), recentOf(pools.kana, pools.recent?.kana, w.id), pools.kana, rng)
-      return choice(w.kana, 'kana', w.meaning, opts, 'meaning', w.kana)
+      return { ...choice(w.kana, 'kana', w.meaning, opts, 'meaning', w.kana), romaji: romajiOf(w.kana) } as Question
     }
     case 'meaning_kana': {
       const w = item as KanaWordItem
@@ -268,12 +276,12 @@ export function buildStageQuestion(type: CardType, item: KanaWordItem | RadicalI
     case 'word_hanviet': {
       const w = item as WordKanjiItem
       const opts = tiered(w.hanViet, (x: WordKanjiItem) => x.hanViet, (x) => x.hanViet !== w.hanViet, similarWords(w, pools.word_kanji), recentOf(pools.word_kanji, pools.recent?.word_kanji, w.id), pools.word_kanji, rng)
-      return choice(w.expression, 'kanji', w.hanViet, opts, 'hanviet', w.kana)
+      return { ...choice(w.expression, 'kanji', w.hanViet, opts, 'hanviet', w.kana), reading: w.kana } as Question
     }
     case 'word_meaning': {
       const w = item as WordKanjiItem
       const opts = tiered(w.meaning, (x: WordKanjiItem) => x.meaning, (x) => x.meaning !== w.meaning, similarWords(w, pools.word_kanji), recentOf(pools.word_kanji, pools.recent?.word_kanji, w.id), pools.word_kanji, rng)
-      return choice(w.expression, 'kanji', w.meaning, opts, 'meaning', w.kana)
+      return { ...choice(w.expression, 'kanji', w.meaning, opts, 'meaning', w.kana), reading: w.kana } as Question
     }
     case 'hanviet_word': {
       const w = item as WordKanjiItem
@@ -289,6 +297,17 @@ export function buildStageQuestion(type: CardType, item: KanaWordItem | RadicalI
     case 'word_type_hanviet': {
       const w = item as WordKanjiItem
       return { kind: 'typing', prompt: w.expression, promptKind: 'kanji', speak: w.kana, input: 'text', answer: w.hanViet }
+    }
+    case 'meaning_hanviet': {
+      // Đáp án nhiễu không trùng Hán Việt hay trùng nghĩa (vd. 社員 / 会社員 cùng "nhân viên công ty")
+      const w = item as WordKanjiItem
+      const opts = tiered(w.hanViet, (x: WordKanjiItem) => x.hanViet, (x) => x.hanViet !== w.hanViet && x.meaning !== w.meaning, similarWords(w, pools.word_kanji), recentOf(pools.word_kanji, pools.recent?.word_kanji, w.id), pools.word_kanji, rng)
+      return { ...choice(w.meaning, 'meaning', w.hanViet, opts, 'hanviet'), reading: w.kana } as Question
+    }
+    case 'meaning_type_hanviet': {
+      // Cách đọc Kana hiện dưới nghĩa để câu chỉ có một đáp án khi nhiều từ trùng nghĩa
+      const w = item as WordKanjiItem
+      return { kind: 'typing', prompt: w.meaning, promptKind: 'meaning', reading: w.kana, input: 'text', answer: w.hanViet }
     }
     case 'word_assembly': {
       // Nghĩa → chọn từng chữ (Kanji và Kana đi kèm) theo thứ tự để viết từ; thêm chữ Kanji nhiễu cùng cấp
@@ -312,7 +331,7 @@ export interface CardPart {
 }
 
 /** Card Review (§3.3): các phần trên cùng một thẻ, cùng một đề. */
-export function buildReviewCard(card: ReviewCardType, item: KanaWordItem | RadicalItem | KanjiItem | WordKanjiItem, pools: Pools, rng: Rng): { prompt: string; promptKind: PromptKind; speak?: string; parts: CardPart[] } {
+export function buildReviewCard(card: ReviewCardType, item: KanaWordItem | RadicalItem | KanjiItem | WordKanjiItem, pools: Pools, rng: Rng): { prompt: string; promptKind: PromptKind; reading?: string; speak?: string; parts: CardPart[] } {
   const parts = (q: Record<ReviewPart, () => Question>) => REVIEW_CARDS[card].parts.map((part) => ({ part, question: q[part]() }))
   const never = () => {
     throw new Error(`${card}: phần không dùng`)
@@ -336,6 +355,7 @@ export function buildReviewCard(card: ReviewCardType, item: KanaWordItem | Radic
       return {
         prompt: w.expression,
         promptKind: 'kanji',
+        reading: w.kana,
         speak: w.kana,
         parts: parts({
           type_kana: never,

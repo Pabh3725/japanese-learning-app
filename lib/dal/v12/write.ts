@@ -7,7 +7,7 @@ import { addStudyDays, studyDate } from '@/lib/learning/time'
 import { createScheduler, type ReviewCard, type Schedule } from '@/lib/srs/scheduler'
 import { reviewCardsFor, typesFor, type Area, type CardType, type ReviewCardType } from '@/lib/v12/card-types'
 import { RULES_V12 } from '@/lib/v12/rules'
-import { applyAnswer, canShow, type AnswerResult, type ItemState } from '@/lib/v12/stage'
+import { applyAnswer, canShow, type AnswerResult } from '@/lib/v12/stage'
 import type { CardRow, ItemRow } from './state'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
@@ -34,18 +34,6 @@ export async function openItem(
   })
   if (error) throw new Error(`v12_open_item lỗi: ${error.message}`)
   return data as { status: 'saved' | 'exists'; id: string }
-}
-
-/** Xem xong thẻ giới thiệu khi Stage 1 không có câu hỏi (finishIntro): sang Stage 2 trong một transaction. */
-export async function finishIntroStage(supabase: Supabase, item: { id: string; version: number }, next: ItemState, now: Date): Promise<void> {
-  const { error } = await supabase.rpc('v12_finish_intro', {
-    p_item_id: item.id,
-    p_expected_version: item.version,
-    p_at: now.toISOString(),
-    p_stage_from: next.stageFrom,
-    p_types: Object.keys(next.types),
-  })
-  if (error) throw new Error(`v12_finish_intro lỗi: ${error.message}`)
 }
 
 /** Đã xem thẻ giới thiệu (Stage 1 dở dang hôm sau thì không hiện lại thẻ). */
