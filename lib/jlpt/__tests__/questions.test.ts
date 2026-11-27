@@ -28,7 +28,7 @@ function parseCsv(text: string): Record<string, string>[] {
 const vocab = parseCsv(readFileSync(join(process.cwd(), 'data', 'n5', 'vocabularies.csv'), 'utf8'))
 const words: JlptWord[] = vocab.map((r) => ({ id: r.code, code: r.code, expression: r.expression, reading: r.reading_kana, meaning: r.meaning_vi, hanViet: r.han_viet || null }))
 const dir = join(process.cwd(), 'data', 'grammar')
-const sentences: JlptGrammarSentence[] = readdirSync(dir).flatMap((f) => {
+const sentences: JlptGrammarSentence[] = readdirSync(dir).filter((f) => /^lesson-\d+\.json$/.test(f)).flatMap((f) => {
   const file = JSON.parse(readFileSync(join(dir, f), 'utf8')) as GrammarLessonFile
   return file.points.flatMap((p) => p.sentences.filter((s) => !s.hidden).map((s) => ({ ...s, pattern: p.pattern, patternMeaning: p.meaning })))
 })

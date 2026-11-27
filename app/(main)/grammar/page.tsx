@@ -34,6 +34,7 @@ function LessonCard({ l }: { l: GrammarLessonSummary }) {
         <span className="text-sm text-muted-foreground tabular-nums">{l.done} of {l.points.length} learned</span>
       </div>
       {!l.unlock.open && <p className="mt-1 text-sm text-muted-foreground">{lockNote(l)}</p>}
+      {l.unlock.open && !l.v3Ready && <p className="mt-1 text-sm text-muted-foreground">New patterns of this lesson open when its new exercise sets are ready.</p>}
       <ul className="mt-3 flex flex-col divide-y divide-border">
         {l.points.map((p) => (
           <li key={p.code}>
@@ -43,7 +44,7 @@ function LessonCard({ l }: { l: GrammarLessonSummary }) {
                 <span className="block text-sm text-muted-foreground">{p.meaning}</span>
               </span>
               <span className="flex shrink-0 items-center gap-2">
-                <span className={cn('text-xs font-medium', STATUS[p.status].className)}>{STATUS[p.status].label}</span>
+                <span className={cn('text-xs font-medium', STATUS[p.status].className)}>{p.status === 'learning' && p.day ? `Day ${p.day} of 2` : STATUS[p.status].label}</span>
                 <ChevronRight className="size-5 text-muted-foreground" aria-hidden="true" />
               </span>
             </Link>
@@ -71,7 +72,7 @@ export default async function GrammarPage() {
         <div className="flex flex-col gap-3 rounded-3xl border border-primary/30 bg-card p-5">
           <p className="flex items-center gap-2 font-semibold"><Sparkles className="size-5 text-primary" aria-hidden="true" /> Learn today</p>
           <p className="text-sm text-muted-foreground">
-            {learnCount === 0 ? 'Nothing to learn right now.' : `${g.today.newLeft} new ${g.today.newLeft === 1 ? 'pattern' : 'patterns'} · ${g.today.learningDue} ${g.today.learningDue === 1 ? 'pattern' : 'patterns'} to practice`}
+            {learnCount === 0 ? 'Nothing to learn right now.' : `${g.today.newLeft} new ${g.today.newLeft === 1 ? 'pattern' : 'patterns'} · ${g.today.learningDue} ${g.today.learningDue === 1 ? 'pattern' : 'patterns'} to continue`}
           </p>
           {g.settings.balance && (
             <p className="text-xs text-muted-foreground">

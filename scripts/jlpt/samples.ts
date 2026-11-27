@@ -34,7 +34,7 @@ const vocab = parseCsv(readFileSync(join(root, 'data/n5/vocabularies.csv'), 'utf
 const kanji = parseCsv(readFileSync(join(root, 'data/n5/kanji.csv'), 'utf8'))
 const similar = parseCsv(readFileSync(join(root, 'data/n5/kanji_similar.csv'), 'utf8')).filter((r) => r.approved === 'true')
 const words = vocab.map((r) => ({ word: { id: r.code, code: r.code, expression: r.expression, reading: r.reading_kana, meaning: r.meaning_vi, hanViet: r.han_viet || null } as JlptWord, level: Number(r.jlpt_level), lesson: Number(r.lesson) }))
-const grammar = readdirSync(join(root, 'data/grammar')).flatMap((f) => {
+const grammar = readdirSync(join(root, 'data/grammar')).filter((f) => /^lesson-\d+\.json$/.test(f)).flatMap((f) => {
   const file = JSON.parse(readFileSync(join(root, 'data/grammar', f), 'utf8')) as GrammarLessonFile
   return file.points.flatMap((p) => p.sentences.map((s) => ({ ...s, lesson: file.lesson, pattern: p.pattern, patternMeaning: p.meaning })))
 })
