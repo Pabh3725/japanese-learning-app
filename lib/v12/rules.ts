@@ -20,6 +20,8 @@ export const RULES_V12 = {
   set: { default: 20, min: 10, max: 100 },
   /** §2: trần mỗi khu mỗi ngày (số câu, không tính thẻ giới thiệu). */
   caps: { kana: 120, kanji: 100, word_kanji: 80, min: 10, max: 1000 },
+  /** §5.2, §6: các cấp JLPT được học, dễ trước (chủ dự án mở thêm N3, N2 ngày 2026-11-27). */
+  levels: [5, 4, 3, 2],
   /** §5.1: bộ thủ được học khi có trong ít nhất chừng này chữ N5–N4. */
   radicals: { minKanji: 2 },
   /** §8.1: thời gian ước tính (giây). */

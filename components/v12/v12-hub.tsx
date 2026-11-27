@@ -42,7 +42,7 @@ function ZoneCard({ z, setSize }: { z: ZoneSummary; setSize: number }) {
           Today: {Math.min(z.deck.position, z.deck.total)} / {z.deck.total} cards · {Math.max(1, Math.ceil(z.deck.total / setSize))} sets of {setSize}
         </p>
       )}
-      <p className="mt-1 text-xs text-muted-foreground tabular-nums">{z.level ? `N${z.level} · ${z.remaining} not started` : 'All N5–N4 items started'}</p>
+      <p className="mt-1 text-xs text-muted-foreground tabular-nums">{z.level ? `N${z.level} · ${z.remaining} not started` : 'All N5–N2 items started'}</p>
       {z.userPaused && (
         <p className="mt-2 text-xs text-yellow">
           New items paused in{' '}

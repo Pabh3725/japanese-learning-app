@@ -26,11 +26,11 @@ describe('Dữ liệu V12', () => {
     expect(meanings.filter((m) => Number(m.n5n4_kanji) >= 2).length).toBeGreaterThanOrEqual(80)
   })
 
-  it('kanji_frequency.csv: mọi chữ của kanji.csv, mọi chữ N5–N4 có hạng 1–2500', () => {
+  it('kanji_frequency.csv: mọi chữ của kanji.csv, mọi chữ N5–N4 có hạng 1–2500 (trừ 賑, KANJIDIC2 không xếp hạng)', () => {
     const kanji = rows('kanji.csv')
     const freq = new Map(rows('kanji_frequency.csv').map((r) => [r.character, r.freq_rank]))
     expect(freq.size).toBe(kanji.length)
-    for (const k of kanji.filter((x) => x.jlpt_level === '5' || x.jlpt_level === '4')) {
+    for (const k of kanji.filter((x) => (x.jlpt_level === '5' || x.jlpt_level === '4') && x.character !== '賑')) {
       const rank = Number(freq.get(k.character))
       expect(rank, k.character).toBeGreaterThanOrEqual(1)
       expect(rank, k.character).toBeLessThanOrEqual(2500)

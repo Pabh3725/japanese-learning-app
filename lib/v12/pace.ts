@@ -1,6 +1,7 @@
 // V12: nhịp học tự nhập từng khu (chủ dự án chốt 2026-11-24, thay cho cân bằng) — đề xuất số chữ / từ Kanji mỗi ngày
 // để xong cùng lúc với từ vựng Kana, và ước tính bao lâu nữa xong từ vựng của cấp. Pure (dùng được ở trình duyệt).
 import type { Zone } from './card-types'
+import { RULES_V12 } from './rules'
 
 /** Số ngày để mục mới cuối cùng xong Intro: Intro 1 → 2 → 3 mỗi Intro một ngày (2026-11-26, lần 3). */
 export const INTRO_DAYS = 3
@@ -10,7 +11,7 @@ export const INTRO_DAYS = 3
  * Kana của từ phải qua Intro 1, mọi chữ phải học xong.
  */
 export interface WordKanjiPace {
-  /** Từ N5 (5) được ưu tiên trước từ N4 (4). */
+  /** Cấp của thẻ: cấp dễ hơn được ưu tiên (N5 = 5 trước N4 = 4, …). */
   level: number
   /** Thuộc cấp đang học của khu (chỉ những từ này tính vào ngày xong). */
   current: boolean
@@ -69,24 +70,25 @@ export function wordKanjiDays(words: readonly WordKanjiPace[], perDay: Record<Zo
   })
   if (ready.some((r) => r.w.current && r.day === Infinity)) return null
   const queue = ready.filter((r) => r.day !== Infinity).sort((a, b) => a.day - b.day)
-  // Hai hàng chờ theo cấp (N5 trước N4), lấy từ đầu hàng: mỗi ngày O(số từ mở), chạy được nhiều lần khi người học đang gõ
-  const waiting: Record<number, typeof queue> = { 5: [], 4: [] }
-  const head: Record<number, number> = { 5: 0, 4: 0 }
+  // Một hàng chờ mỗi cấp (cấp dễ trước), lấy từ đầu hàng: mỗi ngày O(số từ mở), chạy được nhiều lần khi người học đang gõ
+  const levels = RULES_V12.levels
+  const waiting: Record<number, typeof queue> = Object.fromEntries(levels.map((lv) => [lv, []]))
+  const head: Record<number, number> = Object.fromEntries(levels.map((lv) => [lv, 0]))
   const size = (lv: number) => waiting[lv].length - head[lv]
   let left = current
   let next = 0
   for (let day = 0; left > 0; day++) {
     while (next < queue.length && queue[next].day <= day) {
       const r = queue[next++]
-      waiting[r.w.level === 5 ? 5 : 4].push(r)
+      waiting[r.w.level].push(r)
     }
     for (let n = 0; n < perDay.word_kanji; n++) {
-      const lv = size(5) > 0 ? 5 : size(4) > 0 ? 4 : null
-      if (lv === null) break
+      const lv = levels.find((l) => size(l) > 0)
+      if (lv === undefined) break
       if (waiting[lv][head[lv]++].w.current) left--
     }
     if (left === 0) return day + 1
-    if (size(5) + size(4) === 0 && next < queue.length) day = Math.max(day, queue[next].day - 1)
+    if (levels.every((l) => size(l) === 0) && next < queue.length) day = Math.max(day, queue[next].day - 1)
   }
   return 0
 }

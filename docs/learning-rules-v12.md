@@ -91,10 +91,11 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 
 ### 5.2 Chữ Kanji
 
+- **Phạm vi và cấp của chữ** (chủ dự án chốt 2026-11-27): khu Kanji học **N5 → N4 → N3 → N2**, theo danh sách chủ dự án gửi (N5 80 chữ, N4 167, N3 370, N2 368; trùng danh sách Waller, cột `jlpt_new` của kanji-data). Bốn chữ ngoài danh sách có trong từ vựng (暑 誰 韓 賑) xếp vào N4. Chữ còn lại (N1, 116 chữ trong từ vựng) chưa học. Cấp ghi ở `data/n5/kanji.csv`, sinh bằng `python3 scripts/kanji-data/levels.py`; 265 chữ N4–N2 chưa có trong từ vựng được thêm, Hán Việt và nghĩa chờ duyệt ở `docs/kanji-n3n2-review.md`. Thay cho cấp cũ (145 chữ N5 gốc + cấp JLPT cũ của KANJIDIC2). Khu Kana và khu Từ vựng Kanji vẫn chỉ có từ N5–N4.
 - **Thứ tự: dễ → khó** (chủ dự án chốt 2026-11-24, thay cho "phổ biến trước"): theo cấp N5 → N4 → N3 →…; trong mỗi cấp, chữ **ít nét hơn** học trước, cùng số nét thì chữ phổ biến hơn trước. Chữ là thành phần của chữ khác thì học trước chữ đó. Không xếp theo bài Minna. Ví dụ 40 chữ N5 đầu: 一人十二九入力八七大三上子下小山女川千口土万夕日中月分五内方今手円六午元水少木天.
   - ~~Chữ chỉ mở khi mọi bộ thủ của nó đã qua Stage 1.~~ Bỏ (2026-11-24): bộ thủ học riêng ở More.
   - **Bỏ** luật cũ ưu tiên mở chữ của các từ sắp học (V12 hôm 2026-11-15).
-  - **Dữ liệu:** `data/n5/kanji_frequency.csv` có hạng tần suất trên báo chí (1–2500, số nhỏ là phổ biến hơn). 842/844 chữ có hạng, gồm **mọi** chữ N5–N4; 2 chữ không có hạng thì xếp cuối cấp. Nguồn: kanji-data (David Gouveia, MIT), trường `freq` lấy từ KANJIDIC2 (EDRDG, CC BY-SA 4.0); cần ghi nguồn trong app.
+  - **Dữ liệu:** `data/n5/kanji_frequency.csv` có hạng tần suất trên báo chí (1–2500, số nhỏ là phổ biến hơn). 1107/1109 chữ có hạng (2026-11-27); 2 chữ không có hạng (賑 N4, 伎 ngoài N5–N2) thì xếp cuối cấp. Nguồn: kanji-data (David Gouveia, MIT), trường `freq` lấy từ KANJIDIC2 (EDRDG, CC BY-SA 4.0); cần ghi nguồn trong app.
 - **Thẻ giới thiệu:** chữ, nét viết, Hán Việt, nghĩa và giải thích nghĩa, **âm On/Kun**. Như vậy bỏ luật ngày 2026-11-15 "ẩn On/Kun tới khi học Từ Kanji".
 - **Không có câu hỏi** về âm On/Kun.
 
@@ -108,8 +109,8 @@ Mỗi khu có trang học riêng. Phần học (Stage) và phần ôn (Review) c
 ## 6. Khu Từ vựng Kanji
 
 - **Mở thẻ** (chủ dự án chốt 2026-11-24): từ vựng Kana của từ đã vào **Stage 2**, **và mọi chữ Kanji của từ đã học xong ở khu Kanji** (xong Intro, có Card, hoặc đã đánh dấu "đã biết"). Giữ danh sách chính sách Kanji của từ: từ "chỉ Kana" không có thẻ Từ vựng Kanji.
-- **Thẻ đã có mà còn chữ chưa học xong** (chủ dự án duyệt 2026-11-25): mục mở theo luật cũ, chuyển từ V11 hoặc tạo bằng "Mark as learned" thì tạm ẩn (câu Intro, Card, câu sao, số đếm, dự báo, cả bộ thẻ đã dựng hôm nay), giữ nguyên điểm và lịch FSRS; tự hiện lại khi mọi chữ học xong. Chữ ngoài N5–N4 cũng chặn. — CONFIRMED
-- **Học từ bằng Kana ở N5 không bắt buộc học dạng Kanji ở N5.** Cấp của thẻ Từ vựng Kanji = cấp khó nhất giữa từ và các chữ của từ: từ N5 có chữ N4 (vd. 日曜日) mở trong lúc học Kanji N4; từ có chữ ngoài danh sách N5–N4 (vd. 辞書, 傘) **chưa có** thẻ Từ vựng Kanji (tới khi khu Kanji có cấp đó).
+- **Thẻ đã có mà còn chữ chưa học xong** (chủ dự án duyệt 2026-11-25): mục mở theo luật cũ, chuyển từ V11 hoặc tạo bằng "Mark as learned" thì tạm ẩn (câu Intro, Card, câu sao, số đếm, dự báo, cả bộ thẻ đã dựng hôm nay), giữ nguyên điểm và lịch FSRS; tự hiện lại khi mọi chữ học xong. Chữ ngoài N5–N2 cũng chặn (2026-11-27, trước là N5–N4). — CONFIRMED
+- **Học từ bằng Kana ở N5 không bắt buộc học dạng Kanji ở N5.** Cấp của thẻ Từ vựng Kanji = cấp khó nhất giữa từ và các chữ của từ: từ N5 có chữ N4 (vd. 日曜日) mở trong lúc học Kanji N4, từ có chữ N3 (vd. 辞書) mở ở cấp N3; từ có chữ ngoài N5–N2 (vd. 傘) **chưa có** thẻ Từ vựng Kanji (tới khi khu Kanji có cấp đó). Mỗi khu mở hết cấp này thì sang cấp sau (N5 → N4 → N3 → N2).
 - **Bỏ từ chỉ gồm đúng 1 chữ Kanji** (chủ dự án chốt 2026-11-26; vd. 前, 北, 石 — 105 từ N5–N4): Hán Việt của từ trùng với chữ, đã học ở khu Kanji. Từ 1 chữ kèm Kana (vd. 作ります, 楽しい) vẫn học. Thẻ đã mở của các từ này tạm ẩn, không đổi dữ liệu. — CONFIRMED
 - **Bỏ hàng chờ** (trước đây từ thiếu chữ được học thẳng dạng Kanji khi tới lượt).
 - Số từ có dạng Kanji theo luật này (dữ liệu 2026-11-24): từ N5 — 214 mở ở N5, 141 mở ở N4, 271 chưa có; từ N4 — 217 mở ở N4, 499 chưa có.

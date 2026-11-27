@@ -110,7 +110,7 @@ export function wordKanjiStatus(word: WordRow, kanaProgress: Progress | undefine
 
 /**
  * Từ vựng Kanji đang chờ chữ (chủ dự án duyệt 2026-11-25): mục mở trước luật trên hoặc tạo bằng "Mark as learned" mà còn chữ
- * chưa học xong thì tạm không học (Intro, Card, câu sao), giữ nguyên điểm và lịch FSRS. Chữ ngoài N5–N4 cũng chặn (§6).
+ * chưa học xong thì tạm không học (Intro, Card, câu sao), giữ nguyên điểm và lịch FSRS. Chữ ngoài N5–N2 cũng chặn (§6).
  */
 export function wordKanjiWaiting(kanji: readonly string[], kanjiProgress: ReadonlyMap<string, Progress>): boolean {
   return !kanji.every((c) => kanjiProgress.get(c) === 'review')
