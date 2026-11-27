@@ -12,7 +12,7 @@ import { forecast, overflowDays, type ForecastDay } from '@/lib/v12/forecast'
 import { paceEstimate, type PaceEstimate, type WordKanjiPace } from '@/lib/v12/pace'
 import { RULES_V12 } from '@/lib/v12/rules'
 import { wordKanjiWaiting, type Progress } from '@/lib/v12/order'
-import { key, pausedZones, planNewItems, wordKanjiPaceRows, type PlanResult } from '@/lib/v12/plan'
+import { isStudyLevel, key, pausedZones, planNewItems, wordKanjiPaceRows, type PlanResult } from '@/lib/v12/plan'
 import { buildReviewCard, buildStageQuestion, romajiOf, gradeCard, gradeQuestion, type CardPart, type Pools, type Question } from '@/lib/v12/questions'
 import { canShow, isActive, plannedShows } from '@/lib/v12/stage'
 import { readV12Content, type V12Content } from './content'
@@ -58,7 +58,7 @@ async function load(supabase: Supabase, userId: string): Promise<Loaded> {
  */
 function waitingItems(content: V12Content, state: Pick<Loaded, 'items' | 'knownWords' | 'knownKanji'>): Set<string> {
   const p = progressOf(state)
-  const kanjiProgress = new Map(content.kanji.filter((k) => k.level === 5 || k.level === 4).map((k) => [k.char, p.get(key('kanji', k.id)) ?? ('none' as Progress)]))
+  const kanjiProgress = new Map(content.kanji.filter((k) => isStudyLevel(k.level)).map((k) => [k.char, p.get(key('kanji', k.id)) ?? ('none' as Progress)]))
   const charsOf = new Map(content.wordKanji.map((w) => [w.id, w.kanji]))
   return new Set(state.items.filter((i) => i.area === 'word_kanji' && (!charsOf.has(i.ref) || wordKanjiWaiting(charsOf.get(i.ref)!, kanjiProgress))).map((i) => i.id))
 }
@@ -268,10 +268,9 @@ async function ensureDeck(supabase: Supabase, userId: string, scope: Scope, now:
 /** Số mục vừa học gần đây dùng làm đáp án nhiễu tầng 2 (mỗi loại mục). */
 const RECENT_LIMIT = 30
 
-/** Kho đáp án nhiễu N5–N4, kèm mục người học vừa mở gần đây (mới nhất trước) cho đáp án nhiễu tầng 2. */
+/** Kho đáp án nhiễu N5–N2, kèm mục người học vừa mở gần đây (mới nhất trước) cho đáp án nhiễu tầng 2. */
 function pools(l: Pick<Loaded, 'content' | 'items'>): Pools {
   const c = l.content
-  const n5n4 = (level: number | null) => level === 5 || level === 4
   const recent = (area: Area) =>
     l.items
       .filter((i) => i.area === area && !i.known)
@@ -279,10 +278,10 @@ function pools(l: Pick<Loaded, 'content' | 'items'>): Pools {
       .slice(0, RECENT_LIMIT)
       .map((i) => i.ref)
   return {
-    kana: c.words.filter((w) => n5n4(w.level)),
+    kana: c.words.filter((w) => isStudyLevel(w.level)),
     radical: c.radicals,
-    kanji: c.kanji.filter((k) => n5n4(k.level)),
-    word_kanji: c.wordKanji.filter((w) => n5n4(w.level)),
+    kanji: c.kanji.filter((k) => isStudyLevel(k.level)),
+    word_kanji: c.wordKanji.filter((w) => isStudyLevel(w.level)),
     recent: { kana: recent('kana'), radical: recent('radical'), kanji: recent('kanji'), word_kanji: recent('word_kanji') },
   }
 }
@@ -576,7 +575,7 @@ export interface ZoneSummary {
   /** Bộ thẻ đã dựng: đã làm / tổng. */
   deck: { position: number; total: number } | null
   remaining: number
-  /** Cấp đang học của khu (null khi đã mở hết N5–N4). */
+  /** Cấp đang học của khu (null khi đã mở hết N5–N2). */
   level: number | null
   /** Tồn quá trần: hôm nay không mở mục mới (luật dừng mục mới). */
   paused: boolean

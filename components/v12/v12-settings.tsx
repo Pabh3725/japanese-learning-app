@@ -72,7 +72,7 @@ export function V12SettingsFields({ s, plan, radicalsPerDay }: { s: V12Settings;
   const perDay = { kana: num(kana), kanji: num(kanji), word_kanji: num(word) }
   const pace = paceEstimate({ remaining: plan.remaining, perDay, seconds: plan.seconds, wordKanji: plan.wordKanji })
   // Mỗi khu có cấp riêng (2026-11-26): khu mở hết cấp thì sang cấp sau
-  const levelOf = (z: Zone) => (plan.levels[z] ? `N${plan.levels[z]}` : 'N5–N4')
+  const levelOf = (z: Zone) => (plan.levels[z] ? `N${plan.levels[z]}` : 'N5–N2')
   const suggestion = (z: 'kanji' | 'word_kanji', unit: string) => {
     const v = pace.suggest[z]
     if (plan.remaining[z] === 0) return `All ${levelOf(z)} ${unit} are already open.`

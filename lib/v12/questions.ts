@@ -38,7 +38,7 @@ export interface WordKanjiItem {
 }
 
 /**
- * Kho đáp án nhiễu: các mục cùng loại (N5–N4). `recent`: id các mục người học vừa mở gần đây, mới nhất trước
+ * Kho đáp án nhiễu: các mục cùng loại (N5–N2). `recent`: id các mục người học vừa mở gần đây, mới nhất trước
  * (đáp án nhiễu tầng 2, chủ dự án chốt 2026-11-24).
  */
 export interface Pools {

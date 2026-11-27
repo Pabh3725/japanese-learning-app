@@ -4,6 +4,7 @@ import { balance, type BalanceResult, type BalanceTarget, type Remaining } from 
 import type { Area, Zone } from './card-types'
 import { canOpenKanji, kanjiOrder, pastStage1, wordKanjiStatus, type KanjiRow, type Progress } from './order'
 import type { WordKanjiPace } from './pace'
+import { RULES_V12 } from './rules'
 
 export interface PlanWord {
   id: string
@@ -41,20 +42,24 @@ export interface PlanInput {
   userPaused?: Partial<Record<Zone, boolean>>
 }
 
-/** Cấp của thẻ Từ vựng Kanji = cấp khó nhất giữa từ và các chữ của từ (N5 = 5, N4 = 4); từ có chữ ngoài N5–N4 thì chưa có. */
+const LEVELS = RULES_V12.levels
+/** Cấp được học ở các khu (N5–N2). */
+export const isStudyLevel = (level: number | null | undefined): level is number => level != null && (LEVELS as readonly number[]).includes(level)
+
+/** Cấp của thẻ Từ vựng Kanji = cấp khó nhất giữa từ và các chữ của từ (N5 = 5, N4 = 4, …); từ có chữ ngoài N5–N2 thì chưa có. */
 function wordKanjiLevelOf(w: PlanWord, kanjiLevel: ReadonlyMap<string, number | null>): number | null {
   let lv = w.level
-  if (lv !== 5 && lv !== 4) return null
+  if (!isStudyLevel(lv)) return null
   for (const c of w.kanji) {
     const l = kanjiLevel.get(c)
-    if (l !== 5 && l !== 4) return null
+    if (!isStudyLevel(l)) return null
     lv = Math.min(lv, l)
   }
   return lv
 }
 
 export interface PlanResult {
-  /** Cấp thấp nhất còn đang học trong các khu (5 = N5). null khi đã mở hết N5–N4. */
+  /** Cấp thấp nhất còn đang học trong các khu (5 = N5). null khi đã mở hết N5–N2. */
   level: number | null
   /** Cấp đang học của từng khu (chủ dự án chốt 2026-11-26: khu nào mở hết cấp thì sang cấp sau luôn). */
   levels: Record<Zone, number | null>
@@ -65,7 +70,6 @@ export interface PlanResult {
   balance: BalanceResult | null
 }
 
-const LEVELS = [5, 4] as const
 export const key = (area: Area, ref: string | number) => `${area}:${ref}`
 
 /** Chọn mục mới hôm nay (§8.2, cân bằng từng cấp; khu Kanji: bộ thủ trước chữ). */
@@ -74,7 +78,7 @@ export function planNewItems(input: PlanInput): PlanResult {
   const opened = (area: Area, ref: string | number) => (p.get(key(area, ref)) ?? 'none') !== 'none'
   const unopenedWords = (level: number) => input.words.filter((w) => w.level === level && !opened('kana', w.id)).sort((a, b) => a.sortOrder - b.sortOrder)
   const unopenedKanji = (level: number) => input.kanji.filter((k) => k.level === level && !opened('kanji', k.id))
-  // Cấp của thẻ Từ vựng Kanji = cấp khó nhất giữa từ và các chữ của từ (N5 = 5, N4 = 4); từ có chữ ngoài N5–N4 thì chưa có
+  // Cấp của thẻ Từ vựng Kanji = cấp khó nhất giữa từ và các chữ của từ (N5 = 5, N4 = 4, …); từ có chữ ngoài N5–N2 thì chưa có
   // (chủ dự án chốt 2026-11-24: từ học bằng Kana ở N5 không bắt buộc học dạng Kanji ở N5)
   const kanjiLevel = new Map(input.kanji.map((k) => [k.character, k.level]))
   const wordKanjiLevel = (w: PlanWord) => wordKanjiLevelOf(w, kanjiLevel)
@@ -137,8 +141,8 @@ export function planNewItems(input: PlanInput): PlanResult {
     .slice(0, quota.kanji)
     .map((k) => k.id)
 
-  // Từ vựng Kanji: mở khi Kana của từ đã vào Stage 2 và mọi chữ của từ đã học xong; mọi từ N5–N4 đủ điều kiện,
-  // từ N5 trước rồi tới N4, trong cấp theo thứ tự từ vựng.
+  // Từ vựng Kanji: mở khi Kana của từ đã vào Stage 2 và mọi chữ của từ đã học xong; mọi từ N5–N2 đủ điều kiện,
+  // cấp dễ trước (N5 → N2), trong cấp theo thứ tự từ vựng.
   const kanjiProgress = new Map(input.kanji.map((k) => [k.character, p.get(key('kanji', k.id)) ?? ('none' as Progress)]))
   const word_kanji = input.wordKanji
     .filter((w) => {
@@ -152,8 +156,8 @@ export function planNewItems(input: PlanInput): PlanResult {
 }
 
 /**
- * Dữ liệu ước tính ngày xong khu Từ vựng Kanji (pace.wordKanjiDays): mỗi từ Kanji chưa mở (N5–N4) kèm vị trí của Kana
- * và các chữ của từ trong hàng chờ mở của khu Kana / Kanji (cấp N5 trước N4, thứ tự như khi mở), và số ngày còn lại
+ * Dữ liệu ước tính ngày xong khu Từ vựng Kanji (pace.wordKanjiDays): mỗi từ Kanji chưa mở (N5–N2) kèm vị trí của Kana
+ * và các chữ của từ trong hàng chờ mở của khu Kana / Kanji (cấp dễ trước, thứ tự như khi mở), và số ngày còn lại
  * của Kana / chữ đã mở mà chưa xong.
  */
 export function wordKanjiPaceRows(input: Pick<PlanInput, 'words' | 'kanji' | 'wordKanji' | 'progress'>, currentLevel: number | null): WordKanjiPace[] {
