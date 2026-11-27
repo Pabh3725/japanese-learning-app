@@ -42,7 +42,7 @@ export default async function GrammarPointPage({ params, searchParams }: { param
         <h2 id="progress-title" className="font-semibold">Your progress</h2>
         <p className="mt-2 text-sm text-subtle">
           {STATUS[p.status]}
-          {p.status === 'learning' && ` · ${p.points} of 40 points`}
+          {p.status === 'learning' && ` · Day ${p.v3Day} of 2`}
           {p.status === 'review' && (p.archived ? ' · not in review' : p.dueAt ? ` · next review ${formatVnDateTime(new Date(p.dueAt))}` : '')}
         </p>
         <div className="mt-4">

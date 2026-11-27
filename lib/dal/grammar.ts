@@ -32,6 +32,7 @@ import { studyDate } from '@/lib/learning/time'
 import type { Outcome } from '@/lib/learning/types'
 import type { Schedule } from '@/lib/srs/scheduler'
 import { readKnownWordIds } from '@/lib/dal/known-words'
+import { v3Today } from '@/lib/dal/grammar-v3'
 
 type Supabase = Awaited<ReturnType<typeof createClient>>
 
@@ -108,7 +109,7 @@ export async function readContent(supabase: Supabase): Promise<GrammarPointConte
 // Tiến độ
 // ---------------------------------------------------------------------------
 
-interface LearnerRow {
+export interface LearnerRow {
   id: string
   point_id: string
   phase: 'learning' | 'review'
@@ -128,9 +129,14 @@ interface LearnerRow {
   archived_at: string | null
   version: number
   created_at: string
+  /** Grammar V3 (migration 20261216000001). */
+  v3_day: 1 | 2
+  v3_day_date: string | null
+  v3_scores: Record<string, { c: number; n: number; d: string }>
+  last_review_round: string | null
 }
 
-const LEARNER_COLUMNS = 'id, point_id, phase, points, points_today, points_date, state, due_at, stability, difficulty, scheduled_days, learning_steps, reps, lapses, last_review_at, completed_at, archived_at, version, created_at'
+const LEARNER_COLUMNS = 'id, point_id, phase, points, points_today, points_date, state, due_at, stability, difficulty, scheduled_days, learning_steps, reps, lapses, last_review_at, completed_at, archived_at, version, created_at, v3_day, v3_day_date, v3_scores, last_review_round'
 
 async function readLearners(supabase: Supabase, userId: string): Promise<LearnerRow[]> {
   const { data, error } = await supabase.from('learner_grammar').select(LEARNER_COLUMNS).eq('user_id', userId).range(0, PAGE - 1)
@@ -138,7 +144,7 @@ async function readLearners(supabase: Supabase, userId: string): Promise<Learner
   return (data ?? []) as LearnerRow[]
 }
 
-interface LogRow {
+export interface LogRow {
   learner_grammar_id: string | null
   point_id: string
   sentence_id: string
@@ -151,7 +157,7 @@ interface LogRow {
   answered_at: string
 }
 
-async function readLogs(supabase: Supabase, userId: string, pointIds?: readonly string[]): Promise<LogRow[]> {
+export async function readLogs(supabase: Supabase, userId: string, pointIds?: readonly string[]): Promise<LogRow[]> {
   const rows: LogRow[] = []
   for (let from = 0; ; from += PAGE) {
     let q = supabase.from('grammar_logs').select('learner_grammar_id, point_id, sentence_id, mode, exercise_type, tier, outcome, round_id, study_date, answered_at').eq('user_id', userId)
@@ -164,7 +170,7 @@ async function readLogs(supabase: Supabase, userId: string, pointIds?: readonly 
   return rows
 }
 
-const scheduleOf = (r: LearnerRow): Schedule => ({
+export const scheduleOf = (r: LearnerRow): Schedule => ({
   state: r.state as Schedule['state'],
   due: new Date(r.due_at),
   stability: r.stability,
@@ -264,6 +270,8 @@ export interface GrammarPointSummary {
   points: number
   /** Mẫu đã học xong nhưng không ôn (đánh dấu "đã biết"). */
   archived: boolean
+  /** Grammar V3: ngày Intro của mẫu đang học. */
+  day?: 1 | 2
 }
 
 export interface GrammarLessonSummary {
@@ -272,6 +280,8 @@ export interface GrammarLessonSummary {
   points: GrammarPointSummary[]
   unlock: LessonUnlock
   done: number
+  /** Grammar V3: bài đã có bài tập V3 (mẫu mới của bài khác chưa mở được). */
+  v3Ready: boolean
 }
 
 export interface GrammarOverview {
@@ -284,7 +294,7 @@ export interface GrammarOverview {
   practicable: string[]
 }
 
-interface Snapshot {
+export interface Snapshot {
   content: GrammarPointContent[]
   learners: LearnerRow[]
   logs: LogRow[]
@@ -324,7 +334,7 @@ function balancedSettings(settings: GrammarSettings, content: readonly GrammarPo
 }
 
 /** Mẫu mới còn mở được hôm nay, theo thứ tự bài và thứ tự trong bài. */
-function freshPoints(snap: Snapshot): GrammarPointContent[] {
+export function freshPoints(snap: Snapshot): GrammarPointContent[] {
   const today = studyDate(new Date())
   const opened = new Set(snap.learners.map((l) => l.point_id))
   const openedToday = snap.learners.filter((l) => studyDate(new Date(l.created_at)) === today).length
@@ -342,12 +352,12 @@ function dueLearning(snap: Snapshot): LearnerRow[] {
   return snap.learners.filter((l) => l.phase === 'learning' && Date.parse(l.due_at) <= now && answeredToday(snap, l.id, 'learning') < GRAMMAR_V1.learning.questionsPerSitting)
 }
 
-function reviewedTodayCount(snap: Snapshot): number {
+export function reviewedTodayCount(snap: Snapshot): number {
   const today = studyDate(new Date())
   return new Set(snap.logs.filter((l) => l.mode === 'review' && l.study_date === today).map((l) => l.point_id)).size
 }
 
-function dueReview(snap: Snapshot): LearnerRow[] {
+export function dueReview(snap: Snapshot): LearnerRow[] {
   const now = Date.now()
   const left = Math.max(0, snap.settings.reviewCap - reviewedTodayCount(snap))
   return snap.learners
@@ -361,6 +371,7 @@ export async function getGrammarOverview(): Promise<GrammarOverview> {
   const supabase = await createClient()
   const snap = await snapshot(supabase, user.id)
   const byPoint = new Map(snap.learners.map((l) => [l.point_id, l]))
+  const v3 = v3Today(snap)
   const lessons: GrammarLessonSummary[] = []
   for (let lesson = 1; lesson <= GRAMMAR_V1.lessons; lesson++) {
     const pts = snap.content.filter((p) => p.lesson === lesson)
@@ -368,14 +379,15 @@ export async function getGrammarOverview(): Promise<GrammarOverview> {
     const unlock = snap.unlock.get(lesson)!
     const points = pts.map((p): GrammarPointSummary => {
       const l = byPoint.get(p.id)
-      return { code: p.code, lesson, pattern: p.pattern, meaning: p.meaning, status: l ? l.phase : unlock.open ? 'new' : 'locked', points: l?.points ?? 0, archived: !!l?.archived_at }
+      const ready = v3.ready.has(p.code)
+      return { code: p.code, lesson, pattern: p.pattern, meaning: p.meaning, status: l ? l.phase : unlock.open && ready ? 'new' : 'locked', points: l?.points ?? 0, archived: !!l?.archived_at, day: v3.days[p.code] }
     })
-    lessons.push({ lesson, level: lesson <= N5_LAST_LESSON ? 'N5' : 'N4', points, unlock, done: points.filter((p) => p.status === 'review').length })
+    lessons.push({ lesson, level: lesson <= N5_LAST_LESSON ? 'N5' : 'N4', points, unlock, done: points.filter((p) => p.status === 'review').length, v3Ready: pts.every((p) => v3.ready.has(p.code)) })
   }
-  const fresh = freshPoints(snap)
+  const fresh = freshPoints(snap).filter((p) => v3.ready.has(p.code))
   return {
     lessons,
-    today: { newLeft: fresh.length, newPoints: fresh.map((p) => p.code), learningDue: dueLearning(snap).length, reviewDue: dueReview(snap).length, reviewedToday: reviewedTodayCount(snap) },
+    today: { newLeft: v3.newLeft, newPoints: fresh.map((p) => p.code), learningDue: v3.learningDue, reviewDue: v3.reviewDue, reviewedToday: reviewedTodayCount(snap) },
     settings: snap.settings,
     testable: lessons.filter((l) => l.points.length > 0 && l.points.every((p) => p.status === 'review')).map((l) => l.lesson),
     practicable: snap.learners.map((l) => snap.content.find((p) => p.id === l.point_id)?.code).filter((c): c is string => !!c),
@@ -397,6 +409,8 @@ export interface GrammarPointDetail {
   examples: { pieces: GrammarPiece[]; meaning: string; context?: { pieces: GrammarPiece[]; meaning: string } }[]
   status: PointStatus
   points: number
+  /** Grammar V3: ngày Intro của mẫu đang học. */
+  v3Day: 1 | 2
   dueAt: string | null
   /** Đã học nhưng không ôn (lưu trữ). */
   archived: boolean
@@ -422,6 +436,7 @@ export async function getGrammarPoint(code: unknown): Promise<GrammarPointDetail
     examples: p.sentences.filter((s) => s.sample).map((s) => ({ pieces: s.pieces, meaning: s.meaning, context: s.prompt ? { pieces: s.prompt.pieces, meaning: s.prompt.meaning } : undefined })),
     status: l ? l.phase : snap.unlock.get(p.lesson)?.open ? 'new' : 'locked',
     points: l?.points ?? 0,
+    v3Day: l?.v3_day === 2 ? 2 : 1,
     dueAt: l?.due_at ?? null,
     archived: !!l?.archived_at,
   }
