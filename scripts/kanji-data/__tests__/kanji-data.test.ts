@@ -79,12 +79,13 @@ describe('Chữ gần giống', () => {
     expect(overlap(a, shapeCells(['M50,5L50,100']))).toBeLessThan(0.3)
   })
 
-  it('trên dữ liệu thật: tìm ra 日/目, 土/士, 大/犬; mỗi chữ không quá 3 cặp', () => {
+  // Từ khi có N3–N2 (2026-11-27), 土 đủ 3 cặp giống hơn nên 土/士 không còn được đề xuất; kiểm tra 王/玉 thay thế
+  it('trên dữ liệu thật: tìm ra 日/目, 王/玉, 大/犬; mỗi chữ không quá 3 cặp', () => {
     const json = JSON.parse(readFileSync(join(process.cwd(), 'data', 'n5', 'kanji_visual.json'), 'utf8')) as { kanji: Record<string, { strokes: string[]; parts: never[] }> }
     const visuals = Object.entries(json.kanji).map(([character, k]) => ({ character, strokes: k.strokes, parts: k.parts, radicalChar: null }))
     const pairs = findSimilarPairs(visuals)
     const has = (a: string, b: string) => pairs.some((p) => (p.a === a && p.b === b) || (p.a === b && p.b === a))
-    expect(has('日', '目') && has('土', '士') && has('大', '犬')).toBe(true)
+    expect(has('日', '目') && has('王', '玉') && has('大', '犬')).toBe(true)
     const per = new Map<string, number>()
     for (const p of pairs) for (const c of [p.a, p.b]) per.set(c, (per.get(c) ?? 0) + 1)
     expect(Math.max(...per.values())).toBeLessThanOrEqual(3)

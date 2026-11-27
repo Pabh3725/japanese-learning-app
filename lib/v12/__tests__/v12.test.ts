@@ -574,6 +574,26 @@ describe('Chọn mục mới hôm nay (plan)', () => {
     expect(planNewItems(withN4).remaining.word_kanji).toBe(1)
   })
 
+  it('N3–N2 (2026-11-27): khu Kanji học tiếp N3 rồi N2; từ N5 có chữ N3 mở ở cấp N3; chữ N1 vẫn chặn', async () => {
+    const { planNewItems } = await import('../plan')
+    const n3 = { id: 'k-ka', character: '可', level: 3, freq: 300, strokes: 5, components: [], radicals: [] }
+    const n2 = { id: 'k-ni', character: '了', level: 2, freq: 900, strokes: 2, components: [], radicals: [] }
+    const n1 = { id: 'k-x', character: '丑', level: 1, freq: null, strokes: 4, components: [], radicals: [] }
+    const done = new Map<string, Progress>([['kanji:k-hi', 'review'], ['kanji:k-me', 'review'], ['radical:72', 'review'], ['radical:109', 'review']])
+    const w3 = { ...words[1], kanji: ['日', '可'] }
+    const w1 = { ...words[2], kanji: ['丑'] }
+    const input = { ...base, kanji: [...kanji, n2, n3, n1], wordKanji: [words[0], w3, w1], progress: done }
+    const r = planNewItems(input)
+    expect(r.levels.kanji).toBe(3)
+    expect(r.open.kanji).toEqual(['k-ka'])
+    // Từ N5 có chữ N3: chỉ từ 日 (N5) còn ở cấp N5; mở hết N5 thì khu Từ vựng Kanji sang N3
+    expect(r.levels.word_kanji).toBe(5)
+    const later = planNewItems({ ...input, progress: new Map<string, Progress>([...done, ['word_kanji:w0', 'review'], ['kanji:k-ka', 'review']]) })
+    expect(later.levels.kanji).toBe(2)
+    expect(later.levels.word_kanji).toBe(3)
+    expect(later.remaining.word_kanji).toBe(1)
+  })
+
   it('cân bằng: chỉ tiêu từ balance, ba khu cùng chia theo số ngày', async () => {
     const { planNewItems } = await import('../plan')
     const r = planNewItems({ ...base, balanceOn: true, target: { kind: 'date', date: addStudyDays(D0, 1) } })

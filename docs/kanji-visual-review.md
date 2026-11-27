@@ -4,8 +4,8 @@ File này do `pnpm kanji:visual` tạo, đừng sửa tay. Nguồn nét viết, 
 
 ## 1. Độ phủ
 
-- Có dữ liệu KanjiVG: 844/844 chữ.
-- Không xác định được bộ thủ: 0.
+- Có dữ liệu KanjiVG: 1109/1109 chữ.
+- Không xác định được bộ thủ: 1 (毒).
 - Số nét: điền thêm 0 chữ còn trống trong kanji.csv; 0 chữ có số nét khác KanjiVG (giữ số trong file): không có.
 
 ## 2. Tên bộ thủ
@@ -14,7 +14,7 @@ Tên tiếng Việt của 214 bộ ở `data/n5/radicals.csv` do Claude soạn, 
 
 ## 3. Cặp chữ gần giống
 
-Script đề xuất 1237 cặp (so hình nét viết trên lưới, số nét chênh ≤ 2, mỗi chữ tối đa 3 cặp). Đã duyệt: 492. Chỉ cặp `approved` = `true` trong `data/n5/kanji_similar.csv` mới được dùng cho câu hỏi.
+Script đề xuất 1741 cặp (so hình nét viết trên lưới, số nét chênh ≤ 2, mỗi chữ tối đa 3 cặp). Đã duyệt: 492. Chỉ cặp `approved` = `true` trong `data/n5/kanji_similar.csv` mới được dùng cho câu hỏi.
 
 20 cặp giống nhất:
 
@@ -34,9 +34,9 @@ Script đề xuất 1237 cặp (so hình nét viết trên lưới, số nét ch
 | 休 体 | 0.978 | 休 (HƯU, nghỉ) và 体 (THỂ, cơ thể). 休 có 6 nét, 体 có 7 nét. Khác ở thành phần: 休 có 木, 体 có 本. |
 | 図 因 | 0.975 | 図 (ĐỒ, bản vẽ; sơ đồ) và 因 (NHÂN, nguyên nhân). 図 có 7 nét, 因 có 6 nét. Khác ở thành phần: 図 có ⺍, 乂, 因 có 大. |
 | 線 練 | 0.975 | 線 (TUYẾN, đường; tuyến) và 練 (LUYỆN, luyện tập). 線 có 15 nét, 練 có 14 nét. Khác ở thành phần: 線 có 泉, 練 có 東. |
+| 渡 演 | 0.974 | 渡 (ĐỘ, băng qua; trao) và 演 (DIỄN, biểu diễn). 渡 có 12 nét, 演 có 14 nét. Khác ở thành phần: 渡 có 度, 演 có 寅. |
 | 間 問 | 0.969 | 間 (GIAN, khoảng giữa; thời gian) và 問 (VẤN, hỏi; vấn đề). 間 có 12 nét, 問 có 11 nét. Khác ở thành phần: 間 có 日, 問 có 口. |
+| 賑 照 | 0.968 | 賑 (CHẨN, náo nhiệt) và 照 (CHIẾU, chiếu sáng). 賑 có 14 nét, 照 có 13 nét. Khác ở thành phần: 賑 có 貝, 辰, 照 có 昭, 灬. |
 | 遅 連 | 0.968 | 遅 (TRÌ, muộn; chậm) và 連 (LIÊN, dẫn theo; liên tiếp). 遅 có 12 nét, 連 có 10 nét. Khác ở thành phần: 遅 có 尸, 羊, 連 có 車. |
-| 温 混 | 0.966 | 温 (ÔN, ấm) và 混 (HỖN, trộn). 温 có 12 nét, 混 có 11 nét. Khác ở thành phần: 温 có 昷, 混 có 昆. |
-| 過 適 | 0.962 | 過 (QUÁ, quá) và 適 (THÍCH, thích hợp). 過 có 12 nét, 適 có 14 nét. Khác ở thành phần: 過 có 咼, 適 có 啇. |
-| 料 科 | 0.959 | 料 (LIỆU, nguyên liệu; phí) và 科 (KHOA, khoa). 料 có 10 nét, 科 có 9 nét. Khác ở thành phần: 料 có 米, 科 có 禾. |
-| 輪 輸 | 0.958 | 輪 (LUÂN, vòng) và 輸 (THÂU, vận chuyển). 輪 có 15 nét, 輸 có 16 nét. Khác ở thành phần: 輪 có 侖, 輸 có 俞. |
+| 照 湿 | 0.967 | 照 (CHIẾU, chiếu sáng) và 湿 (THẤP, ẩm ướt). 照 có 13 nét, 湿 có 12 nét. Khác ở thành phần: 照 có 昭, 灬, 湿 có 氵, 日, 业. |
+| 飼 詞 | 0.967 | 飼 (TỰ, nuôi) và 詞 (TỪ, từ (từ loại)). 飼 có 13 nét, 詞 có 12 nét. Khác ở thành phần: 飼 có 飠, 詞 có 言. |
